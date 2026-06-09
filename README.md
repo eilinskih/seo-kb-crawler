@@ -86,3 +86,40 @@ Heavy generation is not part of this service. Codex remains responsible for code
 - Not an aggressive scraper.
 - Not an article generator.
 - Not a replacement for Codex.
+
+## Foundation development
+
+Requirements:
+
+- Node.js 26.3.0 (use `nvm use`)
+- npm
+- Docker with Compose
+
+Install and validate the workspace:
+
+```bash
+npm install
+npm test
+npm run build
+```
+
+Run the complete local stack:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+The API readiness endpoint is available at `http://localhost:3000/health`.
+
+## Pull request review
+
+Pull requests are reviewed in this order:
+
+1. Automated tests and builds.
+2. CodeRabbit architecture, best-practice, performance and security review.
+3. Human review.
+
+Dependabot checks npm, Docker, Docker Compose and GitHub Actions dependencies
+weekly. CodeRabbit must be installed for this repository in GitHub for
+`.coderabbit.yaml` to take effect.

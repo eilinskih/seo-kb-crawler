@@ -151,3 +151,22 @@ entity extraction -> ontology normalization -> fact extraction -> trust scoring 
 ```
 
 This keeps the system usable on A1502 while allowing deeper knowledge processing over time.
+
+## Foundation runtime
+
+The initial implementation uses one NestJS monorepo with independently runnable applications:
+
+```txt
+apps/api
+apps/crawler-worker
+packages/common
+packages/db
+```
+
+PostgreSQL is the source of truth. The local PostgreSQL service uses the pgvector image and enables the `vector` extension at initialization so later embedding work does not require replacing the database runtime.
+
+Redis is queue infrastructure only. BullMQ owns background job transport, while queue names and connection parsing live in `packages/common`. Domain behavior remains in application or future domain packages.
+
+The API exposes `GET /health` as a readiness endpoint. It verifies PostgreSQL and Redis connectivity and returns an unavailable response if either dependency cannot be reached.
+
+See `docs/decisions/0001-foundation.md` for the Issue #1 decisions and consequences.

@@ -22,6 +22,9 @@ The objective is to help Codex produce better SEO pages, content plans, research
 8. Embeddings are an index, not the source of truth.
 9. Canonical facts must go through the ontology registry.
 10. Retrieval quality is more important than model sophistication.
+11. Every pull request must pass CodeRabbit review before human review.
+12. Resolve or explicitly document architecture, performance and security findings.
+13. Review Dependabot updates with the same tests and architecture constraints.
 
 ## Required implementation sequence
 
@@ -82,6 +85,27 @@ An issue becomes Done only when:
 - tests exist
 - docs exist
 - progress.md updated
+- CodeRabbit review completed
+- architecture, performance and security findings resolved or accepted
 - human review completed
 
 Until then use status: Review needed.
+
+## Review sequence
+
+```txt
+implementation
+  -> tests and builds
+  -> CodeRabbit automated review
+  -> fix or document findings
+  -> human review
+  -> Done
+```
+
+CodeRabbit is configured in `.coderabbit.yaml` with path-specific instructions
+for NestJS applications, BullMQ workers, shared packages, PostgreSQL, container
+infrastructure and architecture documentation.
+
+Dependabot is configured in `.github/dependabot.yml` for npm, Docker, Docker
+Compose and GitHub Actions. Dependency pull requests do not bypass issue
+sequencing or human review.

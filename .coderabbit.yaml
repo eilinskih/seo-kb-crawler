@@ -1,0 +1,102 @@
+language: en-US
+early_access: false
+
+tone_instructions: >-
+  Be direct, technical, and evidence-driven. Prioritize correctness over style.
+  Report only actionable findings and explain the concrete impact.
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: true
+  review_status: true
+  commit_status: true
+  fail_commit_status: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    - "!dist/**"
+    - "!coverage/**"
+    - "!node_modules/**"
+    - "!package-lock.json"
+
+  path_instructions:
+    - path: "apps/**/*.ts"
+      instructions: |
+        Review NestJS application boundaries, dependency injection scopes,
+        lifecycle cleanup, configuration validation, error handling, and
+        graceful shutdown. Flag blocking I/O, unbounded concurrency, leaked
+        clients, unsafe logging, and HTTP endpoints that expose internals.
+        Applications may orchestrate domain packages but must not absorb
+        reusable domain logic.
+
+    - path: "apps/crawler-worker/**/*.ts"
+      instructions: |
+        Review BullMQ behavior for idempotency, bounded retries, backoff,
+        timeouts, concurrency, stalled jobs, duplicate delivery, and graceful
+        shutdown. Flag any crawling behavior introduced before its roadmap
+        issue or any job payload trusted without validation.
+
+    - path: "packages/common/**/*.ts"
+      instructions: |
+        Keep this package transport-neutral and dependency-light. Flag secrets
+        in configuration objects, permissive environment parsing, unstable
+        shared contracts, vendor-specific domain abstractions, and imports from
+        applications or database implementation details.
+
+    - path: "packages/db/**/*.ts"
+      instructions: |
+        Treat PostgreSQL as the source of truth. Review parameterization,
+        transaction boundaries, connection pool lifecycle, timeouts, indexes,
+        migration safety, query performance, and accidental exposure of
+        credentials or raw database errors. Flag SQL injection and unbounded
+        result sets.
+
+    - path: "{Dockerfile,docker-compose.yml,infrastructure/docker/**}"
+      instructions: |
+        Review container least privilege, reproducible image versions, build
+        context size, secret handling, network exposure, persistent data,
+        resource use, healthchecks, and safe PostgreSQL initialization. Flag
+        privileged execution, embedded credentials, unnecessary ports, and
+        destructive or non-idempotent initialization.
+
+    - path: "docs/**/*.md"
+      instructions: |
+        Check architectural consistency with docs/architecture.md and issue
+        sequencing in docs/codex-workflow.md. Architecture changes require a
+        decision record. Do not accept progress that starts a later issue
+        before the current issue has human approval.
+
+  tools:
+    eslint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    hadolint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    sqlfluff:
+      enabled: true
+    opengrep:
+      enabled: true
+    semgrep:
+      enabled: true
+    trivy:
+      enabled: true
+    dotenvLint:
+      enabled: true
