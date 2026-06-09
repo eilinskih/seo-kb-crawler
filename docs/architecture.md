@@ -1,0 +1,153 @@
+# Architecture Overview
+
+SEO KB Crawler is a private, local-first SEO knowledge-base system for Codex.
+
+The system is not a SaaS, not a public search engine and not an article generator. Its primary role is to collect, normalize, enrich and package knowledge so Codex can generate better SEO pages, research briefs and content plans.
+
+## Core pipeline
+
+```txt
+Topics
+  -> Discovery Sources
+  -> URL Frontier
+  -> Crawler Worker
+  -> Content Processing
+  -> Chunking Engine
+  -> Embedding Pipeline
+  -> Hybrid Retrieval
+  -> Entity and Alias Layer
+  -> Ontology and Predicate Registry
+  -> Fact Extraction
+  -> Trust and Evidence Scoring
+  -> SEO Consensus
+  -> SERP Intelligence
+  -> Knowledge Pack Builder
+  -> Codex Context Pack API
+  -> Codex
+```
+
+## Design principles
+
+1. Codex is the primary consumer.
+2. Local registry decides; external providers enrich.
+3. Embeddings are an index, not the source of truth.
+4. Raw HTML, Markdown, plain text and chunks must remain available for reprocessing.
+5. Canonical facts must reference the ontology and predicate registry.
+6. Knowledge Packs explain what is known.
+7. SERP Packs explain how search results present the topic.
+8. SEO output should never rely on retrieval chunks alone.
+
+## Core layers
+
+### Data collection
+
+- Topic Engine
+- Discovery Sources
+- URL Frontier
+- Crawler Worker
+
+### Document normalization
+
+- Content Processing Pipeline
+- Document versioning
+- Metadata extraction
+- Structured data extraction
+- Language and geo hints
+
+### Semantic indexing
+
+- Chunking Engine
+- Embedding Pipeline
+- Hybrid Retrieval Engine
+
+### Knowledge layer
+
+- Entity and Alias Layer
+- External Entity Enrichment Providers
+- Ontology and Predicate Registry
+- Fact Extraction Worker
+- Source Trust and Evidence Scoring
+- SEO Consensus and Conflict Layer
+
+### SEO intelligence layer
+
+- SERP Intelligence Layer
+- Topic Expansion Engine
+- SEO Page Candidate Scoring
+- Codex SEO Pack Generator
+
+### Codex integration layer
+
+- Context Pack API
+- Knowledge Pack Builder
+- SERP Pack Builder
+
+## Universal core, vertical-specific extension
+
+The system must not be tied to gambling or any single niche.
+
+Universal core:
+
+```txt
+topic
+document
+chunk
+language
+geo
+entity
+alias
+predicate
+attribute
+source
+evidence
+intent
+```
+
+Vertical-specific layers may define optional entities, predicates and content tags:
+
+```txt
+gambling: provider, bonus, RTP, demo mode, payment method
+automotive: brand, model, engine, part, symptom, OEM
+legal: law, article, institution, procedure, deadline
+ecommerce: product, category, feature, price, review
+travel: destination, season, visa, hotel, attraction
+software: library, API, version, framework, error, package
+```
+
+## Storage strategy
+
+Hot data:
+
+- documents
+- document_versions metadata
+- chunks
+- embeddings
+- entities
+- aliases
+- canonical facts
+- evidence links
+- SERP snapshots
+
+Cold or compressed data:
+
+- raw HTML
+- historical document versions
+- old crawl artifacts
+
+Raw HTML should be compressed, preferably gzip or equivalent, because it will become one of the largest storage consumers.
+
+## Processing strategy
+
+Mandatory fast path:
+
+```txt
+crawl -> process -> chunk -> embed -> retrieve -> context pack
+```
+
+Eventually consistent background path:
+
+```txt
+entity extraction -> ontology normalization -> fact extraction -> trust scoring -> consensus -> SERP intelligence
+```
+
+This keeps the system usable on A1502 while allowing deeper knowledge processing over time.
