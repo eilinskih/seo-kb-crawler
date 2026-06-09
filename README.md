@@ -35,7 +35,7 @@ Heavy generation is not part of this service. Codex remains responsible for code
 
 - TypeScript
 - Node.js
-- Fastify
+- NestJS
 - PostgreSQL
 - pgvector
 - Redis
@@ -48,7 +48,7 @@ Heavy generation is not part of this service. Codex remains responsible for code
 ## Initial apps
 
 ```txt
-/apps/api-server
+/apps/api
 /apps/crawler-worker
 /apps/embedding-worker
 /apps/extraction-worker
