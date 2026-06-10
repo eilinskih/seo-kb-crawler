@@ -1,6 +1,6 @@
 import { Topic } from './domain/topic';
 import { TopicConflictError } from './domain/topic-errors';
-import { TopicSnapshot } from './domain/topic-types';
+import { TopicSnapshot, TopicStatus } from './domain/topic-types';
 import { TopicRepository } from './persistence/topic.repository';
 import { TopicService } from './topic.service';
 import { validTopicInput } from './testing/topic.fixture';
@@ -81,7 +81,7 @@ class InMemoryTopicRepository implements TopicRepository {
     );
   }
 
-  update(topic: Topic): Promise<void> {
+  updateLifecycle(topic: Topic, _expectedStatus: TopicStatus): Promise<void> {
     this.topics.set(topic.toRecord().id, Topic.rehydrate(topic.toRecord()));
     return Promise.resolve();
   }
@@ -89,6 +89,8 @@ class InMemoryTopicRepository implements TopicRepository {
   updateWithSnapshot(
     topic: Topic,
     snapshot: TopicSnapshot,
+    _expectedConfigurationVersion: number,
+    _expectedStatus: TopicStatus,
   ): Promise<void> {
     this.topics.set(topic.toRecord().id, Topic.rehydrate(topic.toRecord()));
     this.saveSnapshot(snapshot);

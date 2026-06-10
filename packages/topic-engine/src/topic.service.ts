@@ -52,11 +52,13 @@ export class TopicService {
     input: ReplaceTopicConfigurationInput,
   ): Promise<TopicRecord> {
     const topic = await this.requireTopic(id);
+    const expectedStatus = topic.toRecord().status;
     const snapshot = topic.replaceConfiguration(input);
     await this.repository.updateWithSnapshot(
       topic,
       snapshot,
       input.expectedConfigurationVersion,
+      expectedStatus,
     );
     return topic.toRecord();
   }
@@ -82,8 +84,9 @@ export class TopicService {
     apply: (topic: Topic) => void,
   ): Promise<TopicRecord> {
     const topic = await this.requireTopic(id);
+    const expectedStatus = topic.toRecord().status;
     apply(topic);
-    await this.repository.update(topic);
+    await this.repository.updateLifecycle(topic, expectedStatus);
     return topic.toRecord();
   }
 

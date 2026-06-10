@@ -83,4 +83,25 @@ describe('Topic', () => {
     contradictory.relevanceProfile.excludedTerms = ['SEO'];
     expect(() => Topic.create(contradictory)).toThrow(TopicValidationError);
   });
+
+  it('rejects private discovery URLs and malformed runtime fields', () => {
+    const privateSeed = validTopicInput();
+    privateSeed.discovery.seeds = {
+      enabled: true,
+      urls: ['http://127.0.0.1/admin'],
+    };
+    expect(() => Topic.create(privateSeed)).toThrow(TopicValidationError);
+
+    const incompleteWeights = validTopicInput();
+    incompleteWeights.relevanceProfile.fieldWeights = {
+      url: 1,
+    } as typeof incompleteWeights.relevanceProfile.fieldWeights;
+    expect(() => Topic.create(incompleteWeights)).toThrow(TopicValidationError);
+
+    const invalidDescription = {
+      ...validTopicInput(),
+      description: 123,
+    } as unknown as ReturnType<typeof validTopicInput>;
+    expect(() => Topic.create(invalidDescription)).toThrow(TopicValidationError);
+  });
 });

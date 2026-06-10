@@ -418,6 +418,18 @@ function normalizeRelevanceProfile(input: RelevanceProfile): RelevanceProfile {
     }
   }
 
+  const fieldWeightKeys = ['url', 'title', 'headings', 'body', 'anchorText'];
+  const suppliedFieldWeightKeys = Object.keys(input.fieldWeights);
+  if (
+    suppliedFieldWeightKeys.length !== fieldWeightKeys.length ||
+    fieldWeightKeys.some((key) => !suppliedFieldWeightKeys.includes(key)) ||
+    suppliedFieldWeightKeys.some((key) => !fieldWeightKeys.includes(key))
+  ) {
+    throw new TopicValidationError(
+      `fieldWeights must contain exactly: ${fieldWeightKeys.join(', ')}`,
+    );
+  }
+
   const fieldWeights = input.fieldWeights;
   const weightTotal = Object.values(fieldWeights).reduce(
     (total, value) => total + value,
@@ -559,7 +571,13 @@ function normalizeOptionalText(
   field: string,
   max: number,
 ): string | null {
-  if (value === null || value === undefined || value.trim() === '') {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value !== 'string') {
+    throw new TopicValidationError(`${field} must be a string`);
+  }
+  if (value.trim() === '') {
     return null;
   }
   return normalizeBoundedText(value, field, 1, max);
@@ -580,6 +598,7 @@ function normalizeUrls(values: string[], field: string, max: number): string[] {
       if (!['http:', 'https:'].includes(url.protocol)) {
         throw new TopicValidationError(`${field} only supports HTTP(S) URLs`);
       }
+      assertSafeUrlHost(url.hostname, field);
       url.hash = '';
       return url.toString();
     }),
@@ -587,6 +606,53 @@ function normalizeUrls(values: string[], field: string, max: number): string[] {
   );
   assertCollectionSize(normalized, field, 0, max);
   return normalized;
+}
+
+function assertSafeUrlHost(hostname: string, field: string): void {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '');
+  if (
+    host === 'localhost' ||
+    host.endsWith('.localhost') ||
+    isPrivateIpv4(host) ||
+    isPrivateIpv6(host)
+  ) {
+    throw new TopicValidationError(`Unsafe private host in ${field}: ${hostname}`);
+  }
+}
+
+function isPrivateIpv4(host: string): boolean {
+  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!match) {
+    return false;
+  }
+
+  const octets = match.slice(1).map(Number);
+  if (octets.some((octet) => octet > 255)) {
+    return true;
+  }
+
+  const [first, second] = octets;
+  return (
+    first === 0 ||
+    first === 10 ||
+    first === 127 ||
+    (first === 169 && second === 254) ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 168) ||
+    first >= 224
+  );
+}
+
+function isPrivateIpv6(host: string): boolean {
+  return (
+    host === '::' ||
+    host === '::1' ||
+    /^fe[89ab][0-9a-f]:/i.test(host) ||
+    /^f[cd][0-9a-f]{2}:/i.test(host) ||
+    /^::ffff:(?:0:)?(?:10\.|127\.|169\.254\.|172\.(?:1[6-9]|2\d|3[01])\.|192\.168\.)/i.test(
+      host,
+    )
+  );
 }
 
 function normalizeHosts(

@@ -80,19 +80,14 @@ export class KnexTopicRepository implements TopicRepository {
     return rows.map((row) => Topic.rehydrate(toTopicRecord(row)));
   }
 
-  async update(
+  async updateLifecycle(
     topic: Topic,
-    expectedConfigurationVersion?: number,
+    expectedStatus: TopicStatus,
   ): Promise<void> {
     const record = topic.toRecord();
-    let query = this.db.knex<TopicRow>('topics').where({ id: record.id });
-    if (expectedConfigurationVersion !== undefined) {
-      query = query.andWhere({
-        configuration_version: expectedConfigurationVersion,
-      });
-    }
-
-    const updated = await query.update(toTopicUpdate(record));
+    const updated = await this.db.knex<TopicRow>('topics')
+      .where({ id: record.id, status: expectedStatus })
+      .update(toLifecycleUpdate(record));
     if (updated !== 1) {
       throw new TopicConflictError('Topic was modified concurrently');
     }
@@ -102,6 +97,7 @@ export class KnexTopicRepository implements TopicRepository {
     topic: Topic,
     snapshot: TopicSnapshot,
     expectedConfigurationVersion: number,
+    expectedStatus: TopicStatus,
   ): Promise<void> {
     await this.db.knex.transaction(async (transaction) => {
       const record = topic.toRecord();
@@ -109,8 +105,9 @@ export class KnexTopicRepository implements TopicRepository {
         .where({
           id: record.id,
           configuration_version: expectedConfigurationVersion,
+          status: expectedStatus,
         })
-        .update(toTopicUpdate(record));
+        .update(toConfigurationUpdate(record));
 
       if (updated !== 1) {
         throw new TopicConflictError('Topic was modified concurrently');
@@ -174,10 +171,29 @@ function toTopicRow(record: TopicRecord): TopicRow {
   };
 }
 
-function toTopicUpdate(record: TopicRecord): Partial<TopicRow> {
-  const { id: _id, slug: _slug, created_at: _createdAt, ...update } =
-    toTopicRow(record);
-  return update;
+function toConfigurationUpdate(record: TopicRecord): Partial<TopicRow> {
+  return {
+    name: record.name,
+    description: record.description,
+    configuration_version: record.configurationVersion,
+    discovery: record.discovery,
+    language_geo: record.languageGeo,
+    crawl_policy: record.crawlPolicy,
+    relevance_profile: record.relevanceProfile,
+    intent_profile: record.intentProfile,
+    crawl_policy_fingerprint: record.crawlPolicyFingerprint,
+    relevance_profile_fingerprint: record.relevanceProfileFingerprint,
+    updated_at: record.updatedAt,
+  };
+}
+
+function toLifecycleUpdate(record: TopicRecord): Partial<TopicRow> {
+  return {
+    status: record.status,
+    updated_at: record.updatedAt,
+    activated_at: record.activatedAt,
+    archived_at: record.archivedAt,
+  };
 }
 
 function toTopicRecord(row: TopicRow): TopicRecord {
