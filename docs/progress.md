@@ -29,7 +29,7 @@ Codex must update this file whenever it starts, advances or completes an issue.
 
 | Issue | Title | Status | Notes |
 |---|---|---|---|
-| #1 | Foundation: Monorepo bootstrap and local infrastructure | Review needed | Implementation, tests and architecture documentation are ready for human review. |
+| #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Not started | Depends on #1. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Not started | Depends on #1 and #2. |
 | #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
@@ -55,6 +55,26 @@ Codex must update this file whenever it starts, advances or completes an issue.
 
 Add entries here in reverse chronological order.
 
+Date: 2026-06-10
+Issue: #1
+Status: Done
+Summary:
+- Human review completed.
+- Final review changes use Node.js 24.16.0 LTS and clarify future worker status.
+- The complete Compose stack and BullMQ delivery were verified before shutdown.
+Changed files:
+- .nvmrc
+- Dockerfile
+- README.md
+- docker-compose.yml
+- docs/codex-workflow.md
+- docs/decisions/0001-foundation.md
+- docs/progress.md
+- package.json
+- package-lock.json
+Next step:
+- Start Issue #2 design in its dedicated branch.
+
 Date: 2026-06-09
 Issue: #1
 Status: Review needed
@@ -62,14 +82,23 @@ Summary:
 - Added CodeRabbit as an automated review gate focused on architecture, best
   practices, performance and security vulnerabilities.
 - Added Dependabot coverage for npm, Docker, Docker Compose and GitHub Actions.
-- Pinned Node.js 26.3.0 in `.nvmrc`, package engines and container images.
+- Pinned Node.js 24.16.0 LTS in `.nvmrc`, package engines and container images.
+- Clarified that embedding and extraction workers are planned but not part of
+  the Issue #1 implementation.
 - Added the automated-review-before-human-review workflow and PR checklist.
+- Built and started the complete Docker Compose stack successfully.
+- Verified API readiness from the host, PostgreSQL 16.14, pgvector 0.8.2,
+  Redis PONG, Node.js 24.16.0 in both app containers and a completed BullMQ
+  smoke-test job.
+- Fixed the API container healthcheck to use IPv4 explicitly after the live
+  run exposed Alpine resolving `localhost` to IPv6.
 - Added the NestJS monorepo with API and crawler worker applications.
 - Added shared common and PostgreSQL packages, BullMQ queue wiring, pgvector and Redis infrastructure.
 - Added a dependency-aware API healthcheck, tests, environment template and Docker Compose runtime.
 - Documented the foundation architecture in ADR 0001 and updated the architecture overview.
 - Verified 4 tests, both production builds, Compose configuration and diff formatting.
-- Live Compose startup was not verified because the local Docker daemon was not running.
+- The Compose stack was stopped after successful review validation; its
+  PostgreSQL volume was preserved.
 Changed files:
 - .coderabbit.yaml
 - .github/dependabot.yml
@@ -91,8 +120,7 @@ Changed files:
 - docs/decisions/0001-foundation.md
 - docs/progress.md
 Next step:
-- Run CodeRabbit review, resolve or accept its findings, then complete human
-  review of Issue #1. Do not begin Issue #2 until approved.
+- Complete human review of Issue #1.
 
 Date: 2026-06-09
 Issue: #1

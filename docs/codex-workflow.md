@@ -25,6 +25,8 @@ The objective is to help Codex produce better SEO pages, content plans, research
 11. Every pull request must pass CodeRabbit review before human review.
 12. Resolve or explicitly document architecture, performance and security findings.
 13. Review Dependabot updates with the same tests and architecture constraints.
+14. Use one dedicated branch per issue, named `issue/<number>-<short-name>`.
+15. Do not begin the next issue from an unreviewed or unmerged issue branch.
 
 ## Required implementation sequence
 
