@@ -44,6 +44,15 @@
       "compilerOptions": {
         "tsConfigPath": "packages/db/tsconfig.lib.json"
       }
+    },
+    "topic-engine": {
+      "type": "library",
+      "root": "packages/topic-engine",
+      "entryFile": "index",
+      "sourceRoot": "packages/topic-engine/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/topic-engine/tsconfig.lib.json"
+      }
     }
   }
 }

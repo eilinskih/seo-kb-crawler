@@ -16,5 +16,6 @@ module.exports = {
   moduleNameMapper: {
     '^@seo-kb/common$': '<rootDir>/packages/common/src',
     '^@seo-kb/db$': '<rootDir>/packages/db/src',
+    '^@seo-kb/topic-engine$': '<rootDir>/packages/topic-engine/src',
   },
 };

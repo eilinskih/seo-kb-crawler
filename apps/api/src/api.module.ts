@@ -8,8 +8,10 @@ import {
   validateEnvironment,
 } from '@seo-kb/common';
 import { DbModule } from '@seo-kb/db';
+import { TopicEngineModule } from '@seo-kb/topic-engine';
 import { HealthController } from './health/health.controller';
 import { InfrastructureHealthService } from './health/infrastructure-health.service';
+import { TopicsController } from './topics/topics.controller';
 
 @Module({
   imports: [
@@ -27,8 +29,9 @@ import { InfrastructureHealthService } from './health/infrastructure-health.serv
       }),
     }),
     BullModule.registerQueue({ name: CRAWL_QUEUE_NAME }),
+    TopicEngineModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, TopicsController],
   providers: [InfrastructureHealthService],
 })
 export class ApiModule {}

@@ -61,17 +61,17 @@ Planned for later roadmap issues and not implemented yet:
 /apps/extraction-worker
 ```
 
-Current shared packages:
+Current shared and domain packages:
 
 ```txt
 /packages/db
 /packages/common
+/packages/topic-engine
 ```
 
 Planned domain packages:
 
 ```txt
-/packages/topic-engine
 /packages/crawler
 /packages/chunking
 /packages/embeddings
@@ -127,6 +127,23 @@ docker compose up --build
 ```
 
 The API readiness endpoint is available at `http://localhost:3000/health`.
+
+Issue #2 adds the Topic Engine API:
+
+```txt
+POST /topics
+GET  /topics
+GET  /topics/:id
+PUT  /topics/:id/configuration
+GET  /topics/:id/snapshots/:version
+POST /topics/:id/activate
+POST /topics/:id/pause
+POST /topics/:id/resume
+POST /topics/:id/archive
+```
+
+Topic configuration changes use `expectedConfigurationVersion` for optimistic
+concurrency and persist immutable snapshots for downstream URL Frontier work.
 
 Node.js 24 LTS is used instead of Node.js 26 Current because this service is
 intended to run continuously on a secondary machine. LTS provides a longer
