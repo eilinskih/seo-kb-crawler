@@ -45,15 +45,32 @@ Heavy generation is not part of this service. Codex remains responsible for code
 - Local multilingual embedding model
 - Optional local extraction model
 
-## Initial apps
+## Application roadmap
+
+Implemented in Issue #1:
 
 ```txt
 /apps/api
 /apps/crawler-worker
+```
+
+Planned for later roadmap issues and not implemented yet:
+
+```txt
 /apps/embedding-worker
 /apps/extraction-worker
+```
 
+Current shared packages:
+
+```txt
 /packages/db
+/packages/common
+```
+
+Planned domain packages:
+
+```txt
 /packages/topic-engine
 /packages/crawler
 /packages/chunking
@@ -61,7 +78,6 @@ Heavy generation is not part of this service. Codex remains responsible for code
 /packages/extraction
 /packages/retrieval
 /packages/context-pack
-/packages/common
 
 /infrastructure/docker
 /docs
@@ -91,7 +107,7 @@ Heavy generation is not part of this service. Codex remains responsible for code
 
 Requirements:
 
-- Node.js 26.3.0 (use `nvm use`)
+- Node.js 24.16.0 LTS (use `nvm use`)
 - npm
 - Docker with Compose
 
@@ -111,6 +127,11 @@ docker compose up --build
 ```
 
 The API readiness endpoint is available at `http://localhost:3000/health`.
+
+Node.js 24 LTS is used instead of Node.js 26 Current because this service is
+intended to run continuously on a secondary machine. LTS provides a longer
+support window and lower dependency compatibility risk while retaining a
+modern runtime.
 
 ## Pull request review
 

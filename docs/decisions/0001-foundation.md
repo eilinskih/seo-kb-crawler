@@ -19,11 +19,13 @@ Use a single NestJS monorepo with:
 - PostgreSQL 16 from the pgvector image, with the `vector` extension enabled during first database initialization.
 - Redis 7 and BullMQ for background queue transport.
 - Docker Compose for the complete local runtime, with persistent PostgreSQL data and dependency healthchecks.
-- Node.js `26.3.0` pinned through `.nvmrc` and container base images.
+- Node.js `24.16.0` LTS pinned through `.nvmrc` and container base images.
 - CodeRabbit as the automated pull request review gate before human review.
 - Dependabot for npm, Docker, Docker Compose and GitHub Actions updates.
 
 The API health endpoint checks both PostgreSQL and Redis. It returns HTTP 503 when either dependency is unavailable so container and operator health signals reflect actual readiness.
+The container healthcheck targets `127.0.0.1` explicitly because the API binds
+to IPv4 and Alpine resolves `localhost` to IPv6 first.
 
 The crawler worker registers the `crawl` queue and logs jobs, but does not crawl pages. Crawl behavior belongs to Issue #5.
 
@@ -38,3 +40,7 @@ The crawler worker registers the `crawl` queue and logs jobs, but does not crawl
   security, with path-specific rules matching the monorepo boundaries.
 - Dependency updates arrive as reviewable pull requests instead of silently
   changing the local runtime.
+- The runtime follows the active Node.js LTS line rather than the Current line.
+  This favors long-term support and ecosystem compatibility for an always-on
+  local service. Minor and patch LTS upgrades remain explicit reviewable
+  changes.
