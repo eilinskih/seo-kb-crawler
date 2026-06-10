@@ -46,6 +46,10 @@ Topics
 - URL Frontier
 - Crawler Worker
 
+The proposed Topic Engine aggregate and configuration contracts are documented
+in `docs/topic-model.md`. Implementation is blocked until that design receives
+human review.
+
 ### Document normalization
 
 - Content Processing Pipeline

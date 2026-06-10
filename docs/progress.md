@@ -30,7 +30,7 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Not started | Depends on #1. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | In progress | Design document is awaiting review before implementation. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Not started | Depends on #1 and #2. |
 | #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
@@ -54,6 +54,23 @@ Codex must update this file whenever it starts, advances or completes an issue.
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-06-10
+Issue: #2
+Status: In progress
+Summary:
+- Created the dedicated `issue/2-topic-engine` branch.
+- Designed the Topic aggregate and lifecycle.
+- Designed discovery, language/geo, crawl policy and relevance profile models.
+- Defined boundaries with URL Frontier, Discovery Sources and Crawler Worker.
+- Deferred all implementation until `docs/topic-model.md` receives review.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/topic-model.md
+Next step:
+- Human review of `docs/topic-model.md`; do not write Topic Engine code before
+  approval.
 
 Date: 2026-06-10
 Issue: #1
