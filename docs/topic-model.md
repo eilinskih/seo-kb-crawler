@@ -1,6 +1,6 @@
 # Topic Engine Model
 
-- Status: Architecture review passed; awaiting PR merge
+- Status: Design approved; implementation deferred pending Issue #3 design
 - Issue: #2
 - Date: 2026-06-10
 

@@ -8,6 +8,7 @@ Codex must update this file whenever it starts, advances or completes an issue.
 
 - Not started
 - In progress
+- Design approved
 - Blocked
 - Review needed
 - Done
@@ -16,22 +17,23 @@ Codex must update this file whenever it starts, advances or completes an issue.
 
 1. Work on one issue at a time unless explicitly instructed otherwise.
 2. Before starting an issue, update its status to `In progress`.
-3. When the implementation is complete, update status to `Review needed`, not `Done`.
-4. Use `Done` only after human/architect review.
-5. Add a short progress note for meaningful implementation steps.
-6. If blocked, set status to `Blocked` and explain why.
-7. Do not skip architectural docs when the issue requires them.
-8. Do not introduce new major architecture without updating docs.
-9. Do not generate SEO content directly from retrieval chunks alone.
-10. Codex-facing outputs should use Knowledge Pack + SERP Pack when available.
+3. Use `Design approved` when design review is complete but implementation is deferred.
+4. When implementation or a design-only issue is ready for review, use `Review needed`.
+5. Use `Done` only after both required design and implementation reviews.
+6. Add a short progress note for meaningful implementation steps.
+7. If blocked, set status to `Blocked` and explain why.
+8. Do not skip architectural docs when the issue requires them.
+9. Do not introduce new major architecture without updating docs.
+10. Do not generate SEO content directly from retrieval chunks alone.
+11. Codex-facing outputs should use Knowledge Pack + SERP Pack when available.
 
 ## Current roadmap
 
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Review needed | Architecture review passed; awaiting PR #27 merge and final review. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Not started | Depends on #1 and #2. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Design approved | PR #27 merged; implementation deferred until Issue #3 design review. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Design documentation is ready for architecture review. |
 | #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
@@ -54,6 +56,41 @@ Codex must update this file whenever it starts, advances or completes an issue.
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-06-10
+Issue: #3
+Status: Review needed
+Summary:
+- Created the dedicated `issue/3-url-frontier-design` branch.
+- Designed Frontier identity, candidate and crawl lifecycles.
+- Defined normalization, canonicalization and three-stage deduplication.
+- Designed priority, relevance, freshness, recrawl and atomic lease models.
+- Defined Topic snapshot integration and boundaries with Discovery Sources and
+  Crawler Worker.
+- Identified Topic contract adjustments to apply when Issue #2 implementation
+  resumes.
+- Added no URL Frontier, Topic Engine, Discovery Sources or crawler code.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/topic-model.md
+- docs/url-frontier-model.md
+Next step:
+- Architecture review of `docs/url-frontier-model.md`. Do not implement Topic
+  Engine or URL Frontier before this design is approved.
+
+Date: 2026-06-10
+Issue: #2
+Status: Design approved
+Summary:
+- PR #27 merged into `main`.
+- Topic Engine architecture and ADR 0002 are approved.
+- Implementation is intentionally deferred until Issue #3 design review can
+  refine Topic snapshot and crawl policy contracts.
+Changed files:
+- docs/progress.md
+Next step:
+- Review Issue #3 design, then return to Issue #2 implementation.
 
 Date: 2026-06-10
 Issue: #2
@@ -173,7 +210,7 @@ Next step:
 ```txt
 Date: YYYY-MM-DD
 Issue: #N
-Status: In progress / Blocked / Review needed / Done
+Status: In progress / Design approved / Blocked / Review needed / Done
 Summary:
 - ...
 Changed files:

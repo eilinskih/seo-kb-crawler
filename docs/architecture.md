@@ -47,11 +47,16 @@ Topics
 - Crawler Worker
 
 The proposed Topic Engine aggregate and configuration contracts are documented
-in `docs/topic-model.md`. Architecture review has passed; implementation
-remains deferred while PR #27 awaits merge and final review.
+in `docs/topic-model.md`. Its design is approved, while implementation remains
+deferred until the URL Frontier design identifies required contract changes.
 
 NestJS package boundaries and the planned Knex persistence strategy are defined
 in `docs/decisions/0002-nestjs-monorepo-knex.md`.
+
+The proposed URL Frontier identity, lifecycle, scheduling and integration
+contracts are documented in `docs/url-frontier-model.md`. Topic Engine
+implementation remains deferred until the Frontier design identifies any
+required contract adjustments.
 
 ### Document normalization
 
