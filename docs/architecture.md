@@ -47,8 +47,11 @@ Topics
 - Crawler Worker
 
 The proposed Topic Engine aggregate and configuration contracts are documented
-in `docs/topic-model.md`. Implementation is blocked until that design receives
-human review.
+in `docs/topic-model.md`. Architecture review has passed; implementation
+remains deferred while PR #27 awaits merge and final review.
+
+NestJS package boundaries and the planned Knex persistence strategy are defined
+in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 ### Document normalization
 

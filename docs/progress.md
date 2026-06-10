@@ -30,7 +30,7 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | In progress | Design document is awaiting review before implementation. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Review needed | Architecture review passed; awaiting PR #27 merge and final review. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Not started | Depends on #1 and #2. |
 | #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
@@ -57,6 +57,25 @@ Add entries here in reverse chronological order.
 
 Date: 2026-06-10
 Issue: #2
+Status: Review needed
+Summary:
+- Architecture review passed.
+- Added ADR 0002 for NestJS monorepo boundaries and the planned Knex strategy.
+- Added an optional intent profile for future SERP Intelligence and SEO Pack
+  generation.
+- Rebased the issue branch onto current `main` without carrying stale
+  dependency versions.
+- No Topic Engine implementation code was added.
+Changed files:
+- docs/architecture.md
+- docs/decisions/0002-nestjs-monorepo-knex.md
+- docs/progress.md
+- docs/topic-model.md
+Next step:
+- Merge and review PR #27. Do not start Issue #3 before the PR is merged.
+
+Date: 2026-06-10
+Issue: #2
 Status: In progress
 Summary:
 - Created the dedicated `issue/2-topic-engine` branch.
@@ -69,8 +88,7 @@ Changed files:
 - docs/progress.md
 - docs/topic-model.md
 Next step:
-- Human review of `docs/topic-model.md`; do not write Topic Engine code before
-  approval.
+- Complete architecture review of `docs/topic-model.md`.
 
 Date: 2026-06-10
 Issue: #1

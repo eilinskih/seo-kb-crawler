@@ -1,6 +1,6 @@
 # Topic Engine Model
 
-- Status: Proposed for review
+- Status: Architecture review passed; awaiting PR merge
 - Issue: #2
 - Date: 2026-06-10
 
@@ -22,6 +22,7 @@ The Topic Engine owns:
 - Language and geographic targets.
 - Crawl policy constraints.
 - Relevance profile configuration.
+- Optional intent profile configuration.
 - Validation and versioning of topic configuration.
 
 The Topic Engine does not own:
@@ -51,6 +52,7 @@ partially valid topic.
 | `languageGeo` | `LanguageGeoModel` | Required targeting value object. |
 | `crawlPolicy` | `CrawlPolicy` | Required safety and scope value object. |
 | `relevanceProfile` | `RelevanceProfile` | Required deterministic scoring value object. |
+| `intentProfile` | `IntentProfile` or null | Optional SEO intent weighting for future intelligence layers. |
 | `configurationVersion` | positive integer | Incremented on every accepted configuration change. |
 | `createdAt` | UTC timestamp | Immutable. |
 | `updatedAt` | UTC timestamp | Updated with aggregate changes. |
@@ -86,6 +88,8 @@ Activation requires:
 - `replaceLanguageGeoModel`
 - `replaceCrawlPolicy`
 - `replaceRelevanceProfile`
+- `replaceIntentProfile`
+- `clearIntentProfile`
 - `activate`
 - `pause`
 - `resume`
@@ -369,6 +373,33 @@ The same profile can score discovery candidates with partial fields and
 processed documents with full fields. Missing fields contribute zero and are
 reported in the explanation.
 
+## Intent profile model
+
+The optional intent profile records the expected SEO intent mix for a topic. It
+is metadata for future SERP Intelligence, page candidate scoring and SEO Pack
+generation. It does not alter crawling or relevance acceptance in Issue #2.
+
+```json
+{
+  "informational": 0.7,
+  "commercial": 0.2,
+  "navigational": 0.1
+}
+```
+
+Rules:
+
+- The entire profile is optional.
+- Supported schema version 1 keys are `informational`, `commercial`,
+  `navigational` and `transactional`.
+- Omitted keys have weight `0`.
+- Each weight is between `0` and `1`.
+- The normalized weights must sum to `1`.
+- Intent weights are planning preferences, not claims about observed SERP
+  composition.
+- Observed intent signals from future SERP snapshots remain separate data and
+  may differ from the configured profile.
+
 ## Configuration snapshots
 
 Downstream jobs reference:
@@ -389,13 +420,16 @@ The planned persistence model is:
 
 - Relational columns for identity, slug, lifecycle, version and timestamps.
 - Versioned JSONB documents for discovery, language/geo, crawl policy and
-  relevance profile.
+  relevance and optional intent profiles.
 - Database constraints for top-level lifecycle and uniqueness.
 - Domain validation for cross-field invariants.
 - Historical configuration snapshots retained for queued-work reproducibility.
 
 Exact tables and migrations are implementation details to be proposed after
 this document is reviewed.
+
+The monorepo and persistence strategy is defined in
+`docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 ## Security and performance constraints
 
