@@ -24,6 +24,9 @@
       ],
       "@seo-kb/db": [
         "packages/db/src"
+      ],
+      "@seo-kb/topic-engine": [
+        "packages/topic-engine/src"
       ]
     }
   }

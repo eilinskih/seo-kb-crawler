@@ -32,8 +32,8 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Design approved | PR #27 merged; implementation deferred until Issue #3 design review. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Design documentation is ready for architecture review. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Review needed | Implementation complete on `issue/2-topic-engine-implementation`; awaiting human review. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | PR #29 merged; implementation waits for Issue #2 implementation review. |
 | #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
@@ -56,6 +56,70 @@ Codex must update this file whenever it starts, advances or completes an issue.
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-06-10
+Issue: #2
+Status: Review needed
+Summary:
+- Implemented the Topic aggregate, lifecycle and bounded configuration
+  validation in `packages/topic-engine`.
+- Incorporated URL Frontier design adjustments for ignored query parameters,
+  cross-host canonical policy, bounded recrawl scheduling, exploratory crawl
+  and policy fingerprints.
+- Added Knex repositories, PostgreSQL migrations, immutable configuration
+  snapshots and optimistic concurrency.
+- Added Topic management and lifecycle endpoints to `apps/api`.
+- Verified 12 unit tests, both production builds and diff formatting.
+- Built and started the complete Docker Compose stack.
+- Verified migrations, create, activate, snapshot v1, configuration v2,
+  snapshot v2, duplicate slug conflict and stale-version conflict against the
+  real API and PostgreSQL.
+- Kept URL Frontier, Discovery Sources and crawler behavior out of scope.
+Changed files:
+- apps/api/src/api.module.ts
+- apps/api/src/topics
+- packages/topic-engine
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/001-topic-engine.ts
+- package.json
+- package-lock.json
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- README.md
+- docs/architecture.md
+- docs/topic-model.md
+- docs/progress.md
+Next step:
+- Human implementation review of Issue #2. Do not start Issue #3
+  implementation before approval.
+
+Date: 2026-06-10
+Issue: #2
+Status: In progress
+Summary:
+- Created `issue/2-topic-engine-implementation` from updated `main`.
+- Resumed implementation after URL Frontier design approval.
+- Topic contracts will include query normalization, canonical policy,
+  recrawl bounds, exploratory relevance and snapshot fingerprints identified
+  by Issue #3.
+Changed files:
+- docs/progress.md
+Next step:
+- Implement Topic Engine domain, Knex persistence and API, then request review.
+
+Date: 2026-06-10
+Issue: #3
+Status: Design approved
+Summary:
+- PR #29 merged into `main`.
+- URL Frontier design and its Topic contract adjustments are approved.
+- URL Frontier implementation remains deferred until Issue #2 implementation
+  review is complete.
+Changed files:
+- docs/progress.md
+Next step:
+- Complete and review Topic Engine implementation.
 
 Date: 2026-06-10
 Issue: #3

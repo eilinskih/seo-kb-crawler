@@ -1,6 +1,6 @@
 # Topic Engine Model
 
-- Status: Design approved; implementation deferred pending Issue #3 design
+- Status: Implemented; review needed
 - Issue: #2
 - Date: 2026-06-10
 
@@ -10,8 +10,8 @@ The Topic Engine defines what the system should discover and crawl. It is the
 configuration authority for topic scope, language and geographic targeting,
 crawl safety limits and deterministic relevance signals.
 
-This document is a design contract. Implementation must not begin until the
-document receives human review.
+This document is the approved design contract and records the implementation
+decisions made after URL Frontier design review.
 
 ## Boundaries
 
@@ -262,6 +262,11 @@ Worker must enforce a versioned snapshot of this policy.
     "/account/**",
     "/checkout/**"
   ],
+  "ignoredQueryParameters": [
+    "utm_source",
+    "utm_campaign"
+  ],
+  "crossHostCanonicalPolicy": "same-host",
   "maxDepth": 3,
   "maxPages": 5000,
   "maxRequestsPerMinutePerHost": 20,
@@ -274,7 +279,9 @@ Worker must enforce a versioned snapshot of this policy.
   ],
   "robotsPolicy": "strict",
   "renderMode": "auto",
-  "recrawlIntervalHours": 168
+  "recrawlIntervalHours": 168,
+  "minRecrawlIntervalHours": 24,
+  "maxRecrawlIntervalHours": 720
 }
 ```
 
@@ -298,6 +305,8 @@ Worker must enforce a versioned snapshot of this policy.
 | `requestTimeoutMs` | 1,000-120,000 | 30,000 |
 | `maxResponseBytes` | 1 MiB-50 MiB | 10 MiB |
 | `recrawlIntervalHours` | 1-8,760 | 168 |
+| `minRecrawlIntervalHours` | 1-8,760 | 24 |
+| `maxRecrawlIntervalHours` | 1-8,760 | 720 |
 
 ### Behavior
 
@@ -306,8 +315,11 @@ Worker must enforce a versioned snapshot of this policy.
 - `renderMode` is `never`, `auto`, or `always`.
 - `auto` permits browser rendering only after the HTTP adapter determines that
   static HTML is insufficient.
-- Query parameter normalization and canonical URL rules belong to the URL
-  Frontier, but must not widen this policy.
+- `ignoredQueryParameters` is the Topic-owned input used by the URL Frontier
+  normalization contract.
+- `crossHostCanonicalPolicy` is `same-host` or `allowed-host`; canonicalization
+  must never widen the topic allowlist.
+- The recrawl interval must remain between the configured minimum and maximum.
 - Redirect targets are revalidated against the policy before following.
 
 ## Relevance profile model
@@ -318,6 +330,7 @@ be added as a later signal, but never become the sole source of truth.
 ```json
 {
   "minimumScore": 0.65,
+  "allowExploratoryCrawl": true,
   "requiredTermGroups": [
     [
       "seo",
@@ -357,6 +370,8 @@ be added as a later signal, but never become the sole source of truth.
 
 - Scores are normalized to the range `0` to `1`.
 - `minimumScore` is between `0` and `1`.
+- `allowExploratoryCrawl` permits bounded Frontier sampling below the normal
+  acceptance threshold; it does not bypass crawl policy.
 - Every required term group is OR within the group and AND across groups.
 - An excluded term causes deterministic rejection when matched under the
   configured normalization rules.
@@ -414,9 +429,13 @@ topic edit does not retroactively change already queued work. The URL Frontier
 may supersede stale work explicitly in Issue #3, but must never silently apply a
 new policy to an old job.
 
+Snapshots also store SHA-256 fingerprints of the normalized crawl policy and
+relevance profile. These fingerprints are comparison aids, not authorization
+tokens, and the complete snapshot remains the source of truth.
+
 ## Persistence direction
 
-The planned persistence model is:
+The implemented persistence model is:
 
 - Relational columns for identity, slug, lifecycle, version and timestamps.
 - Versioned JSONB documents for discovery, language/geo, crawl policy and
@@ -425,8 +444,13 @@ The planned persistence model is:
 - Domain validation for cross-field invariants.
 - Historical configuration snapshots retained for queued-work reproducibility.
 
-Exact tables and migrations are implementation details to be proposed after
-this document is reviewed.
+- `topics` stores current identity, lifecycle and configuration.
+- `topic_configuration_snapshots` stores one immutable row per topic and
+  configuration version.
+- Topic creation and configuration replacement write current state and
+  snapshots in one transaction.
+- Configuration replacement uses optimistic concurrency and returns a conflict
+  for stale versions.
 
 The monorepo and persistence strategy is defined in
 `docs/decisions/0002-nestjs-monorepo-knex.md`.
@@ -444,16 +468,19 @@ The monorepo and persistence strategy is defined in
 - Secrets, provider API keys and authentication cookies are referenced through
   external configuration, never embedded in a Topic.
 
-## Proposed implementation after review
+## Implementation
 
-After approval, Issue #2 may add:
+Issue #2 adds:
 
-- `packages/topic-engine`.
-- Domain entities, value objects and validation errors.
-- Serialization schemas and DTO mapping.
-- PostgreSQL migrations and repository adapter.
-- NestJS module and API endpoints required to create and manage topics.
-- Unit and integration tests for lifecycle, invariants and persistence.
+- `packages/topic-engine` with the Topic aggregate, validation, application
+  service and Knex repository.
+- PostgreSQL migrations for current Topic state and immutable snapshots.
+- NestJS endpoints for create, list, read, configuration replacement, snapshot
+  retrieval and lifecycle transitions.
+- Unit tests for normalization, lifecycle, safety constraints, optimistic
+  versioning and service orchestration.
+- Docker-backed verification of migrations, HTTP behavior and snapshot
+  persistence.
 
 No URL Frontier, discovery provider or crawler behavior is included in Issue
 #2.

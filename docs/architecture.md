@@ -47,16 +47,18 @@ Topics
 - Crawler Worker
 
 The proposed Topic Engine aggregate and configuration contracts are documented
-in `docs/topic-model.md`. Its design is approved, while implementation remains
-deferred until the URL Frontier design identifies required contract changes.
+in `docs/topic-model.md`. The implementation lives in
+`packages/topic-engine`, is exposed by `apps/api`, and incorporates the
+snapshot, canonical-policy and recrawl contract adjustments discovered during
+URL Frontier design.
 
 NestJS package boundaries and the planned Knex persistence strategy are defined
 in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 The proposed URL Frontier identity, lifecycle, scheduling and integration
-contracts are documented in `docs/url-frontier-model.md`. Topic Engine
-implementation remains deferred until the Frontier design identifies any
-required contract adjustments.
+contracts are documented in `docs/url-frontier-model.md`. Its design is
+approved; implementation remains deferred until Topic Engine implementation
+review is complete.
 
 ### Document normalization
 
@@ -182,3 +184,20 @@ Redis is queue infrastructure only. BullMQ owns background job transport, while 
 The API exposes `GET /health` as a readiness endpoint. It verifies PostgreSQL and Redis connectivity and returns an unavailable response if either dependency cannot be reached.
 
 See `docs/decisions/0001-foundation.md` for the Issue #1 decisions and consequences.
+
+## Topic Engine runtime
+
+The Topic Engine is a NestJS library boundary with a framework-independent
+aggregate, an application service and a Knex repository adapter. PostgreSQL
+stores current topic state in `topics` and immutable configuration history in
+`topic_configuration_snapshots`.
+
+Configuration replacement is atomic and uses optimistic concurrency on
+`configuration_version`. Lifecycle changes do not create configuration
+snapshots because they do not alter the policy consumed by downstream work.
+SHA-256 crawl-policy and relevance-profile fingerprints let the URL Frontier
+compare effective policy inputs without interpreting their JSON structure.
+
+Database migrations are bundled with `packages/db` so both production bundles
+can initialize the same schema without requiring TypeScript source files at
+runtime. Knex's migration lock serializes concurrent API and worker startup.
