@@ -1,4 +1,4 @@
-FROM node:24.16.0-alpine AS build
+FROM node:26.3.1-alpine AS build
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM node:24.16.0-alpine AS api
+FROM node:26.3.1-alpine AS api
 
 WORKDIR /app
 ENV NODE_ENV=production
@@ -20,7 +20,7 @@ COPY --from=build /app/dist/apps/api ./dist/apps/api
 EXPOSE 3000
 CMD ["node", "dist/apps/api/main.js"]
 
-FROM node:24.16.0-alpine AS crawler-worker
+FROM node:26.3.1-alpine AS crawler-worker
 
 WORKDIR /app
 ENV NODE_ENV=production
