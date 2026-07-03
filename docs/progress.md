@@ -40,7 +40,7 @@ Roadmap order, phases and dependency rules live only in
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway, robots policy service, Topic policy evaluator and execution wrapper are implemented in active work. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Package boundary, command handling, result normalization, safe network gateway, robots policy service, Topic policy evaluator, execution wrapper, `http-fetch` adapter and result sink acknowledgement are implemented in active work. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -66,6 +66,33 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
+- Merged PR #57 into `main`.
+- Created `issue/3-url-frontier-crawl-attempt-sink` from updated `main`.
+- Added the first URL Frontier-owned `crawl_attempts` migration for durable
+  normalized crawl attempt results.
+- Added a Knex-backed crawl result sink with idempotent upsert by `attempt_id`
+  for BullMQ retry safety.
+- Switched `CrawlerModule` default `CRAWL_RESULT_SINK` from in-memory to the
+  Knex-backed crawl attempt sink.
+- Kept full URL Frontier entries, leasing, scheduling and backoff out of this
+  slice.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/index.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.spec.ts
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/002-url-frontier-crawl-attempts.ts
+Next step:
+- Add URL Frontier entries and lease lifecycle implementation after this sink is
+  reviewed.
 
 Date: 2026-07-03
 Issue: #5

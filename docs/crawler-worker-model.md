@@ -129,12 +129,13 @@ Current implementation status:
 
 - `CrawlJobHandler` appends normalized crawl results through an injectable
   `CrawlResultSink` before returning to the BullMQ processor.
-- The default sink is in-memory so the repository remains self-contained while
-  URL Frontier durable persistence is not yet implemented.
+- The default sink persists normalized attempt results into the
+  URL Frontier-owned `crawl_attempts` table.
+- An in-memory sink remains available for focused tests and local composition.
 - BullMQ jobs are acknowledged only when handler execution and result append
   both complete successfully.
-- Durable attempt/result persistence still belongs to the future URL
-  Frontier-owned schema.
+- `crawl_attempts` is the first durable URL Frontier structure; frontier entry
+  leasing, scheduling and backoff are still future URL Frontier work.
 
 ```txt
 leased
@@ -439,7 +440,8 @@ Planned durable state remains split by responsibility:
 
 Likely future structures:
 
-- `crawl_attempts` owned by URL Frontier.
+- `crawl_attempts` owned by URL Frontier; initial durable result sink is
+  implemented.
 - `crawler_adapter_runs` owned by Crawler Worker if adapter-level audit needs
   separate retention.
 - Artifact storage references for raw HTML, cleaned Markdown and plain text

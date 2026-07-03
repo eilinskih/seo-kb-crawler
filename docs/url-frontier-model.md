@@ -502,7 +502,7 @@ Planned PostgreSQL structures:
 - `url_frontier_entries`
 - `url_discovery_observations`
 - `url_canonical_relations`
-- `crawl_attempts`
+- `crawl_attempts` (initial durable result sink implemented)
 
 Knex owns migrations and query composition. Raw SQL is expected for atomic
 leasing, conflict handling and priority selection.

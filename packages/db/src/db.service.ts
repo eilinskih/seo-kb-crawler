@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import createKnex, { Knex } from 'knex';
 import { topicEngineMigration } from './migrations/001-topic-engine';
+import { urlFrontierCrawlAttemptsMigration } from './migrations/002-url-frontier-crawl-attempts';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -43,12 +44,28 @@ export class DbService implements OnModuleInit, OnApplicationShutdown {
 }
 
 class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
+  private readonly migrations = [
+    topicEngineMigration,
+    urlFrontierCrawlAttemptsMigration,
+  ];
+  private readonly migrationNames = new Map<Knex.Migration, string>([
+    [topicEngineMigration, '001-topic-engine'],
+    [
+      urlFrontierCrawlAttemptsMigration,
+      '002-url-frontier-crawl-attempts',
+    ],
+  ]);
+
   getMigrations(): Promise<Knex.Migration[]> {
-    return Promise.resolve([topicEngineMigration]);
+    return Promise.resolve(this.migrations);
   }
 
-  getMigrationName(): string {
-    return '001-topic-engine';
+  getMigrationName(migration: Knex.Migration): string {
+    const name = this.migrationNames.get(migration);
+    if (!name) {
+      throw new Error('Unknown bundled migration');
+    }
+    return name;
   }
 
   getMigration(migration: Knex.Migration): Promise<Knex.Migration> {
