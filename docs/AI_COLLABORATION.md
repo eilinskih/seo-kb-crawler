@@ -250,3 +250,18 @@ Before merging significant work verify:
 - progress tracking is updated;
 - related issues are synchronized;
 - accepted ADRs remain valid.
+
+## Definition of Done
+
+Significant engineering work is considered complete only when all of the
+following are true:
+
+- implementation satisfies the accepted issue scope;
+- architecture remains consistent;
+- documentation has been updated when required;
+- implementation progress reflects reality;
+- related GitHub Issues are synchronized;
+- all applicable engineering roles have completed their review;
+- the Product Owner has approved any required architectural decisions.
+
+Completing code alone does not complete a task.
