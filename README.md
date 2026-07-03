@@ -100,6 +100,15 @@ Planned domain packages:
 - `docs/url-frontier-model.md` documents the approved URL Frontier design.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
+## Engineering Documentation
+
+For contributors and AI-assisted development see:
+
+- `docs/AI_COLLABORATION.md`
+- `docs/architecture.md`
+- `docs/progress.md`
+- `docs/implementation-order.md`
+
 ## MVP scope
 
 1. Configure topics.
