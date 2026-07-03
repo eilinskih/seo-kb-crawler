@@ -39,8 +39,8 @@ Roadmap order, phases and dependency rules live only in
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
-| #4 | Discovery Sources: design URL discovery providers | Review needed | Design ready in PR #47; no implementation added. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on reviewed #4 contracts. |
+| #4 | Discovery Sources: design URL discovery providers | Design approved | PR #47 merged design-only contracts; implementation waits for #5 design approval. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Review needed | Design ready in `issue/5-crawler-worker-design`; no implementation added. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -65,6 +65,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #5
+Status: Review needed
+Summary:
+- Created `issue/5-crawler-worker-design` from updated `main` after PR #48
+  merge.
+- Synchronized Issue #4 status after PR #47 merge.
+- Designed the Crawler Worker as a controlled page-crawling worker behind a
+  provider-neutral `CrawlerAdapter` boundary.
+- Defined safe network gateway, robots policy, rate limiting, adapter
+  selection, crawl-result, extracted-link, redirect/canonical and media
+  metadata contracts.
+- Preserved URL Frontier scheduling ownership, Discovery Sources provider
+  ownership and Content Processing storage ownership.
+- Added no crawler runtime behavior, adapter implementation or schema change.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/crawler-worker-model.md
+- docs/discovery-sources-model.md
+- docs/implementation-order.md
+- docs/project-map.md
+- docs/progress.md
+- docs/url-frontier-model.md
+Next step:
+- Human architecture review of Issue #5 design. Do not implement Issue #4,
+  Issue #5 or Issue #3 runtime work before approval.
 
 Date: 2026-07-03
 Issue: #41

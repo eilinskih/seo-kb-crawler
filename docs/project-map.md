@@ -31,6 +31,8 @@ specialized documents:
 
 - `docs/topic-model.md` for the Topic Engine.
 - `docs/url-frontier-model.md` for the URL Frontier.
+- `docs/discovery-sources-model.md` for Discovery Sources.
+- `docs/crawler-worker-model.md` for the Crawler Worker.
 - Future `docs/*-model.md` documents for subsystem contracts.
 - `docs/decisions/` for accepted architectural decisions.
 
@@ -78,11 +80,12 @@ Implemented on `main`:
 Designed but not implemented on `main`:
 
 - URL Frontier.
-- Discovery Sources, once PR #47 is merged.
+- Discovery Sources.
+- Crawler Worker.
 
 Not implemented:
 
-- Crawler behavior.
+- Crawler runtime behavior.
 - Content processing.
 - Chunking.
 - Embeddings.

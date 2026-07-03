@@ -7,9 +7,9 @@ which remains the live status and work-log tracker.
 ## Current repository state
 
 - Default branch: `main`.
-- Current design branch in review: `issue/4-discovery-sources-design`.
+- Current design branch in review: `issue/5-crawler-worker-design`.
 - Unmerged working branches:
-  - None relevant to the canonical implementation roadmap after PR #47 lands.
+  - `issue/5-crawler-worker-design`: Issue #5 design-only documentation.
 
 Do not assume a working branch is canonical until its pull request is reviewed
 and merged into `main`.
@@ -33,9 +33,9 @@ and merged into `main`.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 5 | #4 | Discovery Sources design and implementation | Design in review; implementation follows design approval. |
-| 6 | #5 | Crawler Worker controlled crawling pipeline | Follows #4 design review. |
-| 7 | #3 | URL Frontier implementation | Follows reviewed #4 and #5 contracts. |
+| 5 | #4 | Discovery Sources design and implementation | Design approved; implementation follows #5 design approval. |
+| 6 | #5 | Crawler Worker controlled crawling pipeline | Design in review; implementation follows design approval. |
+| 7 | #3 | URL Frontier implementation | Follows reviewed #4 and #5 implementation contracts. |
 | 8 | #43 | Research Engine Scheduling | Requires Topic, Frontier, Discovery and Crawler contracts. |
 
 The Crawler Worker is one worker inside the broader Research Engine. It is not
@@ -95,7 +95,7 @@ core pipeline or become required dependencies.
 
 ```txt
 #1 -> #2 -> #3 design
-          -> #4 -> #5 -> #3 implementation -> #43
+          -> #4 design -> #5 design -> #4 implementation -> #5 implementation -> #3 implementation -> #43
                                       |
                                       v
               #6 -> #7 -> #8 -> #9 -> #10
