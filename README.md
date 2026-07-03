@@ -98,6 +98,9 @@ Planned domain packages:
   sequencing.
 - `docs/topic-model.md` documents the implemented Topic Engine contract.
 - `docs/url-frontier-model.md` documents the approved URL Frontier design.
+- `docs/discovery-sources-model.md` documents the approved Discovery Sources
+  design.
+- `docs/crawler-worker-model.md` documents the proposed Crawler Worker design.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## Engineering Documentation

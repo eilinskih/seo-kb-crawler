@@ -10,7 +10,8 @@ For repository navigation, see `docs/project-map.md`.
 
 This document is the architecture overview. Keep subsystem details in
 specialized documents such as `docs/topic-model.md`,
-`docs/url-frontier-model.md` and ADRs under `docs/decisions/`.
+`docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
+`docs/crawler-worker-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -69,9 +70,14 @@ approved; implementation remains deferred until Discovery Sources and Crawler
 Worker contracts are reviewed.
 
 The proposed Discovery Sources run lifecycle, provider adapter, observation and
-safety contracts are documented in `docs/discovery-sources-model.md`. Issue #4
-is design-only until review, and its implementation remains ordered before
-Crawler Worker and URL Frontier implementation.
+safety contracts are documented in `docs/discovery-sources-model.md`. Its
+design is approved; implementation remains ordered after Crawler Worker design
+approval.
+
+The proposed Crawler Worker adapter boundary, safe network gateway, robots
+policy, crawl-result and extracted-link contracts are documented in
+`docs/crawler-worker-model.md`. Issue #5 is design-only until review, and no
+runtime crawling behavior is implemented yet.
 
 ### Document normalization
 

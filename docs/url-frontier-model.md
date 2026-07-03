@@ -472,6 +472,8 @@ The ingestion contract is provider-neutral and idempotent.
 
 ## Crawler Worker relationship
 
+`docs/crawler-worker-model.md` defines the detailed Issue #5 contract.
+
 The Crawler Worker consumes a leased crawl command containing:
 
 - `attemptId`.

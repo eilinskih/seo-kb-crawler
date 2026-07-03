@@ -1,6 +1,6 @@
 # Discovery Sources Model
 
-- Status: Proposed for review
+- Status: Design approved; implementation not started
 - Issue: #4
 - Date: 2026-06-10
 
@@ -415,7 +415,7 @@ Discovery Sources do not:
 
 ## Crawler Worker relationship
 
-Issue #5 design must define two contracts used here:
+`docs/crawler-worker-model.md` defines two contracts used here:
 
 1. A safe HTTP fetch gateway suitable for sitemap metadata requests.
 2. A structured extracted-link result that can be converted into link
@@ -565,5 +565,6 @@ to Issue #4.
    selection without storing credentials?
 3. Should nested sitemap indexes remain one resumable run or create child runs?
 4. Should `nofollow` links be emitted with metadata or dropped by default?
-5. Which safe HTTP gateway contract should Issue #5 expose for sitemap
-   fetching without coupling Discovery Sources to the crawler application?
+5. Should Discovery Sources reuse the Issue #5 safe network gateway package
+   directly, or keep an equivalent source-specific gateway behind the same
+   reviewed rules?
