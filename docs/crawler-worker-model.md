@@ -29,7 +29,9 @@ validation, HTTP(S)-only requests, DNS/IP safety checks, manual redirect limits,
 bounded response headers/body and deadline-aware abort signals. The robots
 policy service now fetches robots files through the safe network gateway, caches
 decisions by scheme, authority and user-agent, supports fail-closed defaults and
-reports crawl-delay evidence. Topic host/path redirect policy, concrete
+reports crawl-delay evidence. The Topic crawl policy evaluator now checks
+allowed/denied hosts, included/excluded path patterns and cross-host canonical
+policy for request, redirect and canonical candidates. Concrete
 HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
 Processing remain out of scope for the current implementation slice.
 
@@ -457,6 +459,8 @@ Issue #5 implementation may add:
   command handling is in place.
 - Safe network gateway and robots policy services.
   Initial safe network gateway and robots policy implementations are in place.
+- Topic host/path and canonical policy enforcement.
+  Initial pure evaluator is in place.
 - HTTP fetch, Crawl4AI and Playwright adapter boundaries.
 - Crawl result normalization and sink integration contracts.
 - Tests for successful crawl, timeout, retry classification, policy denial,
