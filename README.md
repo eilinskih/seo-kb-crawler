@@ -47,11 +47,15 @@ Heavy generation is not part of this service. Codex remains responsible for code
 
 ## Application roadmap
 
-Implemented in Issue #1:
+Canonical roadmap order lives in `docs/implementation-order.md`. Current issue
+status lives in `docs/progress.md`.
+
+Implemented on `main`:
 
 ```txt
 /apps/api
 /apps/crawler-worker
+/packages/topic-engine
 ```
 
 Planned for later roadmap issues and not implemented yet:
@@ -66,7 +70,6 @@ Current shared and domain packages:
 ```txt
 /packages/db
 /packages/common
-/packages/topic-engine
 ```
 
 Planned domain packages:
@@ -82,6 +85,20 @@ Planned domain packages:
 /infrastructure/docker
 /docs
 ```
+
+## Documentation map
+
+- `docs/repository-audit.md` records the latest repository stabilization audit.
+- `docs/project-map.md` is the first-stop navigation document for engineers.
+- `docs/implementation-order.md` is the canonical implementation order and
+  dependency guide, and the only canonical roadmap.
+- `docs/progress.md` is the live status and work-log tracker.
+- `docs/architecture.md` explains current and planned system boundaries.
+- `docs/codex-workflow.md` defines working rules, review gates and issue
+  sequencing.
+- `docs/topic-model.md` documents the implemented Topic Engine contract.
+- `docs/url-frontier-model.md` documents the approved URL Frontier design.
+- `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## MVP scope
 

@@ -61,7 +61,7 @@ TopicConfigurationReader
 
 - Reads an active Topic configuration snapshot.
 - Produces one run per enabled source unit.
-- Assigns stable source keys and idempotency keys.
+- Assigns stable source keys and run-planning keys.
 - Does not call providers.
 
 `DiscoveryRunDispatcher`
@@ -278,6 +278,11 @@ hash(
   + providerItemIdentity
 )
 ```
+
+The observation idempotency key is generated after adapter output is available,
+at the adapter/sink boundary. The planner owns only the stable source key and
+run-planning identity because it does not know `discoveredUrl` or
+`providerItemIdentity`.
 
 The source preserves the original URL. URL parsing, normalized identity and
 topic-scoped deduplication remain URL Frontier responsibilities.

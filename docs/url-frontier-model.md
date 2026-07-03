@@ -1,6 +1,6 @@
 # URL Frontier Model
 
-- Status: Design approved
+- Status: Design approved; implementation not started
 - Issue: #3
 - Date: 2026-06-10
 
@@ -10,9 +10,10 @@ The URL Frontier converts discovered URL candidates into deduplicated,
 policy-compliant and prioritized crawl work. It owns URL identity, candidate
 state, scheduling decisions and crawl-result state transitions.
 
-This document is the approved design contract. URL Frontier implementation is
-deferred until Discovery Sources and Crawler Worker designs and implementations
-are reviewed.
+This document is an approved design contract. URL Frontier code must not be
+implemented until the dependent Discovery Sources and Crawler Worker contracts
+are reviewed and the implementation order in `docs/implementation-order.md`
+allows it.
 
 ## Boundaries
 

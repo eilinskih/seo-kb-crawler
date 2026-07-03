@@ -12,7 +12,7 @@ The objective is to help Codex produce better SEO pages, content plans, research
 
 ## Working rules
 
-1. Follow issue order unless an issue explicitly states otherwise.
+1. Follow `docs/implementation-order.md` unless an issue explicitly states otherwise.
 2. Prefer small, reviewable commits.
 3. Update docs together with architecture changes.
 4. Keep modules loosely coupled.
@@ -27,42 +27,56 @@ The objective is to help Codex produce better SEO pages, content plans, research
 13. Review Dependabot updates with the same tests and architecture constraints.
 14. Use one dedicated branch per issue, named `issue/<number>-<short-name>`.
 15. Do not begin the next issue from an unreviewed or unmerged issue branch.
+16. Record accepted durable architecture decisions as ADRs in `docs/decisions/`.
+17. Keep roadmap order in `docs/implementation-order.md`; keep live status in
+    `docs/progress.md`.
 
 ## Required implementation sequence
+
+The canonical implementation order lives only in `docs/implementation-order.md`.
+This section is a short phase summary only and must not become a competing
+roadmap.
 
 Phase 1:
 - #1 Foundation
 - #2 Topic Engine
 - #3 URL Frontier design
-- #4 Discovery Sources design
-- #5 Crawler Worker design
-- #4 Discovery Sources implementation
-- #5 Crawler Worker implementation
-- #3 URL Frontier implementation
+- #41 Implementation order and roadmap governance
 
 Phase 2:
+- #4 Discovery Sources
+- #5 Crawler Worker
+- #3 URL Frontier implementation
+- #43 Research Engine Scheduling
+
+Phase 3:
 - #6 Content Processing
 - #7 Chunking
 - #8 Embeddings
 - #9 Retrieval
 - #10 Context Pack API
 
-Phase 3:
+Phase 4:
 - #11 Entity and Alias Layer
 - #12 Ontology and Predicate Registry
 - #13 Fact Extraction Worker
 - #14 Knowledge Pack Builder
-
-Phase 4:
 - #15 Trust and Evidence
 - #16 SEO Consensus
-- #17 External Entity Enrichment
-- #18 SERP Intelligence
 
 Phase 5:
+- #18 SERP Intelligence
+- #30 SERP Intent Analyzer
 - #19 Topic Expansion
 - #20 SEO Page Candidate Scoring
 - #21 Codex SEO Pack Generator
+
+Phase 6:
+- #42 SEO Agent Gateway
+
+Phase 7:
+- #17 External Entity Enrichment
+- #40 External SEO Data Providers
 
 ## A1502 Runtime Profile
 
