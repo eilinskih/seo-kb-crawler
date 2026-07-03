@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
+    "rootDir": "../..",
     "outDir": "../../dist/apps/api"
   },
   "include": [
@@ -12,6 +13,8 @@
     "node_modules",
     "dist",
     "test",
+    "src/**/*.spec.ts",
+    "../../packages/**/*.spec.ts",
     "**/*.spec.ts"
   ]
 }

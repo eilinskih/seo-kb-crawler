@@ -76,11 +76,11 @@ Implemented on `main`:
 - Shared common package.
 - PostgreSQL/Knex package.
 - Topic Engine domain, persistence and API endpoints.
+- Discovery Sources contracts, planner and seed/link adapters.
 
 Designed but not implemented on `main`:
 
 - URL Frontier.
-- Discovery Sources.
 - Crawler Worker.
 
 Not implemented:

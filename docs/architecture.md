@@ -71,8 +71,10 @@ Worker contracts are reviewed.
 
 The proposed Discovery Sources run lifecycle, provider adapter, observation and
 safety contracts are documented in `docs/discovery-sources-model.md`. Its
-design is approved; implementation remains ordered after Crawler Worker design
-approval.
+design is approved. The initial implementation lives in
+`packages/discovery-sources` and covers contracts, deterministic planning,
+seed and extracted-link adapters; URL Frontier persistence, external search
+providers and sitemap fetching remain later work.
 
 The proposed Crawler Worker adapter boundary, safe network gateway, robots
 policy, crawl-result and extracted-link contracts are documented in
