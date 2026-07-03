@@ -1,6 +1,7 @@
 import {
   createCandidateObservation,
 } from '../domain/candidate-observation';
+import { providerItemIdentity } from './provider-identity';
 import { DiscoveryValidationError } from '../domain/discovery-errors';
 import {
   CandidateObservationSink,
@@ -40,7 +41,7 @@ export class SeedSourceAdapter implements DiscoverySourceAdapter {
         sourceType: context.sourceType,
         sourceKey: context.sourceKey,
         discoveredUrl: url,
-        providerItemIdentity: `seed:${index}:${url}`,
+        providerItemIdentity: providerItemIdentity('seed', index, [url]),
         sourceRank: index + 1,
         metadata: {
           seedOrder: index + 1,

@@ -100,6 +100,7 @@ export class DiscoveryRun {
       observationsEmitted,
       'observationsEmitted',
     );
+    this.clearTransientState();
     this.clearLease();
     this.record.finishedAt = now;
     this.record.updatedAt = now;
@@ -169,6 +170,13 @@ export class DiscoveryRun {
   private clearLease(): void {
     this.record.leaseOwner = null;
     this.record.leaseExpiresAt = null;
+  }
+
+  private clearTransientState(): void {
+    this.record.checkpoint = null;
+    this.record.failureCategory = null;
+    this.record.failureDetail = null;
+    this.record.nextAttemptAt = null;
   }
 
   private assertStatus(allowed: DiscoveryRunStatus[], operation: string): void {

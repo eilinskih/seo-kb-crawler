@@ -1,5 +1,6 @@
 import { createCandidateObservation } from '../domain/candidate-observation';
 import { DiscoveryValidationError } from '../domain/discovery-errors';
+import { providerItemIdentity } from './provider-identity';
 import {
   CandidateObservationSink,
   DiscoveryExecutionContext,
@@ -39,12 +40,11 @@ export class LinkSourceAdapter implements DiscoverySourceAdapter {
         sourceType: context.sourceType,
         sourceKey: context.sourceKey,
         discoveredUrl: link.resolvedUrl,
-        providerItemIdentity: [
+        providerItemIdentity: providerItemIdentity('link', index, [
           configuration.crawlAttemptId,
-          index,
           link.href,
           link.resolvedUrl,
-        ].join(':'),
+        ]),
         sourceUrl: configuration.referringUrl,
         anchorText: link.anchorText,
         metadata: {

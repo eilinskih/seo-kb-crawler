@@ -61,4 +61,36 @@ describe('LinkSourceAdapter', () => {
       },
     });
   });
+
+  it('uses bounded provider identities for long extracted links', async () => {
+    const sink = new RecordingSink();
+    const longPath = `/target?${'q='.repeat(300)}`;
+    const longUrl = `https://example.com${longPath}`;
+    const context: DiscoveryExecutionContext = {
+      runId: 'run-1',
+      attempt: 1,
+      topicId: 'topic-1',
+      topicConfigurationVersion: 1,
+      sourceType: 'link',
+      sourceKey: 'link-source',
+      configuration: {
+        sourceType: 'link',
+        crawlAttemptId: 'crawl-1',
+        referringUrl: 'https://example.com/source',
+        links: [
+          {
+            href: longPath,
+            resolvedUrl: longUrl,
+          },
+        ],
+      },
+      checkpoint: null,
+      deadline: new Date('2026-07-03T00:00:00Z'),
+    };
+
+    await expect(new LinkSourceAdapter().execute(context, sink)).resolves.toMatchObject({
+      status: 'completed',
+      observationsEmitted: 1,
+    });
+  });
 });

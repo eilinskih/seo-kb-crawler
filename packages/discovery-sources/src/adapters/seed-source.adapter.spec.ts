@@ -49,4 +49,28 @@ describe('SeedSourceAdapter', () => {
       ['https://example.com/a', 'https://example.com/b'],
     );
   });
+
+  it('uses bounded provider identities for long seed URLs', async () => {
+    const sink = new RecordingSink();
+    const longUrl = `https://example.com/page?${'q='.repeat(300)}`;
+    const context: DiscoveryExecutionContext = {
+      runId: 'run-1',
+      attempt: 1,
+      topicId: 'topic-1',
+      topicConfigurationVersion: 1,
+      sourceType: 'seed',
+      sourceKey: 'seed-source',
+      configuration: {
+        sourceType: 'seed',
+        urls: [longUrl],
+      },
+      checkpoint: null,
+      deadline: new Date('2026-07-03T00:00:00Z'),
+    };
+
+    await expect(new SeedSourceAdapter().execute(context, sink)).resolves.toMatchObject({
+      status: 'completed',
+      observationsEmitted: 1,
+    });
+  });
 });
