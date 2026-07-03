@@ -1,6 +1,6 @@
 # Crawler Worker Model
 
-- Status: Proposed for review
+- Status: Design approved; initial implementation in progress
 - Issue: #5
 - Date: 2026-07-03
 
@@ -19,9 +19,12 @@ It answers:
 - What normalized crawl result is returned to downstream systems?
 - Which extracted links can be converted into new discovery observations?
 
-This is a design-only contract. No crawler runtime behavior, adapter
-implementation, URL Frontier implementation or content-processing code is
-included in Issue #5 design.
+This document is the accepted design contract. The initial Issue #5
+implementation adds package-level command, adapter, result, selector and
+normalization contracts plus worker command handling. Network crawling, concrete
+HTTP/Crawl4AI/Playwright adapters, safe network gateway implementation, URL
+Frontier persistence and Content Processing remain out of scope for the first
+implementation slice.
 
 ## Boundaries
 
@@ -437,12 +440,14 @@ full text payloads or unbounded query strings.
 
 ## Proposed implementation after design review
 
-Implementation remains deferred until Issue #5 design is reviewed.
+Initial implementation is allowed because Issue #5 design is approved.
 
-Issue #5 implementation may later add:
+Issue #5 implementation may add:
 
-- `packages/crawler` for adapter and result contracts.
-- Crawler Worker application services in `apps/crawler-worker`.
+- `packages/crawler` for adapter and result contracts. Initial contracts are in
+  place.
+- Crawler Worker application services in `apps/crawler-worker`. Initial job
+  command handling is in place.
 - Safe network gateway and robots policy services.
 - HTTP fetch, Crawl4AI and Playwright adapter boundaries.
 - Crawl result normalization and sink integration contracts.
@@ -450,8 +455,8 @@ Issue #5 implementation may later add:
   duplicate/idempotent result reporting and safe network constraints.
 - Documentation for safe local crawling limits.
 
-No Discovery Sources implementation, URL Frontier implementation, Content
-Processing pipeline, embedding work or SEO generation belongs to Issue #5.
+No URL Frontier implementation, Content Processing pipeline, embedding work or
+SEO generation belongs to Issue #5.
 
 ## Review questions
 

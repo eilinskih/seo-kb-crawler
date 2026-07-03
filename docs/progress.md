@@ -39,8 +39,8 @@ Roadmap order, phases and dependency rules live only in
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
-| #4 | Discovery Sources: design URL discovery providers | Review needed | Initial implementation ready in `issue/4-discovery-sources-implementation`; no URL Frontier persistence added. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Design approved | PR #49 merged design-only contracts; implementation waits for #4 implementation review. |
+| #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling and result normalization are implemented in this branch. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -66,6 +66,59 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
+- Created `issue/5-crawler-worker-implementation` from updated `main` after
+  PR #50 merge.
+- Synchronized Issue #4 to Done after merge.
+- Started Crawler Worker implementation from the accepted design in
+  `docs/crawler-worker-model.md`.
+- Added `packages/crawler` with command validation, adapter contracts, adapter
+  selection and crawl result normalization.
+- Wired `apps/crawler-worker` to the crawler command handler without adding
+  network crawling or concrete adapters.
+- Added focused unit tests for command validation, adapter selection, result
+  normalization and unconfigured-adapter handling.
+Changed files:
+- apps/crawler-worker/src/crawl.processor.ts
+- apps/crawler-worker/src/crawler-worker.module.ts
+- docs/architecture.md
+- docs/crawler-worker-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/crawler
+- tsconfig.json
+Next step:
+- Add safe network gateway and concrete adapter implementation only after this
+  initial boundary slice is reviewed.
+
+Date: 2026-07-03
+Issue: #4
+Status: Done
+Summary:
+- PR #50 merged into `main`.
+- Discovery Sources now includes package contracts, deterministic planning,
+  candidate observation idempotency, run lifecycle and seed/link adapters.
+- Review feedback was addressed before merge by clearing transient run state on
+  completion and bounding provider identities for long seed/link URLs.
+Changed files:
+- packages/discovery-sources
+- docs/architecture.md
+- docs/discovery-sources-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- nest-cli.json
+- jest.config.js
+- tsconfig.json
+Next step:
+- Continue with Issue #5 Crawler Worker implementation.
 
 Date: 2026-07-03
 Issue: #4

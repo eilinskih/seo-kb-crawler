@@ -16,6 +16,8 @@ module.exports = {
   moduleNameMapper: {
     '^@seo-kb/common$': '<rootDir>/packages/common/src',
     '^@seo-kb/common/(.*)$': '<rootDir>/packages/common/src/$1',
+    '^@seo-kb/crawler$': '<rootDir>/packages/crawler/src',
+    '^@seo-kb/crawler/(.*)$': '<rootDir>/packages/crawler/src/$1',
     '^@seo-kb/db$': '<rootDir>/packages/db/src',
     '^@seo-kb/db/(.*)$': '<rootDir>/packages/db/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',

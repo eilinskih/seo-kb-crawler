@@ -74,6 +74,7 @@ Implemented on `main`:
 - API application.
 - Crawler worker shell and queue wiring.
 - Shared common package.
+- Crawler Worker contracts, result normalization and worker command handling.
 - PostgreSQL/Knex package.
 - Topic Engine domain, persistence and API endpoints.
 - Discovery Sources contracts, planner and seed/link adapters.
@@ -81,11 +82,11 @@ Implemented on `main`:
 Designed but not implemented on `main`:
 
 - URL Frontier.
-- Crawler Worker.
+- Crawler Worker safe network gateway, concrete adapters and durable sinks.
 
 Not implemented:
 
-- Crawler runtime behavior.
+- Network crawling behavior.
 - Content processing.
 - Chunking.
 - Embeddings.

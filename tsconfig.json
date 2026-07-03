@@ -30,6 +30,12 @@
       "@seo-kb/common/*": [
         "packages/common/src/*"
       ],
+      "@seo-kb/crawler": [
+        "packages/crawler/src"
+      ],
+      "@seo-kb/crawler/*": [
+        "packages/crawler/src/*"
+      ],
       "@seo-kb/db": [
         "packages/db/src"
       ],
