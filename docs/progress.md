@@ -71,6 +71,31 @@ Date: 2026-07-03
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #55 into `main`.
+- Created `issue/5-crawler-http-fetch-adapter` from updated `main`.
+- Added the first concrete `http-fetch` crawler adapter for static HTML fetches.
+- Wired `CrawlJobHandler` to select and execute configured adapters only after
+  `CrawlExecutionWrapper` returns a ready execution context.
+- Kept all adapter network access behind `SafeNetworkGateway`.
+- Added minimal static HTML extraction for title, meta description, canonical
+  URL, plain text and outgoing links.
+- Rechecked Topic policy after redirects before accepting fetched content.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/crawl-job.handler.ts
+- packages/crawler/src/crawl-job.handler.spec.ts
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/index.ts
+- packages/crawler/src/infrastructure/http-fetch-adapter.ts
+- packages/crawler/src/infrastructure/http-fetch-adapter.spec.ts
+Next step:
+- Add crawl result sink persistence and worker job acknowledgement behavior.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #54 into `main`.
 - Created `issue/5-crawler-execution-wrapper` from updated `main`.
 - Added worker execution wrapper that prepares crawl execution context using

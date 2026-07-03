@@ -3,6 +3,7 @@ import { CrawlExecutionWrapper } from './crawl-execution-wrapper';
 import { CrawlJobHandler, CRAWLER_ADAPTERS } from './crawl-job.handler';
 import { CrawlerAdapterSelector } from './domain/crawler-adapter-selector';
 import { CrawlResultNormalizer } from './domain/crawl-result-normalizer';
+import { HttpFetchAdapter } from './infrastructure/http-fetch-adapter';
 import { RobotsPolicyService } from './infrastructure/robots-policy.service';
 import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway.service';
 
@@ -13,10 +14,12 @@ import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway
     SafeNetworkGatewayService,
     RobotsPolicyService,
     CrawlExecutionWrapper,
+    HttpFetchAdapter,
     CrawlJobHandler,
     {
       provide: CRAWLER_ADAPTERS,
-      useValue: [],
+      useFactory: (httpFetchAdapter: HttpFetchAdapter) => [httpFetchAdapter],
+      inject: [HttpFetchAdapter],
     },
   ],
   exports: [
@@ -25,6 +28,7 @@ import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway
     SafeNetworkGatewayService,
     RobotsPolicyService,
     CrawlExecutionWrapper,
+    HttpFetchAdapter,
   ],
 })
 export class CrawlerModule {}

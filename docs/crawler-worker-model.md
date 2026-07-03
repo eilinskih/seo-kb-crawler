@@ -191,6 +191,8 @@ Expected adapters:
 
 - `crawl4ai`: default rich crawler adapter when available.
 - `http-fetch`: lightweight fast path for static HTML and metadata requests.
+  Implemented first as the baseline adapter. It must use `SafeNetworkGateway`,
+  recheck Topic policy after redirects and extract only static HTML artifacts.
 - `playwright`: fallback or custom browser path for JavaScript-heavy pages.
 - `browserless`: future remote browser adapter.
 - `wget`: explicit mirroring or archival utility only; not the normal crawler.
