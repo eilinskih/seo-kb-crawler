@@ -141,10 +141,22 @@ export interface CrawlerAdapterCapabilities {
 export interface CrawlExecutionContext {
   command: CrawlCommand;
   robotsDecision: RobotsDecision;
+  topicPolicyDecision: TopicPolicyDecision;
   safeNetworkGateway: SafeNetworkGateway;
   deadline: Date;
   signal: AbortSignal;
 }
+
+export type CrawlExecutionPreparation =
+  | {
+      status: 'ready';
+      context: CrawlExecutionContext;
+      dispose(): void;
+    }
+  | {
+      status: 'blocked';
+      result: CrawlAdapterResult;
+    };
 
 export interface CrawlerAdapter {
   readonly key: CrawlerAdapterKey;

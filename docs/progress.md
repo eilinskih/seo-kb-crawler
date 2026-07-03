@@ -40,7 +40,7 @@ Roadmap order, phases and dependency rules live only in
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway, robots policy service and Topic policy evaluator are implemented in active work. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway, robots policy service, Topic policy evaluator and execution wrapper are implemented in active work. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -66,6 +66,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
+- Merged PR #54 into `main`.
+- Created `issue/5-crawler-execution-wrapper` from updated `main`.
+- Added worker execution wrapper that prepares crawl execution context using
+  deadline, Topic policy, robots policy and Safe Network Gateway.
+- Connected `CrawlJobHandler` to the wrapper so policy failures return
+  normalized blocked/timed-out crawl results before adapter execution.
+- Kept concrete crawler adapters disabled.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/crawl-execution-wrapper.ts
+- packages/crawler/src/crawl-execution-wrapper.spec.ts
+- packages/crawler/src/crawl-job.handler.ts
+- packages/crawler/src/crawl-job.handler.spec.ts
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/domain/crawler-types.ts
+- packages/crawler/src/index.ts
+Next step:
+- Add the first concrete adapter, likely `http-fetch`, using the prepared
+  execution context.
 
 Date: 2026-07-03
 Issue: #5

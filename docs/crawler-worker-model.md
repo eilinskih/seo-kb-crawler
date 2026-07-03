@@ -34,6 +34,11 @@ allowed/denied hosts, included/excluded path patterns and cross-host canonical
 policy for request, redirect and canonical candidates. Concrete
 HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
 Processing remain out of scope for the current implementation slice.
+The worker command handler now routes crawl commands through the execution
+wrapper before returning a result. The wrapper combines deadline, Topic policy,
+robots policy and safe network gateway context preparation. If policy checks
+pass, concrete adapter execution still remains disabled until an adapter is
+implemented and reviewed.
 
 ## Boundaries
 
@@ -461,6 +466,8 @@ Issue #5 implementation may add:
   Initial safe network gateway and robots policy implementations are in place.
 - Topic host/path and canonical policy enforcement.
   Initial pure evaluator is in place.
+- Worker execution wrapper.
+  Initial wrapper is in place and connected to the worker command handler.
 - HTTP fetch, Crawl4AI and Playwright adapter boundaries.
 - Crawl result normalization and sink integration contracts.
 - Tests for successful crawl, timeout, retry classification, policy denial,
