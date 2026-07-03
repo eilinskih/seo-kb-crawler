@@ -11,3 +11,10 @@ export class CrawlerAdapterSelectionError extends Error {
     this.name = 'CrawlerAdapterSelectionError';
   }
 }
+
+export class SafeNetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SafeNetworkError';
+  }
+}

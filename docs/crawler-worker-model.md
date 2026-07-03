@@ -23,9 +23,12 @@ This document is the accepted design contract. The initial Issue #5
 implementation adds package-level command, adapter, result, selector, safe
 network gateway and normalization contracts plus worker command handling.
 Adapter execution is intentionally disabled until safe network gateway, robots
-policy and deadline enforcement are implemented. Network crawling, concrete
-HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
-Processing remain out of scope for the first implementation slice.
+policy and deadline enforcement are reviewed together. The safe network gateway
+implementation now covers structural URL validation, HTTP(S)-only requests,
+DNS/IP safety checks, manual redirect limits, bounded response headers/body and
+deadline-aware abort signals. Robots policy, Topic host/path redirect policy,
+concrete HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
+Processing remain out of scope for the current implementation slice.
 
 ## Boundaries
 
@@ -450,6 +453,7 @@ Issue #5 implementation may add:
 - Crawler Worker application services in `apps/crawler-worker`. Initial job
   command handling is in place.
 - Safe network gateway and robots policy services.
+  Initial safe network gateway implementation is in place.
 - HTTP fetch, Crawl4AI and Playwright adapter boundaries.
 - Crawl result normalization and sink integration contracts.
 - Tests for successful crawl, timeout, retry classification, policy denial,
