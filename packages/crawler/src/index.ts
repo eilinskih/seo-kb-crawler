@@ -1,3 +1,4 @@
+export * from './crawl-execution-wrapper';
 export * from './crawler.module';
 export * from './crawl-job.handler';
 export * from './domain/crawl-command';

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CrawlExecutionWrapper } from './crawl-execution-wrapper';
 import { CrawlJobHandler, CRAWLER_ADAPTERS } from './crawl-job.handler';
 import { CrawlerAdapterSelector } from './domain/crawler-adapter-selector';
 import { CrawlResultNormalizer } from './domain/crawl-result-normalizer';
@@ -11,6 +12,7 @@ import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway
     CrawlResultNormalizer,
     SafeNetworkGatewayService,
     RobotsPolicyService,
+    CrawlExecutionWrapper,
     CrawlJobHandler,
     {
       provide: CRAWLER_ADAPTERS,
@@ -22,6 +24,7 @@ import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway
     CRAWLER_ADAPTERS,
     SafeNetworkGatewayService,
     RobotsPolicyService,
+    CrawlExecutionWrapper,
   ],
 })
 export class CrawlerModule {}
