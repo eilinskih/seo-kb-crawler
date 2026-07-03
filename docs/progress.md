@@ -32,10 +32,11 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Review needed | Implementation complete on `issue/2-topic-engine-implementation`; awaiting human review. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | PR #29 merged; implementation waits for Issue #2 implementation review. |
-| #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | PR #29 merged; implementation has not started. |
+| #41 | Implementation Order and Roadmap Governance | Review needed | This stabilization PR adds the canonical implementation order. |
+| #4 | Discovery Sources: design URL discovery providers | Review needed | Design-only work exists on `issue/4-discovery-sources-design`; not canonical until reviewed and merged. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on reviewed #4 contracts. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -48,14 +49,45 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
-| #18 | SERP Intelligence Layer | Not started | SEO-first layer. |
+| #18 | SERP Intelligence Layer | Not started | SEO-first layer; required before #30. |
+| #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18 and knowledge signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on #18/#19. |
-| #21 | Codex SEO Pack Generator | Not started | Depends on Knowledge Pack and SERP Pack. |
+| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, SERP Pack and SERP Intent Pack. |
+| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, #18, #21 and #43. |
+| #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
+| #40 | External SEO Data Providers | Not started | Optional and deferred; must never block the core pipeline. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #41
+Status: Review needed
+Summary:
+- Audited `main`, remote branches, recent pull requests, open GitHub issues,
+  documentation and ADRs.
+- Confirmed no open pull requests.
+- Confirmed `main` contains foundation runtime, Topic Engine implementation
+  and approved URL Frontier design.
+- Confirmed `issue/4-discovery-sources-design` contains unmerged design-only
+  work and must not be treated as canonical until reviewed and merged.
+- Added repository audit documentation and a canonical implementation-order
+  guide without changing runtime behavior.
+- Synchronized this progress tracker with merged work, open branches and newer
+  issues #30 and #40-#43.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/codex-workflow.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/repository-audit.md
+- docs/url-frontier-model.md
+Next step:
+- Review and merge the Documentation Stabilization PR before continuing
+  roadmap implementation.
 
 Date: 2026-06-10
 Issue: #2

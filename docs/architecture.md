@@ -4,6 +4,9 @@ SEO KB Crawler is a private, local-first SEO knowledge-base system for Codex.
 
 The system is not a SaaS, not a public search engine and not an article generator. Its primary role is to collect, normalize, enrich and package knowledge so Codex can generate better SEO pages, research briefs and content plans.
 
+For implementation order, dependencies and canonical terminology, see
+`docs/implementation-order.md`. For current progress, see `docs/progress.md`.
+
 ## Core pipeline
 
 ```txt
@@ -57,8 +60,7 @@ in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 The proposed URL Frontier identity, lifecycle, scheduling and integration
 contracts are documented in `docs/url-frontier-model.md`. Its design is
-approved; implementation remains deferred until Topic Engine implementation
-review is complete.
+approved; implementation has not started.
 
 ### Document normalization
 
