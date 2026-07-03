@@ -56,6 +56,7 @@ Roadmap order, phases and dependency rules live only in
 | #18 | SERP Intelligence Layer | Not started | SEO-first layer; required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18 and knowledge signals. |
+| Future issue | Long-tail Discovery Engine | Not started | Future Research Engine capability after Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on #18/#19. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, SERP Pack and SERP Intent Pack. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, #18, #21 and #43. |
@@ -81,6 +82,8 @@ Summary:
 - Preserved URL Frontier scheduling ownership, Discovery Sources provider
   ownership and Content Processing storage ownership.
 - Added no crawler runtime behavior, adapter implementation or schema change.
+- Added Long-tail Discovery Engine to the canonical roadmap as a future
+  Research Engine capability, without implementation scope in this PR.
 Changed files:
 - README.md
 - docs/architecture.md
