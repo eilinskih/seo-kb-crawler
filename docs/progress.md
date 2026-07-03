@@ -32,10 +32,10 @@ Codex must update this file whenever it starts, advances or completes an issue.
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Review needed | Implementation complete on `issue/2-topic-engine-implementation`; awaiting human review. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | PR #29 merged; implementation waits for Issue #2 implementation review. |
-| #4 | Discovery Sources: design URL discovery providers | Not started | Depends on #3. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on #3 and #4. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged after human approval and review findings were resolved. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 implementations. |
+| #4 | Discovery Sources: design URL discovery providers | Review needed | Design ready on `issue/4-discovery-sources-design`; no implementation added. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Design starts only after Issue #4 design review. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -56,6 +56,61 @@ Codex must update this file whenever it starts, advances or completes an issue.
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-06-10
+Issue: #4
+Status: Review needed
+Summary:
+- Designed the DiscoveryRun aggregate and resumable lifecycle.
+- Defined provider-neutral search, sitemap, seed and extracted-link adapters.
+- Defined capability negotiation, checkpoints, retries, backpressure and
+  execution budgets.
+- Defined the idempotent candidate observation contract with URL Frontier.
+- Defined Topic snapshot and future Crawler Worker integration boundaries.
+- Added SSRF, DNS rebinding, redirect, XML entity and decompression bomb
+  constraints.
+- Kept Discovery Sources, Crawler Worker and URL Frontier implementation out of
+  scope.
+Changed files:
+- docs/architecture.md
+- docs/codex-workflow.md
+- docs/discovery-sources-model.md
+- docs/progress.md
+- docs/topic-model.md
+- docs/url-frontier-model.md
+Next step:
+- Human architecture review of Issue #4 design. Do not start Issue #5 design
+  before approval.
+
+Date: 2026-06-10
+Issue: #4
+Status: In progress
+Summary:
+- Created `issue/4-discovery-sources-design` from merged `main`.
+- Started design-only work for Discovery Sources.
+- Implementation remains deferred until Issue #4 and Issue #5 designs are
+  reviewed in sequence.
+Changed files:
+- docs/progress.md
+Next step:
+- Define provider contracts, source lifecycles, safety boundaries and URL
+  Frontier handoff in `docs/discovery-sources-model.md`.
+
+Date: 2026-06-10
+Issue: #2
+Status: Done
+Summary:
+- Human review approved PR #31.
+- Reviewed automated feedback before merge and fixed lifecycle/configuration
+  write races, private discovery URL validation, strict relevance field
+  weights and malformed optional text handling.
+- Verified 13 tests and both production builds after review fixes.
+- PR #31 merged into `main`.
+Changed files:
+- packages/topic-engine
+- docs/progress.md
+Next step:
+- Keep Issue #3 at Design approved and begin Issue #4 design only.
 
 Date: 2026-06-10
 Issue: #2

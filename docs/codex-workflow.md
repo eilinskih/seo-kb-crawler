@@ -33,9 +33,12 @@ The objective is to help Codex produce better SEO pages, content plans, research
 Phase 1:
 - #1 Foundation
 - #2 Topic Engine
-- #3 URL Frontier
-- #4 Discovery Sources
-- #5 Crawler Worker
+- #3 URL Frontier design
+- #4 Discovery Sources design
+- #5 Crawler Worker design
+- #4 Discovery Sources implementation
+- #5 Crawler Worker implementation
+- #3 URL Frontier implementation
 
 Phase 2:
 - #6 Content Processing

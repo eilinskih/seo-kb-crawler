@@ -1,6 +1,6 @@
 # Topic Engine Model
 
-- Status: Implemented; review needed
+- Status: Done
 - Issue: #2
 - Date: 2026-06-10
 
