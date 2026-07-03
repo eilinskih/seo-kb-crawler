@@ -78,10 +78,7 @@ Implemented on `main`:
 Designed but not implemented on `main`:
 
 - URL Frontier.
-
-Not canonical yet:
-
-- Discovery Sources design on `issue/4-discovery-sources-design`.
+- Discovery Sources, once PR #47 is merged.
 
 Not implemented:
 

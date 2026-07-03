@@ -24,7 +24,7 @@ document, and `docs/progress.md` remains the live status and work-log tracker.
 | `issue/2-topic-engine` | Historical Topic Engine design branch; merged through PR #27. |
 | `issue/2-topic-engine-implementation` | Historical Topic Engine implementation branch; merged through PR #31. |
 | `issue/3-url-frontier-design` | Historical URL Frontier design branch; merged through PR #29. |
-| `issue/4-discovery-sources-design` | Unmerged design-only branch. Do not treat as canonical until reviewed and merged. |
+| `issue/4-discovery-sources-design` | Design-only branch for PR #47. Do not treat as canonical until reviewed and merged. |
 | Dependabot branches | Dependency updates only; outside this stabilization PR. |
 
 ## Pull request audit
@@ -88,7 +88,8 @@ Documentation gaps addressed in this PR:
 
 Remaining documentation gaps:
 
-- Discovery Sources design is only present on an unmerged branch.
+- Discovery Sources design is in PR #47 and becomes canonical only after review
+  and merge.
 - Issue #3 requests an ADR document, but URL Frontier design currently lives in
   `docs/url-frontier-model.md` rather than `docs/decisions`.
 - GitHub issue closure/status still needs owner review after this PR merges.

@@ -65,7 +65,13 @@ in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 The proposed URL Frontier identity, lifecycle, scheduling and integration
 contracts are documented in `docs/url-frontier-model.md`. Its design is
-approved; implementation has not started.
+approved; implementation remains deferred until Discovery Sources and Crawler
+Worker contracts are reviewed.
+
+The proposed Discovery Sources run lifecycle, provider adapter, observation and
+safety contracts are documented in `docs/discovery-sources-model.md`. Issue #4
+is design-only until review, and its implementation remains ordered before
+Crawler Worker and URL Frontier implementation.
 
 ### Document normalization
 

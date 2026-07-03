@@ -7,12 +7,9 @@ which remains the live status and work-log tracker.
 ## Current repository state
 
 - Default branch: `main`.
-- Open pull requests: none at the time of the 2026-07-03 audit.
-- Current stabilization branch: `codex/documentation-stabilization`.
+- Current design branch in review: `issue/4-discovery-sources-design`.
 - Unmerged working branches:
-  - `issue/4-discovery-sources-design`: design-only Discovery Sources work
-    exists outside `main` and still needs review before it becomes canonical.
-  - Dependabot branches for Node.js, npm packages and Docker base images.
+  - None relevant to the canonical implementation roadmap after PR #47 lands.
 
 Do not assume a working branch is canonical until its pull request is reviewed
 and merged into `main`.
@@ -30,13 +27,13 @@ and merged into `main`.
 | 1 | #1 | Foundation: monorepo bootstrap and local infrastructure | Done on `main`. |
 | 2 | #2 | Topic Engine | Implemented on `main`; issue remains open in GitHub. |
 | 3 | #3 | URL Frontier design | Design approved on `main`; implementation not started. |
-| 4 | #41 | Implementation order and roadmap governance | In review in this stabilization PR. |
+| 4 | #41 | Implementation order and roadmap governance | Done on `main`. |
 
 ## Phase 2: Research Engine Core
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 5 | #4 | Discovery Sources design and implementation | Follows #3 design; design branch exists. |
+| 5 | #4 | Discovery Sources design and implementation | Design in review; implementation follows design approval. |
 | 6 | #5 | Crawler Worker controlled crawling pipeline | Follows #4 design review. |
 | 7 | #3 | URL Frontier implementation | Follows reviewed #4 and #5 contracts. |
 | 8 | #43 | Research Engine Scheduling | Requires Topic, Frontier, Discovery and Crawler contracts. |

@@ -37,9 +37,9 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | PR #29 merged; implementation has not started. |
-| #41 | Implementation Order and Roadmap Governance | Review needed | This stabilization PR adds the canonical implementation order. |
-| #4 | Discovery Sources: design URL discovery providers | Review needed | Design-only work exists on `issue/4-discovery-sources-design`; not canonical until reviewed and merged. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
+| #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
+| #4 | Discovery Sources: design URL discovery providers | Review needed | Design ready in PR #47; no implementation added. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Not started | Depends on reviewed #4 contracts. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
@@ -96,6 +96,61 @@ Changed files:
 Next step:
 - Review and merge the Documentation Stabilization PR before continuing
   roadmap implementation.
+
+Date: 2026-06-10
+Issue: #4
+Status: Review needed
+Summary:
+- Designed the DiscoveryRun aggregate and resumable lifecycle.
+- Defined provider-neutral search, sitemap, seed and extracted-link adapters.
+- Defined capability negotiation, checkpoints, retries, backpressure and
+  execution budgets.
+- Defined the idempotent candidate observation contract with URL Frontier.
+- Defined Topic snapshot and future Crawler Worker integration boundaries.
+- Added SSRF, DNS rebinding, redirect, XML entity and decompression bomb
+  constraints.
+- Kept Discovery Sources, Crawler Worker and URL Frontier implementation out of
+  scope.
+Changed files:
+- docs/architecture.md
+- docs/codex-workflow.md
+- docs/discovery-sources-model.md
+- docs/progress.md
+- docs/topic-model.md
+- docs/url-frontier-model.md
+Next step:
+- Human architecture review of Issue #4 design. Do not start Issue #5 design
+  before approval.
+
+Date: 2026-06-10
+Issue: #4
+Status: In progress
+Summary:
+- Created `issue/4-discovery-sources-design` from merged `main`.
+- Started design-only work for Discovery Sources.
+- Implementation remains deferred until Issue #4 and Issue #5 designs are
+  reviewed in sequence.
+Changed files:
+- docs/progress.md
+Next step:
+- Define provider contracts, source lifecycles, safety boundaries and URL
+  Frontier handoff in `docs/discovery-sources-model.md`.
+
+Date: 2026-06-10
+Issue: #2
+Status: Done
+Summary:
+- Human review approved PR #31.
+- Reviewed automated feedback before merge and fixed lifecycle/configuration
+  write races, private discovery URL validation, strict relevance field
+  weights and malformed optional text handling.
+- Verified 13 tests and both production builds after review fixes.
+- PR #31 merged into `main`.
+Changed files:
+- packages/topic-engine
+- docs/progress.md
+Next step:
+- Keep Issue #3 at Design approved and begin Issue #4 design only.
 
 Date: 2026-06-10
 Issue: #2

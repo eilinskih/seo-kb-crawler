@@ -529,14 +529,15 @@ Exact schema and indexes remain implementation details after design review.
 - Queue depth is not used as durable frontier state.
 - Priority recomputation is batched rather than performed globally per request.
 
-## Proposed implementation after review
+## Proposed implementation sequence
 
-After Issue #3 design approval:
+Topic Engine implementation is complete. URL Frontier implementation remains
+deferred until:
 
-1. Return to Issue #2 implementation.
-2. Adjust Topic contracts using the findings in this document.
-3. Complete Topic Engine implementation and review.
-4. Implement URL Frontier using approved Topic snapshot contracts.
+1. Issue #4 Discovery Sources design review.
+2. Issue #5 Crawler Worker design review.
+3. Issue #4 implementation review.
+4. Issue #5 implementation review.
 
 Issue #3 implementation may later add:
 
