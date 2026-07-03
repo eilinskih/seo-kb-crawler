@@ -10,8 +10,13 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "incremental": true,
     "skipLibCheck": true,
+    "types": [
+      "node",
+      "jest"
+    ],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
@@ -22,11 +27,26 @@
       "@seo-kb/common": [
         "packages/common/src"
       ],
+      "@seo-kb/common/*": [
+        "packages/common/src/*"
+      ],
       "@seo-kb/db": [
         "packages/db/src"
       ],
+      "@seo-kb/db/*": [
+        "packages/db/src/*"
+      ],
+      "@seo-kb/discovery-sources": [
+        "packages/discovery-sources/src"
+      ],
+      "@seo-kb/discovery-sources/*": [
+        "packages/discovery-sources/src/*"
+      ],
       "@seo-kb/topic-engine": [
         "packages/topic-engine/src"
+      ],
+      "@seo-kb/topic-engine/*": [
+        "packages/topic-engine/src/*"
       ]
     }
   }

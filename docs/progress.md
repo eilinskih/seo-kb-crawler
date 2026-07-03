@@ -39,8 +39,8 @@ Roadmap order, phases and dependency rules live only in
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
-| #4 | Discovery Sources: design URL discovery providers | Design approved | PR #47 merged design-only contracts; implementation waits for #5 design approval. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Review needed | Design ready in `issue/5-crawler-worker-design`; no implementation added. |
+| #4 | Discovery Sources: design URL discovery providers | Review needed | Initial implementation ready in `issue/4-discovery-sources-implementation`; no URL Frontier persistence added. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Design approved | PR #49 merged design-only contracts; implementation waits for #4 implementation review. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -68,8 +68,39 @@ Roadmap order, phases and dependency rules live only in
 Add entries here in reverse chronological order.
 
 Date: 2026-07-03
-Issue: #5
+Issue: #4
 Status: Review needed
+Summary:
+- Created `issue/4-discovery-sources-implementation` from updated `main` after
+  PR #49 merge.
+- Added `packages/discovery-sources` as a NestJS library boundary.
+- Implemented framework-independent Discovery run contracts, lifecycle,
+  deterministic planning, candidate observation idempotency and provider
+  adapter interfaces.
+- Implemented seed and extracted-link adapters because they do not require
+  external provider access, sitemap fetching, URL Frontier persistence or
+  crawler runtime behavior.
+- Added focused unit tests for planning, run lifecycle, idempotency and
+  seed/link adapter emission.
+- Synchronized #5 to Design approved after PR #49 merge.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/discovery-sources-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- nest-cli.json
+- jest.config.js
+- tsconfig.json
+- packages/discovery-sources
+Next step:
+- Human implementation review of Issue #4. Do not implement Issue #5,
+  Issue #3 or external discovery providers before approval.
+
+Date: 2026-07-03
+Issue: #5
+Status: Design approved
 Summary:
 - Created `issue/5-crawler-worker-design` from updated `main` after PR #48
   merge.
@@ -94,8 +125,8 @@ Changed files:
 - docs/progress.md
 - docs/url-frontier-model.md
 Next step:
-- Human architecture review of Issue #5 design. Do not implement Issue #4,
-  Issue #5 or Issue #3 runtime work before approval.
+- Implement and review Issue #4 Discovery Sources before starting Issue #5
+  runtime work.
 
 Date: 2026-07-03
 Issue: #41

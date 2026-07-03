@@ -70,6 +70,7 @@ Current shared and domain packages:
 ```txt
 /packages/db
 /packages/common
+/packages/discovery-sources
 ```
 
 Planned domain packages:

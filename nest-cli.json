@@ -45,6 +45,15 @@
         "tsConfigPath": "packages/db/tsconfig.lib.json"
       }
     },
+    "discovery-sources": {
+      "type": "library",
+      "root": "packages/discovery-sources",
+      "entryFile": "index",
+      "sourceRoot": "packages/discovery-sources/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/discovery-sources/tsconfig.lib.json"
+      }
+    },
     "topic-engine": {
       "type": "library",
       "root": "packages/topic-engine",

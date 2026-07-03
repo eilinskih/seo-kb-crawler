@@ -1,6 +1,6 @@
 # Discovery Sources Model
 
-- Status: Design approved; implementation not started
+- Status: Design approved; initial implementation in review
 - Issue: #4
 - Date: 2026-06-10
 
@@ -17,8 +17,10 @@ They answer:
 - How are external requests constrained before any candidate reaches the
   Frontier?
 
-This is a design-only contract. No Discovery Sources implementation, crawler
-logic or URL Frontier code is included in Issue #4 design.
+This document is the accepted design contract. The initial Issue #4
+implementation adds package-level contracts, deterministic planning, seed and
+extracted-link adapters. General crawler logic, URL Frontier persistence,
+external search providers and sitemap network fetching remain out of scope.
 
 ## Boundaries
 
@@ -534,12 +536,12 @@ Credentials, response bodies and full checkpoints are excluded.
 
 ## Proposed implementation after design review
 
-Implementation remains deferred until:
+Initial implementation is allowed because:
 
 1. Issue #4 design is approved.
 2. Issue #5 Crawler Worker design is approved.
 
-Then the approved sequence is:
+The approved sequence remains:
 
 1. Implement Issue #4 Discovery Sources.
 2. Implement Issue #5 Crawler Worker.
