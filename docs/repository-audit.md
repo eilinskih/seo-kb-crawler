@@ -12,8 +12,8 @@ during the audit.
 The most important drift is that GitHub issues are still open even where work
 has landed on `main`, and the old roadmap in `docs/progress.md` did not include
 newer governance, scheduling, gateway and provider issues. The repository now
-has `docs/implementation-order.md` as the canonical roadmap-order document, and
-`docs/progress.md` remains the progress tracker.
+has `docs/implementation-order.md` as the only canonical roadmap-order
+document, and `docs/progress.md` remains the live status and work-log tracker.
 
 ## Branch audit
 
@@ -65,19 +65,24 @@ status is documented in `docs/progress.md`.
 Existing documentation:
 
 - `README.md`: project overview, stack, setup and API endpoint summary.
+- `docs/project-map.md`: repository navigation and document ownership map.
 - `docs/architecture.md`: architecture overview and accepted boundaries.
-- `docs/progress.md`: single progress tracker.
+- `docs/implementation-order.md`: canonical roadmap and dependency order.
+- `docs/progress.md`: live status and work-log tracker.
 - `docs/codex-workflow.md`: repository working rules and review sequence.
 - `docs/topic-model.md`: Topic Engine design and implementation contract.
 - `docs/url-frontier-model.md`: URL Frontier design contract.
 - `docs/decisions/0001-foundation.md`: accepted foundation runtime decisions.
 - `docs/decisions/0002-nestjs-monorepo-knex.md`: accepted monorepo and Knex decisions.
+- `docs/decisions/README.md`: ADR practice guide.
 
 Documentation gaps addressed in this PR:
 
 - Missing canonical implementation order after issues #30 and #40-#43 were
   added.
 - Missing repository audit summary.
+- Missing project navigation map.
+- Missing ADR practice guide.
 - Drift between `main`, unmerged working branches and the progress tracker.
 - README lacked a documentation map for new engineers.
 

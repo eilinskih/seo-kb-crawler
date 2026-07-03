@@ -1,8 +1,12 @@
 # Implementation Progress
 
-This document is the single lightweight progress tracker for Codex and human review.
+This document is the live status and work-log tracker for Codex and human
+review.
 
 Codex must update this file whenever it starts, advances or completes an issue.
+
+Roadmap order, phases and dependency rules live only in
+`docs/implementation-order.md`. Do not turn this file into a competing roadmap.
 
 ## Status legend
 
@@ -27,7 +31,7 @@ Codex must update this file whenever it starts, advances or completes an issue.
 10. Do not generate SEO content directly from retrieval chunks alone.
 11. Codex-facing outputs should use Knowledge Pack + SERP Pack when available.
 
-## Current roadmap
+## Current status snapshot
 
 | Issue | Title | Status | Notes |
 |---|---|---|---|
@@ -75,13 +79,17 @@ Summary:
   work and must not be treated as canonical until reviewed and merged.
 - Added repository audit documentation and a canonical implementation-order
   guide without changing runtime behavior.
+- Added `docs/project-map.md` as the repository navigation entry point.
+- Added `docs/decisions/README.md` to make ADRs a permanent practice.
 - Synchronized this progress tracker with merged work, open branches and newer
   issues #30 and #40-#43.
 Changed files:
 - README.md
 - docs/architecture.md
 - docs/codex-workflow.md
+- docs/decisions/README.md
 - docs/implementation-order.md
+- docs/project-map.md
 - docs/progress.md
 - docs/repository-audit.md
 - docs/url-frontier-model.md

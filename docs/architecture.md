@@ -6,6 +6,11 @@ The system is not a SaaS, not a public search engine and not an article generato
 
 For implementation order, dependencies and canonical terminology, see
 `docs/implementation-order.md`. For current progress, see `docs/progress.md`.
+For repository navigation, see `docs/project-map.md`.
+
+This document is the architecture overview. Keep subsystem details in
+specialized documents such as `docs/topic-model.md`,
+`docs/url-frontier-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 

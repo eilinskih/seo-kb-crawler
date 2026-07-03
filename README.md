@@ -89,15 +89,16 @@ Planned domain packages:
 ## Documentation map
 
 - `docs/repository-audit.md` records the latest repository stabilization audit.
+- `docs/project-map.md` is the first-stop navigation document for engineers.
 - `docs/implementation-order.md` is the canonical implementation order and
-  dependency guide.
-- `docs/progress.md` is the single live progress tracker.
+  dependency guide, and the only canonical roadmap.
+- `docs/progress.md` is the live status and work-log tracker.
 - `docs/architecture.md` explains current and planned system boundaries.
 - `docs/codex-workflow.md` defines working rules, review gates and issue
   sequencing.
 - `docs/topic-model.md` documents the implemented Topic Engine contract.
 - `docs/url-frontier-model.md` documents the approved URL Frontier design.
-- `docs/decisions/` contains accepted ADRs.
+- `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## MVP scope
 

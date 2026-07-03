@@ -1,7 +1,8 @@
 # Implementation Order and Roadmap Governance
 
-This document is the canonical execution-order guide for the repository. It
-complements `docs/progress.md`, which remains the single progress tracker.
+This document is the only canonical roadmap, dependency graph and
+execution-order guide for the repository. It complements `docs/progress.md`,
+which remains the live status and work-log tracker.
 
 ## Current repository state
 
@@ -15,6 +16,12 @@ complements `docs/progress.md`, which remains the single progress tracker.
 
 Do not assume a working branch is canonical until its pull request is reviewed
 and merged into `main`.
+
+## Ownership
+
+- Roadmap order, phases, dependencies and canonical terminology live here.
+- Current status, review state and progress notes live in `docs/progress.md`.
+- Accepted durable architecture decisions live in `docs/decisions/`.
 
 ## Phase 1: Foundation
 

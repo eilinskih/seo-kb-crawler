@@ -12,7 +12,7 @@ The objective is to help Codex produce better SEO pages, content plans, research
 
 ## Working rules
 
-1. Follow issue order unless an issue explicitly states otherwise.
+1. Follow `docs/implementation-order.md` unless an issue explicitly states otherwise.
 2. Prefer small, reviewable commits.
 3. Update docs together with architecture changes.
 4. Keep modules loosely coupled.
@@ -27,11 +27,15 @@ The objective is to help Codex produce better SEO pages, content plans, research
 13. Review Dependabot updates with the same tests and architecture constraints.
 14. Use one dedicated branch per issue, named `issue/<number>-<short-name>`.
 15. Do not begin the next issue from an unreviewed or unmerged issue branch.
+16. Record accepted durable architecture decisions as ADRs in `docs/decisions/`.
+17. Keep roadmap order in `docs/implementation-order.md`; keep live status in
+    `docs/progress.md`.
 
 ## Required implementation sequence
 
-The canonical implementation order lives in `docs/implementation-order.md`.
-This section is a short phase summary only.
+The canonical implementation order lives only in `docs/implementation-order.md`.
+This section is a short phase summary only and must not become a competing
+roadmap.
 
 Phase 1:
 - #1 Foundation
