@@ -33,8 +33,8 @@ and merged into `main`.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 5 | #4 | Discovery Sources design and implementation | Implementation in review; initial package contracts, planner and seed/link adapters only. |
-| 6 | #5 | Crawler Worker controlled crawling pipeline | Design approved; implementation follows #4 implementation review. |
+| 5 | #4 | Discovery Sources design and implementation | Done on `main`; initial package contracts, planner and seed/link adapters only. |
+| 6 | #5 | Crawler Worker controlled crawling pipeline | Implementation in progress. |
 | 7 | #3 | URL Frontier implementation | Follows reviewed #4 and #5 implementation contracts. |
 | 8 | #43 | Research Engine Scheduling | Requires Topic, Frontier, Discovery and Crawler contracts. |
 

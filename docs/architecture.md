@@ -78,8 +78,11 @@ providers and sitemap fetching remain later work.
 
 The proposed Crawler Worker adapter boundary, safe network gateway, robots
 policy, crawl-result and extracted-link contracts are documented in
-`docs/crawler-worker-model.md`. Issue #5 is design-only until review, and no
-runtime crawling behavior is implemented yet.
+`docs/crawler-worker-model.md`. The initial implementation lives in
+`packages/crawler` and covers command validation, adapter selection contracts,
+result normalization and worker job handling. Network crawling, concrete
+adapters, safe network gateway implementation and URL Frontier persistence
+remain later work.
 
 ### Document normalization
 
@@ -195,7 +198,10 @@ The initial implementation uses one NestJS monorepo with independently runnable 
 apps/api
 apps/crawler-worker
 packages/common
+packages/crawler
 packages/db
+packages/discovery-sources
+packages/topic-engine
 ```
 
 PostgreSQL is the source of truth. The local PostgreSQL service uses the pgvector image and enables the `vector` extension at initialization so later embedding work does not require replacing the database runtime.

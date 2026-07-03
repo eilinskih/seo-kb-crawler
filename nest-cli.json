@@ -36,6 +36,15 @@
         "tsConfigPath": "packages/common/tsconfig.lib.json"
       }
     },
+    "crawler": {
+      "type": "library",
+      "root": "packages/crawler",
+      "entryFile": "index",
+      "sourceRoot": "packages/crawler/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/crawler/tsconfig.lib.json"
+      }
+    },
     "db": {
       "type": "library",
       "root": "packages/db",

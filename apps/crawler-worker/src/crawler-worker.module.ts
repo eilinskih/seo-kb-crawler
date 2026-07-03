@@ -7,6 +7,7 @@ import {
   redisConnectionFromUrl,
   validateEnvironment,
 } from '@seo-kb/common';
+import { CrawlerModule } from '@seo-kb/crawler';
 import { DbModule } from '@seo-kb/db';
 import { CrawlProcessor } from './crawl.processor';
 
@@ -19,6 +20,7 @@ import { CrawlProcessor } from './crawl.processor';
       validate: validateEnvironment,
     }),
     DbModule,
+    CrawlerModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
