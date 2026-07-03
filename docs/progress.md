@@ -71,6 +71,33 @@ Date: 2026-07-03
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #56 into `main`.
+- Created `issue/5-crawler-result-sink-ack` from updated `main`.
+- Added an injectable crawl result sink boundary and wired `CrawlJobHandler` to
+  append every normalized result before returning to the BullMQ processor.
+- Added the current self-contained in-memory result sink implementation.
+- Preserved BullMQ acknowledgement semantics: sink or handler failures propagate
+  so the job is not acknowledged as successful.
+- Kept URL Frontier-owned durable attempt persistence and schema design out of
+  this slice.
+Changed files:
+- apps/crawler-worker/src/crawl.processor.spec.ts
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/crawl-job.handler.ts
+- packages/crawler/src/crawl-job.handler.spec.ts
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/index.ts
+- packages/crawler/src/infrastructure/in-memory-crawl-result-sink.ts
+- packages/crawler/src/infrastructure/in-memory-crawl-result-sink.spec.ts
+Next step:
+- Add a durable URL Frontier-owned crawl attempt/result sink once the Frontier
+  persistence schema is accepted.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #55 into `main`.
 - Created `issue/5-crawler-http-fetch-adapter` from updated `main`.
 - Added the first concrete `http-fetch` crawler adapter for static HTML fetches.

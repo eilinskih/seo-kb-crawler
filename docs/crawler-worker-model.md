@@ -125,6 +125,17 @@ The durable lifecycle belongs to the URL Frontier. The Crawler Worker reports
 transitions through a crawl-result boundary instead of independently mutating
 priority or scheduling state.
 
+Current implementation status:
+
+- `CrawlJobHandler` appends normalized crawl results through an injectable
+  `CrawlResultSink` before returning to the BullMQ processor.
+- The default sink is in-memory so the repository remains self-contained while
+  URL Frontier durable persistence is not yet implemented.
+- BullMQ jobs are acknowledged only when handler execution and result append
+  both complete successfully.
+- Durable attempt/result persistence still belongs to the future URL
+  Frontier-owned schema.
+
 ```txt
 leased
   -> running
