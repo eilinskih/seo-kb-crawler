@@ -14,8 +14,11 @@ import {
 const maxUrlLength = 4096;
 const maxTextLength = 1000;
 const maxHeaderLength = 2000;
+const maxHeaderEntries = 100;
 const maxFailureDetailLength = 1000;
 const artifactFieldLength = 500_000;
+const maxRelTokens = 20;
+const maxMetadataBytes = 5000;
 
 @Injectable()
 export class CrawlResultNormalizer {
@@ -50,7 +53,7 @@ export class CrawlResultNormalizer {
       finalUrl: normalizeOptionalUrl(result.finalUrl, 'finalUrl'),
       statusCode: normalizeOptionalStatusCode(result.statusCode),
       headers: normalizeHeaders(result.headers),
-      redirectChain: normalizeRedirects(result.redirectChain),
+      redirectChain: normalizeRedirects(result.redirectChain, command),
       canonicalUrl: normalizeOptionalUrl(result.canonicalUrl, 'canonicalUrl'),
       title: normalizeOptionalText(result.title, 'title', maxTextLength),
       metaDescription: normalizeOptionalText(
@@ -94,7 +97,7 @@ function normalizeHeaders(
     return {};
   }
   return Object.fromEntries(
-    Object.entries(headers).map(([key, value]) => [
+    Object.entries(headers).slice(0, maxHeaderEntries).map(([key, value]) => [
       normalizeRequiredText(key.toLowerCase(), 'header key', 100),
       normalizeRequiredText(value, `header ${key}`, maxHeaderLength),
     ]),
@@ -103,8 +106,9 @@ function normalizeHeaders(
 
 function normalizeRedirects(
   redirects: RedirectEvidence[] | undefined,
+  command: CrawlCommand,
 ): RedirectEvidence[] {
-  return (redirects ?? []).map((redirect, index) => ({
+  return (redirects ?? []).slice(0, command.policy.maxRedirects).map((redirect, index) => ({
     fromUrl: normalizeUrl(redirect.fromUrl, `redirectChain[${index}].fromUrl`),
     toUrl: normalizeUrl(redirect.toUrl, `redirectChain[${index}].toUrl`),
     statusCode: normalizeOptionalStatusCode(redirect.statusCode),
@@ -127,7 +131,7 @@ function normalizeLinks(
         `outgoingLinks[${index}].anchorText`,
         maxTextLength,
       ),
-      rel: link.rel?.map((token, tokenIndex) =>
+      rel: link.rel?.slice(0, maxRelTokens).map((token, tokenIndex) =>
         normalizeRequiredText(
           token,
           `outgoingLinks[${index}].rel[${tokenIndex}]`,
@@ -146,7 +150,7 @@ function normalizeLinks(
               link.position,
               `outgoingLinks[${index}].position`,
             ),
-      metadata: link.metadata ?? {},
+      metadata: normalizeMetadata(link.metadata, `outgoingLinks[${index}].metadata`),
     }),
   );
 }
@@ -208,6 +212,27 @@ function contentHash(
   return content
     ? createHash('sha256').update(content).digest('hex')
     : null;
+}
+
+function normalizeMetadata(
+  metadata: Record<string, unknown> | undefined,
+  field: string,
+): Record<string, unknown> {
+  if (!metadata) {
+    return {};
+  }
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(metadata);
+  } catch {
+    throw new CrawlerValidationError(`${field} must be JSON serializable`);
+  }
+  if (serialized.length > maxMetadataBytes) {
+    throw new CrawlerValidationError(
+      `${field} exceeds ${maxMetadataBytes} serialized characters`,
+    );
+  }
+  return JSON.parse(serialized) as Record<string, unknown>;
 }
 
 function normalizeOptionalUrl(

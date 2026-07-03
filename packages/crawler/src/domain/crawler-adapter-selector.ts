@@ -9,8 +9,7 @@ import {
 @Injectable()
 export class CrawlerAdapterSelector {
   select(command: CrawlCommand, adapters: CrawlerAdapter[]): CrawlerAdapter {
-    const orderedAdapters = this.orderAdapters(command, adapters);
-    const adapter = orderedAdapters.find((candidate) =>
+    const adapter = adapters.find((candidate) =>
       isCompatible(command, candidate.capabilities),
     );
 
@@ -21,26 +20,6 @@ export class CrawlerAdapterSelector {
     }
 
     return adapter;
-  }
-
-  private orderAdapters(
-    command: CrawlCommand,
-    adapters: CrawlerAdapter[],
-  ): CrawlerAdapter[] {
-    const preference = command.policy.adapterPreference;
-    if (!preference) {
-      return adapters;
-    }
-
-    return [...adapters].sort((left, right) => {
-      const leftIndex = preference.indexOf(left.key);
-      const rightIndex = preference.indexOf(right.key);
-      const normalizedLeftIndex =
-        leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
-      const normalizedRightIndex =
-        rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
-      return normalizedLeftIndex - normalizedRightIndex;
-    });
   }
 }
 

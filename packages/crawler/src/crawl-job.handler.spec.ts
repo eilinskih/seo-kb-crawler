@@ -1,13 +1,10 @@
 import { CrawlJobHandler } from './crawl-job.handler';
-import { CrawlerAdapterSelector } from './domain/crawler-adapter-selector';
 import { CrawlResultNormalizer } from './domain/crawl-result-normalizer';
 
 describe('CrawlJobHandler', () => {
   it('returns a terminal adapter error until crawler adapters are configured', async () => {
     const result = await new CrawlJobHandler(
-      new CrawlerAdapterSelector(),
       new CrawlResultNormalizer(),
-      [],
     ).handle({
       attemptId: 'attempt-1',
       frontierEntryId: 'frontier-1',

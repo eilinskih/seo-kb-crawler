@@ -35,7 +35,6 @@ export type CrawlerAdapterKey =
 export interface CrawlPolicySnapshot {
   userAgent: string;
   respectRobots: boolean;
-  adapterPreference?: CrawlerAdapterKey[];
   requiresJavaScript?: boolean;
   requiresMarkdown?: boolean;
   requiresPlainText?: boolean;
@@ -71,6 +70,26 @@ export interface RobotsDecision {
   evidence?: string;
 }
 
+export interface SafeNetworkRequest {
+  url: string;
+  method: 'GET' | 'HEAD';
+  headers?: Record<string, string>;
+  deadline: Date;
+  signal: AbortSignal;
+}
+
+export interface SafeNetworkResponse {
+  finalUrl: string;
+  statusCode: number;
+  headers: Record<string, string>;
+  body: Uint8Array;
+  redirectChain: RedirectEvidence[];
+}
+
+export interface SafeNetworkGateway {
+  fetch(request: SafeNetworkRequest): Promise<SafeNetworkResponse>;
+}
+
 export interface CrawlerAdapterCapabilities {
   supportsJavaScriptRendering: boolean;
   supportsMarkdownExtraction: boolean;
@@ -85,6 +104,7 @@ export interface CrawlerAdapterCapabilities {
 export interface CrawlExecutionContext {
   command: CrawlCommand;
   robotsDecision: RobotsDecision;
+  safeNetworkGateway: SafeNetworkGateway;
   deadline: Date;
   signal: AbortSignal;
 }

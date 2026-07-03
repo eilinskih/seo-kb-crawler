@@ -15,7 +15,6 @@ describe('createCrawlCommand', () => {
     policy: {
       userAgent: 'seo-kb-crawler',
       respectRobots: true,
-      adapterPreference: ['crawl4ai', 'http-fetch'],
       requiresMarkdown: true,
       maxBodyBytes: 500_000,
       maxRedirects: 5,
@@ -30,7 +29,7 @@ describe('createCrawlCommand', () => {
 
     expect(command.normalizedUrl).toBe('https://example.com/page');
     expect(command.deadline).toEqual(new Date('2026-07-03T10:00:30Z'));
-    expect(command.policy.adapterPreference).toEqual(['crawl4ai', 'http-fetch']);
+    expect(command.policy.requiresMarkdown).toBe(true);
   });
 
   it('rejects commands whose deadline exceeds the frontier lease', () => {

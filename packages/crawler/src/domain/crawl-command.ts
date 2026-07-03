@@ -53,7 +53,6 @@ function normalizePolicy(policy: CrawlPolicySnapshot): CrawlPolicySnapshot {
   return {
     userAgent: normalizeRequiredText(policy.userAgent, 'policy.userAgent', 200),
     respectRobots: policy.respectRobots === true,
-    adapterPreference: normalizeAdapterPreference(policy.adapterPreference),
     requiresJavaScript: policy.requiresJavaScript === true,
     requiresMarkdown: policy.requiresMarkdown === true,
     requiresPlainText: policy.requiresPlainText === true,
@@ -72,21 +71,6 @@ function normalizePolicy(policy: CrawlPolicySnapshot): CrawlPolicySnapshot {
       'policy.maxMediaAssets',
     ),
   };
-}
-
-function normalizeAdapterPreference(
-  value: string[] | undefined,
-): string[] | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (!Array.isArray(value)) {
-    throw new CrawlerValidationError('policy.adapterPreference must be an array');
-  }
-  const normalized = value.map((adapterKey, index) =>
-    normalizeRequiredText(adapterKey, `policy.adapterPreference[${index}]`, 50),
-  );
-  return normalized.length === 0 ? undefined : normalized;
 }
 
 function normalizeHttpUrl(value: string, field: string): string {

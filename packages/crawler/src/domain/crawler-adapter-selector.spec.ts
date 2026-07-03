@@ -36,9 +36,8 @@ const crawl4aiAdapter: CrawlerAdapter = {
 };
 
 describe('CrawlerAdapterSelector', () => {
-  it('selects the first preferred compatible adapter', () => {
+  it('selects the first deployment-ordered compatible adapter', () => {
     const command = createCommand({
-      adapterPreference: ['http-fetch', 'crawl4ai'],
       requiresMarkdown: true,
     });
 

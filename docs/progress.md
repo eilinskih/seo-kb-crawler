@@ -76,12 +76,12 @@ Summary:
 - Synchronized Issue #4 to Done after merge.
 - Started Crawler Worker implementation from the accepted design in
   `docs/crawler-worker-model.md`.
-- Added `packages/crawler` with command validation, adapter contracts, adapter
-  selection and crawl result normalization.
+- Added `packages/crawler` with command validation, adapter contracts, safe
+  network gateway contract, adapter selection and crawl result normalization.
 - Wired `apps/crawler-worker` to the crawler command handler without adding
-  network crawling or concrete adapters.
+  network crawling, concrete adapters or adapter execution.
 - Added focused unit tests for command validation, adapter selection, result
-  normalization and unconfigured-adapter handling.
+  normalization, bounded collections and disabled-adapter handling.
 Changed files:
 - apps/crawler-worker/src/crawl.processor.ts
 - apps/crawler-worker/src/crawler-worker.module.ts

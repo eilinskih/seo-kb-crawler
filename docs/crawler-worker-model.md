@@ -20,11 +20,12 @@ It answers:
 - Which extracted links can be converted into new discovery observations?
 
 This document is the accepted design contract. The initial Issue #5
-implementation adds package-level command, adapter, result, selector and
-normalization contracts plus worker command handling. Network crawling, concrete
-HTTP/Crawl4AI/Playwright adapters, safe network gateway implementation, URL
-Frontier persistence and Content Processing remain out of scope for the first
-implementation slice.
+implementation adds package-level command, adapter, result, selector, safe
+network gateway and normalization contracts plus worker command handling.
+Adapter execution is intentionally disabled until safe network gateway, robots
+policy and deadline enforcement are implemented. Network crawling, concrete
+HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
+Processing remain out of scope for the first implementation slice.
 
 ## Boundaries
 
