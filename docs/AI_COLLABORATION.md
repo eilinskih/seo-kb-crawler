@@ -32,6 +32,25 @@ The Product Owner owns:
 
 The Product Owner is the only authority allowed to change product direction.
 
+## Decision Hierarchy
+
+Engineering authority is divided as follows:
+
+```txt
+Product Owner
+  -> Architecture Steward
+  -> SEO Research Architect
+  -> Implementation Lead
+```
+
+Responsibilities are intentionally separated.
+
+No role owns the entire system.
+
+Each role protects its own area of responsibility.
+
+Product direction always belongs to the Product Owner.
+
 ## Engineering Roles
 
 The engineering team has three permanent roles.
@@ -110,8 +129,8 @@ Responsible for:
 - search quality;
 - semantic quality.
 
-May reject implementations that significantly reduce retrieval quality or
-knowledge quality.
+May request implementation changes when research quality, retrieval quality or
+knowledge quality would be negatively affected.
 
 Must never:
 
@@ -163,6 +182,20 @@ Every significant engineering task should follow this sequence:
 Only after all applicable reviews are complete should implementation be
 considered finished.
 
+Significant engineering work includes:
+
+- architectural changes;
+- new subsystems;
+- new public APIs;
+- crawler changes;
+- retrieval changes;
+- processing changes;
+- schema changes;
+- roadmap changes.
+
+Small bug fixes, typo fixes and documentation-only edits may use a simplified
+workflow.
+
 ## Disagreements
 
 If engineering roles disagree:
@@ -178,8 +211,42 @@ Repository First.
 
 Historical conversations are not part of the repository.
 
+When documentation, implementation or historical conversations disagree:
+
+The repository wins.
+
+Never implement features based solely on historical conversations.
+
+If important knowledge exists only outside the repository, document it first.
+
 The repository is the canonical source of truth:
 
 - architecture explains why;
 - issues explain what;
 - code explains how.
+
+## Repository Evolution
+
+The repository is expected to evolve.
+
+Architecture documents may grow.
+
+New ADRs may be added.
+
+Engineering roles may evolve.
+
+However:
+
+- accepted architectural decisions should not be changed implicitly;
+- every major change should be documented before implementation.
+
+## Pull Request Checklist
+
+Before merging significant work verify:
+
+- architecture remains consistent;
+- documentation is updated;
+- implementation follows the roadmap;
+- progress tracking is updated;
+- related issues are synchronized;
+- accepted ADRs remain valid.
