@@ -10,5 +10,6 @@ export * from './domain/deadline-signal';
 export * from './domain/topic-policy';
 export * from './infrastructure/http-fetch-adapter';
 export * from './infrastructure/in-memory-crawl-result-sink';
+export * from './infrastructure/knex-crawl-attempt-result-sink';
 export * from './infrastructure/robots-policy.service';
 export * from './infrastructure/safe-network-gateway.service';
