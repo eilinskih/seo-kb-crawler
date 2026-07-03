@@ -40,7 +40,7 @@ Roadmap order, phases and dependency rules live only in
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway and robots policy service are implemented in active work. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway, robots policy service and Topic policy evaluator are implemented in active work. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -66,6 +66,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
+- Created `issue/5-crawler-topic-policy` from updated `main` after PR #53
+  merge.
+- Added pure Topic crawl policy evaluator for Crawler Worker request, redirect
+  and canonical candidates.
+- Enforced allowed hosts, denied hosts, included path patterns, excluded path
+  patterns and cross-host canonical policy.
+- Kept concrete crawler adapters and adapter execution disabled.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/domain/crawl-command.ts
+- packages/crawler/src/domain/crawl-command.spec.ts
+- packages/crawler/src/domain/crawler-types.ts
+- packages/crawler/src/domain/topic-policy.ts
+- packages/crawler/src/domain/topic-policy.spec.ts
+- packages/crawler/src/index.ts
+Next step:
+- Add worker execution wrapper that combines safe network gateway, robots
+  policy, Topic policy and deadline enforcement before enabling adapters.
 
 Date: 2026-07-03
 Issue: #5

@@ -15,6 +15,11 @@ describe('createCrawlCommand', () => {
     policy: {
       userAgent: 'seo-kb-crawler',
       respectRobots: true,
+      allowedHosts: ['example.com'],
+      deniedHosts: [],
+      includedPathPatterns: ['/docs/*'],
+      excludedPathPatterns: ['/docs/private/*'],
+      crossHostCanonicalPolicy: 'same-host',
       requiresMarkdown: true,
       maxBodyBytes: 500_000,
       maxRedirects: 5,
@@ -30,6 +35,9 @@ describe('createCrawlCommand', () => {
     expect(command.normalizedUrl).toBe('https://example.com/page');
     expect(command.deadline).toEqual(new Date('2026-07-03T10:00:30Z'));
     expect(command.policy.requiresMarkdown).toBe(true);
+    expect(command.policy.allowedHosts).toEqual(['example.com']);
+    expect(command.policy.includedPathPatterns).toEqual(['/docs/*']);
+    expect(command.policy.crossHostCanonicalPolicy).toBe('same-host');
   });
 
   it('rejects commands whose deadline exceeds the frontier lease', () => {

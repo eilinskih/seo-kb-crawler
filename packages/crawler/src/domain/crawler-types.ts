@@ -35,6 +35,11 @@ export type CrawlerAdapterKey =
 export interface CrawlPolicySnapshot {
   userAgent: string;
   respectRobots: boolean;
+  allowedHosts?: string[];
+  deniedHosts?: string[];
+  includedPathPatterns?: string[];
+  excludedPathPatterns?: string[];
+  crossHostCanonicalPolicy?: 'same-host' | 'allowed-hosts';
   requiresJavaScript?: boolean;
   requiresMarkdown?: boolean;
   requiresPlainText?: boolean;
@@ -80,6 +85,23 @@ export interface RobotsPolicyOptions {
   maxRobotsBytes: number;
   maxRedirects: number;
   maxResponseHeaderBytes: number;
+}
+
+export interface TopicCrawlPolicySnapshot {
+  allowedHosts: string[];
+  deniedHosts: string[];
+  includedPathPatterns: string[];
+  excludedPathPatterns: string[];
+  crossHostCanonicalPolicy: 'same-host' | 'allowed-hosts';
+}
+
+export type TopicPolicyCheckKind = 'request' | 'redirect' | 'canonical';
+
+export interface TopicPolicyDecision {
+  allowed: boolean;
+  checkedUrl: string;
+  kind: TopicPolicyCheckKind;
+  evidence: string;
 }
 
 export interface SafeNetworkRequest {

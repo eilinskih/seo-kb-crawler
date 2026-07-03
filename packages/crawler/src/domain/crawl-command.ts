@@ -53,6 +53,33 @@ function normalizePolicy(policy: CrawlPolicySnapshot): CrawlPolicySnapshot {
   return {
     userAgent: normalizeRequiredText(policy.userAgent, 'policy.userAgent', 200),
     respectRobots: policy.respectRobots === true,
+    allowedHosts: normalizeOptionalStringArray(
+      policy.allowedHosts,
+      'policy.allowedHosts',
+      500,
+      255,
+    ),
+    deniedHosts: normalizeOptionalStringArray(
+      policy.deniedHosts,
+      'policy.deniedHosts',
+      500,
+      255,
+    ),
+    includedPathPatterns: normalizeOptionalStringArray(
+      policy.includedPathPatterns,
+      'policy.includedPathPatterns',
+      200,
+      500,
+    ),
+    excludedPathPatterns: normalizeOptionalStringArray(
+      policy.excludedPathPatterns,
+      'policy.excludedPathPatterns',
+      200,
+      500,
+    ),
+    crossHostCanonicalPolicy: normalizeCrossHostCanonicalPolicy(
+      policy.crossHostCanonicalPolicy,
+    ),
     requiresJavaScript: policy.requiresJavaScript === true,
     requiresMarkdown: policy.requiresMarkdown === true,
     requiresPlainText: policy.requiresPlainText === true,
@@ -71,6 +98,40 @@ function normalizePolicy(policy: CrawlPolicySnapshot): CrawlPolicySnapshot {
       'policy.maxMediaAssets',
     ),
   };
+}
+
+function normalizeOptionalStringArray(
+  values: string[] | undefined,
+  field: string,
+  maxItems: number,
+  maxItemLength: number,
+): string[] | undefined {
+  if (values === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(values)) {
+    throw new CrawlerValidationError(`${field} must be an array`);
+  }
+  if (values.length > maxItems) {
+    throw new CrawlerValidationError(`${field} exceeds ${maxItems} items`);
+  }
+  return values.map((value, index) =>
+    normalizeRequiredText(value, `${field}[${index}]`, maxItemLength),
+  );
+}
+
+function normalizeCrossHostCanonicalPolicy(
+  value: CrawlPolicySnapshot['crossHostCanonicalPolicy'],
+): CrawlPolicySnapshot['crossHostCanonicalPolicy'] {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value !== 'same-host' && value !== 'allowed-hosts') {
+    throw new CrawlerValidationError(
+      'policy.crossHostCanonicalPolicy must be same-host or allowed-hosts',
+    );
+  }
+  return value;
 }
 
 function normalizeHttpUrl(value: string, field: string): string {
