@@ -5,3 +5,5 @@ export * from './domain/crawl-result-normalizer';
 export * from './domain/crawler-adapter-selector';
 export * from './domain/crawler-errors';
 export * from './domain/crawler-types';
+export * from './domain/deadline-signal';
+export * from './infrastructure/safe-network-gateway.service';

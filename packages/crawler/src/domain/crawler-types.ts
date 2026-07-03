@@ -76,6 +76,9 @@ export interface SafeNetworkRequest {
   headers?: Record<string, string>;
   deadline: Date;
   signal: AbortSignal;
+  maxBodyBytes: number;
+  maxRedirects: number;
+  maxResponseHeaderBytes: number;
 }
 
 export interface SafeNetworkResponse {
