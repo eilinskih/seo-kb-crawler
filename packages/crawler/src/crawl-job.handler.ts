@@ -6,11 +6,13 @@ import { CrawlerAdapterSelectionError } from './domain/crawler-errors';
 import { CrawlResultNormalizer } from './domain/crawl-result-normalizer';
 import {
   CrawlerAdapter,
+  CrawlResultSink,
   CrawlCommandPayload,
   NormalizedCrawlResult,
 } from './domain/crawler-types';
 
 export const CRAWLER_ADAPTERS = Symbol('CRAWLER_ADAPTERS');
+export const CRAWL_RESULT_SINK = Symbol('CRAWL_RESULT_SINK');
 
 @Injectable()
 export class CrawlJobHandler {
@@ -20,6 +22,8 @@ export class CrawlJobHandler {
     private readonly adapterSelector: CrawlerAdapterSelector,
     @Inject(CRAWLER_ADAPTERS)
     private readonly adapters: CrawlerAdapter[],
+    @Inject(CRAWL_RESULT_SINK)
+    private readonly resultSink: CrawlResultSink,
   ) {}
 
   async handle(payload: CrawlCommandPayload): Promise<NormalizedCrawlResult> {
@@ -27,20 +31,22 @@ export class CrawlJobHandler {
     const preparation = await this.executionWrapper.prepare(command);
 
     if (preparation.status === 'blocked') {
-      return this.resultNormalizer.normalize(
-        command,
-        disabledAdapter(),
-        preparation.result,
+      return this.appendAndReturn(
+        this.resultNormalizer.normalize(
+          command,
+          disabledAdapter(),
+          preparation.result,
+        ),
       );
     }
 
+    let normalizedResult: NormalizedCrawlResult;
     try {
       const adapter = this.adapterSelector.select(command, this.adapters);
       const result = await adapter.crawl(preparation.context);
-
-      return this.resultNormalizer.normalize(command, adapter, result);
+      normalizedResult = this.resultNormalizer.normalize(command, adapter, result);
     } catch (error) {
-      return this.resultNormalizer.normalize(
+      normalizedResult = this.resultNormalizer.normalize(
         command,
         disabledAdapter(),
         {
@@ -56,6 +62,15 @@ export class CrawlJobHandler {
     } finally {
       preparation.dispose();
     }
+
+    return this.appendAndReturn(normalizedResult);
+  }
+
+  private async appendAndReturn(
+    result: NormalizedCrawlResult,
+  ): Promise<NormalizedCrawlResult> {
+    await this.resultSink.append(result);
+    return result;
   }
 }
 
