@@ -86,10 +86,21 @@ Required input:
 | `crawlPolicyFingerprint` | Policy fingerprint used when leasing. |
 | `leaseExpiresAt` | Expiring Frontier lease boundary. |
 | `policy` | Minimal request policy subset required for execution. |
-| `deadline` | Absolute execution deadline. |
+| `deadline` | Absolute execution deadline; must not exceed `leaseExpiresAt`. |
 
 The command must not include the full Topic configuration, database
 repositories, credentials or unbounded provider metadata.
+
+The effective abort deadline is:
+
+```txt
+min(deadline, leaseExpiresAt)
+```
+
+The worker must stop adapter execution no later than the lease expiry. A crawl
+attempt that cannot finish before the lease expires must report `timed_out` or
+let the Frontier expire the lease, rather than continuing to fetch after the
+same entry may be re-queued.
 
 ## Attempt lifecycle
 
@@ -223,7 +234,9 @@ Rules:
 
 - Robots policy is configurable, but the default posture is to respect robots.
 - Robots files are fetched through the safe network gateway.
-- Robots decisions are cached per scheme/host/user-agent with bounded TTL.
+- Robots decisions are cached per scheme, full authority and user-agent with
+  bounded TTL. The authority includes the effective port, because different
+  ports on the same host can serve different robots policies.
 - Explicit `Disallow` rules produce `blocked_by_policy`.
 - Robots fetch failures use a conservative configurable policy; the default is
   to avoid crawling when policy cannot be established.

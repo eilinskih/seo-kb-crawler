@@ -97,15 +97,15 @@ core pipeline or become required dependencies.
 ```txt
 #1 -> #2 -> #3 design
           -> #4 design -> #5 design -> #4 implementation -> #5 implementation -> #3 implementation -> #43
-                                      |
-                                      v
-              #6 -> #7 -> #8 -> #9 -> #10
-                     |           |      |
-                     v           v      v
-                    #11 -> #12 -> #13 -> #14 -> #15 -> #16
-                                                |
-                                                v
-                         #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
+                                                               |
+                                                               v
+                                                              #6 -> #7 -> #8 -> #9 -> #10
+                                                                     |           |      |
+                                                                     v           v      v
+                                                                    #11 -> #12 -> #13 -> #14 -> #15 -> #16
+                                                                                                |
+                                                                                                v
+                                                                         #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
 
 Optional:
 #17 enriches #11/#12/#14/#18.
