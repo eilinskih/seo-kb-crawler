@@ -68,6 +68,18 @@ export interface RobotsDecision {
   checkedUrl: string;
   userAgent: string;
   evidence?: string;
+  cacheKey?: string;
+  crawlDelaySeconds?: number;
+}
+
+export interface RobotsPolicyOptions {
+  respectRobots: boolean;
+  userAgent: string;
+  robotsTtlMs: number;
+  failClosed: boolean;
+  maxRobotsBytes: number;
+  maxRedirects: number;
+  maxResponseHeaderBytes: number;
 }
 
 export interface SafeNetworkRequest {

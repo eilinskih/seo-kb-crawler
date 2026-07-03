@@ -40,7 +40,7 @@ Roadmap order, phases and dependency rules live only in
 | #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization and safe network gateway skeleton are implemented in active work. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Initial package boundary, command handling, result normalization, safe network gateway and robots policy service are implemented in active work. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -66,6 +66,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-03
+Issue: #5
+Status: In progress
+Summary:
+- Created `issue/5-crawler-robots-policy` from updated `main` after PR #52
+  merge.
+- Added robots policy service that fetches robots files through the safe network
+  gateway.
+- Added cache keys based on scheme, authority and user-agent.
+- Added fail-closed default behavior with explicit fail-open configuration.
+- Added basic User-agent, Allow, Disallow and Crawl-delay parsing.
+- Kept concrete crawler adapters and adapter execution disabled.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- packages/crawler/src/domain/crawler-types.ts
+- packages/crawler/src/infrastructure/robots-policy.service.ts
+- packages/crawler/src/infrastructure/robots-policy.service.spec.ts
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/index.ts
+Next step:
+- Add Topic host/path redirect policy enforcement before enabling concrete
+  adapter execution.
 
 Date: 2026-07-03
 Issue: #5

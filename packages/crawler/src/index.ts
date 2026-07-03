@@ -6,4 +6,5 @@ export * from './domain/crawler-adapter-selector';
 export * from './domain/crawler-errors';
 export * from './domain/crawler-types';
 export * from './domain/deadline-signal';
+export * from './infrastructure/robots-policy.service';
 export * from './infrastructure/safe-network-gateway.service';
