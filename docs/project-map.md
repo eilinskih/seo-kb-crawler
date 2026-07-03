@@ -1,0 +1,94 @@
+# Project Map
+
+This is the starting point for engineers joining the repository.
+
+## Where to start
+
+1. Read `README.md` for the project goal, stack and local setup.
+2. Read `docs/architecture.md` for the current architecture overview.
+3. Read `docs/implementation-order.md` for the canonical roadmap, dependency
+   graph and implementation order.
+4. Read `docs/progress.md` for current status and the active work log.
+5. Read `docs/repository-audit.md` for the latest stabilization audit and known
+   inconsistencies.
+
+## Canonical documents
+
+| Need | Document |
+|---|---|
+| Project overview and setup | `README.md` |
+| Architecture overview | `docs/architecture.md` |
+| Roadmap and dependency order | `docs/implementation-order.md` |
+| Current progress and work log | `docs/progress.md` |
+| Working rules and review gates | `docs/codex-workflow.md` |
+| Repository audit | `docs/repository-audit.md` |
+| Accepted architecture decisions | `docs/decisions/` |
+
+## Architecture documents
+
+`docs/architecture.md` is intentionally an overview. Keep detailed design in
+specialized documents:
+
+- `docs/topic-model.md` for the Topic Engine.
+- `docs/url-frontier-model.md` for the URL Frontier.
+- Future `docs/*-model.md` documents for subsystem contracts.
+- `docs/decisions/` for accepted architectural decisions.
+
+Split `docs/architecture.md` only when it stops being a readable overview.
+Until then, prefer adding or extending specialized documents and linking to
+them from the overview.
+
+## Roadmap vs progress
+
+`docs/implementation-order.md` is the only canonical roadmap and dependency
+document.
+
+`docs/progress.md` is not a roadmap. It records current status, active work,
+review state and meaningful progress notes.
+
+When adding a new issue:
+
+1. Add its order, phase and dependency position to `docs/implementation-order.md`.
+2. Add or update live status in `docs/progress.md` only when work starts,
+   advances, blocks or completes.
+
+## ADR practice
+
+Architectural decisions should be captured as ADRs in `docs/decisions/`.
+
+Use an ADR when a change accepts or rejects a durable architecture choice, such
+as framework boundaries, persistence strategy, queue ownership, provider
+abstractions, storage ownership, security posture or deployment shape.
+
+Do not create ADRs for routine implementation details, temporary experiments
+or unaccepted proposals. Proposed designs can live in subsystem model documents
+until the decision is accepted.
+
+## Current implementation boundaries
+
+Implemented on `main`:
+
+- Foundation NestJS monorepo.
+- API application.
+- Crawler worker shell and queue wiring.
+- Shared common package.
+- PostgreSQL/Knex package.
+- Topic Engine domain, persistence and API endpoints.
+
+Designed but not implemented on `main`:
+
+- URL Frontier.
+
+Not canonical yet:
+
+- Discovery Sources design on `issue/4-discovery-sources-design`.
+
+Not implemented:
+
+- Crawler behavior.
+- Content processing.
+- Chunking.
+- Embeddings.
+- Retrieval.
+- Knowledge, SERP and SEO pack generation.
+- SEO Agent Gateway.
