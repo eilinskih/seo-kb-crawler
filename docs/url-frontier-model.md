@@ -346,11 +346,21 @@ change frequency:
 
 ### Failed crawl
 
-Transient failures use exponential backoff with jitter:
+Transient failures use bounded exponential backoff:
 
 ```txt
-delay = min(maxBackoff, baseBackoff * 2^consecutiveFailures) + jitter
+delay = min(maxBackoff, baseBackoff * 2^consecutiveFailures)
 ```
+
+The current implementation uses a deterministic retry delay without jitter:
+
+- Base backoff: 5 minutes.
+- Maximum backoff: 6 hours.
+- Maximum retryable consecutive failures: 5.
+
+When the retryable failure budget is exhausted, the entry is completed as
+`failed_terminal` instead of scheduling another automatic crawl. Configurable
+per-topic retry policy and jitter remain future URL Frontier work.
 
 Permanent policy rejection, unsupported content and operator suppression do not
 schedule automatic retries.
@@ -400,8 +410,8 @@ Current completion feedback updates `url_frontier_entries` after a normalized
 crawl result is persisted. The update is guarded by `frontierEntryId` and
 `attemptId`, clears active lease fields and maps crawler results to
 `succeeded`, `failed_retryable` or `failed_terminal`. Retryable results are
-currently scheduled for immediate retry; bounded exponential backoff remains a
-future implementation step.
+scheduled with bounded exponential backoff. Exhausted retry budgets become
+`failed_terminal`.
 
 Each crawl attempt is a separate immutable record containing:
 

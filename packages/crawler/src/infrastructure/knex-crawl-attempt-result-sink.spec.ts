@@ -1,5 +1,6 @@
 import {
   KnexCrawlAttemptResultSink,
+  retryDelayMs,
   toCrawlAttemptRow,
   toFrontierCompletionUpdate,
 } from './knex-crawl-attempt-result-sink';
@@ -40,10 +41,15 @@ describe('KnexCrawlAttemptResultSink', () => {
     const onConflict = jest.fn(() => ({ merge }));
     const insert = jest.fn(() => ({ onConflict }));
     const update = jest.fn();
-    const where = jest.fn(() => ({ update }));
+    const updateWhere = jest.fn(() => ({ update }));
+    const first = jest.fn(async () => ({ consecutive_failures: 0 }));
+    const selectWhere = jest.fn(() => ({ first }));
+    const select = jest.fn(() => ({ where: selectWhere }));
     const transactionTable = Object.assign(
       jest.fn((tableName: string) =>
-        tableName === 'crawl_attempts' ? { insert } : { where },
+        tableName === 'crawl_attempts'
+          ? { insert }
+          : { select, where: updateWhere },
       ),
       {
         raw: jest.fn((sql: string) => ({ sql })),
@@ -73,8 +79,13 @@ describe('KnexCrawlAttemptResultSink', () => {
         recorded_at: expect.any(Date),
       }),
     );
+    expect(select).toHaveBeenCalledWith('consecutive_failures');
+    expect(selectWhere).toHaveBeenCalledWith({
+      id: 'frontier-1',
+      active_attempt_id: 'attempt-1',
+    });
     expect(transactionTable).toHaveBeenCalledWith('url_frontier_entries');
-    expect(where).toHaveBeenCalledWith({
+    expect(updateWhere).toHaveBeenCalledWith({
       id: 'frontier-1',
       active_attempt_id: 'attempt-1',
     });
@@ -91,6 +102,7 @@ describe('KnexCrawlAttemptResultSink', () => {
 
   it('maps retryable crawl results to retryable frontier completion', () => {
     const completedAt = new Date('2026-07-04T00:00:00Z');
+    const nextCrawlAt = new Date('2026-07-04T00:05:00Z');
 
     expect(
       toFrontierCompletionUpdate(
@@ -110,10 +122,57 @@ describe('KnexCrawlAttemptResultSink', () => {
       active_attempt_id: null,
       lease_owner: null,
       lease_expires_at: null,
-      next_crawl_at: completedAt,
+      next_crawl_at: nextCrawlAt,
       incrementConsecutiveFailures: true,
       updated_at: completedAt,
     });
+  });
+
+  it('caps retry backoff and terminally fails exhausted retry budgets', () => {
+    const completedAt = new Date('2026-07-04T00:00:00Z');
+    const retryableResult: NormalizedCrawlResult = {
+      ...normalizedResult(),
+      status: 'failed_retryable',
+      failure: {
+        category: 'connection_failure',
+        detail: 'connection reset',
+        retryable: true,
+      },
+    };
+
+    expect(
+      toFrontierCompletionUpdate(retryableResult, completedAt, 2, {
+        baseBackoffMs: 100,
+        maxBackoffMs: 250,
+        maxRetryableFailures: 5,
+      }),
+    ).toMatchObject({
+      crawl_status: 'failed_retryable',
+      next_crawl_at: new Date('2026-07-04T00:00:00.250Z'),
+      incrementConsecutiveFailures: true,
+    });
+
+    expect(
+      toFrontierCompletionUpdate(retryableResult, completedAt, 4, {
+        baseBackoffMs: 100,
+        maxBackoffMs: 250,
+        maxRetryableFailures: 5,
+      }),
+    ).toMatchObject({
+      crawl_status: 'failed_terminal',
+      consecutive_failures: 5,
+      incrementConsecutiveFailures: false,
+    });
+  });
+
+  it('computes bounded exponential retry delay', () => {
+    expect(
+      retryDelayMs(3, {
+        baseBackoffMs: 100,
+        maxBackoffMs: 500,
+        maxRetryableFailures: 5,
+      }),
+    ).toBe(500);
   });
 
   it('maps terminal crawl results to terminal frontier completion', () => {

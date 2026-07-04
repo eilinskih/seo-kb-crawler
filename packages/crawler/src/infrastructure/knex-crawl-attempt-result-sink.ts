@@ -51,6 +51,18 @@ export interface UrlFrontierCompletionUpdate {
   updated_at: Date;
 }
 
+export interface UrlFrontierRetryPolicy {
+  baseBackoffMs: number;
+  maxBackoffMs: number;
+  maxRetryableFailures: number;
+}
+
+export const DEFAULT_URL_FRONTIER_RETRY_POLICY: UrlFrontierRetryPolicy = {
+  baseBackoffMs: 5 * 60 * 1000,
+  maxBackoffMs: 6 * 60 * 60 * 1000,
+  maxRetryableFailures: 5,
+};
+
 @Injectable()
 export class KnexCrawlAttemptResultSink implements CrawlResultSink {
   constructor(private readonly db: DbService) {}
@@ -64,6 +76,20 @@ export class KnexCrawlAttemptResultSink implements CrawlResultSink {
         .onConflict('attempt_id')
         .merge(retryUpdate);
 
+      const frontierEntry = await transaction<{ consecutive_failures: number }>(
+        'url_frontier_entries',
+      )
+        .select('consecutive_failures')
+        .where({
+          id: result.frontierEntryId,
+          active_attempt_id: result.attemptId,
+        })
+        .first();
+
+      if (!frontierEntry) {
+        return;
+      }
+
       await transaction('url_frontier_entries')
         .where({
           id: result.frontierEntryId,
@@ -71,7 +97,11 @@ export class KnexCrawlAttemptResultSink implements CrawlResultSink {
         })
         .update(
           toFrontierCompletionRowUpdate(
-            toFrontierCompletionUpdate(result, row.recorded_at),
+            toFrontierCompletionUpdate(
+              result,
+              row.recorded_at,
+              frontierEntry.consecutive_failures,
+            ),
             transaction,
           ),
         );
@@ -115,6 +145,8 @@ export function toCrawlAttemptRow(
 export function toFrontierCompletionUpdate(
   result: NormalizedCrawlResult,
   completedAt: Date,
+  currentConsecutiveFailures = 0,
+  retryPolicy = DEFAULT_URL_FRONTIER_RETRY_POLICY,
 ): UrlFrontierCompletionUpdate {
   const base = {
     active_attempt_id: null,
@@ -134,10 +166,23 @@ export function toFrontierCompletionUpdate(
   }
 
   if (result.status === 'failed_retryable' || result.status === 'timed_out') {
+    const nextConsecutiveFailures = currentConsecutiveFailures + 1;
+
+    if (nextConsecutiveFailures >= retryPolicy.maxRetryableFailures) {
+      return {
+        ...base,
+        crawl_status: 'failed_terminal',
+        consecutive_failures: nextConsecutiveFailures,
+      };
+    }
+
     return {
       ...base,
       crawl_status: 'failed_retryable',
-      next_crawl_at: completedAt,
+      next_crawl_at: addMilliseconds(
+        completedAt,
+        retryDelayMs(currentConsecutiveFailures, retryPolicy),
+      ),
       incrementConsecutiveFailures: true,
     };
   }
@@ -165,4 +210,19 @@ function toFrontierCompletionRowUpdate(
     ...rowUpdate,
     consecutive_failures: transaction.raw('consecutive_failures + 1'),
   };
+}
+
+export function retryDelayMs(
+  currentConsecutiveFailures: number,
+  retryPolicy: UrlFrontierRetryPolicy = DEFAULT_URL_FRONTIER_RETRY_POLICY,
+): number {
+  const exponent = Math.max(0, currentConsecutiveFailures);
+  return Math.min(
+    retryPolicy.maxBackoffMs,
+    retryPolicy.baseBackoffMs * 2 ** exponent,
+  );
+}
+
+function addMilliseconds(date: Date, milliseconds: number): Date {
+  return new Date(date.getTime() + milliseconds);
 }
