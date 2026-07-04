@@ -39,6 +39,18 @@ export interface CrawlAttemptRow {
   updated_at: Date;
 }
 
+export interface UrlFrontierCompletionUpdate {
+  crawl_status: 'succeeded' | 'failed_retryable' | 'failed_terminal';
+  active_attempt_id: null;
+  lease_owner: null;
+  lease_expires_at: null;
+  last_crawled_at?: Date;
+  next_crawl_at?: Date;
+  consecutive_failures?: number;
+  incrementConsecutiveFailures: boolean;
+  updated_at: Date;
+}
+
 @Injectable()
 export class KnexCrawlAttemptResultSink implements CrawlResultSink {
   constructor(private readonly db: DbService) {}
@@ -46,11 +58,24 @@ export class KnexCrawlAttemptResultSink implements CrawlResultSink {
   async append(result: NormalizedCrawlResult): Promise<void> {
     const row = toCrawlAttemptRow(result, new Date());
     const { recorded_at: _recordedAt, ...retryUpdate } = row;
-    await this.db
-      .knex<CrawlAttemptRow>('crawl_attempts')
-      .insert(row)
-      .onConflict('attempt_id')
-      .merge(retryUpdate);
+    await this.db.knex.transaction(async (transaction) => {
+      await transaction<CrawlAttemptRow>('crawl_attempts')
+        .insert(row)
+        .onConflict('attempt_id')
+        .merge(retryUpdate);
+
+      await transaction('url_frontier_entries')
+        .where({
+          id: result.frontierEntryId,
+          active_attempt_id: result.attemptId,
+        })
+        .update(
+          toFrontierCompletionRowUpdate(
+            toFrontierCompletionUpdate(result, row.recorded_at),
+            transaction,
+          ),
+        );
+    });
   }
 }
 
@@ -84,5 +109,60 @@ export function toCrawlAttemptRow(
     failure: result.failure,
     recorded_at: recordedAt,
     updated_at: recordedAt,
+  };
+}
+
+export function toFrontierCompletionUpdate(
+  result: NormalizedCrawlResult,
+  completedAt: Date,
+): UrlFrontierCompletionUpdate {
+  const base = {
+    active_attempt_id: null,
+    lease_owner: null,
+    lease_expires_at: null,
+    incrementConsecutiveFailures: false,
+    updated_at: completedAt,
+  } as const;
+
+  if (result.status === 'succeeded') {
+    return {
+      ...base,
+      crawl_status: 'succeeded',
+      last_crawled_at: completedAt,
+      consecutive_failures: 0,
+    };
+  }
+
+  if (result.status === 'failed_retryable' || result.status === 'timed_out') {
+    return {
+      ...base,
+      crawl_status: 'failed_retryable',
+      next_crawl_at: completedAt,
+      incrementConsecutiveFailures: true,
+    };
+  }
+
+  return {
+    ...base,
+    crawl_status: 'failed_terminal',
+  };
+}
+
+function toFrontierCompletionRowUpdate(
+  update: UrlFrontierCompletionUpdate,
+  transaction: { raw(sql: string): unknown },
+): Record<string, unknown> {
+  const {
+    incrementConsecutiveFailures,
+    ...rowUpdate
+  } = update;
+
+  if (!incrementConsecutiveFailures) {
+    return rowUpdate;
+  }
+
+  return {
+    ...rowUpdate,
+    consecutive_failures: transaction.raw('consecutive_failures + 1'),
   };
 }

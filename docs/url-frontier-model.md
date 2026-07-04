@@ -396,6 +396,13 @@ Lease expiry returns `leased` or `crawling` work to an eligible retry state.
 State transitions use compare-and-set conditions to prevent duplicate workers
 from completing the same attempt.
 
+Current completion feedback updates `url_frontier_entries` after a normalized
+crawl result is persisted. The update is guarded by `frontierEntryId` and
+`attemptId`, clears active lease fields and maps crawler results to
+`succeeded`, `failed_retryable` or `failed_terminal`. Retryable results are
+currently scheduled for immediate retry; bounded exponential backoff remains a
+future implementation step.
+
 Each crawl attempt is a separate immutable record containing:
 
 - Attempt ID.
