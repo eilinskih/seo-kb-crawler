@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DbModule } from '@seo-kb/db';
+import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { CrawlExecutionWrapper } from './crawl-execution-wrapper';
 import {
   CrawlJobHandler,
@@ -15,7 +16,7 @@ import { RobotsPolicyService } from './infrastructure/robots-policy.service';
 import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway.service';
 
 @Module({
-  imports: [DbModule],
+  imports: [DbModule, UrlFrontierModule],
   providers: [
     CrawlerAdapterSelector,
     CrawlResultNormalizer,

@@ -2,6 +2,11 @@
 
 Audit date: 2026-07-03
 
+This is a historical stabilization audit. It records repository state at the
+time of the documentation stabilization PR. Current implementation status lives
+in `docs/progress.md`, and canonical roadmap order lives in
+`docs/implementation-order.md`.
+
 ## Summary
 
 The repository is a private, local-first NestJS monorepo for an SEO knowledge
@@ -49,7 +54,7 @@ status is documented in `docs/progress.md`.
 |---|---|
 | #1 | Done on `main`; GitHub issue remains open. |
 | #2 | Implemented on `main`; GitHub issue remains open. |
-| #3 | Design approved on `main`; implementation not started. |
+| #3 | Historical audit state: design approved on `main`; implementation work had not started at audit time. |
 | #4 | Design exists on unmerged branch `issue/4-discovery-sources-design`. |
 | #5-#10 | Open and not started. |
 | #11-#18 | Open and not started. |

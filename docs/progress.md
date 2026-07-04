@@ -37,10 +37,10 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Design approved | Implementation follows reviewed #4 and #5 contracts. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Initial lifecycle subset is implemented on `main`; remaining observation ingestion, canonical relations and adaptive scheduling are deferred. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | In progress | Package boundary, command handling, result normalization, safe network gateway, robots policy service, Topic policy evaluator, execution wrapper, `http-fetch` adapter and result sink acknowledgement are implemented in active work. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Review needed | Controlled crawling lifecycle, URL Frontier leases, dispatch, completion feedback, retry backoff and success recrawl scheduling are implemented; Architecture Steward cleanup is in review before #6. |
 | #6 | Content Processing Pipeline | Not started | Depends on #5. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
@@ -69,9 +69,45 @@ Add entries here in reverse chronological order.
 
 Date: 2026-07-04
 Issue: #5
+Status: Review needed
+Summary:
+- Ran Architecture Steward review after PR #64 merged.
+- Identified ownership drift where URL Frontier completion scheduling lived in
+  the Crawler package.
+- Moved crawl attempt persistence, completion status mapping, retry backoff and
+  success recrawl scheduling behind a URL Frontier-owned completion service.
+- Kept the Crawler result sink as a thin adapter that delegates normalized crawl
+  results to the URL Frontier boundary.
+- Synchronized roadmap, architecture, URL Frontier, Crawler Worker, project map
+  and progress documentation with the implemented lifecycle subset.
+- Documented remaining URL Frontier work as observation ingestion, canonical
+  relations, configurable retry policy, jitter and adaptive recrawl adjustment.
+Changed files:
+- docs/architecture.md
+- docs/crawler-worker-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- docs/repository-audit.md
+- docs/url-frontier-model.md
+- packages/crawler/src/crawler.module.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.spec.ts
+- packages/url-frontier/src/application/url-frontier-completion.service.ts
+- packages/url-frontier/src/application/url-frontier-completion.service.spec.ts
+- packages/url-frontier/src/domain/url-frontier-types.ts
+- packages/url-frontier/src/index.ts
+- packages/url-frontier/src/persistence/knex-url-frontier.repository.ts
+- packages/url-frontier/src/url-frontier.module.ts
+Next step:
+- Review and merge this cleanup before starting Content Processing Pipeline
+  (#6).
+
+Date: 2026-07-04
+Issue: #5
 Status: In progress
 Summary:
-- Merged PR #63 into `main`.
+- Merged PR #64 into `main`.
 - Created `issue/3-url-frontier-success-recrawl` from updated `main`.
 - Added success recrawl scheduling at the URL Frontier completion boundary.
 - Successful crawl completion now sets `last_crawled_at`, resets consecutive

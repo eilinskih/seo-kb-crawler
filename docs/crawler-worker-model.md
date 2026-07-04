@@ -32,8 +32,9 @@ decisions by scheme, authority and user-agent, supports fail-closed defaults and
 reports crawl-delay evidence. The Topic crawl policy evaluator now checks
 allowed/denied hosts, included/excluded path patterns and cross-host canonical
 policy for request, redirect and canonical candidates. Concrete
-HTTP/Crawl4AI/Playwright adapters, URL Frontier persistence and Content
-Processing remain out of scope for the current implementation slice.
+HTTP fetch adapter execution and URL Frontier completion feedback are now in
+place. Crawl4AI/Playwright adapters and Content Processing remain out of scope
+for the current implementation slice.
 The worker command handler now routes crawl commands through the execution
 wrapper before returning a result. The wrapper combines deadline, Topic policy,
 robots policy and safe network gateway context preparation. If policy checks
@@ -485,12 +486,16 @@ Issue #5 implementation may add:
   Initial wrapper is in place and connected to the worker command handler.
 - HTTP fetch, Crawl4AI and Playwright adapter boundaries.
 - Crawl result normalization and sink integration contracts.
+  The default sink delegates durable completion to the URL Frontier completion
+  boundary; the Crawler Worker does not own scheduling decisions.
 - Tests for successful crawl, timeout, retry classification, policy denial,
   duplicate/idempotent result reporting and safe network constraints.
 - Documentation for safe local crawling limits.
 
-No URL Frontier implementation, Content Processing pipeline, embedding work or
-SEO generation belongs to Issue #5.
+Content Processing pipeline, embedding work or SEO generation does not belong
+to Issue #5. URL Frontier lifecycle code added during Issue #5 is limited to
+the durable lease, dispatch and completion boundary needed by controlled
+crawling.
 
 ## Review questions
 
