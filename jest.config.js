@@ -25,5 +25,8 @@ module.exports = {
       '<rootDir>/packages/discovery-sources/src/$1',
     '^@seo-kb/topic-engine$': '<rootDir>/packages/topic-engine/src',
     '^@seo-kb/topic-engine/(.*)$': '<rootDir>/packages/topic-engine/src/$1',
+    '^@seo-kb/url-frontier$': '<rootDir>/packages/url-frontier/src',
+    '^@seo-kb/url-frontier/(.*)$':
+      '<rootDir>/packages/url-frontier/src/$1',
   },
 };

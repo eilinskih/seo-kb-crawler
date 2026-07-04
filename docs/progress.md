@@ -71,6 +71,36 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #58 into `main`.
+- Created `issue/3-url-frontier-lease-lifecycle` from updated `main`.
+- Added the first `packages/url-frontier` boundary with repository contracts and
+  a NestJS module.
+- Added `url_frontier_entries` migration for topic-scoped normalized URL
+  identity, scheduling state and lease ownership.
+- Added a Knex-backed URL Frontier repository with idempotent entry upsert,
+  atomic `leaseNext()` selection using `FOR UPDATE SKIP LOCKED`, expired lease
+  recovery and `acknowledgeCrawling()`.
+- Kept Discovery Sources ingestion, canonical relations, scheduling backoff and
+  BullMQ dispatch out of this slice.
+Changed files:
+- docs/architecture.md
+- docs/project-map.md
+- docs/progress.md
+- docs/url-frontier-model.md
+- jest.config.js
+- nest-cli.json
+- README.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/003-url-frontier-entries.ts
+- packages/url-frontier
+- tsconfig.json
+Next step:
+- Wire URL Frontier leasing to BullMQ dispatch after repository review.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #57 into `main`.
 - Created `issue/3-url-frontier-crawl-attempt-sink` from updated `main`.
 - Added the first URL Frontier-owned `crawl_attempts` migration for durable

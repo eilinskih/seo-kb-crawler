@@ -78,15 +78,16 @@ Implemented on `main`:
 - PostgreSQL/Knex package.
 - Topic Engine domain, persistence and API endpoints.
 - Discovery Sources contracts, planner and seed/link adapters.
+- URL Frontier entries, lease lifecycle repository and crawl attempt result
+  sink.
 
 Designed but not implemented on `main`:
 
-- URL Frontier.
-- Crawler Worker safe network gateway, concrete adapters and durable sinks.
+- Full URL Frontier discovery observation ingestion, canonical relations,
+  scheduling backoff and BullMQ dispatch.
 
 Not implemented:
 
-- Network crawling behavior.
 - Content processing.
 - Chunking.
 - Embeddings.

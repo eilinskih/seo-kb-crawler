@@ -71,6 +71,15 @@
       "compilerOptions": {
         "tsConfigPath": "packages/topic-engine/tsconfig.lib.json"
       }
+    },
+    "url-frontier": {
+      "type": "library",
+      "root": "packages/url-frontier",
+      "entryFile": "index",
+      "sourceRoot": "packages/url-frontier/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/url-frontier/tsconfig.lib.json"
+      }
     }
   }
 }
