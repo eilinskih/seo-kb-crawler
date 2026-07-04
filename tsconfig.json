@@ -30,6 +30,12 @@
       "@seo-kb/common/*": [
         "packages/common/src/*"
       ],
+      "@seo-kb/content-processing": [
+        "packages/content-processing/src"
+      ],
+      "@seo-kb/content-processing/*": [
+        "packages/content-processing/src/*"
+      ],
       "@seo-kb/crawler": [
         "packages/crawler/src"
       ],

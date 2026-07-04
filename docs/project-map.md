@@ -84,10 +84,13 @@ Implemented on `main`:
 - URL Frontier BullMQ dispatch, manual dispatch API, completion feedback,
   frontier-owned crawl completion service, bounded retry backoff and success
   recrawl scheduling.
+- Content Processing package boundary, domain contracts and foundation
+  persistence schema.
 
 Designed but not implemented on `main`:
 
-- Content Processing Pipeline.
+- Content Processing processing service, manual trigger/API and worker
+  orchestration.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

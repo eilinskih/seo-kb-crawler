@@ -1,0 +1,114 @@
+export type ContentProcessingStatus =
+  | 'pending'
+  | 'processing'
+  | 'processed'
+  | 'failed_retryable'
+  | 'failed_terminal'
+  | 'skipped_duplicate';
+
+export type ContentProcessingFailureCategory =
+  | 'missing_body'
+  | 'unsupported_content_type'
+  | 'body_too_large'
+  | 'parser_timeout'
+  | 'artifact_storage_error'
+  | 'database_error'
+  | 'internal_error';
+
+export interface ContentProcessingFailure {
+  category: ContentProcessingFailureCategory;
+  detail: string;
+  retryable: boolean;
+}
+
+export interface DocumentIdentity {
+  topicId: string;
+  frontierEntryId: string;
+}
+
+export interface DocumentRecord extends DocumentIdentity {
+  id: string;
+  currentVersionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DocumentVersionRecord {
+  id: string;
+  documentId: string;
+  crawlAttemptId: string;
+  topicId: string;
+  frontierEntryId: string;
+  topicConfigurationVersion: number;
+  requestedUrl: string;
+  finalUrl: string | null;
+  canonicalUrl: string | null;
+  title: string | null;
+  metaDescription: string | null;
+  contentHash: string | null;
+  extractorVersion: string;
+  rawHtml: string | null;
+  cleanedMarkdown: string | null;
+  plainText: string | null;
+  metadata: DocumentMetadata;
+  structuredData: StructuredDataObservation[];
+  languageHints: LanguageHint[];
+  geoHints: GeoHint[];
+  createdAt: Date;
+}
+
+export interface ContentProcessingRecord {
+  crawlAttemptId: string;
+  documentId: string | null;
+  documentVersionId: string | null;
+  status: ContentProcessingStatus;
+  failure: ContentProcessingFailure | null;
+  extractorVersion: string;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DocumentMetadata {
+  headings: HeadingObservation[];
+  openGraph: Record<string, string>;
+  twitterCard: Record<string, string>;
+  wordCount: number | null;
+  characterCount: number | null;
+  contentType: string | null;
+  cacheHeaders: Record<string, string>;
+}
+
+export interface HeadingObservation {
+  level: 1 | 2 | 3 | 4 | 5 | 6;
+  text: string;
+  position: number;
+}
+
+export interface StructuredDataObservation {
+  format: 'json_ld' | 'microdata' | 'rdfa';
+  data: unknown;
+  position: number;
+}
+
+export interface LanguageHint {
+  tag: string;
+  confidence: number;
+  source: 'html_lang' | 'meta' | 'content' | 'url';
+}
+
+export interface GeoHint {
+  countryCode?: string;
+  regionCode?: string;
+  city?: string;
+  confidence: number;
+  source: 'url' | 'structured_data' | 'content' | 'metadata';
+}
+
+export interface ContentProcessingRepository {
+  findProcessingRecord(
+    crawlAttemptId: string,
+  ): Promise<ContentProcessingRecord | null>;
+  createPendingRecord(record: ContentProcessingRecord): Promise<void>;
+}

@@ -41,7 +41,7 @@ Roadmap order, phases and dependency rules live only in
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
-| #6 | Content Processing Pipeline | Review needed | Design-only PR in progress; runtime implementation has not started. |
+| #6 | Content Processing Pipeline | In progress | Design PR #66 merged; foundation package contracts and persistence schema are in active work. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -66,6 +66,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-04
+Issue: #6
+Status: In progress
+Summary:
+- Merged design-only PR #66 into `main`.
+- Created `issue/6-content-processing-foundation` from updated `main`.
+- Added the initial `packages/content-processing` boundary with domain
+  contracts for documents, document versions and processing records.
+- Added the `004-content-processing-foundation` migration for `documents`,
+  `document_versions` and `content_processing_runs`.
+- Registered the Content Processing package in Nest, TypeScript and Jest
+  project configuration.
+- Kept processing service logic, manual trigger/API, worker orchestration,
+  chunking, embeddings and retrieval out of this slice.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/content-processing
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/004-content-processing-foundation.ts
+- tsconfig.json
+Next step:
+- Add an idempotent Content Processing service for successful crawl attempts
+  after this foundation slice is reviewed.
 
 Date: 2026-07-04
 Issue: #6
