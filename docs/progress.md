@@ -71,6 +71,32 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #59 into `main`.
+- Created `issue/3-url-frontier-bullmq-dispatch` from updated `main`.
+- Added URL Frontier dispatch service that leases one eligible entry and
+  publishes the leased crawl command to the BullMQ crawl queue.
+- Uses `attemptId` as BullMQ `jobId` so leased retries remain idempotent at the
+  transport boundary.
+- Registered dispatch service in `UrlFrontierModule` without adding a scheduler
+  loop or API endpoint.
+- Kept Discovery Sources ingestion, scheduling backoff and recurring dispatcher
+  orchestration out of this slice.
+Changed files:
+- docs/progress.md
+- docs/url-frontier-model.md
+- packages/url-frontier/src/application/url-frontier-dispatch.service.ts
+- packages/url-frontier/src/application/url-frontier-dispatch.service.spec.ts
+- packages/url-frontier/src/index.ts
+- packages/url-frontier/src/url-frontier.module.ts
+- packages/url-frontier/src/url-frontier.tokens.ts
+Next step:
+- Add scheduler/API orchestration that calls the dispatch service within bounded
+  crawl budgets.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #58 into `main`.
 - Created `issue/3-url-frontier-lease-lifecycle` from updated `main`.
 - Added the first `packages/url-frontier` boundary with repository contracts and
