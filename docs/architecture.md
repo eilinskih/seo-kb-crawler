@@ -206,6 +206,7 @@ The initial implementation uses one NestJS monorepo with independently runnable 
 apps/api
 apps/crawler-worker
 packages/common
+packages/content-processing
 packages/crawler
 packages/db
 packages/discovery-sources

@@ -80,6 +80,15 @@
       "compilerOptions": {
         "tsConfigPath": "packages/url-frontier/tsconfig.lib.json"
       }
+    },
+    "content-processing": {
+      "type": "library",
+      "root": "packages/content-processing",
+      "entryFile": "index",
+      "sourceRoot": "packages/content-processing/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/content-processing/tsconfig.lib.json"
+      }
     }
   }
 }

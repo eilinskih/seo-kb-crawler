@@ -8,6 +8,7 @@ import createKnex, { Knex } from 'knex';
 import { topicEngineMigration } from './migrations/001-topic-engine';
 import { urlFrontierCrawlAttemptsMigration } from './migrations/002-url-frontier-crawl-attempts';
 import { urlFrontierEntriesMigration } from './migrations/003-url-frontier-entries';
+import { contentProcessingFoundationMigration } from './migrations/004-content-processing-foundation';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -49,6 +50,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     topicEngineMigration,
     urlFrontierCrawlAttemptsMigration,
     urlFrontierEntriesMigration,
+    contentProcessingFoundationMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -57,6 +59,10 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
       '002-url-frontier-crawl-attempts',
     ],
     [urlFrontierEntriesMigration, '003-url-frontier-entries'],
+    [
+      contentProcessingFoundationMigration,
+      '004-content-processing-foundation',
+    ],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {
