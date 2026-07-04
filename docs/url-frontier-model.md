@@ -344,6 +344,19 @@ change frequency:
 - Stable content lengthens the interval within configured bounds.
 - `Cache-Control`, `Expires` and sitemap `lastmod` are advisory signals only.
 
+The current implementation schedules successful recrawls from the crawl policy
+snapshot:
+
+```txt
+nextCrawlAt = completedAt + clamp(
+  recrawlIntervalHours,
+  minRecrawlIntervalHours,
+  maxRecrawlIntervalHours
+)
+```
+
+Adaptive change-frequency adjustment remains future work.
+
 ### Failed crawl
 
 Transient failures use bounded exponential backoff:
@@ -411,7 +424,9 @@ crawl result is persisted. The update is guarded by `frontierEntryId` and
 `attemptId`, clears active lease fields and maps crawler results to
 `succeeded`, `failed_retryable` or `failed_terminal`. Retryable results are
 scheduled with bounded exponential backoff. Exhausted retry budgets become
-`failed_terminal`.
+`failed_terminal`. Successful results set `last_crawled_at`, reset consecutive
+failures and schedule the next crawl from the bounded crawl policy recrawl
+interval.
 
 Each crawl attempt is a separate immutable record containing:
 

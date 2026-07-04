@@ -1,6 +1,7 @@
 import {
   KnexCrawlAttemptResultSink,
   retryDelayMs,
+  successRecrawlDelayMs,
   toCrawlAttemptRow,
   toFrontierCompletionUpdate,
 } from './knex-crawl-attempt-result-sink';
@@ -42,7 +43,14 @@ describe('KnexCrawlAttemptResultSink', () => {
     const insert = jest.fn(() => ({ onConflict }));
     const update = jest.fn();
     const updateWhere = jest.fn(() => ({ update }));
-    const first = jest.fn(async () => ({ consecutive_failures: 0 }));
+    const first = jest.fn(async () => ({
+      consecutive_failures: 0,
+      crawl_policy: {
+        recrawlIntervalHours: 48,
+        minRecrawlIntervalHours: 24,
+        maxRecrawlIntervalHours: 720,
+      },
+    }));
     const selectWhere = jest.fn(() => ({ first }));
     const select = jest.fn(() => ({ where: selectWhere }));
     const transactionTable = Object.assign(
@@ -79,7 +87,7 @@ describe('KnexCrawlAttemptResultSink', () => {
         recorded_at: expect.any(Date),
       }),
     );
-    expect(select).toHaveBeenCalledWith('consecutive_failures');
+    expect(select).toHaveBeenCalledWith('consecutive_failures', 'crawl_policy');
     expect(selectWhere).toHaveBeenCalledWith({
       id: 'frontier-1',
       active_attempt_id: 'attempt-1',
@@ -95,9 +103,32 @@ describe('KnexCrawlAttemptResultSink', () => {
         active_attempt_id: null,
         lease_owner: null,
         lease_expires_at: null,
+        next_crawl_at: expect.any(Date),
         consecutive_failures: 0,
       }),
     );
+  });
+
+  it('maps successful crawl results to scheduled recrawl completion', () => {
+    const completedAt = new Date('2026-07-04T00:00:00Z');
+
+    expect(
+      toFrontierCompletionUpdate(normalizedResult(), completedAt, 3, {
+        recrawlIntervalHours: 48,
+        minRecrawlIntervalHours: 24,
+        maxRecrawlIntervalHours: 720,
+      }),
+    ).toMatchObject({
+      crawl_status: 'succeeded',
+      active_attempt_id: null,
+      lease_owner: null,
+      lease_expires_at: null,
+      last_crawled_at: completedAt,
+      next_crawl_at: new Date('2026-07-06T00:00:00Z'),
+      consecutive_failures: 0,
+      incrementConsecutiveFailures: false,
+      updated_at: completedAt,
+    });
   });
 
   it('maps retryable crawl results to retryable frontier completion', () => {
@@ -141,11 +172,17 @@ describe('KnexCrawlAttemptResultSink', () => {
     };
 
     expect(
-      toFrontierCompletionUpdate(retryableResult, completedAt, 2, {
-        baseBackoffMs: 100,
-        maxBackoffMs: 250,
-        maxRetryableFailures: 5,
-      }),
+      toFrontierCompletionUpdate(
+        retryableResult,
+        completedAt,
+        2,
+        undefined,
+        {
+          baseBackoffMs: 100,
+          maxBackoffMs: 250,
+          maxRetryableFailures: 5,
+        },
+      ),
     ).toMatchObject({
       crawl_status: 'failed_retryable',
       next_crawl_at: new Date('2026-07-04T00:00:00.250Z'),
@@ -153,11 +190,17 @@ describe('KnexCrawlAttemptResultSink', () => {
     });
 
     expect(
-      toFrontierCompletionUpdate(retryableResult, completedAt, 4, {
-        baseBackoffMs: 100,
-        maxBackoffMs: 250,
-        maxRetryableFailures: 5,
-      }),
+      toFrontierCompletionUpdate(
+        retryableResult,
+        completedAt,
+        4,
+        undefined,
+        {
+          baseBackoffMs: 100,
+          maxBackoffMs: 250,
+          maxRetryableFailures: 5,
+        },
+      ),
     ).toMatchObject({
       crawl_status: 'failed_terminal',
       consecutive_failures: 5,
@@ -173,6 +216,24 @@ describe('KnexCrawlAttemptResultSink', () => {
         maxRetryableFailures: 5,
       }),
     ).toBe(500);
+  });
+
+  it('computes bounded success recrawl delay from crawl policy', () => {
+    expect(
+      successRecrawlDelayMs({
+        recrawlIntervalHours: 2,
+        minRecrawlIntervalHours: 12,
+        maxRecrawlIntervalHours: 48,
+      }),
+    ).toBe(12 * 60 * 60 * 1000);
+
+    expect(
+      successRecrawlDelayMs({
+        recrawlIntervalHours: 100,
+        minRecrawlIntervalHours: 12,
+        maxRecrawlIntervalHours: 48,
+      }),
+    ).toBe(48 * 60 * 60 * 1000);
   });
 
   it('maps terminal crawl results to terminal frontier completion', () => {

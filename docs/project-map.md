@@ -80,13 +80,13 @@ Implemented on `main`:
 - Discovery Sources contracts, planner and seed/link adapters.
 - URL Frontier entries, lease lifecycle repository and crawl attempt result
   sink.
-- URL Frontier BullMQ dispatch, manual dispatch API, completion feedback and
-  bounded retry backoff.
+- URL Frontier BullMQ dispatch, manual dispatch API, completion feedback,
+  bounded retry backoff and success recrawl scheduling.
 
 Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
-  configurable retry policy, jitter and success recrawl scheduling.
+  configurable retry policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 

@@ -48,6 +48,9 @@ export interface CrawlPolicySnapshot {
   timeoutMs: number;
   maxOutgoingLinks: number;
   maxMediaAssets: number;
+  recrawlIntervalHours?: number;
+  minRecrawlIntervalHours?: number;
+  maxRecrawlIntervalHours?: number;
 }
 
 export interface CrawlCommand {

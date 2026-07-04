@@ -80,7 +80,7 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
       )
         .where((builder) => {
           builder
-            .whereIn('crawl_status', ['idle', 'scheduled'])
+            .whereIn('crawl_status', ['idle', 'scheduled', 'succeeded'])
             .orWhere('crawl_status', 'failed_retryable')
             .orWhere((expiredLease) => {
               expiredLease
