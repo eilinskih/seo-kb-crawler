@@ -71,6 +71,31 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #62 into `main`.
+- Created `issue/3-url-frontier-backoff-scheduling` from updated `main`.
+- Added bounded exponential retry scheduling to URL Frontier completion
+  feedback for retryable and timed-out crawl results.
+- Retryable completion now schedules `next_crawl_at` after a bounded backoff
+  delay instead of immediately retrying.
+- Exhausted consecutive failure budgets now complete the frontier entry as
+  `failed_terminal`.
+- Kept configurable retry policies, jitter and success recrawl scheduling out
+  of this slice.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- docs/project-map.md
+- docs/url-frontier-model.md
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.spec.ts
+Next step:
+- Add success recrawl scheduling once Topic recrawl policy integration is
+  introduced at the URL Frontier completion boundary.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #61 into `main`.
 - Created `issue/3-url-frontier-completion-feedback` from updated `main`.
 - Extended the Knex crawl result sink so result persistence and URL Frontier

@@ -134,8 +134,9 @@ Current implementation status:
 - An in-memory sink remains available for focused tests and local composition.
 - BullMQ jobs are acknowledged only when handler execution and result append
   both complete successfully.
-- `crawl_attempts` is the first durable URL Frontier structure; frontier entry
-  leasing, scheduling and backoff are still future URL Frontier work.
+- URL Frontier entries, lease lifecycle, BullMQ dispatch, completion feedback
+  and bounded retry backoff are implemented. Success recrawl scheduling remains
+  future URL Frontier work.
 
 ```txt
 leased
