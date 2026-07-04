@@ -1,6 +1,6 @@
 # URL Frontier Model
 
-- Status: Design approved; implementation not started
+- Status: Design approved; initial lifecycle subset implemented
 - Issue: #3
 - Date: 2026-06-10
 
@@ -10,10 +10,12 @@ The URL Frontier converts discovered URL candidates into deduplicated,
 policy-compliant and prioritized crawl work. It owns URL identity, candidate
 state, scheduling decisions and crawl-result state transitions.
 
-This document is an approved design contract. URL Frontier code must not be
-implemented until the dependent Discovery Sources and Crawler Worker contracts
-are reviewed and the implementation order in `docs/implementation-order.md`
-allows it.
+This document is an approved design contract. The current implementation is an
+initial lifecycle subset: frontier entries, lease lifecycle, BullMQ dispatch,
+crawl completion feedback, bounded retry backoff and success recrawl
+scheduling. Discovery observation ingestion, canonical relations, full
+candidate status, freshness scoring, configurable retry policy, jitter and
+adaptive recrawl adjustment remain future URL Frontier work.
 
 ## Boundaries
 
@@ -273,6 +275,12 @@ The current dispatch boundary leases one eligible entry and publishes the crawl
 command with the attempt ID as the BullMQ job ID. Recurring scheduler
 orchestration and crawl-budget loops are still future work. The API exposes a
 manual bounded dispatch endpoint for operator-triggered batches.
+
+Dispatch leases work in PostgreSQL before publishing the BullMQ job. If Redis
+enqueue fails after the lease is acquired, the entry remains leased until
+`lease_expires_at` and then becomes eligible through the normal expired-lease
+recovery path. Future scheduler automation should add metrics and alerts for
+this recovery path, but Redis queue depth is not durable frontier state.
 
 ## Relevance score integration
 
@@ -567,17 +575,13 @@ Exact schema and indexes remain implementation details after design review.
 - Queue depth is not used as durable frontier state.
 - Priority recomputation is batched rather than performed globally per request.
 
-## Proposed implementation sequence
+## Implementation sequence
 
-Topic Engine implementation is complete. URL Frontier implementation remains
-deferred until:
+Topic Engine implementation is complete. The initial URL Frontier lifecycle
+subset was implemented during Issue #5 work so the Crawler Worker could operate
+against durable leases and completion feedback.
 
-1. Issue #4 Discovery Sources design review.
-2. Issue #5 Crawler Worker design review.
-3. Issue #4 implementation review.
-4. Issue #5 implementation review.
-
-Issue #3 implementation may later add:
+Remaining Issue #3 implementation may later add:
 
 - `packages/url-frontier`.
 - Frontier domain model and repository contracts.

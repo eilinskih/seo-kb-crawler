@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
-import { CrawlPolicySnapshot } from '@seo-kb/crawler';
 import { DbService } from '@seo-kb/db';
 import {
+  UrlFrontierCrawlPolicySnapshot,
   UrlFrontierCrawlStatus,
   UrlFrontierEntrySeed,
   UrlFrontierLease,
@@ -18,7 +18,7 @@ export interface UrlFrontierEntryRow {
   normalized_url: string;
   normalized_url_hash: string;
   crawl_policy_fingerprint: string;
-  crawl_policy: CrawlPolicySnapshot;
+  crawl_policy: UrlFrontierCrawlPolicySnapshot;
   priority_score: number;
   relevance_score: number | null;
   relevance_decision: UrlFrontierRelevanceDecision;
@@ -204,7 +204,7 @@ export function toEntryRow(seed: UrlFrontierEntrySeed): UrlFrontierEntryRow {
 function commandDeadline(
   now: Date,
   leaseExpiresAt: Date,
-  policy: CrawlPolicySnapshot,
+  policy: UrlFrontierCrawlPolicySnapshot,
 ): Date {
   return new Date(
     Math.min(leaseExpiresAt.getTime(), now.getTime() + policy.timeoutMs),

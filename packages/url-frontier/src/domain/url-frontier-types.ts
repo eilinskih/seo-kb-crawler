@@ -1,5 +1,3 @@
-import { CrawlCommandPayload, CrawlPolicySnapshot } from '@seo-kb/crawler';
-
 export type UrlFrontierCrawlStatus =
   | 'idle'
   | 'scheduled'
@@ -14,6 +12,39 @@ export type UrlFrontierRelevanceDecision =
   | 'rejected'
   | 'insufficient_evidence';
 
+export interface UrlFrontierCrawlPolicySnapshot {
+  userAgent: string;
+  respectRobots: boolean;
+  allowedHosts?: string[];
+  deniedHosts?: string[];
+  includedPathPatterns?: string[];
+  excludedPathPatterns?: string[];
+  crossHostCanonicalPolicy?: 'same-host' | 'allowed-hosts';
+  requiresJavaScript?: boolean;
+  requiresMarkdown?: boolean;
+  requiresPlainText?: boolean;
+  maxBodyBytes: number;
+  maxRedirects: number;
+  timeoutMs: number;
+  maxOutgoingLinks: number;
+  maxMediaAssets: number;
+  recrawlIntervalHours?: number;
+  minRecrawlIntervalHours?: number;
+  maxRecrawlIntervalHours?: number;
+}
+
+export interface UrlFrontierCrawlCommandPayload {
+  attemptId: string;
+  frontierEntryId: string;
+  topicId: string;
+  topicConfigurationVersion: number;
+  normalizedUrl: string;
+  crawlPolicyFingerprint: string;
+  leaseExpiresAt: Date | string;
+  deadline: Date | string;
+  policy: UrlFrontierCrawlPolicySnapshot;
+}
+
 export interface UrlFrontierLeaseOptions {
   leaseOwner: string;
   leaseDurationMs: number;
@@ -26,7 +57,7 @@ export interface UrlFrontierLease {
   attemptId: string;
   leaseOwner: string;
   leaseExpiresAt: Date;
-  command: CrawlCommandPayload;
+  command: UrlFrontierCrawlCommandPayload;
 }
 
 export interface UrlFrontierEntrySeed {
@@ -36,7 +67,7 @@ export interface UrlFrontierEntrySeed {
   normalizedUrl: string;
   normalizedUrlHash: string;
   crawlPolicyFingerprint: string;
-  crawlPolicy: CrawlPolicySnapshot;
+  crawlPolicy: UrlFrontierCrawlPolicySnapshot;
   priorityScore: number;
   relevanceScore?: number;
   relevanceDecision: UrlFrontierRelevanceDecision;

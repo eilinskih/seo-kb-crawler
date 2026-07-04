@@ -64,10 +64,12 @@ URL Frontier design.
 NestJS package boundaries and the planned Knex persistence strategy are defined
 in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
-The proposed URL Frontier identity, lifecycle, scheduling and integration
-contracts are documented in `docs/url-frontier-model.md`. Its design is
-approved; implementation remains deferred until Discovery Sources and Crawler
-Worker contracts are reviewed.
+The URL Frontier identity, lifecycle, scheduling and integration contracts are
+documented in `docs/url-frontier-model.md`. The initial implementation lives in
+`packages/url-frontier` and covers entry persistence, lease lifecycle, BullMQ
+dispatch, crawl completion feedback, bounded retry backoff and success recrawl
+scheduling. Discovery observation ingestion, canonical relations, configurable
+retry policy, jitter and adaptive recrawl adjustment remain later work.
 
 The proposed Discovery Sources run lifecycle, provider adapter, observation and
 safety contracts are documented in `docs/discovery-sources-model.md`. Its
@@ -76,13 +78,14 @@ design is approved. The initial implementation lives in
 seed and extracted-link adapters; URL Frontier persistence, external search
 providers and sitemap fetching remain later work.
 
-The proposed Crawler Worker adapter boundary, safe network gateway, robots
-policy, crawl-result and extracted-link contracts are documented in
+The Crawler Worker adapter boundary, safe network gateway, robots policy,
+crawl-result and extracted-link contracts are documented in
 `docs/crawler-worker-model.md`. The initial implementation lives in
-`packages/crawler` and covers command validation, adapter selection contracts,
-result normalization and worker job handling. Network crawling, concrete
-adapters, safe network gateway implementation and URL Frontier persistence
-remain later work.
+`packages/crawler` and covers command validation, adapter selection, safe
+network gateway, robots policy, Topic policy enforcement, HTTP fetch adapter,
+result normalization and worker job handling. URL Frontier owns durable crawl
+attempt persistence and completion scheduling through its completion boundary.
+Content Processing remains later work.
 
 ### Document normalization
 

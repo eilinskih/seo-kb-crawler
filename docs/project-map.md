@@ -81,7 +81,8 @@ Implemented on `main`:
 - URL Frontier entries, lease lifecycle repository and crawl attempt result
   sink.
 - URL Frontier BullMQ dispatch, manual dispatch API, completion feedback,
-  bounded retry backoff and success recrawl scheduling.
+  frontier-owned crawl completion service, bounded retry backoff and success
+  recrawl scheduling.
 
 Designed but not implemented on `main`:
 
