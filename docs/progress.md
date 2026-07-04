@@ -71,6 +71,29 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #61 into `main`.
+- Created `issue/3-url-frontier-completion-feedback` from updated `main`.
+- Extended the Knex crawl result sink so result persistence and URL Frontier
+  completion feedback happen in one transaction.
+- Added compare-and-set completion by `frontierEntryId` and `attemptId` so
+  stale attempt results cannot complete a different active lease.
+- Updates `url_frontier_entries` to `succeeded`, `failed_retryable` or
+  `failed_terminal` and clears active lease fields after completion.
+- Retryable/timed-out results schedule an immediate retry by setting
+  `next_crawl_at` to completion time; exponential backoff remains future work.
+Changed files:
+- docs/progress.md
+- docs/url-frontier-model.md
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.spec.ts
+- packages/url-frontier/src/persistence/knex-url-frontier.repository.ts
+Next step:
+- Add bounded retry/backoff scheduling rules for URL Frontier completion.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #60 into `main`.
 - Created `issue/3-url-frontier-dispatch-api` from updated `main`.
 - Added bounded `dispatchBatch()` orchestration on top of the single-entry URL
