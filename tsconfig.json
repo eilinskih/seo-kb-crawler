@@ -53,6 +53,12 @@
       ],
       "@seo-kb/topic-engine/*": [
         "packages/topic-engine/src/*"
+      ],
+      "@seo-kb/url-frontier": [
+        "packages/url-frontier/src"
+      ],
+      "@seo-kb/url-frontier/*": [
+        "packages/url-frontier/src/*"
       ]
     }
   }

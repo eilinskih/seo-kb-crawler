@@ -71,12 +71,13 @@ Current shared and domain packages:
 /packages/db
 /packages/common
 /packages/discovery-sources
+/packages/crawler
+/packages/url-frontier
 ```
 
 Planned domain packages:
 
 ```txt
-/packages/crawler
 /packages/chunking
 /packages/embeddings
 /packages/extraction

@@ -202,6 +202,7 @@ packages/crawler
 packages/db
 packages/discovery-sources
 packages/topic-engine
+packages/url-frontier
 ```
 
 PostgreSQL is the source of truth. The local PostgreSQL service uses the pgvector image and enables the `vector` extension at initialization so later embedding work does not require replacing the database runtime.

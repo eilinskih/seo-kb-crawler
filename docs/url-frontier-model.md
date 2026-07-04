@@ -499,7 +499,7 @@ ingestion boundary as new observations.
 
 Planned PostgreSQL structures:
 
-- `url_frontier_entries`
+- `url_frontier_entries` (initial durable lease lifecycle implemented)
 - `url_discovery_observations`
 - `url_canonical_relations`
 - `crawl_attempts` (initial durable result sink implemented)

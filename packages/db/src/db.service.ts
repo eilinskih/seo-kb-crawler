@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import createKnex, { Knex } from 'knex';
 import { topicEngineMigration } from './migrations/001-topic-engine';
 import { urlFrontierCrawlAttemptsMigration } from './migrations/002-url-frontier-crawl-attempts';
+import { urlFrontierEntriesMigration } from './migrations/003-url-frontier-entries';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -47,6 +48,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
   private readonly migrations = [
     topicEngineMigration,
     urlFrontierCrawlAttemptsMigration,
+    urlFrontierEntriesMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -54,6 +56,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
       urlFrontierCrawlAttemptsMigration,
       '002-url-frontier-crawl-attempts',
     ],
+    [urlFrontierEntriesMigration, '003-url-frontier-entries'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {
