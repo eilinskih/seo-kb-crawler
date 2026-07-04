@@ -176,6 +176,12 @@ POST /topics/:id/archive
 Topic configuration changes use `expectedConfigurationVersion` for optimistic
 concurrency and persist immutable snapshots for downstream URL Frontier work.
 
+URL Frontier manual dispatch:
+
+```txt
+POST /url-frontier/dispatch
+```
+
 Node.js 24 LTS is used instead of Node.js 26 Current because this service is
 intended to run continuously on a secondary machine. LTS provides a longer
 support window and lower dependency compatibility risk while retaining a

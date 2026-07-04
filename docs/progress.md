@@ -71,6 +71,32 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #60 into `main`.
+- Created `issue/3-url-frontier-dispatch-api` from updated `main`.
+- Added bounded `dispatchBatch()` orchestration on top of the single-entry URL
+  Frontier dispatch boundary.
+- Added manual API endpoint `POST /url-frontier/dispatch` for bounded dispatch
+  runs with request validation and defaults.
+- Wired `UrlFrontierModule` into the API application.
+- Kept recurring scheduler loops, Research Engine budget policy and Discovery
+  Sources ingestion out of this slice.
+Changed files:
+- README.md
+- apps/api/src/api.module.ts
+- apps/api/src/url-frontier/url-frontier-dispatch.controller.ts
+- apps/api/src/url-frontier/url-frontier-dispatch.controller.spec.ts
+- docs/progress.md
+- docs/url-frontier-model.md
+- packages/url-frontier/src/application/url-frontier-dispatch.service.ts
+- packages/url-frontier/src/application/url-frontier-dispatch.service.spec.ts
+Next step:
+- Add completion feedback from Crawler Worker results back into URL Frontier
+  entry status and recrawl scheduling.
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #59 into `main`.
 - Created `issue/3-url-frontier-bullmq-dispatch` from updated `main`.
 - Added URL Frontier dispatch service that leases one eligible entry and

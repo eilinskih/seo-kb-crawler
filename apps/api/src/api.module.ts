@@ -3,15 +3,16 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
   appConfig,
-  CRAWL_QUEUE_NAME,
   redisConnectionFromUrl,
   validateEnvironment,
 } from '@seo-kb/common';
 import { DbModule } from '@seo-kb/db';
 import { TopicEngineModule } from '@seo-kb/topic-engine';
+import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { HealthController } from './health/health.controller';
 import { InfrastructureHealthService } from './health/infrastructure-health.service';
 import { TopicsController } from './topics/topics.controller';
+import { UrlFrontierDispatchController } from './url-frontier/url-frontier-dispatch.controller';
 
 @Module({
   imports: [
@@ -28,10 +29,14 @@ import { TopicsController } from './topics/topics.controller';
         connection: redisConnectionFromUrl(config.getOrThrow<string>('REDIS_URL')),
       }),
     }),
-    BullModule.registerQueue({ name: CRAWL_QUEUE_NAME }),
     TopicEngineModule,
+    UrlFrontierModule,
   ],
-  controllers: [HealthController, TopicsController],
+  controllers: [
+    HealthController,
+    TopicsController,
+    UrlFrontierDispatchController,
+  ],
   providers: [InfrastructureHealthService],
 })
 export class ApiModule {}

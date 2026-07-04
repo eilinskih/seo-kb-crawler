@@ -69,17 +69,103 @@ describe('UrlFrontierDispatchService', () => {
       jobId: null,
     });
   });
+
+  it('dispatches a bounded batch until the requested limit is reached', async () => {
+    const leases = [frontierLease('attempt-1'), frontierLease('attempt-2')];
+    const crawlQueue = {
+      add: jest.fn(async () => ({})),
+    } as unknown as Queue;
+    const repository: UrlFrontierRepository = {
+      upsertEntry: jest.fn(),
+      leaseNext: jest
+        .fn()
+        .mockResolvedValueOnce(leases[0])
+        .mockResolvedValueOnce(leases[1]),
+      acknowledgeCrawling: jest.fn(),
+    };
+
+    const result = await new UrlFrontierDispatchService(
+      crawlQueue,
+      repository,
+    ).dispatchBatch({
+      leaseOwner: 'worker-1',
+      leaseDurationMs: 60_000,
+      now: new Date('2026-07-04T00:00:00Z'),
+      maxDispatches: 2,
+    });
+
+    expect(crawlQueue.add).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      requested: 2,
+      dispatched: 2,
+      jobIds: ['attempt-1', 'attempt-2'],
+      exhausted: false,
+    });
+  });
+
+  it('stops batch dispatch when the frontier is exhausted', async () => {
+    const lease = frontierLease('attempt-1');
+    const crawlQueue = {
+      add: jest.fn(async () => ({})),
+    } as unknown as Queue;
+    const repository: UrlFrontierRepository = {
+      upsertEntry: jest.fn(),
+      leaseNext: jest
+        .fn()
+        .mockResolvedValueOnce(lease)
+        .mockResolvedValueOnce(null),
+      acknowledgeCrawling: jest.fn(),
+    };
+
+    const result = await new UrlFrontierDispatchService(
+      crawlQueue,
+      repository,
+    ).dispatchBatch({
+      leaseOwner: 'worker-1',
+      leaseDurationMs: 60_000,
+      now: new Date('2026-07-04T00:00:00Z'),
+      maxDispatches: 5,
+    });
+
+    expect(crawlQueue.add).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      requested: 5,
+      dispatched: 1,
+      jobIds: ['attempt-1'],
+      exhausted: true,
+    });
+  });
+
+  it('rejects non-positive batch limits', async () => {
+    const service = new UrlFrontierDispatchService(
+      { add: jest.fn() } as unknown as Queue,
+      {
+        upsertEntry: jest.fn(),
+        leaseNext: jest.fn(),
+        acknowledgeCrawling: jest.fn(),
+      },
+    );
+
+    await expect(
+      service.dispatchBatch({
+        leaseOwner: 'worker-1',
+        leaseDurationMs: 60_000,
+        now: new Date('2026-07-04T00:00:00Z'),
+        maxDispatches: 0,
+      }),
+    ).rejects.toThrow('maxDispatches must be a positive integer');
+  });
 });
 
-function frontierLease(): UrlFrontierLease {
+function frontierLease(attemptId = 'attempt-1'): UrlFrontierLease {
   const leaseExpiresAt = new Date('2026-07-04T00:01:00Z');
   return {
     entryId: 'entry-1',
-    attemptId: 'attempt-1',
+    attemptId,
     leaseOwner: 'worker-1',
     leaseExpiresAt,
     command: {
-      attemptId: 'attempt-1',
+      attemptId,
       frontierEntryId: 'entry-1',
       topicId: 'topic-1',
       topicConfigurationVersion: 1,
