@@ -97,6 +97,18 @@ function normalizePolicy(policy: CrawlPolicySnapshot): CrawlPolicySnapshot {
       policy.maxMediaAssets,
       'policy.maxMediaAssets',
     ),
+    recrawlIntervalHours: normalizeOptionalPositiveInteger(
+      policy.recrawlIntervalHours,
+      'policy.recrawlIntervalHours',
+    ),
+    minRecrawlIntervalHours: normalizeOptionalPositiveInteger(
+      policy.minRecrawlIntervalHours,
+      'policy.minRecrawlIntervalHours',
+    ),
+    maxRecrawlIntervalHours: normalizeOptionalPositiveInteger(
+      policy.maxRecrawlIntervalHours,
+      'policy.maxRecrawlIntervalHours',
+    ),
   };
 }
 
@@ -179,6 +191,16 @@ function assertPositiveInteger(value: number, field: string): number {
     throw new CrawlerValidationError(`${field} must be a positive integer`);
   }
   return value;
+}
+
+function normalizeOptionalPositiveInteger(
+  value: number | undefined,
+  field: string,
+): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  return assertPositiveInteger(value, field);
 }
 
 function assertNonNegativeInteger(value: number, field: string): number {

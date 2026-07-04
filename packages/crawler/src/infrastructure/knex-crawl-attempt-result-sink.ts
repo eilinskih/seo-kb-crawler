@@ -3,6 +3,7 @@ import { DbService } from '@seo-kb/db';
 import {
   CrawlAttemptStatus,
   CrawlFailure,
+  CrawlPolicySnapshot,
   CrawlResultSink,
   CrawlerAdapterKey,
   ExtractedCrawlLink,
@@ -63,6 +64,24 @@ export const DEFAULT_URL_FRONTIER_RETRY_POLICY: UrlFrontierRetryPolicy = {
   maxRetryableFailures: 5,
 };
 
+export interface UrlFrontierSuccessRecrawlPolicy {
+  recrawlIntervalHours: number;
+  minRecrawlIntervalHours: number;
+  maxRecrawlIntervalHours: number;
+}
+
+export const DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY:
+  UrlFrontierSuccessRecrawlPolicy = {
+    recrawlIntervalHours: 168,
+    minRecrawlIntervalHours: 24,
+    maxRecrawlIntervalHours: 720,
+  };
+
+interface FrontierCompletionEntry {
+  consecutive_failures: number;
+  crawl_policy: CrawlPolicySnapshot;
+}
+
 @Injectable()
 export class KnexCrawlAttemptResultSink implements CrawlResultSink {
   constructor(private readonly db: DbService) {}
@@ -76,10 +95,10 @@ export class KnexCrawlAttemptResultSink implements CrawlResultSink {
         .onConflict('attempt_id')
         .merge(retryUpdate);
 
-      const frontierEntry = await transaction<{ consecutive_failures: number }>(
+      const frontierEntry = await transaction<FrontierCompletionEntry>(
         'url_frontier_entries',
       )
-        .select('consecutive_failures')
+        .select('consecutive_failures', 'crawl_policy')
         .where({
           id: result.frontierEntryId,
           active_attempt_id: result.attemptId,
@@ -101,6 +120,7 @@ export class KnexCrawlAttemptResultSink implements CrawlResultSink {
               result,
               row.recorded_at,
               frontierEntry.consecutive_failures,
+              frontierEntry.crawl_policy,
             ),
             transaction,
           ),
@@ -146,6 +166,8 @@ export function toFrontierCompletionUpdate(
   result: NormalizedCrawlResult,
   completedAt: Date,
   currentConsecutiveFailures = 0,
+  crawlPolicy: Partial<UrlFrontierSuccessRecrawlPolicy> =
+    DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
   retryPolicy = DEFAULT_URL_FRONTIER_RETRY_POLICY,
 ): UrlFrontierCompletionUpdate {
   const base = {
@@ -161,6 +183,10 @@ export function toFrontierCompletionUpdate(
       ...base,
       crawl_status: 'succeeded',
       last_crawled_at: completedAt,
+      next_crawl_at: addMilliseconds(
+        completedAt,
+        successRecrawlDelayMs(crawlPolicy),
+      ),
       consecutive_failures: 0,
     };
   }
@@ -221,6 +247,21 @@ export function retryDelayMs(
     retryPolicy.maxBackoffMs,
     retryPolicy.baseBackoffMs * 2 ** exponent,
   );
+}
+
+export function successRecrawlDelayMs(
+  crawlPolicy: Partial<UrlFrontierSuccessRecrawlPolicy> =
+    DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
+): number {
+  const policy = {
+    ...DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
+    ...crawlPolicy,
+  };
+  const boundedHours = Math.min(
+    policy.maxRecrawlIntervalHours,
+    Math.max(policy.minRecrawlIntervalHours, policy.recrawlIntervalHours),
+  );
+  return boundedHours * 60 * 60 * 1000;
 }
 
 function addMilliseconds(date: Date, milliseconds: number): Date {

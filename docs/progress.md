@@ -71,6 +71,37 @@ Date: 2026-07-04
 Issue: #5
 Status: In progress
 Summary:
+- Merged PR #63 into `main`.
+- Created `issue/3-url-frontier-success-recrawl` from updated `main`.
+- Added success recrawl scheduling at the URL Frontier completion boundary.
+- Successful crawl completion now sets `last_crawled_at`, resets consecutive
+  failures and schedules `next_crawl_at` from the crawl policy recrawl
+  interval bounded by min/max recrawl limits.
+- Preserved recrawl policy fields in `CrawlPolicySnapshot` command
+  normalization.
+- Made `succeeded` URL Frontier entries eligible for future leasing once
+  `next_crawl_at` is due.
+- Kept adaptive change-frequency recrawl adjustment and per-topic retry
+  customization out of this slice.
+Changed files:
+- docs/crawler-worker-model.md
+- docs/progress.md
+- docs/project-map.md
+- docs/url-frontier-model.md
+- packages/crawler/src/domain/crawl-command.spec.ts
+- packages/crawler/src/domain/crawl-command.ts
+- packages/crawler/src/domain/crawler-types.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.ts
+- packages/crawler/src/infrastructure/knex-crawl-attempt-result-sink.spec.ts
+- packages/url-frontier/src/persistence/knex-url-frontier.repository.ts
+Next step:
+- Run Architecture Steward review for Issue #5 lifecycle progress before
+  moving to Content Processing Pipeline (#6).
+
+Date: 2026-07-04
+Issue: #5
+Status: In progress
+Summary:
 - Merged PR #62 into `main`.
 - Created `issue/3-url-frontier-backoff-scheduling` from updated `main`.
 - Added bounded exponential retry scheduling to URL Frontier completion

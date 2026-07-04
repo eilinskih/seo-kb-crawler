@@ -26,6 +26,9 @@ describe('createCrawlCommand', () => {
       timeoutMs: 30_000,
       maxOutgoingLinks: 100,
       maxMediaAssets: 25,
+      recrawlIntervalHours: 168,
+      minRecrawlIntervalHours: 24,
+      maxRecrawlIntervalHours: 720,
     },
   };
 
@@ -38,6 +41,9 @@ describe('createCrawlCommand', () => {
     expect(command.policy.allowedHosts).toEqual(['example.com']);
     expect(command.policy.includedPathPatterns).toEqual(['/docs/*']);
     expect(command.policy.crossHostCanonicalPolicy).toBe('same-host');
+    expect(command.policy.recrawlIntervalHours).toBe(168);
+    expect(command.policy.minRecrawlIntervalHours).toBe(24);
+    expect(command.policy.maxRecrawlIntervalHours).toBe(720);
   });
 
   it('rejects commands whose deadline exceeds the frontier lease', () => {
