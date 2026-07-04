@@ -70,6 +70,37 @@ export interface ContentProcessingRecord {
   updatedAt: Date;
 }
 
+export interface CrawlAttemptForProcessing {
+  attemptId: string;
+  frontierEntryId: string;
+  topicId: string;
+  topicConfigurationVersion: number;
+  requestedUrl: string;
+  status: 'succeeded';
+  finalUrl: string | null;
+  canonicalUrl: string | null;
+  title: string | null;
+  metaDescription: string | null;
+  rawHtml: string | null;
+  cleanedMarkdown: string | null;
+  plainText: string | null;
+  contentHash: string | null;
+  headers: Record<string, string>;
+  recordedAt: Date;
+}
+
+export interface ProcessCrawlAttemptCommand {
+  crawlAttemptId: string;
+  now: Date;
+  extractorVersion?: string;
+}
+
+export interface ProcessCrawlAttemptResult {
+  status: 'processed' | 'skipped_duplicate' | 'already_processed';
+  documentId: string;
+  documentVersionId: string | null;
+}
+
 export interface DocumentMetadata {
   headings: HeadingObservation[];
   openGraph: Record<string, string>;
@@ -110,5 +141,11 @@ export interface ContentProcessingRepository {
   findProcessingRecord(
     crawlAttemptId: string,
   ): Promise<ContentProcessingRecord | null>;
-  createPendingRecord(record: ContentProcessingRecord): Promise<void>;
+  processSuccessfulCrawlAttempt(
+    attempt: CrawlAttemptForProcessing,
+    options: {
+      now: Date;
+      extractorVersion: string;
+    },
+  ): Promise<ProcessCrawlAttemptResult>;
 }

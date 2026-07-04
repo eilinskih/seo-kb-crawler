@@ -86,11 +86,12 @@ Implemented on `main`:
   recrawl scheduling.
 - Content Processing package boundary, domain contracts and foundation
   persistence schema.
+- Content Processing service boundary and Knex repository for idempotent
+  processing of successful crawl attempts.
 
 Designed but not implemented on `main`:
 
-- Content Processing processing service, manual trigger/API and worker
-  orchestration.
+- Content Processing manual trigger/API and worker orchestration.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

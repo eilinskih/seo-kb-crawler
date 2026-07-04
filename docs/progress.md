@@ -41,7 +41,7 @@ Roadmap order, phases and dependency rules live only in
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
-| #6 | Content Processing Pipeline | In progress | Design PR #66 merged; foundation package contracts and persistence schema are in active work. |
+| #6 | Content Processing Pipeline | In progress | Foundation package, persistence schema and idempotent processing service boundary are in active work. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -66,6 +66,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-04
+Issue: #6
+Status: In progress
+Summary:
+- Merged PR #67 into `main`.
+- Created `issue/6-content-processing-service` from updated `main`.
+- Added `ContentProcessingService` for idempotent processing of successful
+  crawl attempts.
+- Added a Knex-backed Content Processing repository that creates or reuses
+  topic/frontier documents, creates immutable document versions and records
+  duplicate processing as `skipped_duplicate`.
+- Registered the service and repository in `ContentProcessingModule`.
+- Kept manual API, worker orchestration, chunking, embeddings and retrieval out
+  of this slice.
+Changed files:
+- docs/progress.md
+- docs/project-map.md
+- packages/content-processing/src/content-processing.module.ts
+- packages/content-processing/src/content-processing.service.ts
+- packages/content-processing/src/content-processing.service.spec.ts
+- packages/content-processing/src/content-processing.tokens.ts
+- packages/content-processing/src/domain/content-processing-types.ts
+- packages/content-processing/src/index.ts
+- packages/content-processing/src/persistence/knex-content-processing.repository.ts
+- packages/content-processing/src/persistence/knex-content-processing.repository.spec.ts
+Next step:
+- Add a manual processing trigger/API after this service slice is reviewed.
 
 Date: 2026-07-04
 Issue: #6
