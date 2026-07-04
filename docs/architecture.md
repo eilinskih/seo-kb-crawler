@@ -11,7 +11,8 @@ For repository navigation, see `docs/project-map.md`.
 This document is the architecture overview. Keep subsystem details in
 specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
-`docs/crawler-worker-model.md` and ADRs under `docs/decisions/`.
+`docs/crawler-worker-model.md`, `docs/content-processing-model.md` and ADRs
+under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -94,6 +95,10 @@ Content Processing remains later work.
 - Metadata extraction
 - Structured data extraction
 - Language and geo hints
+
+The proposed Content Processing Pipeline contract is documented in
+`docs/content-processing-model.md`. Issue #6 begins with design review before
+runtime implementation.
 
 ### Semantic indexing
 
