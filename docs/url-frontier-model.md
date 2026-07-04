@@ -271,7 +271,8 @@ The queue transport must not become the source of truth for priority. The
 database frontier selects and leases work; BullMQ transports the leased job.
 The current dispatch boundary leases one eligible entry and publishes the crawl
 command with the attempt ID as the BullMQ job ID. Recurring scheduler
-orchestration and crawl-budget loops are still future work.
+orchestration and crawl-budget loops are still future work. The API exposes a
+manual bounded dispatch endpoint for operator-triggered batches.
 
 ## Relevance score integration
 

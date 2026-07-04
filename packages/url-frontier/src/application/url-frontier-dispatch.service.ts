@@ -20,6 +20,18 @@ export interface UrlFrontierDispatchResult {
   jobId: string | null;
 }
 
+export interface UrlFrontierDispatchBatchOptions
+  extends UrlFrontierDispatchOptions {
+  maxDispatches: number;
+}
+
+export interface UrlFrontierDispatchBatchResult {
+  requested: number;
+  dispatched: number;
+  jobIds: string[];
+  exhausted: boolean;
+}
+
 @Injectable()
 export class UrlFrontierDispatchService {
   constructor(
@@ -52,5 +64,38 @@ export class UrlFrontierDispatchService {
       lease,
       jobId: lease.attemptId,
     };
+  }
+
+  async dispatchBatch(
+    options: UrlFrontierDispatchBatchOptions,
+  ): Promise<UrlFrontierDispatchBatchResult> {
+    assertPositiveInteger(options.maxDispatches, 'maxDispatches');
+
+    const jobIds: string[] = [];
+    for (let index = 0; index < options.maxDispatches; index += 1) {
+      const result = await this.dispatchNext(options);
+      if (!result.leased || !result.jobId) {
+        return {
+          requested: options.maxDispatches,
+          dispatched: jobIds.length,
+          jobIds,
+          exhausted: true,
+        };
+      }
+      jobIds.push(result.jobId);
+    }
+
+    return {
+      requested: options.maxDispatches,
+      dispatched: jobIds.length,
+      jobIds,
+      exhausted: false,
+    };
+  }
+}
+
+function assertPositiveInteger(value: number, field: string): void {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`${field} must be a positive integer`);
   }
 }
