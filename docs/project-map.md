@@ -33,6 +33,7 @@ specialized documents:
 - `docs/url-frontier-model.md` for the URL Frontier.
 - `docs/discovery-sources-model.md` for Discovery Sources.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
+- `docs/content-processing-model.md` for the Content Processing Pipeline.
 - Future `docs/*-model.md` documents for subsystem contracts.
 - `docs/decisions/` for accepted architectural decisions.
 
@@ -86,12 +87,12 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Content Processing Pipeline.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 
-- Content processing.
 - Chunking.
 - Embeddings.
 - Retrieval.

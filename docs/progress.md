@@ -40,8 +40,8 @@ Roadmap order, phases and dependency rules live only in
 | #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Initial lifecycle subset is implemented on `main`; remaining observation ingestion, canonical relations and adaptive scheduling are deferred. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
-| #5 | Crawler Worker: implement controlled page crawling pipeline | Review needed | Controlled crawling lifecycle, URL Frontier leases, dispatch, completion feedback, retry backoff and success recrawl scheduling are implemented; Architecture Steward cleanup is in review before #6. |
-| #6 | Content Processing Pipeline | Not started | Depends on #5. |
+| #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
+| #6 | Content Processing Pipeline | Review needed | Design-only PR in progress; runtime implementation has not started. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -66,6 +66,25 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-04
+Issue: #6
+Status: Review needed
+Summary:
+- Merged PR #65 into `main`.
+- Started Issue #6 Content Processing Pipeline as a design-only PR.
+- Added `docs/content-processing-model.md` to define pipeline purpose,
+  ownership, inputs, outputs, document identity, versioning, artifact strategy,
+  normalization, metadata extraction, processing state, idempotency and
+  downstream contracts.
+- Kept runtime code, migrations, workers and APIs out of this slice.
+Changed files:
+- docs/architecture.md
+- docs/content-processing-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Review and approve the Content Processing design before implementation.
 
 Date: 2026-07-04
 Issue: #5
