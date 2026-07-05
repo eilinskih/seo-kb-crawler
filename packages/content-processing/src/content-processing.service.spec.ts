@@ -17,6 +17,10 @@ describe('ContentProcessingService', () => {
     };
     const repository: ContentProcessingRepository = {
       findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
       findProcessingRecord: jest.fn(),
       processSuccessfulCrawlAttempt: jest.fn(async () => result),
     };
@@ -62,6 +66,10 @@ describe('ContentProcessingService', () => {
     };
     const repository: ContentProcessingRepository = {
       findSuccessfulCrawlAttempt: jest.fn(async () => successfulAttempt()),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
       findProcessingRecord: jest.fn(),
       processSuccessfulCrawlAttempt: jest.fn(async () => result),
     };
@@ -88,6 +96,10 @@ describe('ContentProcessingService', () => {
   it('rejects missing successful crawl attempts by id', async () => {
     const repository: ContentProcessingRepository = {
       findSuccessfulCrawlAttempt: jest.fn(async () => null),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
       findProcessingRecord: jest.fn(),
       processSuccessfulCrawlAttempt: jest.fn(),
     };
@@ -119,11 +131,86 @@ describe('ContentProcessingService', () => {
       ),
     ).rejects.toThrow('no usable body');
   });
+
+  it('marks queued crawl attempts as processing before processing them', async () => {
+    const result: ProcessCrawlAttemptResult = {
+      status: 'processed',
+      documentId: 'document-1',
+      documentVersionId: 'version-1',
+    };
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => successfulAttempt()),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(async () => result),
+    };
+    const service = new ContentProcessingService(repository);
+    const now = new Date('2026-07-04T00:00:00Z');
+
+    await expect(
+      service.processQueuedCrawlAttempt({
+        crawlAttemptId: 'attempt-1',
+        extractorVersion: 'extractor/1',
+        now,
+      }),
+    ).resolves.toEqual(result);
+
+    expect(repository.markProcessingStarted).toHaveBeenCalledWith({
+      crawlAttemptId: 'attempt-1',
+      extractorVersion: 'extractor/1',
+      now,
+    });
+    expect(repository.markProcessingFailed).not.toHaveBeenCalled();
+  });
+
+  it('records terminal failures for queued attempts with missing body artifacts', async () => {
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => ({
+        ...successfulAttempt(),
+        rawHtml: null,
+        cleanedMarkdown: null,
+        plainText: null,
+      })),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+    const now = new Date('2026-07-04T00:00:00Z');
+
+    await expect(
+      service.processQueuedCrawlAttempt({
+        crawlAttemptId: 'attempt-1',
+        now,
+      }),
+    ).rejects.toThrow('no usable body');
+
+    expect(repository.markProcessingFailed).toHaveBeenCalledWith({
+      crawlAttemptId: 'attempt-1',
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      now,
+      failure: {
+        category: 'missing_body',
+        detail: 'successful crawl attempt has no usable body',
+        retryable: false,
+      },
+    });
+  });
 });
 
 function repositoryStub(): ContentProcessingRepository {
   return {
     findSuccessfulCrawlAttempt: jest.fn(),
+    findPendingSuccessfulCrawlAttempts: jest.fn(),
+    markProcessingPending: jest.fn(),
+    markProcessingStarted: jest.fn(),
+    markProcessingFailed: jest.fn(),
     findProcessingRecord: jest.fn(),
     processSuccessfulCrawlAttempt: jest.fn(),
   };

@@ -307,6 +307,9 @@ as evidence. They own ontology and predicate interpretation.
 3. Store initial `documents`, `document_versions` and processing status.
 4. Add a bounded manual processing API or service entry point.
 5. Add worker orchestration only after the service boundary is reviewed.
+   Initial orchestration uses a dedicated `content-processing` BullMQ queue,
+   bounded manual dispatch, crawl attempt IDs as job IDs and durable
+   `content_processing_runs` state transitions before and after queued work.
 6. Defer Chunking until Issue #7.
 
 ## Out Of Scope For Issue #6
@@ -330,5 +333,9 @@ as evidence. They own ontology and predicate interpretation.
    `skipped_duplicate`, or only update the existing document crawl metadata?
 3. Which extractor versioning scheme should be accepted before reprocessing is
    implemented?
-4. Should initial processing run synchronously through a manual API or as a
-   dedicated BullMQ processor?
+4. Resolved for initial implementation: processing supports both a synchronous
+   bounded manual API for one crawl attempt and a dedicated BullMQ processor for
+   queued batches. Queued processing records `pending`, `processing` and
+   failure states in PostgreSQL; BullMQ is transport, not durable processing
+   state. Automatic URL Frontier completion hooks remain a later explicit
+   decision.

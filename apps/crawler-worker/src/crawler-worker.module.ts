@@ -7,8 +7,10 @@ import {
   redisConnectionFromUrl,
   validateEnvironment,
 } from '@seo-kb/common';
+import { ContentProcessingModule } from '@seo-kb/content-processing';
 import { CrawlerModule } from '@seo-kb/crawler';
 import { DbModule } from '@seo-kb/db';
+import { ContentProcessingProcessor } from './content-processing.processor';
 import { CrawlProcessor } from './crawl.processor';
 
 @Module({
@@ -28,7 +30,8 @@ import { CrawlProcessor } from './crawl.processor';
       }),
     }),
     BullModule.registerQueue({ name: CRAWL_QUEUE_NAME }),
+    ContentProcessingModule,
   ],
-  providers: [CrawlProcessor],
+  providers: [ContentProcessingProcessor, CrawlProcessor],
 })
 export class CrawlerWorkerModule {}

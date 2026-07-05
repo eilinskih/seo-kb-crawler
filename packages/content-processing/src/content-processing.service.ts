@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  ContentProcessingFailure,
   ContentProcessingRepository,
   CrawlAttemptForProcessing,
   ProcessCrawlAttemptCommand,
@@ -48,8 +49,70 @@ export class ContentProcessingService {
     }
     return this.processCrawlAttempt(attempt, command);
   }
+
+  async markCrawlAttemptProcessingPending(
+    command: ProcessCrawlAttemptCommand,
+  ): Promise<void> {
+    await this.repository.markProcessingPending({
+      crawlAttemptId: command.crawlAttemptId,
+      extractorVersion:
+        command.extractorVersion ?? DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      now: command.now,
+    });
+  }
+
+  async processQueuedCrawlAttempt(
+    command: ProcessCrawlAttemptCommand,
+  ): Promise<ProcessCrawlAttemptResult> {
+    const extractorVersion =
+      command.extractorVersion ?? DEFAULT_CONTENT_EXTRACTOR_VERSION;
+    await this.repository.markProcessingStarted({
+      crawlAttemptId: command.crawlAttemptId,
+      extractorVersion,
+      now: command.now,
+    });
+
+    try {
+      return await this.processCrawlAttemptById({
+        ...command,
+        extractorVersion,
+      });
+    } catch (error) {
+      await this.repository.markProcessingFailed({
+        crawlAttemptId: command.crawlAttemptId,
+        extractorVersion,
+        now: command.now,
+        failure: failureFromError(error),
+      });
+      throw error;
+    }
+  }
 }
 
 function hasUsableBody(attempt: CrawlAttemptForProcessing): boolean {
   return Boolean(attempt.rawHtml ?? attempt.cleanedMarkdown ?? attempt.plainText);
+}
+
+function failureFromError(error: unknown): ContentProcessingFailure {
+  const detail = error instanceof Error ? error.message : 'unknown failure';
+  if (detail === 'successful crawl attempt has no usable body') {
+    return {
+      category: 'missing_body',
+      detail,
+      retryable: false,
+    };
+  }
+  if (detail === 'only successful crawl attempts can be processed') {
+    return {
+      category: 'unsupported_content_type',
+      detail,
+      retryable: false,
+    };
+  }
+
+  return {
+    category: 'internal_error',
+    detail,
+    retryable: true,
+  };
 }
