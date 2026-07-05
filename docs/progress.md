@@ -53,19 +53,47 @@ Roadmap order, phases and dependency rules live only in
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
+| #72 | Demand Engine | Review needed | Design-only architecture correction for keyword discovery, candidate pages and provider-optional demand signals; runtime implementation remains deferred to roadmap order. |
 | #18 | SERP Intelligence Layer | Not started | SEO-first layer; required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
-| #19 | Topic Expansion Engine | Not started | Depends on #18 and knowledge signals. |
-| Future issue | Long-tail Discovery Engine | Not started | Future Research Engine capability after Topic Expansion, Knowledge Graph, SERP and intent signals. |
-| #20 | SEO Page Candidate Scoring | Not started | Depends on #18/#19. |
-| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, SERP Pack and SERP Intent Pack. |
-| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, #18, #21 and #43. |
+| #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine and knowledge signals. |
+| Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine, Topic Expansion, Knowledge Graph, SERP and intent signals. |
+| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine, #18/#19. |
+| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
+| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
-| #40 | External SEO Data Providers | Not started | Optional and deferred; must never block the core pipeline. |
+| #40 | External SEO Data Providers | Not started | Optional enrichment after Demand Engine provider contracts; must never block the core pipeline. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-05
+Issue: #72
+Status: Review needed
+Summary:
+- Added the Demand Engine as a required SEO Intelligence architecture
+  boundary for Keyword Discovery and candidate-page discovery.
+- Kept the first scope deliberately thin: domain model, provider-optional
+  adapter contracts, nullable metrics, confidence/evidence and fallback mode.
+- Accepted provider-optional behavior as an architecture decision: paid SEO
+  providers improve prioritization but must never block discovery or the core
+  pipeline.
+- Ran SEO Research Architect / SEO Lead review and addressed sequencing,
+  fallback evidence, ownership handoff and candidate-page model findings.
+Changed files:
+- docs/architecture.md
+- docs/demand-engine-model.md
+- docs/decisions/0003-demand-engine-provider-optional.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- README.md
+- docs/AI_COLLABORATION.md
+- docs/codex-workflow.md
+Next step:
+- Open the design-only PR for Issue #72 and complete human review before
+  treating the Demand Engine design as merged architecture.
 
 Date: 2026-07-05
 Issue: #6

@@ -84,6 +84,7 @@ Planned domain packages:
 /packages/extraction
 /packages/retrieval
 /packages/context-pack
+/packages/demand-engine
 
 /infrastructure/docker
 /docs
@@ -104,6 +105,8 @@ Planned domain packages:
 - `docs/discovery-sources-model.md` documents the approved Discovery Sources
   design.
 - `docs/crawler-worker-model.md` documents the proposed Crawler Worker design.
+- `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
+  and candidate-page discovery.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## Engineering Documentation

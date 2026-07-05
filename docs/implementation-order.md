@@ -66,18 +66,19 @@ the whole research system.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 20 | #18 | SERP Intelligence Layer | Requires Research Engine and retrieval outputs. |
-| 21 | #30 | SERP Intent Analyzer | Deferred until #18. |
-| 22 | #19 | Topic Expansion Engine | Depends on #18 and knowledge signals. |
-| 23 | Future issue | Long-tail Discovery Engine | Depends on #19, Knowledge Graph, SERP and intent signals. |
-| 24 | #20 | SEO Page Candidate Scoring | Depends on #18/#19 and long-tail candidate signals when available. |
-| 25 | #21 | SEO Pack Generator | Depends on Knowledge Pack and SERP Pack. |
+| 20 | #72 | Demand Engine | Requires Topic Engine and Research Engine core; should be designed before SERP Intelligence, Topic Expansion, Long-tail Discovery and Page Candidate Scoring. |
+| 21 | #18 | SERP Intelligence Layer | Requires Research Engine and retrieval outputs; validates Demand Engine candidate queries and page types. |
+| 22 | #30 | SERP Intent Analyzer | Deferred until #18. |
+| 23 | #19 | Topic Expansion Engine | Depends on #18, Demand Engine and knowledge signals. |
+| 24 | Future issue | Long-tail Discovery Engine | Depends on Demand Engine, #19, Knowledge Graph, SERP and intent signals. |
+| 25 | #20 | SEO Page Candidate Scoring | Depends on Demand Engine, #18/#19 and long-tail candidate signals when available. |
+| 26 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack and SERP Pack. |
 
 ## Phase 6: LLM Integration
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 26 | #42 | SEO Agent Gateway | Deferred until #10, #14, #18, #21 and #43. |
+| 27 | #42 | SEO Agent Gateway | Deferred until #10, #14, Demand Engine, #18, #21 and #43. |
 
 Codex is the first consumer, not the only consumer. Context, Knowledge, SERP
 and SEO packs must remain model-agnostic.
@@ -86,8 +87,8 @@ and SEO packs must remain model-agnostic.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 27 | #17 | External Entity Enrichment Providers | Optional enrichment after local entity contracts. |
-| 28 | #40 | External SEO Data Providers | Optional enrichment after internal SEO signals. |
+| 28 | #17 | External Entity Enrichment Providers | Optional enrichment after local entity contracts. |
+| 29 | #40 | External SEO Data Providers | Optional enrichment after Demand Engine provider contracts and internal SEO signals. |
 
 External providers improve scoring and enrichment. They must never block the
 core pipeline or become required dependencies.
@@ -105,12 +106,56 @@ core pipeline or become required dependencies.
                                                                     #11 -> #12 -> #13 -> #14 -> #15 -> #16
                                                                                                 |
                                                                                                 v
-                                                                         #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
+                                                                         Demand Engine -> #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
 
 Optional:
 #17 enriches #11/#12/#14/#18.
-#40 enriches #18/#19/#20/#21/#42 and does not block #30.
+#40 enriches Demand Engine/#18/#19/#20/#21/#42 and does not block #30.
 ```
+
+## Future capability: Demand Engine
+
+Demand Engine is a required SEO Intelligence subsystem, not an optional paid
+provider wrapper. It answers the demand question:
+
+```txt
+What should we write?
+```
+
+Topic Engine defines accepted project scope and policy. Demand Engine consumes
+that scope and produces keyword candidates, keyword clusters, parent-topic
+signals and candidate pages. SERP Intelligence, Knowledge Intelligence and SEO
+Pack generation then validate and enrich those candidates.
+
+The first Demand Engine issue should be design-only or thin implementation
+scope. It should introduce the architecture boundary, candidate keyword model,
+candidate page model, provider-optional adapter contracts, nullable metric
+snapshots, evidence/confidence fields and fallback mode. It should not attempt
+to clone Ahrefs, Semrush or SE Ranking.
+
+Issue #72 is allowed to land early as a design-only roadmap correction because
+it records a Product Owner decision and prevents Keyword Discovery semantics
+from being invented later inside unrelated issues. Runtime implementation still
+waits for its roadmap position and accepted dependencies.
+
+Demand Engine must support three provider tiers:
+
+- Paid demand providers: Ahrefs, Semrush, SE Ranking, Google Ads Keyword
+  Planner, DataForSEO or equivalent APIs.
+- Owned data: Google Search Console, GA4, server logs, rank tracking and
+  first-party performance data.
+- Free and fallback discovery: manual seeds, autocomplete, People Also Ask,
+  related searches, SERP snippets, competitor headings, competitor sitemaps,
+  FAQ blocks, internal links and Knowledge Graph combinations.
+
+Paid providers improve search volume, difficulty, CPC, trend, seasonality,
+parent-topic and competitor-keyword confidence. They must never be required for
+the core pipeline to continue. Without paid credentials, Demand Engine should
+continue in fallback mode and mark volume, difficulty, CPC and traffic
+potential as unknown when they are not provider-backed.
+
+See `docs/demand-engine-model.md` and
+`docs/decisions/0003-demand-engine-provider-optional.md`.
 
 ## Future capability: Long-tail Discovery Engine
 
@@ -123,10 +168,10 @@ However, long-tail discovery should become an explicit Research Engine
 capability after the base research, processing, retrieval and knowledge layers
 exist.
 
-The Long-tail Discovery Engine is not a separate service. It is a logical
-module inside the Research Engine. Its purpose is not merely to collect keyword
-strings. Its purpose is to build a map of potential pages from SERP evidence,
-competitor structure, intent signals and the local Knowledge Graph.
+The Long-tail Discovery Engine is not a separate paid-provider wrapper. It is a
+logical capability that should build on Demand Engine candidate keywords,
+candidate pages, SERP evidence, competitor structure, intent signals and the
+local Knowledge Graph.
 
 Example input Topic:
 
@@ -215,7 +260,11 @@ opportunities from domain structure.
 The future SEO intelligence sequence should become:
 
 ```txt
-Focused Research
+Manual Topic Seed / Focused Research
+  -> Demand Engine
+  -> Candidate Keywords
+  -> Candidate Pages
+  -> SERP Validation
   -> Knowledge Extraction
   -> Intent Extraction
   -> Entity Extraction
@@ -237,9 +286,9 @@ Long-tail candidates should be ranked by an Opportunity Score that can include:
 - Optional external keyword volume and difficulty when providers are enabled.
 
 This future capability should be added as a dedicated roadmap issue after the
-Research Engine, Content Processing Pipeline, base Retrieval and foundational
-Knowledge Intelligence layers are available. It should evolve the platform
-naturally rather than changing the current MVP architecture.
+Demand Engine, Research Engine, Content Processing Pipeline, base Retrieval and
+foundational Knowledge Intelligence layers are available. It should evolve the
+platform naturally rather than changing the current MVP architecture.
 
 ## Architecture principles
 
@@ -249,6 +298,8 @@ naturally rather than changing the current MVP architecture.
 - Every SEO generation workflow starts with Focused Research.
 - Background Research fairly grows all Active Topics.
 - Topic-scoped crawling and research policies are always enforced.
+- Demand Engine owns search-demand discovery and candidate pages.
+- Demand discovery works in fallback mode without paid provider credentials.
 - Free-first SEO intelligence; paid providers are optional.
 - Ahrefs improves scoring; Ahrefs never blocks the pipeline.
 - Core Intent before Opportunity Intent.
@@ -289,6 +340,15 @@ Research Assets:
 Observable collected assets such as sites, pages, keywords, SERP snapshots,
 entities, facts, FAQ blocks, source observations and processing history.
 
+Demand Engine:
+The SEO Intelligence subsystem that turns Topic scope, provider-optional demand
+sources, owned data, fallback sources and Knowledge Graph combinations into
+keyword candidates, clusters and candidate pages.
+
+Demand Pack:
+Structured output describing candidate keywords, candidate pages, demand
+metrics when available, confidence, evidence quality and unknown metrics.
+
 SERP Pack:
 Structured output describing how top-ranking pages present a query or topic.
 
@@ -301,9 +361,9 @@ Generation-ready package combining Knowledge, SERP, intent, evidence, gap and
 opportunity signals.
 
 Long-tail Discovery Engine:
-A logical Research Engine module that builds candidate page opportunities from
-SERP evidence, competitor structure, intent signals and Knowledge Graph entity
-combinations.
+A logical SEO Intelligence capability that expands Demand Engine candidates
+into long-tail page opportunities from SERP evidence, competitor structure,
+intent signals and Knowledge Graph entity combinations.
 
 SEO Agent Gateway:
 Model-agnostic gateway that ensures SEO generation uses Focused Research and

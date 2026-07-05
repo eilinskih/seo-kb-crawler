@@ -34,6 +34,8 @@ specialized documents:
 - `docs/discovery-sources-model.md` for Discovery Sources.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
+- `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
+  provider-optional demand signals.
 - Future `docs/*-model.md` documents for subsystem contracts.
 - `docs/decisions/` for accepted architectural decisions.
 
@@ -102,6 +104,7 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
+- Demand Engine.
 - Chunking.
 - Embeddings.
 - Retrieval.
