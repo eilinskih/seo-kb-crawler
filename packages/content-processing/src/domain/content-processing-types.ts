@@ -138,6 +138,9 @@ export interface GeoHint {
 }
 
 export interface ContentProcessingRepository {
+  findSuccessfulCrawlAttempt(
+    crawlAttemptId: string,
+  ): Promise<CrawlAttemptForProcessing | null>;
   findProcessingRecord(
     crawlAttemptId: string,
   ): Promise<ContentProcessingRecord | null>;

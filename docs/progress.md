@@ -41,7 +41,7 @@ Roadmap order, phases and dependency rules live only in
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
-| #6 | Content Processing Pipeline | In progress | Foundation package, persistence schema and idempotent processing service boundary are in active work. |
+| #6 | Content Processing Pipeline | In progress | Foundation package, persistence schema, idempotent service boundary and manual processing API are in active work. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -66,6 +66,35 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-05
+Issue: #6
+Status: In progress
+Summary:
+- Merged PR #68 into `main`.
+- Created `issue/6-content-processing-api` from updated `main`.
+- Added `processCrawlAttemptById()` to load successful crawl attempts through
+  the Content Processing repository boundary.
+- Added manual API endpoint `POST /content-processing/process` for bounded
+  operator-triggered processing by crawl attempt ID.
+- Wired `ContentProcessingModule` and `ContentProcessingController` into the
+  API application.
+- Kept worker orchestration, batch processing, chunking, embeddings and
+  retrieval out of this slice.
+Changed files:
+- README.md
+- apps/api/src/api.module.ts
+- apps/api/src/content-processing/content-processing.controller.ts
+- apps/api/src/content-processing/content-processing.controller.spec.ts
+- docs/progress.md
+- docs/project-map.md
+- packages/content-processing/src/content-processing.service.ts
+- packages/content-processing/src/content-processing.service.spec.ts
+- packages/content-processing/src/domain/content-processing-types.ts
+- packages/content-processing/src/persistence/knex-content-processing.repository.ts
+Next step:
+- Add worker orchestration for pending/successful crawl attempts after this API
+  slice is reviewed.
 
 Date: 2026-07-04
 Issue: #6

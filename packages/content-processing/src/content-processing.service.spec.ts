@@ -16,6 +16,7 @@ describe('ContentProcessingService', () => {
       documentVersionId: 'version-1',
     };
     const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
       findProcessingRecord: jest.fn(),
       processSuccessfulCrawlAttempt: jest.fn(async () => result),
     };
@@ -53,6 +54,53 @@ describe('ContentProcessingService', () => {
     ).rejects.toThrow('crawlAttemptId must match');
   });
 
+  it('loads successful crawl attempts by id before processing', async () => {
+    const result: ProcessCrawlAttemptResult = {
+      status: 'processed',
+      documentId: 'document-1',
+      documentVersionId: 'version-1',
+    };
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => successfulAttempt()),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(async () => result),
+    };
+    const service = new ContentProcessingService(repository);
+    const now = new Date('2026-07-04T00:00:00Z');
+
+    await service.processCrawlAttemptById({
+      crawlAttemptId: 'attempt-1',
+      now,
+    });
+
+    expect(repository.findSuccessfulCrawlAttempt).toHaveBeenCalledWith(
+      'attempt-1',
+    );
+    expect(repository.processSuccessfulCrawlAttempt).toHaveBeenCalledWith(
+      successfulAttempt(),
+      {
+        now,
+        extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      },
+    );
+  });
+
+  it('rejects missing successful crawl attempts by id', async () => {
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => null),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+
+    await expect(
+      service.processCrawlAttemptById({
+        crawlAttemptId: 'missing-attempt',
+        now: new Date('2026-07-04T00:00:00Z'),
+      }),
+    ).rejects.toThrow('successful crawl attempt was not found');
+  });
+
   it('rejects successful attempts without usable body artifacts', async () => {
     const service = new ContentProcessingService(repositoryStub());
 
@@ -75,6 +123,7 @@ describe('ContentProcessingService', () => {
 
 function repositoryStub(): ContentProcessingRepository {
   return {
+    findSuccessfulCrawlAttempt: jest.fn(),
     findProcessingRecord: jest.fn(),
     processSuccessfulCrawlAttempt: jest.fn(),
   };
