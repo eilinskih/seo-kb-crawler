@@ -57,10 +57,42 @@ export interface ContentProcessingRunRow {
   updated_at: Date | string;
 }
 
+interface CrawlAttemptRow {
+  attempt_id: string;
+  frontier_entry_id: string;
+  topic_id: string;
+  topic_configuration_version: number;
+  requested_url: string;
+  status: string;
+  final_url: string | null;
+  headers: Record<string, string>;
+  canonical_url: string | null;
+  title: string | null;
+  meta_description: string | null;
+  raw_html: string | null;
+  cleaned_markdown: string | null;
+  plain_text: string | null;
+  content_hash: string | null;
+  recorded_at: Date | string;
+}
+
 @Injectable()
 export class KnexContentProcessingRepository
   implements ContentProcessingRepository {
   constructor(private readonly db: DbService) {}
+
+  async findSuccessfulCrawlAttempt(
+    crawlAttemptId: string,
+  ): Promise<CrawlAttemptForProcessing | null> {
+    const row = await this.db.knex<CrawlAttemptRow>('crawl_attempts')
+      .where({
+        attempt_id: crawlAttemptId,
+        status: 'succeeded',
+      })
+      .first();
+
+    return row ? toCrawlAttemptForProcessing(row) : null;
+  }
 
   async findProcessingRecord(
     crawlAttemptId: string,
@@ -176,6 +208,29 @@ export class KnexContentProcessingRepository
       };
     });
   }
+}
+
+function toCrawlAttemptForProcessing(
+  row: CrawlAttemptRow,
+): CrawlAttemptForProcessing {
+  return {
+    attemptId: row.attempt_id,
+    frontierEntryId: row.frontier_entry_id,
+    topicId: row.topic_id,
+    topicConfigurationVersion: row.topic_configuration_version,
+    requestedUrl: row.requested_url,
+    status: 'succeeded',
+    finalUrl: row.final_url,
+    canonicalUrl: row.canonical_url,
+    title: row.title,
+    metaDescription: row.meta_description,
+    rawHtml: row.raw_html,
+    cleanedMarkdown: row.cleaned_markdown,
+    plainText: row.plain_text,
+    contentHash: row.content_hash,
+    headers: row.headers,
+    recordedAt: new Date(row.recorded_at),
+  };
 }
 
 function toProcessingRecord(

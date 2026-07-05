@@ -36,6 +36,18 @@ export class ContentProcessingService {
         command.extractorVersion ?? DEFAULT_CONTENT_EXTRACTOR_VERSION,
     });
   }
+
+  async processCrawlAttemptById(
+    command: ProcessCrawlAttemptCommand,
+  ): Promise<ProcessCrawlAttemptResult> {
+    const attempt = await this.repository.findSuccessfulCrawlAttempt(
+      command.crawlAttemptId,
+    );
+    if (!attempt) {
+      throw new Error('successful crawl attempt was not found');
+    }
+    return this.processCrawlAttempt(attempt, command);
+  }
 }
 
 function hasUsableBody(attempt: CrawlAttemptForProcessing): boolean {

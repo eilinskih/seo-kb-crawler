@@ -88,10 +88,12 @@ Implemented on `main`:
   persistence schema.
 - Content Processing service boundary and Knex repository for idempotent
   processing of successful crawl attempts.
+- Manual Content Processing API for operator-triggered processing by crawl
+  attempt ID.
 
 Designed but not implemented on `main`:
 
-- Content Processing manual trigger/API and worker orchestration.
+- Content Processing worker orchestration.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

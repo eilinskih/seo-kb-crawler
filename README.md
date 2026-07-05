@@ -73,6 +73,7 @@ Current shared and domain packages:
 /packages/discovery-sources
 /packages/crawler
 /packages/url-frontier
+/packages/content-processing
 ```
 
 Planned domain packages:
