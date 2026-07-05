@@ -1,1 +1,2 @@
 export const CRAWL_QUEUE_NAME = 'crawl';
+export const CONTENT_PROCESSING_QUEUE_NAME = 'content-processing';

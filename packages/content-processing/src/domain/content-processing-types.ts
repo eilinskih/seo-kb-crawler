@@ -95,10 +95,26 @@ export interface ProcessCrawlAttemptCommand {
   extractorVersion?: string;
 }
 
+export interface ContentProcessingJobPayload {
+  crawlAttemptId: string;
+  extractorVersion?: string;
+}
+
 export interface ProcessCrawlAttemptResult {
   status: 'processed' | 'skipped_duplicate' | 'already_processed';
   documentId: string;
   documentVersionId: string | null;
+}
+
+export interface ContentProcessingRunCommand {
+  crawlAttemptId: string;
+  extractorVersion: string;
+  now: Date;
+}
+
+export interface ContentProcessingFailureCommand
+  extends ContentProcessingRunCommand {
+  failure: ContentProcessingFailure;
 }
 
 export interface DocumentMetadata {
@@ -141,6 +157,12 @@ export interface ContentProcessingRepository {
   findSuccessfulCrawlAttempt(
     crawlAttemptId: string,
   ): Promise<CrawlAttemptForProcessing | null>;
+  findPendingSuccessfulCrawlAttempts(options: {
+    limit: number;
+  }): Promise<CrawlAttemptForProcessing[]>;
+  markProcessingPending(command: ContentProcessingRunCommand): Promise<void>;
+  markProcessingStarted(command: ContentProcessingRunCommand): Promise<void>;
+  markProcessingFailed(command: ContentProcessingFailureCommand): Promise<void>;
   findProcessingRecord(
     crawlAttemptId: string,
   ): Promise<ContentProcessingRecord | null>;

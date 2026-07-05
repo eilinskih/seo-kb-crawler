@@ -2,9 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '@seo-kb/db';
 import {
+  ContentProcessingFailureCommand,
   ContentProcessingFailure,
   ContentProcessingRecord,
   ContentProcessingRepository,
+  ContentProcessingRunCommand,
   ContentProcessingStatus,
   CrawlAttemptForProcessing,
   DocumentMetadata,
@@ -92,6 +94,82 @@ export class KnexContentProcessingRepository
       .first();
 
     return row ? toCrawlAttemptForProcessing(row) : null;
+  }
+
+  async findPendingSuccessfulCrawlAttempts(options: {
+    limit: number;
+  }): Promise<CrawlAttemptForProcessing[]> {
+    const rows = await this.db.knex<CrawlAttemptRow>('crawl_attempts')
+      .leftJoin<ContentProcessingRunRow>(
+        'content_processing_runs',
+        'crawl_attempts.attempt_id',
+        'content_processing_runs.crawl_attempt_id',
+      )
+      .where('crawl_attempts.status', 'succeeded')
+      .where((builder) =>
+        builder
+          .whereNull('content_processing_runs.crawl_attempt_id')
+          .orWhere('content_processing_runs.status', 'pending')
+          .orWhere('content_processing_runs.status', 'failed_retryable'),
+      )
+      .select('crawl_attempts.*')
+      .orderBy('crawl_attempts.recorded_at', 'asc')
+      .limit(options.limit);
+
+    return rows.map(toCrawlAttemptForProcessing);
+  }
+
+  async markProcessingPending(
+    command: ContentProcessingRunCommand,
+  ): Promise<void> {
+    await upsertProcessingRun(this.db.knex, {
+      crawl_attempt_id: command.crawlAttemptId,
+      document_id: null,
+      document_version_id: null,
+      status: 'pending',
+      failure: null,
+      extractor_version: command.extractorVersion,
+      started_at: null,
+      completed_at: null,
+      created_at: command.now,
+      updated_at: command.now,
+    });
+  }
+
+  async markProcessingStarted(
+    command: ContentProcessingRunCommand,
+  ): Promise<void> {
+    await upsertProcessingRun(this.db.knex, {
+      crawl_attempt_id: command.crawlAttemptId,
+      document_id: null,
+      document_version_id: null,
+      status: 'processing',
+      failure: null,
+      extractor_version: command.extractorVersion,
+      started_at: command.now,
+      completed_at: null,
+      created_at: command.now,
+      updated_at: command.now,
+    });
+  }
+
+  async markProcessingFailed(
+    command: ContentProcessingFailureCommand,
+  ): Promise<void> {
+    await upsertProcessingRun(this.db.knex, {
+      crawl_attempt_id: command.crawlAttemptId,
+      document_id: null,
+      document_version_id: null,
+      status: command.failure.retryable
+        ? 'failed_retryable'
+        : 'failed_terminal',
+      failure: command.failure,
+      extractor_version: command.extractorVersion,
+      started_at: command.now,
+      completed_at: command.now,
+      created_at: command.now,
+      updated_at: command.now,
+    });
   }
 
   async findProcessingRecord(

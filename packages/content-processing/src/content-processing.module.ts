@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { CONTENT_PROCESSING_QUEUE_NAME } from '@seo-kb/common';
 import { DbModule } from '@seo-kb/db';
+import { ContentProcessingDispatchService } from './content-processing-dispatch.service';
 import { ContentProcessingService } from './content-processing.service';
 import { CONTENT_PROCESSING_REPOSITORY } from './content-processing.tokens';
 import { KnexContentProcessingRepository } from './persistence/knex-content-processing.repository';
 
 @Module({
-  imports: [DbModule],
+  imports: [
+    DbModule,
+    BullModule.registerQueue({ name: CONTENT_PROCESSING_QUEUE_NAME }),
+  ],
   providers: [
+    ContentProcessingDispatchService,
     ContentProcessingService,
     KnexContentProcessingRepository,
     {
@@ -16,6 +23,7 @@ import { KnexContentProcessingRepository } from './persistence/knex-content-proc
   ],
   exports: [
     CONTENT_PROCESSING_REPOSITORY,
+    ContentProcessingDispatchService,
     ContentProcessingService,
     KnexContentProcessingRepository,
   ],

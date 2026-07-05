@@ -90,10 +90,11 @@ Implemented on `main`:
   processing of successful crawl attempts.
 - Manual Content Processing API for operator-triggered processing by crawl
   attempt ID.
+- Content Processing BullMQ dispatch and worker orchestration for pending
+  successful crawl attempts.
 
 Designed but not implemented on `main`:
 
-- Content Processing worker orchestration.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
