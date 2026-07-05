@@ -1,8 +1,8 @@
 # Content Processing Model
 
-- Status: Proposed design for Issue #6
+- Status: Implemented initial model; review needed before Issue #7
 - Issue: #6
-- Date: 2026-07-04
+- Date: 2026-07-05
 
 ## Purpose
 
@@ -192,6 +192,9 @@ Initial metadata should include:
 - Open Graph and Twitter card fields when present.
 - HTTP content type and selected cache headers.
 - Word and character counts.
+- Robots meta.
+- Hreflang links.
+- Published and updated date hints when present.
 - Main language hint.
 - Geo hints from URL, HTML attributes, structured data and visible content.
 
@@ -325,17 +328,27 @@ as evidence. They own ontology and predicate interpretation.
 - Discovery observation ingestion.
 - External content enrichment providers.
 
-## Open Review Questions
+## Accepted Initial Decisions
 
-1. Should initial raw HTML and text artifacts remain inline in PostgreSQL, or
-   should Issue #6 introduce filesystem artifact references immediately?
-2. Should duplicate content hashes create processing records marked
-   `skipped_duplicate`, or only update the existing document crawl metadata?
-3. Which extractor versioning scheme should be accepted before reprocessing is
-   implemented?
-4. Resolved for initial implementation: processing supports both a synchronous
-   bounded manual API for one crawl attempt and a dedicated BullMQ processor for
-   queued batches. Queued processing records `pending`, `processing` and
-   failure states in PostgreSQL; BullMQ is transport, not durable processing
-   state. Automatic URL Frontier completion hooks remain a later explicit
-   decision.
+1. Initial raw HTML, cleaned Markdown and plain text artifacts remain inline in
+   PostgreSQL. The artifact-reference boundary remains in the model so a later
+   storage migration can move large or cold artifacts out of row storage.
+2. Duplicate content hashes are recorded as `skipped_duplicate`. If content
+   changes from A to B and later returns to A, Content Processing reuses the
+   existing A document version instead of creating a duplicate or pointing to a
+   non-existent version.
+3. The accepted initial extractor version is `content-processor/0.1.0`.
+   Reprocessing for future extractor versions remains explicit future work.
+4. `failed_terminal` processing records are replay-protected. They must not be
+   overwritten by automatic or manual retries unless a future explicit
+   reprocessing command is accepted.
+5. Processing supports both a synchronous bounded manual API for one crawl
+   attempt and a dedicated BullMQ processor for queued batches. Queued
+   processing records `pending`, `processing` and failure states in PostgreSQL;
+   BullMQ is transport, not durable processing state. Automatic URL Frontier
+   completion hooks remain a later explicit decision.
+6. Initial extraction captures heading outline, Open Graph fields, Twitter card
+   fields, canonical URL, robots meta, hreflang links, published/updated date
+   hints, JSON-LD and bounded microdata structured observations, language hints
+   and geo hints. Deeper ontology normalization remains later Knowledge Layer
+   work.

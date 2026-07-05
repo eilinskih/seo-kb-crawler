@@ -88,6 +88,8 @@ Implemented on `main`:
   persistence schema.
 - Content Processing service boundary and Knex repository for idempotent
   processing of successful crawl attempts.
+- Content Processing initial metadata, structured data, language and geo signal
+  extraction.
 - Manual Content Processing API for operator-triggered processing by crawl
   attempt ID.
 - Content Processing BullMQ dispatch and worker orchestration for pending

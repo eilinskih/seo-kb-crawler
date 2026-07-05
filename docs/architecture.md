@@ -86,7 +86,9 @@ crawl-result and extracted-link contracts are documented in
 network gateway, robots policy, Topic policy enforcement, HTTP fetch adapter,
 result normalization and worker job handling. URL Frontier owns durable crawl
 attempt persistence and completion scheduling through its completion boundary.
-Content Processing remains later work.
+Content Processing consumes successful crawl attempts after URL Frontier
+completion; URL Frontier does not depend on Content Processing state for crawl
+lease completion.
 
 ### Document normalization
 
@@ -96,9 +98,11 @@ Content Processing remains later work.
 - Structured data extraction
 - Language and geo hints
 
-The proposed Content Processing Pipeline contract is documented in
-`docs/content-processing-model.md`. Issue #6 begins with design review before
-runtime implementation.
+The implemented initial Content Processing Pipeline contract is documented in
+`docs/content-processing-model.md`. It stores stable documents and document
+versions, preserves raw HTML, cleaned Markdown and plain text artifacts,
+extracts initial metadata and structured-data signals, and records processing
+state independently from crawl state. Chunking begins after Issue #6 review.
 
 ### Semantic indexing
 

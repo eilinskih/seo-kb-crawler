@@ -125,6 +125,11 @@ export interface DocumentMetadata {
   characterCount: number | null;
   contentType: string | null;
   cacheHeaders: Record<string, string>;
+  robotsMeta: string | null;
+  canonicalUrl: string | null;
+  hreflangLinks: Record<string, string>;
+  publishedTime: string | null;
+  updatedTime: string | null;
 }
 
 export interface HeadingObservation {

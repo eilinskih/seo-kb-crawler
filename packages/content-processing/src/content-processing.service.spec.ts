@@ -3,6 +3,7 @@ import {
   ContentProcessingService,
 } from './content-processing.service';
 import {
+  ContentProcessingRecord,
   ContentProcessingRepository,
   CrawlAttemptForProcessing,
   ProcessCrawlAttemptResult,
@@ -21,7 +22,7 @@ describe('ContentProcessingService', () => {
       markProcessingPending: jest.fn(),
       markProcessingStarted: jest.fn(),
       markProcessingFailed: jest.fn(),
-      findProcessingRecord: jest.fn(),
+      findProcessingRecord: jest.fn(async () => null),
       processSuccessfulCrawlAttempt: jest.fn(async () => result),
     };
     const service = new ContentProcessingService(repository);
@@ -84,6 +85,11 @@ describe('ContentProcessingService', () => {
     expect(repository.findSuccessfulCrawlAttempt).toHaveBeenCalledWith(
       'attempt-1',
     );
+    expect(repository.markProcessingStarted).toHaveBeenCalledWith({
+      crawlAttemptId: 'attempt-1',
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      now,
+    });
     expect(repository.processSuccessfulCrawlAttempt).toHaveBeenCalledWith(
       successfulAttempt(),
       {
@@ -100,7 +106,7 @@ describe('ContentProcessingService', () => {
       markProcessingPending: jest.fn(),
       markProcessingStarted: jest.fn(),
       markProcessingFailed: jest.fn(),
-      findProcessingRecord: jest.fn(),
+      findProcessingRecord: jest.fn(async () => null),
       processSuccessfulCrawlAttempt: jest.fn(),
     };
     const service = new ContentProcessingService(repository);
@@ -111,6 +117,48 @@ describe('ContentProcessingService', () => {
         now: new Date('2026-07-04T00:00:00Z'),
       }),
     ).rejects.toThrow('successful crawl attempt was not found');
+    expect(repository.markProcessingStarted).not.toHaveBeenCalled();
+  });
+
+  it('does not mutate terminal failure records through the public by-id path', async () => {
+    const failedRecord: ContentProcessingRecord = {
+      crawlAttemptId: 'attempt-1',
+      documentId: null,
+      documentVersionId: null,
+      status: 'failed_terminal',
+      failure: {
+        category: 'missing_body',
+        detail: 'successful crawl attempt has no usable body',
+        retryable: false,
+      },
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      startedAt: new Date('2026-07-04T00:00:00Z'),
+      completedAt: new Date('2026-07-04T00:00:00Z'),
+      createdAt: new Date('2026-07-04T00:00:00Z'),
+      updatedAt: new Date('2026-07-04T00:00:00Z'),
+    };
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(async () => failedRecord),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+
+    await expect(
+      service.processCrawlAttemptById({
+        crawlAttemptId: 'attempt-1',
+        now: new Date('2026-07-05T00:00:00Z'),
+      }),
+    ).rejects.toThrow('processing run failed terminally');
+
+    expect(repository.findSuccessfulCrawlAttempt).not.toHaveBeenCalled();
+    expect(repository.markProcessingStarted).not.toHaveBeenCalled();
+    expect(repository.markProcessingFailed).not.toHaveBeenCalled();
+    expect(repository.processSuccessfulCrawlAttempt).not.toHaveBeenCalled();
   });
 
   it('rejects successful attempts without usable body artifacts', async () => {
@@ -201,6 +249,152 @@ describe('ContentProcessingService', () => {
         retryable: false,
       },
     });
+  });
+
+  it('does not mutate terminal processing records during tracked replays', async () => {
+    const processedRecord: ContentProcessingRecord = {
+      crawlAttemptId: 'attempt-1',
+      documentId: 'document-1',
+      documentVersionId: 'version-1',
+      status: 'processed',
+      failure: null,
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      startedAt: new Date('2026-07-04T00:00:00Z'),
+      completedAt: new Date('2026-07-04T00:00:00Z'),
+      createdAt: new Date('2026-07-04T00:00:00Z'),
+      updatedAt: new Date('2026-07-04T00:00:00Z'),
+    };
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(async () => processedRecord),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+
+    await expect(
+      service.processManualCrawlAttempt({
+        crawlAttemptId: 'attempt-1',
+        now: new Date('2026-07-05T00:00:00Z'),
+      }),
+    ).resolves.toEqual({
+      status: 'already_processed',
+      documentId: 'document-1',
+      documentVersionId: 'version-1',
+    });
+
+    expect(repository.findSuccessfulCrawlAttempt).not.toHaveBeenCalled();
+    expect(repository.markProcessingStarted).not.toHaveBeenCalled();
+    expect(repository.processSuccessfulCrawlAttempt).not.toHaveBeenCalled();
+  });
+
+  it('does not mutate terminal failure records during tracked replays', async () => {
+    const failedRecord: ContentProcessingRecord = {
+      crawlAttemptId: 'attempt-1',
+      documentId: null,
+      documentVersionId: null,
+      status: 'failed_terminal',
+      failure: {
+        category: 'missing_body',
+        detail: 'successful crawl attempt has no usable body',
+        retryable: false,
+      },
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      startedAt: new Date('2026-07-04T00:00:00Z'),
+      completedAt: new Date('2026-07-04T00:00:00Z'),
+      createdAt: new Date('2026-07-04T00:00:00Z'),
+      updatedAt: new Date('2026-07-04T00:00:00Z'),
+    };
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(async () => failedRecord),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+
+    await expect(
+      service.processManualCrawlAttempt({
+        crawlAttemptId: 'attempt-1',
+        now: new Date('2026-07-05T00:00:00Z'),
+      }),
+    ).rejects.toThrow('processing run failed terminally');
+
+    expect(repository.findSuccessfulCrawlAttempt).not.toHaveBeenCalled();
+    expect(repository.markProcessingStarted).not.toHaveBeenCalled();
+    expect(repository.markProcessingFailed).not.toHaveBeenCalled();
+    expect(repository.processSuccessfulCrawlAttempt).not.toHaveBeenCalled();
+  });
+
+  it('records terminal failures for manual attempts with missing body artifacts', async () => {
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => ({
+        ...successfulAttempt(),
+        rawHtml: null,
+        cleanedMarkdown: null,
+        plainText: null,
+      })),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+    const now = new Date('2026-07-04T00:00:00Z');
+
+    await expect(
+      service.processManualCrawlAttempt({
+        crawlAttemptId: 'attempt-1',
+        now,
+      }),
+    ).rejects.toThrow('no usable body');
+
+    expect(repository.markProcessingStarted).toHaveBeenCalledWith({
+      crawlAttemptId: 'attempt-1',
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      now,
+    });
+    expect(repository.markProcessingFailed).toHaveBeenCalledWith({
+      crawlAttemptId: 'attempt-1',
+      extractorVersion: DEFAULT_CONTENT_EXTRACTOR_VERSION,
+      now,
+      failure: {
+        category: 'missing_body',
+        detail: 'successful crawl attempt has no usable body',
+        retryable: false,
+      },
+    });
+  });
+
+  it('treats missing manual crawl attempts as validation failures before state mutation', async () => {
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(async () => null),
+      findPendingSuccessfulCrawlAttempts: jest.fn(),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(async () => null),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingService(repository);
+
+    await expect(
+      service.processManualCrawlAttempt({
+        crawlAttemptId: 'missing-attempt',
+        now: new Date('2026-07-05T00:00:00Z'),
+      }),
+    ).rejects.toThrow('successful crawl attempt was not found');
+
+    expect(repository.markProcessingStarted).not.toHaveBeenCalled();
+    expect(repository.markProcessingFailed).not.toHaveBeenCalled();
   });
 });
 

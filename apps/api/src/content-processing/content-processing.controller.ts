@@ -31,7 +31,7 @@ export class ContentProcessingController {
     @Body() body: ProcessCrawlAttemptRequestBody,
   ): Promise<ProcessCrawlAttemptResult> {
     const requestBody = body ?? {};
-    return this.contentProcessingService.processCrawlAttemptById({
+    return this.contentProcessingService.processManualCrawlAttempt({
       crawlAttemptId: normalizeRequiredText(
         requestBody.crawlAttemptId,
         'crawlAttemptId',

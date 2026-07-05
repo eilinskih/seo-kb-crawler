@@ -41,7 +41,7 @@ Roadmap order, phases and dependency rules live only in
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
-| #6 | Content Processing Pipeline | In progress | Foundation package, persistence schema, idempotent service boundary, manual API and worker orchestration are in active work. |
+| #6 | Content Processing Pipeline | Review needed | Initial implementation is complete on `main` plus close-out stabilization branch; human review is required before `Done` and before starting #7. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -66,6 +66,48 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-05
+Issue: #6
+Status: Review needed
+Summary:
+- Created `issue/6-content-processing-closeout-stabilization` after Issue #6
+  close-out review.
+- Fixed document version reuse when content changes A -> B -> A by reusing the
+  existing matching document version instead of pointing `current_version_id` at
+  a generated row that was not inserted.
+- Switched manual processing to the tracked processing path so failures for
+  existing crawl attempts are recorded in `content_processing_runs`; missing
+  crawl attempt IDs remain validation errors because there is no crawl attempt
+  row for the processing-run foreign key.
+- Added initial deterministic content signal extraction for headings,
+  Open Graph, Twitter cards, canonical URL, robots meta, hreflang links,
+  published/updated date hints, JSON-LD and bounded microdata structured
+  observations, language hints and geo hints.
+- Resolved Content Processing model review questions as accepted initial
+  decisions.
+- Kept chunking, embeddings, retrieval, ontology normalization and automatic
+  URL Frontier completion hooks out of Issue #6.
+Changed files:
+- apps/api/src/content-processing/content-processing.controller.ts
+- apps/api/src/content-processing/content-processing.controller.spec.ts
+- docs/architecture.md
+- docs/content-processing-model.md
+- docs/progress.md
+- docs/project-map.md
+- packages/content-processing/src/content-extraction.ts
+- packages/content-processing/src/content-extraction.spec.ts
+- packages/content-processing/src/content-processing.service.ts
+- packages/content-processing/src/content-processing.service.spec.ts
+- packages/content-processing/src/domain/content-processing-types.ts
+- packages/content-processing/src/domain/content-processing-types.spec.ts
+- packages/content-processing/src/domain/document-versioning.ts
+- packages/content-processing/src/domain/document-versioning.spec.ts
+- packages/content-processing/src/index.ts
+- packages/content-processing/src/persistence/knex-content-processing.repository.ts
+Next step:
+- Review this stabilization PR. If accepted, keep #6 in `Review needed` until
+  human review is complete, then move to `Done` and start Chunking Engine (#7).
 
 Date: 2026-07-05
 Issue: #6

@@ -8,7 +8,7 @@ import { ContentProcessingController } from './content-processing.controller';
 describe('ContentProcessingController', () => {
   it('processes a crawl attempt by id', async () => {
     const service = {
-      processCrawlAttemptById: jest.fn(async () => ({
+      processManualCrawlAttempt: jest.fn(async () => ({
         status: 'processed',
         documentId: 'document-1',
         documentVersionId: 'version-1',
@@ -29,7 +29,7 @@ describe('ContentProcessingController', () => {
       documentId: 'document-1',
       documentVersionId: 'version-1',
     });
-    expect(service.processCrawlAttemptById).toHaveBeenCalledWith({
+    expect(service.processManualCrawlAttempt).toHaveBeenCalledWith({
       crawlAttemptId: 'attempt-1',
       extractorVersion: 'extractor/1',
       now: expect.any(Date),
@@ -39,7 +39,7 @@ describe('ContentProcessingController', () => {
   it('rejects missing crawl attempt ids', async () => {
     const controller = new ContentProcessingController(
       {
-        processCrawlAttemptById: jest.fn(),
+        processManualCrawlAttempt: jest.fn(),
       } as unknown as ContentProcessingService,
       dispatchServiceStub(),
     );
@@ -50,7 +50,7 @@ describe('ContentProcessingController', () => {
   it('rejects overly long crawl attempt ids', async () => {
     const controller = new ContentProcessingController(
       {
-        processCrawlAttemptById: jest.fn(),
+        processManualCrawlAttempt: jest.fn(),
       } as unknown as ContentProcessingService,
       dispatchServiceStub(),
     );
@@ -71,7 +71,7 @@ describe('ContentProcessingController', () => {
     } as unknown as ContentProcessingDispatchService;
     const controller = new ContentProcessingController(
       {
-        processCrawlAttemptById: jest.fn(),
+        processManualCrawlAttempt: jest.fn(),
       } as unknown as ContentProcessingService,
       dispatchService,
     );
@@ -98,7 +98,7 @@ describe('ContentProcessingController', () => {
   it('rejects overly large content processing dispatch batches', async () => {
     const controller = new ContentProcessingController(
       {
-        processCrawlAttemptById: jest.fn(),
+        processManualCrawlAttempt: jest.fn(),
       } as unknown as ContentProcessingService,
       dispatchServiceStub(),
     );
