@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   ContentProcessingFailure,
+  ContentProcessingRecord,
   ContentProcessingRepository,
   CrawlAttemptForProcessing,
   ProcessCrawlAttemptCommand,
@@ -41,13 +42,7 @@ export class ContentProcessingService {
   async processCrawlAttemptById(
     command: ProcessCrawlAttemptCommand,
   ): Promise<ProcessCrawlAttemptResult> {
-    const attempt = await this.repository.findSuccessfulCrawlAttempt(
-      command.crawlAttemptId,
-    );
-    if (!attempt) {
-      throw new Error('successful crawl attempt was not found');
-    }
-    return this.processCrawlAttempt(attempt, command);
+    return this.processTrackedCrawlAttempt(command);
   }
 
   async markCrawlAttemptProcessingPending(
@@ -64,8 +59,35 @@ export class ContentProcessingService {
   async processQueuedCrawlAttempt(
     command: ProcessCrawlAttemptCommand,
   ): Promise<ProcessCrawlAttemptResult> {
+    return this.processTrackedCrawlAttempt(command);
+  }
+
+  async processManualCrawlAttempt(
+    command: ProcessCrawlAttemptCommand,
+  ): Promise<ProcessCrawlAttemptResult> {
+    return this.processTrackedCrawlAttempt(command);
+  }
+
+  private async processTrackedCrawlAttempt(
+    command: ProcessCrawlAttemptCommand,
+  ): Promise<ProcessCrawlAttemptResult> {
     const extractorVersion =
       command.extractorVersion ?? DEFAULT_CONTENT_EXTRACTOR_VERSION;
+    const existingRecord = await this.repository.findProcessingRecord(
+      command.crawlAttemptId,
+    );
+    const terminalResult = resultFromTerminalRecord(existingRecord);
+    if (terminalResult) {
+      return terminalResult;
+    }
+
+    const attempt = await this.repository.findSuccessfulCrawlAttempt(
+      command.crawlAttemptId,
+    );
+    if (!attempt) {
+      throw new Error('successful crawl attempt was not found');
+    }
+
     await this.repository.markProcessingStarted({
       crawlAttemptId: command.crawlAttemptId,
       extractorVersion,
@@ -73,7 +95,7 @@ export class ContentProcessingService {
     });
 
     try {
-      return await this.processCrawlAttemptById({
+      return await this.processCrawlAttempt(attempt, {
         ...command,
         extractorVersion,
       });
@@ -87,6 +109,28 @@ export class ContentProcessingService {
       throw error;
     }
   }
+}
+
+function resultFromTerminalRecord(
+  record: ContentProcessingRecord | null,
+): ProcessCrawlAttemptResult | null {
+  if (!record) {
+    return null;
+  }
+  if (record.status === 'failed_terminal') {
+    throw new Error('processing run failed terminally');
+  }
+  if (record.status !== 'processed' && record.status !== 'skipped_duplicate') {
+    return null;
+  }
+  if (!record.documentId) {
+    throw new Error('processing run is missing document_id');
+  }
+  return {
+    status: 'already_processed',
+    documentId: record.documentId,
+    documentVersionId: record.documentVersionId,
+  };
 }
 
 function hasUsableBody(attempt: CrawlAttemptForProcessing): boolean {

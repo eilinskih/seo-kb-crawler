@@ -12,6 +12,8 @@ import {
   DocumentMetadata,
   ProcessCrawlAttemptResult,
 } from '../domain/content-processing-types';
+import { reusableContentVersion } from '../domain/document-versioning';
+import { extractContentSignals } from '../content-extraction';
 
 export interface DocumentRow {
   id: string;
@@ -249,6 +251,58 @@ export class KnexContentProcessingRepository
         };
       }
 
+      const existingContentVersion = attempt.contentHash
+        ? await transaction<DocumentVersionRow>('document_versions')
+          .where({
+            document_id: document.id,
+            content_hash: attempt.contentHash,
+            extractor_version: options.extractorVersion,
+          })
+          .first()
+        : null;
+
+      const reusableVersion = existingContentVersion
+        ? reusableContentVersion(
+          [
+            {
+              id: existingContentVersion.id,
+              contentHash: existingContentVersion.content_hash,
+              extractorVersion: existingContentVersion.extractor_version,
+            },
+          ],
+          {
+            contentHash: attempt.contentHash,
+            extractorVersion: options.extractorVersion,
+          },
+        )
+        : null;
+
+      if (existingContentVersion && reusableVersion) {
+        await transaction<DocumentRow>('documents')
+          .where({ id: document.id })
+          .update({
+            current_version_id: reusableVersion.id,
+            updated_at: options.now,
+          });
+        await upsertProcessingRun(transaction, {
+          crawl_attempt_id: attempt.attemptId,
+          document_id: document.id,
+          document_version_id: reusableVersion.id,
+          status: 'skipped_duplicate',
+          failure: null,
+          extractor_version: options.extractorVersion,
+          started_at: options.now,
+          completed_at: options.now,
+          created_at: options.now,
+          updated_at: options.now,
+        });
+        return {
+          status: 'skipped_duplicate',
+          documentId: document.id,
+          documentVersionId: reusableVersion.id,
+        };
+      }
+
       const version: DocumentVersionRow = toDocumentVersionRow(
         attempt,
         document.id,
@@ -259,17 +313,29 @@ export class KnexContentProcessingRepository
         .onConflict(['crawl_attempt_id', 'extractor_version'])
         .ignore();
 
+      const persistedVersion = await transaction<DocumentVersionRow>(
+        'document_versions',
+      )
+        .where({
+          crawl_attempt_id: attempt.attemptId,
+          extractor_version: options.extractorVersion,
+        })
+        .first();
+      if (!persistedVersion) {
+        throw new Error('document version could not be created');
+      }
+
       await transaction<DocumentRow>('documents')
         .where({ id: document.id })
         .update({
-          current_version_id: version.id,
+          current_version_id: persistedVersion.id,
           updated_at: options.now,
         });
 
       await upsertProcessingRun(transaction, {
         crawl_attempt_id: attempt.attemptId,
         document_id: document.id,
-        document_version_id: version.id,
+        document_version_id: persistedVersion.id,
         status: 'processed',
         failure: null,
         extractor_version: options.extractorVersion,
@@ -282,7 +348,7 @@ export class KnexContentProcessingRepository
       return {
         status: 'processed',
         documentId: document.id,
-        documentVersionId: version.id,
+        documentVersionId: persistedVersion.id,
       };
     });
   }
@@ -378,6 +444,16 @@ function toDocumentVersionRow(
     extractorVersion: string;
   },
 ): DocumentVersionRow {
+  const extracted = extractContentSignals({
+    rawHtml: attempt.rawHtml,
+    cleanedMarkdown: attempt.cleanedMarkdown,
+    plainText: attempt.plainText,
+    requestedUrl: attempt.requestedUrl,
+    finalUrl: attempt.finalUrl,
+    canonicalUrl: attempt.canonicalUrl,
+    headers: attempt.headers,
+  });
+
   return {
     id: randomUUID(),
     document_id: documentId,
@@ -395,58 +471,12 @@ function toDocumentVersionRow(
     raw_html: attempt.rawHtml,
     cleaned_markdown: attempt.cleanedMarkdown,
     plain_text: attempt.plainText,
-    metadata: metadataFromAttempt(attempt),
-    structured_data: [],
-    language_hints: [],
-    geo_hints: [],
+    metadata: extracted.metadata,
+    structured_data: extracted.structuredData,
+    language_hints: extracted.languageHints,
+    geo_hints: extracted.geoHints,
     created_at: options.now,
   };
-}
-
-function metadataFromAttempt(
-  attempt: CrawlAttemptForProcessing,
-): DocumentMetadata {
-  return {
-    headings: [],
-    openGraph: {},
-    twitterCard: {},
-    wordCount: wordCount(attempt.plainText ?? attempt.cleanedMarkdown),
-    characterCount: (attempt.plainText ?? attempt.cleanedMarkdown ?? '').length,
-    contentType: headerValue(attempt.headers, 'content-type'),
-    cacheHeaders: selectedCacheHeaders(attempt.headers),
-  };
-}
-
-function wordCount(text: string | null): number | null {
-  if (!text) {
-    return null;
-  }
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  return words.length;
-}
-
-function headerValue(
-  headers: Record<string, string>,
-  key: string,
-): string | null {
-  const lowerKey = key.toLowerCase();
-  const match = Object.entries(headers).find(
-    ([headerKey]) => headerKey.toLowerCase() === lowerKey,
-  );
-  return match?.[1] ?? null;
-}
-
-function selectedCacheHeaders(
-  headers: Record<string, string>,
-): Record<string, string> {
-  const selected: Record<string, string> = {};
-  for (const key of ['cache-control', 'expires', 'etag', 'last-modified']) {
-    const value = headerValue(headers, key);
-    if (value) {
-      selected[key] = value;
-    }
-  }
-  return selected;
 }
 
 async function upsertProcessingRun(

@@ -36,6 +36,11 @@ describe('Content Processing contracts', () => {
         characterCount: 7,
         contentType: 'text/html',
         cacheHeaders: {},
+        robotsMeta: null,
+        canonicalUrl: 'https://example.com/page',
+        hreflangLinks: {},
+        publishedTime: null,
+        updatedTime: null,
       },
       structuredData: [],
       languageHints: [
