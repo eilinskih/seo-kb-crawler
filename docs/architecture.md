@@ -11,13 +11,14 @@ For repository navigation, see `docs/project-map.md`.
 This document is the architecture overview. Keep subsystem details in
 specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
-`docs/crawler-worker-model.md`, `docs/content-processing-model.md` and ADRs
-under `docs/decisions/`.
+`docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
+`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
 ```txt
 Topics
+  -> Demand Engine
   -> Discovery Sources
   -> URL Frontier
   -> Crawler Worker
@@ -45,7 +46,8 @@ Topics
 5. Canonical facts must reference the ontology and predicate registry.
 6. Knowledge Packs explain what is known.
 7. SERP Packs explain how search results present the topic.
-8. SEO output should never rely on retrieval chunks alone.
+8. Demand Packs explain what pages or keyword clusters are worth pursuing.
+9. SEO output should never rely on retrieval chunks alone.
 
 ## Core layers
 
@@ -121,10 +123,17 @@ state independently from crawl state. Chunking begins after Issue #6 review.
 
 ### SEO intelligence layer
 
+- Demand Engine
 - SERP Intelligence Layer
 - Topic Expansion Engine
 - SEO Page Candidate Scoring
 - Codex SEO Pack Generator
+
+The Demand Engine contract is documented in `docs/demand-engine-model.md`.
+Demand Engine answers what should be written by producing keyword candidates,
+clusters and candidate pages from provider-optional demand sources. Paid SEO
+providers improve confidence and prioritization, but fallback discovery must
+continue without Ahrefs, Semrush, SE Ranking or equivalent credentials.
 
 ### Codex integration layer
 
@@ -177,6 +186,9 @@ Hot data:
 - canonical facts
 - evidence links
 - SERP snapshots
+- demand metric snapshots
+- keyword candidates
+- candidate pages
 
 Cold or compressed data:
 
@@ -218,13 +230,21 @@ packages/topic-engine
 packages/url-frontier
 ```
 
+Planned packages include:
+
+```txt
+packages/demand-engine
+```
+
 PostgreSQL is the source of truth. The local PostgreSQL service uses the pgvector image and enables the `vector` extension at initialization so later embedding work does not require replacing the database runtime.
 
 Redis is queue infrastructure only. BullMQ owns background job transport, while queue names and connection parsing live in `packages/common`. Domain behavior remains in application or future domain packages.
 
 The API exposes `GET /health` as a readiness endpoint. It verifies PostgreSQL and Redis connectivity and returns an unavailable response if either dependency cannot be reached.
 
-See `docs/decisions/0001-foundation.md` for the Issue #1 decisions and consequences.
+See `docs/decisions/0001-foundation.md` for the Issue #1 decisions and
+consequences. See `docs/decisions/0003-demand-engine-provider-optional.md` for
+the provider-optional Demand Engine decision.
 
 ## Topic Engine runtime
 

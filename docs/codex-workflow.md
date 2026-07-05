@@ -30,6 +30,9 @@ The objective is to help Codex produce better SEO pages, content plans, research
 16. Record accepted durable architecture decisions as ADRs in `docs/decisions/`.
 17. Keep roadmap order in `docs/implementation-order.md`; keep live status in
     `docs/progress.md`.
+18. Design-only architecture corrections may land before their runtime
+    implementation slot when explicitly approved by the Product Owner and
+    documented in the relevant roadmap entry.
 
 ## Required implementation sequence
 
@@ -65,9 +68,11 @@ Phase 4:
 - #16 SEO Consensus
 
 Phase 5:
+- #72 Demand Engine
 - #18 SERP Intelligence
 - #30 SERP Intent Analyzer
 - #19 Topic Expansion
+- Future issue Long-tail Discovery
 - #20 SEO Page Candidate Scoring
 - #21 Codex SEO Pack Generator
 
@@ -89,6 +94,7 @@ Real-time:
 - context pack generation
 
 Background:
+- demand refresh
 - fact extraction
 - ontology normalization
 - trust scoring

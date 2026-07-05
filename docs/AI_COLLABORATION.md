@@ -97,6 +97,7 @@ Protect knowledge quality.
 Owns:
 
 - Research Engine;
+- Demand Engine;
 - SERP Intelligence;
 - Search Intent;
 - Keyword Discovery;
@@ -123,6 +124,8 @@ Owns:
 Responsible for:
 
 - research quality;
+- demand signal quality;
+- fallback discovery confidence;
 - retrieval quality;
 - knowledge quality;
 - source quality;
