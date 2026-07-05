@@ -209,10 +209,10 @@ Minimum evidence thresholds:
 Unknown metrics must be explicit in Demand Packs:
 
 ```txt
-volume: unknown
-difficulty: unknown
-cpc: unknown
-trafficPotential: unknown
+volume: null
+difficulty: null
+cpc: null
+trafficPotential: null
 metricStatus: fallback_only
 ```
 
@@ -338,7 +338,7 @@ Fallback mode must not:
 - fabricate keyword difficulty;
 - fabricate CPC;
 - treat one scraped SERP as full demand validation;
-- block Research Engine or Knowledge Layer progress solely because paid
+- block downstream progress solely because paid
   provider credentials are absent.
 
 ## Minimal implementation scope
