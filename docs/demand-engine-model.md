@@ -1,6 +1,6 @@
 # Demand Engine Model
 
-- Status: Design reviewed; pending PR merge
+- Status: Design accepted; runtime implementation deferred
 - Issue: #72
 - Related ADR: `docs/decisions/0003-demand-engine-provider-optional.md`
 

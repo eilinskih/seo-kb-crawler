@@ -34,7 +34,7 @@ and merged into `main`.
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
 | 5 | #4 | Discovery Sources design and implementation | Done on `main`; initial package contracts, planner and seed/link adapters only. |
-| 6 | #5 | Crawler Worker controlled crawling pipeline | Implementation in architecture cleanup review. |
+| 6 | #5 | Crawler Worker controlled crawling pipeline | Done on `main`; lifecycle implementation is ready for downstream issues. |
 | 7 | #3 | URL Frontier implementation | Initial lifecycle subset implemented with #5; remaining observation ingestion, canonical relations and adaptive scheduling follow reviewed contracts. |
 | 8 | #43 | Research Engine Scheduling | Requires Topic, Frontier, Discovery and Crawler contracts. |
 
@@ -66,7 +66,7 @@ the whole research system.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 20 | #72 | Demand Engine | Requires Topic Engine and Research Engine core; should be designed before SERP Intelligence, Topic Expansion, Long-tail Discovery and Page Candidate Scoring. |
+| 20 | #72 | Demand Engine | Design accepted on `main`; runtime implementation remains deferred until its SEO Intelligence slot. |
 | 21 | #18 | SERP Intelligence Layer | Requires Research Engine and retrieval outputs; validates Demand Engine candidate queries and page types. |
 | 22 | #30 | SERP Intent Analyzer | Deferred until #18. |
 | 23 | #19 | Topic Expansion Engine | Depends on #18, Demand Engine and knowledge signals. |
