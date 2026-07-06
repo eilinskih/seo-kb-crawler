@@ -31,7 +31,7 @@ Chunking owns:
 - Semantic boundary preservation for paragraphs, lists, FAQ blocks and tables.
 - Token-aware sizing and overlap.
 - Chunk type classification with confidence.
-- Chunk ordering and previous/next navigation fields.
+- Stable chunk ordering.
 - Chunk content hashes and normalized text hashes.
 - Rechunking when chunker version or profile changes.
 
@@ -104,7 +104,6 @@ The Chunking Engine produces:
 - Geo hints.
 - Source document metadata copied to each chunk.
 - Position within document.
-- Previous and next order fields.
 - Content hash and normalized text hash.
 - Placeholder near-duplicate group fields for later issues.
 - Chunking run status and failure metadata.
@@ -228,17 +227,14 @@ Sizing rules:
 Initial chunk types:
 
 - `intro`
+- `section`
 - `guide`
 - `review`
 - `faq`
 - `table`
 - `list`
 - `comparison`
-- `bonus`
-- `payment`
-- `gameplay`
-- `provider`
-- `geo_local`
+- `local_section`
 - `conclusion`
 - `unknown`
 
@@ -253,6 +249,10 @@ unknown
 ```
 
 Classification should be conservative. Unknown is better than a false label.
+Vertical-specific concepts such as bonus, payment method, gameplay, provider,
+legal procedure or product feature belong to later entity, ontology or
+vertical-tag layers. They must not be required by the initial universal chunk
+schema.
 
 ## Multilingual Support
 
@@ -339,8 +339,6 @@ chunks
 - `topic_id`
 - `frontier_entry_id`
 - `chunk_index`
-- `previous_chunk_id`
-- `next_chunk_id`
 - `text`
 - `normalized_text`
 - `heading_path`
@@ -359,8 +357,9 @@ chunks
 
 Suggested constraints and indexes:
 
-- unique `document_version_id + chunker_version + chunking_profile +
-  chunk_index`;
+- unique `chunking_runs.document_version_id + chunker_version +
+  chunking_profile`;
+- unique `chunks.chunking_run_id + chunk_index`;
 - index `document_version_id`;
 - index `topic_id + chunk_type`;
 - index `content_hash`;
@@ -376,11 +375,15 @@ pending
   -> chunked
   -> failed_retryable
   -> failed_terminal
-  -> skipped_unchanged
 ```
 
 Chunking must be idempotent for the same `documentVersionId`,
 `chunkerVersion` and profile.
+
+If the same tuple has already been chunked, the service should return an
+`already_chunked` outcome from the application boundary rather than inserting a
+new durable lifecycle state. Content freshness and duplicate document-version
+reuse remain Content Processing responsibilities.
 
 Retryable failures:
 
@@ -430,6 +433,8 @@ Issue #7 implementation should not add:
 - Chunk type and confidence are stored.
 - Language and geo hints are carried forward.
 - Source metadata is available on every chunk.
+- The same document version, chunker version and profile cannot create
+  duplicate chunk sets.
 - Chunk hashes are stable across repeated runs.
 - Re-running the same chunking input is idempotent.
 - Tests cover headings, FAQ, tables, token limits, multilingual pages and hash
@@ -442,5 +447,5 @@ Issue #7 implementation should not add:
    boundary?
 2. Should `normalized_text` be persisted immediately, or derived later by the
    Embedding Pipeline?
-3. Should previous/next chunk links be stored as IDs immediately, or is
-   `chunk_index` enough for the first implementation?
+3. Which vertical-specific chunk tags should be introduced later outside the
+   universal chunk schema?
