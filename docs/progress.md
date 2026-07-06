@@ -41,7 +41,7 @@ Roadmap order, phases and dependency rules live only in
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
-| #6 | Content Processing Pipeline | Review needed | Initial implementation is complete on `main` plus close-out stabilization branch; human review is required before `Done` and before starting #7. |
+| #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Not started | Depends on #6. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
@@ -53,7 +53,7 @@ Roadmap order, phases and dependency rules live only in
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
-| #72 | Demand Engine | Review needed | Design-only architecture correction for keyword discovery, candidate pages and provider-optional demand signals; runtime implementation remains deferred to roadmap order. |
+| #72 | Demand Engine | Done | Design-only architecture correction merged through PR #73; runtime implementation remains deferred to roadmap order. |
 | #18 | SERP Intelligence Layer | Not started | SEO-first layer; required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine and knowledge signals. |
@@ -67,6 +67,24 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-05
+Issue: #6, #72
+Status: Done
+Summary:
+- Synchronized progress after PR #73 merged Demand Engine documentation and
+  closed GitHub issue #72.
+- Marked Issue #6 Content Processing Pipeline as Done after close-out
+  stabilization landed on `main` and the repository entered approved
+  autonomous execution mode.
+- Kept Demand Engine runtime implementation deferred to its roadmap position.
+Changed files:
+- docs/content-processing-model.md
+- docs/demand-engine-model.md
+- docs/implementation-order.md
+- docs/progress.md
+Next step:
+- Start Issue #7 Chunking Engine from updated `main`.
 
 Date: 2026-07-05
 Issue: #72
