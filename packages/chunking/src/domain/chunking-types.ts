@@ -124,8 +124,10 @@ export interface ChunkSourceMetadata {
   requestedUrl: string;
   finalUrl: string | null;
   canonicalUrl: string | null;
+  sourceDomain: string | null;
   pageTitle: string | null;
   metaDescription: string | null;
+  breadcrumbs: string[];
   topicConfigurationVersion: number;
   extractorVersion: string;
   documentContentHash: string | null;

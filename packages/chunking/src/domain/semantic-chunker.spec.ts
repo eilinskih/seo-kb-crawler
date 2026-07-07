@@ -22,6 +22,10 @@ describe('buildChunkingPlan', () => {
       sectionTitle: 'Laser Hair Removal',
       chunkIndex: 0,
       language: 'en',
+      sourceMetadata: {
+        sourceDomain: 'example.com',
+        breadcrumbs: ['Home', 'Laser Hair Removal'],
+      },
     });
     expect(plan.chunks.every((chunk) => chunk.tokenCount > 0)).toBe(true);
   });
@@ -80,6 +84,65 @@ describe('buildChunkingPlan', () => {
       'Is laser hair removal painful?',
     ]);
     expect(faqChunk?.chunkType).toBe('faq');
+  });
+
+  it('preserves small markdown tables as table chunks', () => {
+    const plan = buildChunkingPlan({
+      documentVersion: documentVersionFixture({
+        cleanedMarkdown: [
+          '# Prices',
+          '',
+          '| Area | Price |',
+          '| --- | --- |',
+          '| Bikini | 250 PLN |',
+          '| Face | 180 PLN |',
+        ].join('\n'),
+        metadata: {
+          ...documentVersionFixture().metadata,
+          headings: [{ level: 1, text: 'Prices', position: 0 }],
+          wordCount: 18,
+        },
+      }),
+      tokenizer: new WhitespaceTokenizer(),
+      now,
+    });
+
+    expect(plan.chunks).toHaveLength(1);
+    expect(plan.chunks[0]).toMatchObject({
+      chunkType: 'table',
+      chunkTypeConfidence: 'high',
+    });
+    expect(plan.chunks[0].text).toContain('| Bikini | 250 PLN |');
+    expect(plan.chunks[0].text).toContain('| Face | 180 PLN |');
+  });
+
+  it('preserves compact list items together when token limits allow it', () => {
+    const plan = buildChunkingPlan({
+      documentVersion: documentVersionFixture({
+        cleanedMarkdown: [
+          '# Benefits',
+          '',
+          '- Less irritation after shaving',
+          '- Fewer ingrown hairs',
+          '- Longer-lasting smooth skin',
+        ].join('\n'),
+        metadata: {
+          ...documentVersionFixture().metadata,
+          headings: [{ level: 1, text: 'Benefits', position: 0 }],
+          wordCount: 16,
+        },
+      }),
+      tokenizer: new WhitespaceTokenizer(),
+      now,
+    });
+
+    expect(plan.chunks).toHaveLength(1);
+    expect(plan.chunks[0]).toMatchObject({
+      chunkType: 'list',
+      chunkTypeConfidence: 'medium',
+    });
+    expect(plan.chunks[0].text).toContain('- Less irritation');
+    expect(plan.chunks[0].text).toContain('- Longer-lasting');
   });
 
   it('splits oversized blocks by token limit with overlap', () => {

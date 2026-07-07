@@ -1,6 +1,6 @@
 # Chunking Engine Model
 
-- Status: Design approved; foundation implementation in progress
+- Status: Implemented for the Issue #7 MVP scope
 - Issue: #7
 - Date: 2026-07-06
 
@@ -284,6 +284,7 @@ Every chunk should carry enough document context to be useful outside its page:
 - canonical URL;
 - page title;
 - meta description;
+- breadcrumbs when derivable from structured data;
 - heading path;
 - section title;
 - language;
@@ -292,7 +293,9 @@ Every chunk should carry enough document context to be useful outside its page:
 - chunker version;
 - chunking profile.
 
-Breadcrumbs should be preserved when Content Processing later exposes them.
+Breadcrumbs are currently derived from structured data when a breadcrumb list is
+available. Future Content Processing improvements may expose first-class
+breadcrumb observations, but Chunking must keep the metadata shape stable.
 
 ## Deduplication Support
 

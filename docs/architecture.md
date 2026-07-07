@@ -105,9 +105,9 @@ The implemented initial Content Processing Pipeline contract is documented in
 `docs/content-processing-model.md`. It stores stable documents and document
 versions, preserves raw HTML, cleaned Markdown and plain text artifacts,
 extracts initial metadata and structured-data signals, and records processing
-state independently from crawl state. Chunking begins in Issue #7.
+state independently from crawl state.
 
-The proposed Chunking Engine contract is documented in
+The implemented Chunking Engine MVP contract is documented in
 `docs/chunking-model.md`. It consumes immutable document versions and produces
 semantic SEO-aware chunks for embeddings, retrieval, extraction and context
 packs.

@@ -105,7 +105,8 @@ Planned domain packages:
 - `docs/discovery-sources-model.md` documents the approved Discovery Sources
   design.
 - `docs/crawler-worker-model.md` documents the proposed Crawler Worker design.
-- `docs/chunking-model.md` documents the proposed Chunking Engine design.
+- `docs/chunking-model.md` documents the implemented Chunking Engine MVP
+  contract.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
   and candidate-page discovery.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
