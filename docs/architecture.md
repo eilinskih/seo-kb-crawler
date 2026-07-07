@@ -12,7 +12,8 @@ This document is the architecture overview. Keep subsystem details in
 specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
 `docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/chunking-model.md`, `docs/demand-engine-model.md` and ADRs under
+`docs/decisions/`.
 
 ## Core pipeline
 
@@ -104,7 +105,12 @@ The implemented initial Content Processing Pipeline contract is documented in
 `docs/content-processing-model.md`. It stores stable documents and document
 versions, preserves raw HTML, cleaned Markdown and plain text artifacts,
 extracts initial metadata and structured-data signals, and records processing
-state independently from crawl state. Chunking begins after Issue #6 review.
+state independently from crawl state. Chunking begins in Issue #7.
+
+The proposed Chunking Engine contract is documented in
+`docs/chunking-model.md`. It consumes immutable document versions and produces
+semantic SEO-aware chunks for embeddings, retrieval, extraction and context
+packs.
 
 ### Semantic indexing
 

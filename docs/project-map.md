@@ -34,6 +34,7 @@ specialized documents:
 - `docs/discovery-sources-model.md` for Discovery Sources.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
+- `docs/chunking-model.md` for the Chunking Engine.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
 - Future `docs/*-model.md` documents for subsystem contracts.
@@ -101,11 +102,11 @@ Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
+- Chunking Engine.
 
 Not implemented:
 
 - Demand Engine.
-- Chunking.
 - Embeddings.
 - Retrieval.
 - Knowledge, SERP and SEO pack generation.
