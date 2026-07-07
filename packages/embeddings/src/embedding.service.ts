@@ -10,6 +10,7 @@ import {
   EmbeddingFailure,
   EmbeddingModelIdentity,
   EmbeddingRepository,
+  EmbeddingStatsRow,
 } from './domain/embedding-types';
 import { EMBEDDING_PROVIDER, EMBEDDING_REPOSITORY } from './embedding.tokens';
 
@@ -112,6 +113,10 @@ export class EmbeddingService {
         skippedCount: saved.skippedCount + skipped.length,
       };
     }
+  }
+
+  async getStats(): Promise<EmbeddingStatsRow[]> {
+    return this.repository.getEmbeddingStats();
   }
 }
 

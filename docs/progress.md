@@ -43,7 +43,7 @@ Roadmap order, phases and dependency rules live only in
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
-| #8 | Embedding Pipeline | In progress | Design approved on `main`; foundation implementation PR in progress. |
+| #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
@@ -67,6 +67,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #8
+Status: Done
+Summary:
+- Stabilized the Embedding Pipeline MVP scope after PR #81 merged the
+  foundation.
+- Added queue dispatch for missing/outdated embedding candidates with batching,
+  retry settings and separate embedding-worker execution.
+- Added a local embedding provider adapter boundary and stats grouped by model,
+  language and status.
+- Confirmed the no-provider fallback remains non-blocking and keeps crawler,
+  content processing and chunking independent from embedding availability.
+Changed files:
+- docs/embedding-model.md
+- docs/progress.md
+- packages/embeddings/src/domain/local-embedding.provider.ts
+- packages/embeddings/src/domain/embedding-types.ts
+- packages/embeddings/src/embedding-dispatch.service.ts
+- packages/embeddings/src/embedding-dispatch.service.spec.ts
+- packages/embeddings/src/embedding.module.ts
+- packages/embeddings/src/embedding.service.ts
+- packages/embeddings/src/embedding.service.spec.ts
+- packages/embeddings/src/index.ts
+- packages/embeddings/src/persistence/knex-embedding.repository.ts
+- packages/embeddings/src/testing/static-embedding.provider.ts
+Next step:
+- Start Issue #9 Hybrid Retrieval Engine from updated `main`.
 
 Date: 2026-07-07
 Issue: #8
