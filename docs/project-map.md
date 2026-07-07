@@ -105,12 +105,13 @@ Implemented on `main`:
 - Embedding worker app boundary, Embeddings package contracts,
   no-provider fallback, candidate selection, idempotent embedding persistence
   and storage migration.
+- Retrieval package boundary, query contracts, ranking profiles, degraded
+  retrieval orchestration, score explanations and deduplication.
 
 Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
-- Hybrid Retrieval Engine query, ranking, fallback and result model.
 
 Not implemented:
 

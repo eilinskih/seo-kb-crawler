@@ -28,6 +28,8 @@ module.exports = {
     '^@seo-kb/db/(.*)$': '<rootDir>/packages/db/src/$1',
     '^@seo-kb/embeddings$': '<rootDir>/packages/embeddings/src',
     '^@seo-kb/embeddings/(.*)$': '<rootDir>/packages/embeddings/src/$1',
+    '^@seo-kb/retrieval$': '<rootDir>/packages/retrieval/src',
+    '^@seo-kb/retrieval/(.*)$': '<rootDir>/packages/retrieval/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

@@ -44,7 +44,7 @@ Roadmap order, phases and dependency rules live only in
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
-| #9 | Hybrid Retrieval Engine | In progress | Design-only PR started after #8 close-out; runtime implementation waits for design review. |
+| #9 | Hybrid Retrieval Engine | In progress | Design approved on `main`; foundation implementation PR in progress. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
@@ -67,6 +67,29 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #9
+Status: In progress
+Summary:
+- Created `issue/9-hybrid-retrieval-foundation` from updated `main` after
+  PR #83 merged the design.
+- Added the initial Retrieval package boundary, query/result contracts,
+  ranking profiles, hybrid ranking, degraded retrieval orchestration,
+  deduplication and Knex query layer foundation.
+- Added tests for vector-only, keyword fallback, hybrid deduplication and
+  explicit metadata fallback.
+Changed files:
+- README.md
+- docs/progress.md
+- docs/project-map.md
+- docs/retrieval-model.md
+- jest.config.js
+- nest-cli.json
+- packages/retrieval/*
+- tsconfig.json
+Next step:
+- Open and review the foundation implementation PR.
 
 Date: 2026-07-07
 Issue: #9

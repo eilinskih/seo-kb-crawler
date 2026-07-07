@@ -76,13 +76,13 @@ Current shared and domain packages:
 /packages/content-processing
 /packages/chunking
 /packages/embeddings
+/packages/retrieval
 ```
 
 Planned domain packages:
 
 ```txt
 /packages/extraction
-/packages/retrieval
 /packages/context-pack
 /packages/demand-engine
 
