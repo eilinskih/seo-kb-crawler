@@ -180,6 +180,9 @@ Recommended constraints:
 
 - unique canonical entity identity by normalized canonical name, type and
   optional vertical;
+- when `vertical` is omitted, the unique canonical identity constraint must not
+  allow duplicate null-vertical rows. Use a non-null sentinel, PostgreSQL
+  `NULLS NOT DISTINCT`, or a partial unique index for the no-vertical case;
 - unique alias identity by normalized alias text, language, geo and entity;
 - indexed aliases by normalized text for lookup;
 - indexed mentions by chunk id and entity id;
