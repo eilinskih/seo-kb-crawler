@@ -110,15 +110,16 @@ The Chunking Engine produces:
 
 ## Chunk Identity
 
-Chunks are versioned by document version and chunker version.
+Chunks are versioned by document version, chunker version and tokenizer
+identity.
 
 ```txt
-Chunk set identity = documentVersionId + chunkerVersion + chunkingProfile
+Chunk set identity = documentVersionId + chunkerVersion + chunkingProfile + tokenizerKey + tokenizerVersion
 ```
 
 Chunk records are immutable after creation. If chunking logic changes, create a
-new chunk set with a new `chunkerVersion` or profile. Do not rewrite historical
-chunks in place.
+new chunk set with a new `chunkerVersion`, profile or tokenizer identity. Do
+not rewrite historical chunks in place.
 
 ## Chunking Profiles
 
@@ -155,8 +156,8 @@ Rules:
 - Do not split a small section merely because it has multiple paragraphs.
 - Prefer splitting long sections at paragraph, list, FAQ or table boundaries.
 - Never invent heading hierarchy that is not present in the input.
-- If headings are missing, use page title as the root heading path when
-  available.
+- If headings are missing, leave `headingPath` empty and store the page title
+  in `sectionTitle` or fallback metadata.
 
 Initial `headingPath` format:
 
@@ -208,9 +209,10 @@ Initial tokenizer contract:
 - expose tokenizer key/version;
 - remain deterministic for tests.
 
-The first implementation may use a simple local tokenizer approximation when a
-model tokenizer is unavailable, but the abstraction must allow replacement by
-an embedding-model-specific tokenizer later.
+The first implementation must use the same tokenizer contract as production for
+persisted chunking. Any approximation is test-only or explicitly
+non-persistent. Persisted token counts and `maxTokens` decisions must be based
+on the tokenizer key/version recorded with the chunking run.
 
 Sizing rules:
 
@@ -358,7 +360,7 @@ chunks
 Suggested constraints and indexes:
 
 - unique `chunking_runs.document_version_id + chunker_version +
-  chunking_profile`;
+  chunking_profile + tokenizer_key + tokenizer_version`;
 - unique `chunks.chunking_run_id + chunk_index`;
 - index `document_version_id`;
 - index `topic_id + chunk_type`;
@@ -378,7 +380,7 @@ pending
 ```
 
 Chunking must be idempotent for the same `documentVersionId`,
-`chunkerVersion` and profile.
+`chunkerVersion`, profile and tokenizer identity.
 
 If the same tuple has already been chunked, the service should return an
 `already_chunked` outcome from the application boundary rather than inserting a
@@ -433,8 +435,8 @@ Issue #7 implementation should not add:
 - Chunk type and confidence are stored.
 - Language and geo hints are carried forward.
 - Source metadata is available on every chunk.
-- The same document version, chunker version and profile cannot create
-  duplicate chunk sets.
+- The same document version, chunker version, profile and tokenizer identity
+  cannot create duplicate chunk sets.
 - Chunk hashes are stable across repeated runs.
 - Re-running the same chunking input is idempotent.
 - Tests cover headings, FAQ, tables, token limits, multilingual pages and hash
