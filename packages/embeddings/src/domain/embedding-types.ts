@@ -98,6 +98,17 @@ export interface EmbeddingBatchResult {
   failedCount: number;
 }
 
+export interface EmbeddingStatsRow {
+  embeddingModelId: string;
+  providerKey: string;
+  modelKey: string;
+  modelVersion: string;
+  dimensions: number;
+  language: string | null;
+  status: EmbeddingStatus;
+  count: number;
+}
+
 export interface EmbeddingRepository {
   upsertEmbeddingModel(
     identity: EmbeddingModelIdentity,
@@ -139,4 +150,5 @@ export interface EmbeddingRepository {
       now: Date;
     },
   ): Promise<EmbeddingBatchResult>;
+  getEmbeddingStats(): Promise<EmbeddingStatsRow[]>;
 }

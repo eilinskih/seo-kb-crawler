@@ -1,8 +1,4 @@
 import {
-  EmbeddingProvider,
-  EmbeddingProviderUnavailableError,
-} from './domain/embedding-provider';
-import {
   ChunkEmbeddingRecord,
   ChunkForEmbedding,
   EmbeddingBatchResult,
@@ -13,6 +9,7 @@ import {
 } from './domain/embedding-types';
 import { NoEmbeddingProvider } from './domain/no-embedding.provider';
 import { EmbeddingService } from './embedding.service';
+import { StaticEmbeddingProvider } from './testing/static-embedding.provider';
 import {
   chunkForEmbeddingFixture,
   testEmbeddingIdentity,
@@ -135,23 +132,6 @@ describe('EmbeddingService', () => {
     expect(candidates.map((chunk) => chunk.id)).toEqual(['retryable']);
   });
 });
-
-class StaticEmbeddingProvider implements EmbeddingProvider {
-  calls = 0;
-
-  constructor(readonly identity: EmbeddingModelIdentity) {}
-
-  async embed(input: { chunk: ChunkForEmbedding }[]) {
-    this.calls += 1;
-    return input.map(({ chunk }) => ({
-      chunkId: chunk.id,
-      vector: Array.from(
-        { length: this.identity.dimensions },
-        (_, index) => index + 0.1,
-      ),
-    }));
-  }
-}
 
 class InMemoryEmbeddingRepository implements EmbeddingRepository {
   readonly models: EmbeddingModelRecord[] = [];
@@ -290,6 +270,24 @@ class InMemoryEmbeddingRepository implements EmbeddingRepository {
       skippedCount: chunks.length,
       failedCount: 0,
     };
+  }
+
+  async getEmbeddingStats() {
+    return this.embeddings.map((embedding) => {
+      const model = this.models.find((candidate) =>
+        candidate.id === embedding.embeddingModelId,
+      )!;
+      return {
+        embeddingModelId: model.id,
+        providerKey: model.providerKey,
+        modelKey: model.modelKey,
+        modelVersion: model.modelVersion,
+        dimensions: model.dimensions,
+        language: embedding.language,
+        status: embedding.status,
+        count: 1,
+      };
+    });
   }
 
   private upsertEmbedding(

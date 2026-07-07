@@ -11,6 +11,7 @@ import {
   EmbeddingStatus,
   EmbeddingModelIdentity,
   EmbeddingDistanceMetric,
+  EmbeddingStatsRow,
 } from '../domain/embedding-types';
 
 interface ChunkRow {
@@ -261,6 +262,45 @@ export class KnexEmbeddingRepository implements EmbeddingRepository {
       skippedCount: chunks.length,
       failedCount: 0,
     };
+  }
+
+  async getEmbeddingStats(): Promise<EmbeddingStatsRow[]> {
+    const rows = await this.db.knex('chunk_embeddings')
+      .join(
+        'embedding_models',
+        'chunk_embeddings.embedding_model_id',
+        'embedding_models.id',
+      )
+      .select([
+        'embedding_models.id as embedding_model_id',
+        'embedding_models.provider_key',
+        'embedding_models.model_key',
+        'embedding_models.model_version',
+        'embedding_models.dimensions',
+        'chunk_embeddings.language',
+        'chunk_embeddings.status',
+      ])
+      .count<{ count: string }[]>({ count: '*' })
+      .groupBy([
+        'embedding_models.id',
+        'embedding_models.provider_key',
+        'embedding_models.model_key',
+        'embedding_models.model_version',
+        'embedding_models.dimensions',
+        'chunk_embeddings.language',
+        'chunk_embeddings.status',
+      ]);
+
+    return rows.map((row) => ({
+      embeddingModelId: row.embedding_model_id,
+      providerKey: row.provider_key,
+      modelKey: row.model_key,
+      modelVersion: row.model_version,
+      dimensions: Number(row.dimensions),
+      language: row.language,
+      status: row.status,
+      count: Number(row.count),
+    }));
   }
 
   private async findModel(

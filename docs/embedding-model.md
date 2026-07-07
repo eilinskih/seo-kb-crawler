@@ -1,6 +1,6 @@
 # Embedding Pipeline Model
 
-- Status: Foundation implementation in progress
+- Status: Implemented for the Issue #8 MVP scope
 - Issue: #8
 - Date: 2026-07-07
 
