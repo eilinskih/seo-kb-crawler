@@ -108,6 +108,15 @@
         "tsConfigPath": "packages/embeddings/tsconfig.lib.json"
       }
     },
+    "retrieval": {
+      "type": "library",
+      "root": "packages/retrieval",
+      "entryFile": "index",
+      "sourceRoot": "packages/retrieval/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/retrieval/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

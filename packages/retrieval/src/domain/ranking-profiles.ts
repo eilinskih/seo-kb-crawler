@@ -1,0 +1,61 @@
+import { RankingProfileName, RetrievalScoreBreakdown } from './retrieval-types';
+
+export type RankingWeights = RetrievalScoreBreakdown;
+
+export const RANKING_PROFILES: Record<RankingProfileName, RankingWeights> = {
+  balanced: {
+    vector: 0.35,
+    keyword: 0.25,
+    metadata: 0.1,
+    heading: 0.08,
+    topic: 0.08,
+    language: 0.05,
+    geo: 0.06,
+    chunkType: 0.03,
+    diversity: 0,
+  },
+  semantic: {
+    vector: 0.55,
+    keyword: 0.15,
+    metadata: 0.08,
+    heading: 0.06,
+    topic: 0.06,
+    language: 0.04,
+    geo: 0.04,
+    chunkType: 0.02,
+    diversity: 0,
+  },
+  keyword_strict: {
+    vector: 0.15,
+    keyword: 0.45,
+    metadata: 0.08,
+    heading: 0.14,
+    topic: 0.07,
+    language: 0.04,
+    geo: 0.04,
+    chunkType: 0.03,
+    diversity: 0,
+  },
+  local_geo: {
+    vector: 0.25,
+    keyword: 0.2,
+    metadata: 0.1,
+    heading: 0.07,
+    topic: 0.08,
+    language: 0.05,
+    geo: 0.2,
+    chunkType: 0.05,
+    diversity: 0,
+  },
+  exploration: {
+    vector: 0.25,
+    keyword: 0.2,
+    metadata: 0.1,
+    heading: 0.08,
+    topic: 0.08,
+    language: 0.05,
+    geo: 0.06,
+    chunkType: 0.03,
+    diversity: 0.15,
+  },
+};
