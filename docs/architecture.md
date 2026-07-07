@@ -142,6 +142,11 @@ final content or emitting vendor-specific prompts.
 - Source Trust and Evidence Scoring
 - SEO Consensus and Conflict Layer
 
+The proposed Entity and Alias Layer design is documented in
+`docs/entity-alias-model.md`. It is a lightweight normalization layer for
+canonical entities, multilingual aliases and chunk mentions. It is not the full
+Knowledge Graph and must not make retrieval dependent on entity data.
+
 ### SEO intelligence layer
 
 - Demand Engine

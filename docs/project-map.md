@@ -38,6 +38,7 @@ specialized documents:
 - `docs/embedding-model.md` for the Embedding Pipeline.
 - `docs/retrieval-model.md` for the Hybrid Retrieval Engine.
 - `docs/context-pack-model.md` for the Context Pack API.
+- `docs/entity-alias-model.md` for the Entity and Alias Layer.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -114,6 +115,7 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Entity and Alias Layer.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

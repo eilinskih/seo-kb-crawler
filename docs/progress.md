@@ -46,7 +46,7 @@ Roadmap order, phases and dependency rules live only in
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
-| #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
+| #11 | Entity and Alias Layer | In progress | Design-only PR started after #10 close-out. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
@@ -68,6 +68,27 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #11
+Status: In progress
+Summary:
+- Started the Entity and Alias Layer as a design-only PR from updated `main`
+  after Issue #10 closed.
+- Added the proposed entity and alias model covering canonical entities,
+  aliases, mentions, review status, storage, alias resolution, retrieval
+  integration and Context Pack integration.
+- Kept runtime implementation, full Knowledge Graph, fact extraction, ontology
+  registry and external enrichment out of this design PR.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/entity-alias-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Review and merge the design-only PR before implementing Entity and Alias
+  runtime code.
 
 Date: 2026-07-07
 Issue: #10
