@@ -37,6 +37,7 @@ specialized documents:
 - `docs/chunking-model.md` for the Chunking Engine.
 - `docs/embedding-model.md` for the Embedding Pipeline.
 - `docs/retrieval-model.md` for the Hybrid Retrieval Engine.
+- `docs/context-pack-model.md` for the Context Pack API.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -111,6 +112,7 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Context Pack API request, profile and model-agnostic response contract.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

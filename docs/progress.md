@@ -45,7 +45,7 @@ Roadmap order, phases and dependency rules live only in
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
-| #10 | Codex Context Pack API | Not started | Depends on #9. |
+| #10 | Codex Context Pack API | In progress | Design-only PR started after #9 close-out; runtime implementation waits for design review. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
@@ -68,6 +68,27 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #10
+Status: In progress
+Summary:
+- Started the Context Pack API as a design-only PR from updated `main` after
+  Issue #9 closed.
+- Added the proposed context pack model covering request DTOs, lightweight query
+  normalization, retrieval orchestration, context profiles, deterministic
+  packaging, uncertainty reporting and model-agnostic JSON output.
+- Kept runtime implementation, text generation, Knowledge Pack Builder and SEO
+  Pack Generator out of this design PR.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/context-pack-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Review and merge the design-only PR before implementing Context Pack API
+  runtime code.
 
 Date: 2026-07-07
 Issue: #86

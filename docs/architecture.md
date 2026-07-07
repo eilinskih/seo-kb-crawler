@@ -128,6 +128,11 @@ The proposed Hybrid Retrieval Engine contract is documented in
 supports degraded keyword/metadata-only retrieval when vectors are unavailable,
 and returns score explanations for downstream Context Pack assembly.
 
+The proposed Context Pack API contract is documented in
+`docs/context-pack-model.md`. It packages retrieval results into structured,
+model-agnostic context for Codex and future LLM consumers without generating
+final content or emitting vendor-specific prompts.
+
 ### Knowledge layer
 
 - Entity and Alias Layer
