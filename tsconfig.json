@@ -36,6 +36,12 @@
       "@seo-kb/content-processing/*": [
         "packages/content-processing/src/*"
       ],
+      "@seo-kb/chunking": [
+        "packages/chunking/src"
+      ],
+      "@seo-kb/chunking/*": [
+        "packages/chunking/src/*"
+      ],
       "@seo-kb/crawler": [
         "packages/crawler/src"
       ],

@@ -89,6 +89,15 @@
       "compilerOptions": {
         "tsConfigPath": "packages/content-processing/tsconfig.lib.json"
       }
+    },
+    "chunking": {
+      "type": "library",
+      "root": "packages/chunking",
+      "entryFile": "index",
+      "sourceRoot": "packages/chunking/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/chunking/tsconfig.lib.json"
+      }
     }
   }
 }

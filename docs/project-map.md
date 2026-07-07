@@ -97,12 +97,14 @@ Implemented on `main`:
   attempt ID.
 - Content Processing BullMQ dispatch and worker orchestration for pending
   successful crawl attempts.
+- Chunking package boundary, domain contracts, tokenizer abstraction,
+  deterministic semantic chunk planner, chunk type classifier and storage
+  migration.
 
 Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
-- Chunking Engine.
 
 Not implemented:
 

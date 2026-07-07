@@ -74,12 +74,12 @@ Current shared and domain packages:
 /packages/crawler
 /packages/url-frontier
 /packages/content-processing
+/packages/chunking
 ```
 
 Planned domain packages:
 
 ```txt
-/packages/chunking
 /packages/embeddings
 /packages/extraction
 /packages/retrieval
