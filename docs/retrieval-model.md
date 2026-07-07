@@ -1,6 +1,6 @@
 # Hybrid Retrieval Engine Model
 
-- Status: Foundation implementation in progress
+- Status: Implemented for the Issue #9 MVP scope
 - Issue: #9
 - Date: 2026-07-07
 
@@ -76,6 +76,8 @@ interface RetrievalQuery {
   entityFilters?: string[];
   chunkTypes?: string[];
   sourceDomains?: string[];
+  queryVector?: number[];
+  embeddingModelId?: string;
   limit: number;
   rankingProfile: string;
   includeDebug?: boolean;

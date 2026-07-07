@@ -44,7 +44,7 @@ Roadmap order, phases and dependency rules live only in
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
-| #9 | Hybrid Retrieval Engine | In progress | Design approved on `main`; foundation implementation PR in progress. |
+| #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
@@ -67,6 +67,24 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #9
+Status: Done
+Summary:
+- Stabilized the Hybrid Retrieval Engine MVP scope after PR #84 merged the
+  foundation.
+- Added query-vector and embedding-model inputs plus pgvector search in the
+  Knex retrieval repository.
+- Kept keyword/metadata degraded mode available when query vectors or
+  embeddings are unavailable.
+Changed files:
+- docs/progress.md
+- docs/retrieval-model.md
+- packages/retrieval/src/domain/retrieval-types.ts
+- packages/retrieval/src/persistence/knex-retrieval.repository.ts
+Next step:
+- Start Issue #10 Codex Context Pack API from updated `main`.
 
 Date: 2026-07-07
 Issue: #9

@@ -26,6 +26,8 @@ export interface RetrievalQuery {
   entityFilters?: string[];
   chunkTypes?: ChunkType[];
   sourceDomains?: string[];
+  queryVector?: number[];
+  embeddingModelId?: string;
   limit: number;
   rankingProfile: RankingProfileName;
   includeDebug?: boolean;
