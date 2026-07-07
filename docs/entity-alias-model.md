@@ -251,6 +251,12 @@ interface ContextPackEntity {
 Context Pack should use entity metadata to make generation context clearer, not
 to replace retrieval evidence.
 
+Entity metadata blocks must be omitted entirely when entity lookup returns no
+real entity data. Context Pack must not fabricate or default `entityId`,
+`canonicalName`, `aliases`, `sourceIds`, `chunkIds`, `confidence` or related
+entity fields from retrieval text alone. Generation must degrade gracefully to
+retrieval evidence when entity metadata is absent.
+
 ## Manual and Automatic Flows
 
 Manual flow:
