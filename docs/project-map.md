@@ -109,10 +109,11 @@ Implemented on `main`:
   and storage migration.
 - Retrieval package boundary, query contracts, ranking profiles, degraded
   retrieval orchestration, score explanations and deduplication.
+- Context Pack package boundary, request/profile contracts, deterministic
+  retrieval packaging and API endpoint.
 
 Designed but not implemented on `main`:
 
-- Context Pack API request, profile and model-agnostic response contract.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
