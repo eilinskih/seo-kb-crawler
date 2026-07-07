@@ -101,12 +101,14 @@ Implemented on `main`:
 - Chunking package boundary, domain contracts, tokenizer abstraction,
   deterministic semantic chunk planner, chunk type classifier and storage
   migration.
+- Embedding worker app boundary, Embeddings package contracts,
+  no-provider fallback, candidate selection, idempotent embedding persistence
+  and storage migration.
 
 Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
-- Embedding Pipeline provider, storage, queue and fallback model.
 
 Not implemented:
 

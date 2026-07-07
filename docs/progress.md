@@ -43,7 +43,7 @@ Roadmap order, phases and dependency rules live only in
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
-| #8 | Embedding Pipeline | In progress | Design-only PR started after #7 close-out; runtime implementation waits for design review. |
+| #8 | Embedding Pipeline | In progress | Design approved on `main`; foundation implementation PR in progress. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
@@ -67,6 +67,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #8
+Status: In progress
+Summary:
+- Created `issue/8-embedding-pipeline-foundation` from updated `main` after
+  PR #80 merged the design.
+- Added the initial Embeddings package boundary, provider abstraction,
+  no-provider fallback, candidate selection, idempotent embedding persistence,
+  worker app boundary and pgvector storage migration.
+- Added tests for idempotency, provider-unavailable fallback, skipped low-value
+  chunks and model-version migration.
+Changed files:
+- README.md
+- apps/embedding-worker/*
+- docs/embedding-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- package.json
+- packages/common/src/queue/queue.constants.ts
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/006-embedding-foundation.ts
+- packages/embeddings/*
+- tsconfig.json
+Next step:
+- Open and review the foundation implementation PR.
 
 Date: 2026-07-07
 Issue: #8

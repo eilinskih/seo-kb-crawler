@@ -98,6 +98,24 @@
       "compilerOptions": {
         "tsConfigPath": "packages/chunking/tsconfig.lib.json"
       }
+    },
+    "embeddings": {
+      "type": "library",
+      "root": "packages/embeddings",
+      "entryFile": "index",
+      "sourceRoot": "packages/embeddings/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/embeddings/tsconfig.lib.json"
+      }
+    },
+    "embedding-worker": {
+      "type": "application",
+      "root": "apps/embedding-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/embedding-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/embedding-worker/tsconfig.app.json"
+      }
     }
   }
 }

@@ -55,13 +55,13 @@ Implemented on `main`:
 ```txt
 /apps/api
 /apps/crawler-worker
+/apps/embedding-worker
 /packages/topic-engine
 ```
 
 Planned for later roadmap issues and not implemented yet:
 
 ```txt
-/apps/embedding-worker
 /apps/extraction-worker
 ```
 
@@ -75,12 +75,12 @@ Current shared and domain packages:
 /packages/url-frontier
 /packages/content-processing
 /packages/chunking
+/packages/embeddings
 ```
 
 Planned domain packages:
 
 ```txt
-/packages/embeddings
 /packages/extraction
 /packages/retrieval
 /packages/context-pack
