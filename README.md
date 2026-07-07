@@ -77,13 +77,13 @@ Current shared and domain packages:
 /packages/chunking
 /packages/embeddings
 /packages/retrieval
+/packages/context-pack
 ```
 
 Planned domain packages:
 
 ```txt
 /packages/extraction
-/packages/context-pack
 /packages/demand-engine
 
 /infrastructure/docker
@@ -110,7 +110,8 @@ Planned domain packages:
 - `docs/embedding-model.md` documents the proposed Embedding Pipeline design.
 - `docs/retrieval-model.md` documents the proposed Hybrid Retrieval Engine
   design.
-- `docs/context-pack-model.md` documents the proposed Context Pack API design.
+- `docs/context-pack-model.md` documents the Context Pack API contract and
+  foundation implementation.
 - `docs/operator-console-model.md` documents the proposed internal Operator
   Console.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
@@ -192,6 +193,12 @@ URL Frontier manual dispatch:
 
 ```txt
 POST /url-frontier/dispatch
+```
+
+Context Pack API:
+
+```txt
+POST /context-pack
 ```
 
 Node.js 24 LTS is used instead of Node.js 26 Current because this service is

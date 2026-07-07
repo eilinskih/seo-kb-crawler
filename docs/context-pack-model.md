@@ -1,6 +1,6 @@
 # Context Pack API Model
 
-- Status: Proposed design for Issue #10 review
+- Status: Foundation implementation in progress for Issue #10
 - Issue: #10
 - Date: 2026-07-07
 
@@ -211,6 +211,24 @@ Issue #10 implementation should not add:
 - entity/fact extraction requirements;
 - provider-specific prompt templates;
 - public SaaS API features.
+
+## Current Implementation
+
+The foundation implementation adds:
+
+- `packages/context-pack`;
+- `ContextPackModule`;
+- `ContextPackService`;
+- `POST /context-pack`;
+- explicit context profiles;
+- request validation for required query and supported profile;
+- deterministic grouping of retrieval results into sources and sections;
+- FAQ candidate and outline hint extraction based on profile settings;
+- degraded retrieval and weak-evidence gaps;
+- optional raw retrieval and debug profile output.
+
+The endpoint delegates retrieval to the Hybrid Retrieval Engine. It does not
+directly query persistence tables and does not generate content.
 
 ## Acceptance Criteria
 

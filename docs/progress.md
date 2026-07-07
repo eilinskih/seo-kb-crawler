@@ -45,7 +45,7 @@ Roadmap order, phases and dependency rules live only in
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
-| #10 | Codex Context Pack API | In progress | Design-only PR started after #9 close-out; runtime implementation waits for design review. |
+| #10 | Codex Context Pack API | In progress | Design is merged; foundation implementation is adding the package, profiles and API endpoint. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
@@ -68,6 +68,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #10
+Status: In progress
+Summary:
+- Created `issue/10-context-pack-api-foundation` from updated `main` after the
+  design-only PR merged.
+- Added the initial Context Pack package boundary, request/profile contracts,
+  deterministic packaging service and `POST /context-pack` API endpoint.
+- Kept text generation, Knowledge Pack Builder, SEO Pack Generator and
+  provider-specific prompt formatting out of the implementation.
+Changed files:
+- README.md
+- apps/api/src/api.module.ts
+- apps/api/src/context-pack/*
+- docs/context-pack-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/context-pack/*
+- tsconfig.json
+Next step:
+- Run targeted tests, full tests and build before opening the foundation PR.
 
 Date: 2026-07-07
 Issue: #10

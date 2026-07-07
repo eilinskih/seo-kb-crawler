@@ -36,6 +36,12 @@
       "@seo-kb/content-processing/*": [
         "packages/content-processing/src/*"
       ],
+      "@seo-kb/context-pack": [
+        "packages/context-pack/src"
+      ],
+      "@seo-kb/context-pack/*": [
+        "packages/context-pack/src/*"
+      ],
       "@seo-kb/chunking": [
         "packages/chunking/src"
       ],

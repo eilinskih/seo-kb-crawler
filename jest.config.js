@@ -20,6 +20,9 @@ module.exports = {
       '<rootDir>/packages/content-processing/src',
     '^@seo-kb/content-processing/(.*)$':
       '<rootDir>/packages/content-processing/src/$1',
+    '^@seo-kb/context-pack$': '<rootDir>/packages/context-pack/src',
+    '^@seo-kb/context-pack/(.*)$':
+      '<rootDir>/packages/context-pack/src/$1',
     '^@seo-kb/chunking$': '<rootDir>/packages/chunking/src',
     '^@seo-kb/chunking/(.*)$': '<rootDir>/packages/chunking/src/$1',
     '^@seo-kb/crawler$': '<rootDir>/packages/crawler/src',
