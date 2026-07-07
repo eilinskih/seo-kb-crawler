@@ -36,6 +36,7 @@ specialized documents:
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
 - `docs/chunking-model.md` for the Chunking Engine.
 - `docs/embedding-model.md` for the Embedding Pipeline.
+- `docs/retrieval-model.md` for the Hybrid Retrieval Engine.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
 - Future `docs/*-model.md` documents for subsystem contracts.
@@ -109,10 +110,10 @@ Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
+- Hybrid Retrieval Engine query, ranking, fallback and result model.
 
 Not implemented:
 
 - Demand Engine.
-- Retrieval.
 - Knowledge, SERP and SEO pack generation.
 - SEO Agent Gateway.

@@ -44,7 +44,7 @@ Roadmap order, phases and dependency rules live only in
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
-| #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
+| #9 | Hybrid Retrieval Engine | In progress | Design-only PR started after #8 close-out; runtime implementation waits for design review. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
@@ -67,6 +67,27 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #9
+Status: In progress
+Summary:
+- Started the Hybrid Retrieval Engine as a design-only PR from updated `main`
+  after Issue #8 closed.
+- Added the proposed retrieval model covering query contracts, vector search,
+  keyword search, metadata filters, degraded no-vector mode, ranking profiles,
+  score breakdown, deduplication and implementation scope.
+- Kept runtime implementation, Context Pack API and entity graph requirements
+  out of this design PR.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/retrieval-model.md
+Next step:
+- Review and merge the design-only PR before implementing Hybrid Retrieval
+  runtime code.
 
 Date: 2026-07-07
 Issue: #8
