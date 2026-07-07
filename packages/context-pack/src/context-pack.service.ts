@@ -56,7 +56,12 @@ export class ContextPackService {
       sources,
       faqCandidates,
       outlineHints,
-      contentGaps: buildGaps(retrieval.degraded, retrieval.warnings, sources),
+      contentGaps: buildGaps(
+        retrieval.degraded,
+        retrieval.warnings,
+        sources,
+        request,
+      ),
       retrieval: {
         degraded: retrieval.degraded,
         warnings: retrieval.warnings,
@@ -166,8 +171,15 @@ function buildGaps(
   degraded: boolean,
   warnings: string[],
   sources: ContextPackSource[],
+  request: ContextPackRequest,
 ): ContextPackGap[] {
   const gaps: ContextPackGap[] = [];
+  if (hasResearchAssetFilter(request)) {
+    gaps.push({
+      code: 'research_asset_filter_deferred',
+      detail: 'Research Assets filtering is accepted by the API contract but not connected to a Research Assets subsystem yet',
+    });
+  }
   if (degraded) {
     gaps.push({
       code: 'degraded_retrieval',
@@ -199,4 +211,16 @@ function buildGaps(
     });
   }
   return gaps;
+}
+
+function hasResearchAssetFilter(request: ContextPackRequest): boolean {
+  const filter = request.researchAssetFilter;
+  if (!filter) {
+    return false;
+  }
+  return Boolean(
+    filter.includeOnlyApproved !== undefined ||
+      (filter.assetIds && filter.assetIds.length > 0) ||
+      (filter.assetTypes && filter.assetTypes.length > 0),
+  );
 }

@@ -45,7 +45,7 @@ Roadmap order, phases and dependency rules live only in
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
-| #10 | Codex Context Pack API | In progress | Design is merged; foundation implementation is adding the package, profiles and API endpoint. |
+| #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
@@ -68,6 +68,25 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #10
+Status: Done
+Summary:
+- Stabilized the Context Pack API scope after PR #89 merged the foundation.
+- Added the optional Research Assets filter to the request contract and made
+  the deferred integration explicit through a content gap instead of silently
+  ignoring the input.
+- Clarified that selected chunks are represented through grouped sections and
+  optional raw retrieval debug output.
+Changed files:
+- docs/context-pack-model.md
+- docs/progress.md
+- packages/context-pack/src/context-pack.service.ts
+- packages/context-pack/src/context-pack.service.spec.ts
+- packages/context-pack/src/domain/context-pack-types.ts
+Next step:
+- Start Issue #11 Entity and Alias Layer from updated `main`.
 
 Date: 2026-07-07
 Issue: #10

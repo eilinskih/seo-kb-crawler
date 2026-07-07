@@ -73,6 +73,11 @@ interface ContextPackRequest {
   };
   vertical?: string;
   objective?: string;
+  researchAssetFilter?: {
+    assetIds?: string[];
+    assetTypes?: string[];
+    includeOnlyApproved?: boolean;
+  };
   profile: ContextPackProfileName;
   limit?: number;
   includeDebug?: boolean;
@@ -225,10 +230,17 @@ The foundation implementation adds:
 - deterministic grouping of retrieval results into sources and sections;
 - FAQ candidate and outline hint extraction based on profile settings;
 - degraded retrieval and weak-evidence gaps;
+- Research Assets filter contract with an explicit deferred-scope gap until a
+  Research Assets subsystem exists;
 - optional raw retrieval and debug profile output.
 
 The endpoint delegates retrieval to the Hybrid Retrieval Engine. It does not
 directly query persistence tables and does not generate content.
+
+Selected chunks are represented through packaged sections: each section keeps
+the selected `chunkIds`, grouped text and source references. `raw_retrieval`
+can be requested for debugging when consumers need the original retrieval
+result objects.
 
 ## Acceptance Criteria
 

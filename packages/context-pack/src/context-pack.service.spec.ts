@@ -100,4 +100,26 @@ describe('ContextPackService', () => {
       detail: 'Vector results unavailable',
     });
   });
+
+  it('exposes Research Assets filters as deferred scope until assets exist', async () => {
+    const retrieval = {
+      search: jest.fn().mockResolvedValue(retrievalResponseFixture()),
+    } as unknown as RetrievalService;
+    const service = new ContextPackService(retrieval);
+
+    const pack = await service.build({
+      query: 'laser',
+      profile: 'research',
+      researchAssetFilter: {
+        assetIds: ['asset-1'],
+        includeOnlyApproved: true,
+      },
+    });
+
+    expect(pack.contentGaps).toContainEqual({
+      code: 'research_asset_filter_deferred',
+      detail:
+        'Research Assets filtering is accepted by the API contract but not connected to a Research Assets subsystem yet',
+    });
+  });
 });
