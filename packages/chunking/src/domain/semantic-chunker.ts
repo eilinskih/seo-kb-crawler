@@ -69,8 +69,10 @@ export function buildChunkingPlan(input: {
         requestedUrl: input.documentVersion.requestedUrl,
         finalUrl: input.documentVersion.finalUrl,
         canonicalUrl: input.documentVersion.canonicalUrl,
+        sourceDomain: sourceDomainFor(input.documentVersion),
         pageTitle: input.documentVersion.title,
         metaDescription: input.documentVersion.metaDescription,
+        breadcrumbs: extractBreadcrumbs(input.documentVersion),
         topicConfigurationVersion:
           input.documentVersion.topicConfigurationVersion,
         extractorVersion: input.documentVersion.extractorVersion,
@@ -235,4 +237,79 @@ function splitOversizedBlock(
   }
 
   return chunks;
+}
+
+function sourceDomainFor(
+  documentVersion: DocumentVersionForChunking,
+): string | null {
+  const url =
+    documentVersion.canonicalUrl ??
+    documentVersion.finalUrl ??
+    documentVersion.requestedUrl;
+
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function extractBreadcrumbs(
+  documentVersion: DocumentVersionForChunking,
+): string[] {
+  return documentVersion.structuredData.flatMap((observation) =>
+    extractBreadcrumbsFromValue(observation.data),
+  );
+}
+
+function extractBreadcrumbsFromValue(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(extractBreadcrumbsFromValue);
+  }
+
+  if (!isRecord(value)) {
+    return [];
+  }
+
+  const type = value['@type'];
+  const isBreadcrumbList =
+    type === 'BreadcrumbList' ||
+    (Array.isArray(type) && type.includes('BreadcrumbList'));
+
+  if (!isBreadcrumbList) {
+    return Object.values(value).flatMap(extractBreadcrumbsFromValue);
+  }
+
+  const itemListElement = value.itemListElement;
+  if (!Array.isArray(itemListElement)) {
+    return [];
+  }
+
+  return itemListElement
+    .map((item) => breadcrumbName(item))
+    .filter((name): name is string => Boolean(name));
+}
+
+function breadcrumbName(value: unknown): string | null {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (typeof value.name === 'string') {
+    return value.name;
+  }
+
+  if (isRecord(value.item) && typeof value.item.name === 'string') {
+    return value.item.name;
+  }
+
+  return null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

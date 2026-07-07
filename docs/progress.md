@@ -42,7 +42,7 @@ Roadmap order, phases and dependency rules live only in
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
-| #7 | Chunking Engine | In progress | Design approved on `main`; foundation implementation PR in progress. |
+| #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
 | #8 | Embedding Pipeline | Not started | Depends on #7. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
@@ -67,6 +67,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #7
+Status: Done
+Summary:
+- Stabilized the Chunking Engine MVP scope after PR #78 merged the foundation.
+- Preserved source domain and breadcrumb context in chunk source metadata.
+- Added explicit tests for table and list preservation in addition to FAQ,
+  heading-aware chunks, token limits and hash stability.
+- Confirmed vertical-specific chunk labels remain deferred to later entity,
+  ontology or vertical-tag layers per the accepted chunking model.
+Changed files:
+- docs/chunking-model.md
+- docs/progress.md
+- packages/chunking/src/domain/chunking-types.ts
+- packages/chunking/src/domain/semantic-chunker.ts
+- packages/chunking/src/domain/semantic-chunker.spec.ts
+- packages/chunking/src/testing/chunking.fixture.ts
+Next step:
+- Start Issue #8 Embedding Pipeline from updated `main`.
 
 Date: 2026-07-07
 Issue: #7

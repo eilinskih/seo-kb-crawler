@@ -55,7 +55,17 @@ export function documentVersionFixture(
       publishedTime: null,
       updatedTime: null,
     },
-    structuredData: [],
+    structuredData: [{
+      format: 'json_ld',
+      position: 0,
+      data: {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home' },
+          { '@type': 'ListItem', position: 2, name: 'Laser Hair Removal' },
+        ],
+      },
+    }],
     languageHints: [{ tag: 'en', confidence: 0.9, source: 'html_lang' }],
     geoHints: [{ countryCode: 'PL', confidence: 0.6, source: 'url' }],
     createdAt: new Date('2026-07-07T00:00:00Z'),
