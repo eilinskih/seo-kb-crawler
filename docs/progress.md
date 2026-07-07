@@ -46,7 +46,7 @@ Roadmap order, phases and dependency rules live only in
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
-| #11 | Entity and Alias Layer | Review needed | Design-only PR started after #10 close-out. |
+| #11 | Entity and Alias Layer | In progress | Design is merged; foundation implementation is adding the package, schema and alias resolution service. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
@@ -68,6 +68,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #11
+Status: In progress
+Summary:
+- Created `issue/11-entity-alias-layer-foundation` from updated `main` after
+  the design-only PR merged.
+- Added the initial Entities package boundary, canonical entity and alias
+  contracts, mention contracts, alias resolution service and database schema
+  migration.
+- Kept manual API endpoints, full Knowledge Graph, fact extraction, ontology
+  registry and external enrichment out of this foundation PR.
+Changed files:
+- README.md
+- docs/entity-alias-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/007-entity-alias-foundation.ts
+- packages/entities/*
+- tsconfig.json
+Next step:
+- Run targeted tests, full tests and build before opening the foundation PR.
 
 Date: 2026-07-07
 Issue: #11
