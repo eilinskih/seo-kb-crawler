@@ -37,6 +37,7 @@ specialized documents:
 - `docs/chunking-model.md` for the Chunking Engine.
 - `docs/embedding-model.md` for the Embedding Pipeline.
 - `docs/retrieval-model.md` for the Hybrid Retrieval Engine.
+- `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
 - Future `docs/*-model.md` documents for subsystem contracts.
@@ -117,4 +118,5 @@ Not implemented:
 
 - Demand Engine.
 - Knowledge, SERP and SEO pack generation.
+- Operator Console.
 - SEO Agent Gateway.

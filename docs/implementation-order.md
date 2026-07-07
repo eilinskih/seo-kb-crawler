@@ -93,6 +93,16 @@ and SEO packs must remain model-agnostic.
 External providers improve scoring and enrichment. They must never block the
 core pipeline or become required dependencies.
 
+## Phase 8: Operations
+
+| Order | Issue | Scope | Dependency |
+|---|---|---|---|
+| 30 | #86 | Operator Console | Depends on stable operator APIs; richer version depends on #10 and #43. |
+
+The Operator Console is an internal UI for managing topics, crawl operations,
+failures, retries and provider/fallback status. It must use API/service
+contracts rather than bypassing domain modules.
+
 ## Dependency graph
 
 ```txt

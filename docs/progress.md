@@ -63,10 +63,30 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after Demand Engine provider contracts; must never block the core pipeline. |
+| #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #86
+Status: Not started
+Summary:
+- Added Operator Console as a future operations roadmap item.
+- Captured the need for a UI to create, pause, archive and reactivate topics,
+  manage obsolete crawl work, inspect failures and see degraded provider modes.
+- Kept implementation deferred until stable operator APIs exist; richer console
+  depends on Context Pack API and Research Engine Scheduling.
+Changed files:
+- README.md
+- docs/implementation-order.md
+- docs/operator-console-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Continue canonical roadmap with Issue #10; revisit #86 when operator API and
+  scheduling contracts are stable.
 
 Date: 2026-07-07
 Issue: #9

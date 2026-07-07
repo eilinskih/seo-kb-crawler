@@ -110,6 +110,8 @@ Planned domain packages:
 - `docs/embedding-model.md` documents the proposed Embedding Pipeline design.
 - `docs/retrieval-model.md` documents the proposed Hybrid Retrieval Engine
   design.
+- `docs/operator-console-model.md` documents the proposed internal Operator
+  Console.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
   and candidate-page discovery.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
