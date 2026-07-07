@@ -123,6 +123,11 @@ The proposed Embedding Pipeline contract is documented in
 chunks, keeps provider/model identity with every vector, and requires a
 local-first fallback mode when paid or hosted providers are unavailable.
 
+The proposed Hybrid Retrieval Engine contract is documented in
+`docs/retrieval-model.md`. It combines vector, keyword and metadata search,
+supports degraded keyword/metadata-only retrieval when vectors are unavailable,
+and returns score explanations for downstream Context Pack assembly.
+
 ### Knowledge layer
 
 - Entity and Alias Layer
