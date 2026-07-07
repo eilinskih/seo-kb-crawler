@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "rootDir": "../..",
+    "outDir": "../../dist/apps/embedding-worker"
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "src/**/*.spec.ts",
+    "../../packages/**/*.spec.ts",
+    "**/*.spec.ts"
+  ]
+}

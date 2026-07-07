@@ -1,6 +1,6 @@
 # Embedding Pipeline Model
 
-- Status: Proposed design for Issue #8 review
+- Status: Foundation implementation in progress
 - Issue: #8
 - Date: 2026-07-07
 
