@@ -43,7 +43,7 @@ Roadmap order, phases and dependency rules live only in
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
 | #6 | Content Processing Pipeline | Done | Initial implementation and close-out stabilization are merged on `main`; Issue #7 may start. |
 | #7 | Chunking Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #8 may start. |
-| #8 | Embedding Pipeline | Not started | Depends on #7. |
+| #8 | Embedding Pipeline | In progress | Design-only PR started after #7 close-out; runtime implementation waits for design review. |
 | #9 | Hybrid Retrieval Engine | Not started | Depends on #8. |
 | #10 | Codex Context Pack API | Not started | Depends on #9. |
 | #11 | Entity and Alias Layer | Not started | Can start after #7, integrates with #9/#10. |
@@ -67,6 +67,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-07
+Issue: #8
+Status: In progress
+Summary:
+- Started the Embedding Pipeline as a design-only PR from updated `main` after
+  Issue #7 closed.
+- Added the proposed embedding model covering provider abstraction,
+  local-first execution, fallback/no-provider behavior, multilingual support,
+  candidate selection, queue contracts, pgvector storage, re-embedding and
+  quality controls.
+- Kept runtime implementation, retrieval ranking and paid provider integration
+  out of this design PR.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/embedding-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Review and merge the design-only PR before implementing Embedding Pipeline
+  runtime code.
 
 Date: 2026-07-07
 Issue: #7

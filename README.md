@@ -107,6 +107,7 @@ Planned domain packages:
 - `docs/crawler-worker-model.md` documents the proposed Crawler Worker design.
 - `docs/chunking-model.md` documents the implemented Chunking Engine MVP
   contract.
+- `docs/embedding-model.md` documents the proposed Embedding Pipeline design.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
   and candidate-page discovery.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
