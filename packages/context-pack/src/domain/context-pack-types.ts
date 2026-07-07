@@ -17,6 +17,12 @@ export interface ContextPackGeoInput {
   city?: string;
 }
 
+export interface ContextPackResearchAssetFilter {
+  assetIds?: string[];
+  assetTypes?: string[];
+  includeOnlyApproved?: boolean;
+}
+
 export interface ContextPackRequest {
   query: string;
   topicId?: string;
@@ -24,6 +30,7 @@ export interface ContextPackRequest {
   geo?: ContextPackGeoInput;
   vertical?: string;
   objective?: string;
+  researchAssetFilter?: ContextPackResearchAssetFilter;
   profile: ContextPackProfileName;
   limit?: number;
   includeDebug?: boolean;
@@ -86,7 +93,8 @@ export interface ContextPackGap {
     | 'single_domain'
     | 'missing_language'
     | 'missing_geo'
-    | 'no_faq_candidates';
+    | 'no_faq_candidates'
+    | 'research_asset_filter_deferred';
   detail: string;
 }
 
