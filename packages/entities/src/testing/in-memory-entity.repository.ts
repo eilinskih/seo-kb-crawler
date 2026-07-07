@@ -28,6 +28,10 @@ export class InMemoryEntityRepository implements EntityRepository {
     return this.entities.get(id) ?? null;
   }
 
+  async findAliasById(id: string): Promise<EntityAliasRecord | null> {
+    return this.aliases.get(id) ?? null;
+  }
+
   async findEntityByIdentity(input: {
     normalizedCanonicalName: string;
     entityType: EntityType;

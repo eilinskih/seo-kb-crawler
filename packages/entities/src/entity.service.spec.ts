@@ -1,5 +1,8 @@
 import { EntityService } from './entity.service';
-import { EntityNotFoundError } from './domain/entity-types';
+import {
+  EntityNotFoundError,
+  EntityValidationError,
+} from './domain/entity-types';
 import { InMemoryEntityRepository } from './testing/in-memory-entity.repository';
 
 describe('EntityService', () => {
@@ -125,6 +128,33 @@ describe('EntityService', () => {
       locationHint: 'heading:Extensions',
     }));
     expect(repository.mentions.size).toBe(1);
+  });
+
+  it('rejects mentions whose alias belongs to a different entity', async () => {
+    const repository = new InMemoryEntityRepository();
+    const service = new EntityService(repository);
+    const first = await service.createEntity({
+      canonicalName: 'BMW N47 engine',
+      entityType: 'model',
+    });
+    const second = await service.createEntity({
+      canonicalName: 'BMW N57 engine',
+      entityType: 'model',
+    });
+    const alias = await service.addAlias({
+      entityId: second.id,
+      aliasText: 'N57',
+      aliasType: 'abbreviation',
+    });
+
+    await expect(
+      service.recordMention({
+        entityId: first.id,
+        aliasId: alias.id,
+        chunkId: '00000000-0000-4000-8000-000000000001',
+        mentionText: 'N57',
+      }),
+    ).rejects.toThrow(EntityValidationError);
   });
 
   it('rejects aliases for missing entities', async () => {

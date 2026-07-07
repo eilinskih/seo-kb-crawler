@@ -98,6 +98,9 @@ export class EntityService {
 
   async recordMention(input: CreateMentionInput): Promise<EntityMentionRecord> {
     await this.requireEntity(input.entityId);
+    if (input.aliasId) {
+      await this.requireAliasForEntity(input.aliasId, input.entityId);
+    }
     const mentionText = normalizeEntityText(input.mentionText, 'mentionText');
     const record: EntityMentionRecord = {
       id: randomUUID(),
@@ -164,6 +167,21 @@ export class EntityService {
       throw new EntityNotFoundError(id);
     }
     return entity;
+  }
+
+  private async requireAliasForEntity(
+    aliasId: string,
+    entityId: string,
+  ): Promise<void> {
+    const alias = await this.repository.findAliasById(aliasId);
+    if (!alias) {
+      throw new EntityValidationError(`Alias not found: ${aliasId}`);
+    }
+    if (alias.entityId !== entityId) {
+      throw new EntityValidationError(
+        `Alias ${aliasId} does not belong to entity ${entityId}`,
+      );
+    }
   }
 }
 

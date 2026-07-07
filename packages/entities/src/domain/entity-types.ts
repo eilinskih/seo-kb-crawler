@@ -167,6 +167,7 @@ export interface EntityRepository {
   createAlias(record: EntityAliasRecord): Promise<void>;
   createMention(record: EntityMentionRecord): Promise<void>;
   findEntityById(id: string): Promise<EntityRecord | null>;
+  findAliasById(id: string): Promise<EntityAliasRecord | null>;
   findEntityByIdentity(input: {
     normalizedCanonicalName: string;
     entityType: EntityType;

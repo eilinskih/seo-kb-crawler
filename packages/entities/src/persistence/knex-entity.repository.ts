@@ -81,6 +81,11 @@ export class KnexEntityRepository implements EntityRepository {
     return row ? fromEntityRow(row) : null;
   }
 
+  async findAliasById(id: string): Promise<EntityAliasRecord | null> {
+    const row = await this.knex<AliasRow>('entity_aliases').where({ id }).first();
+    return row ? fromAliasRow(row) : null;
+  }
+
   async findEntityByIdentity(input: {
     normalizedCanonicalName: string;
     entityType: EntityType;
