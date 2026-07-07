@@ -35,6 +35,7 @@ specialized documents:
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
 - `docs/chunking-model.md` for the Chunking Engine.
+- `docs/embedding-model.md` for the Embedding Pipeline.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
 - Future `docs/*-model.md` documents for subsystem contracts.
@@ -105,11 +106,11 @@ Designed but not implemented on `main`:
 
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
+- Embedding Pipeline provider, storage, queue and fallback model.
 
 Not implemented:
 
 - Demand Engine.
-- Embeddings.
 - Retrieval.
 - Knowledge, SERP and SEO pack generation.
 - SEO Agent Gateway.

@@ -118,6 +118,11 @@ packs.
 - Embedding Pipeline
 - Hybrid Retrieval Engine
 
+The proposed Embedding Pipeline contract is documented in
+`docs/embedding-model.md`. It treats embeddings as an index over immutable
+chunks, keeps provider/model identity with every vector, and requires a
+local-first fallback mode when paid or hosted providers are unavailable.
+
 ### Knowledge layer
 
 - Entity and Alias Layer
