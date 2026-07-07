@@ -112,10 +112,11 @@ Implemented on `main`:
   retrieval orchestration, score explanations and deduplication.
 - Context Pack package boundary, request/profile contracts, deterministic
   retrieval packaging and API endpoint.
+- Entity and Alias package boundary, canonical entities, aliases, mention
+  contracts, storage migration and alias resolution service.
 
 Designed but not implemented on `main`:
 
-- Entity and Alias Layer.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

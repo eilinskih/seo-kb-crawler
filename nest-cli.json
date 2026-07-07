@@ -126,6 +126,15 @@
         "tsConfigPath": "packages/context-pack/tsconfig.lib.json"
       }
     },
+    "entities": {
+      "type": "library",
+      "root": "packages/entities",
+      "entryFile": "index",
+      "sourceRoot": "packages/entities/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/entities/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

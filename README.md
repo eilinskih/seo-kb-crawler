@@ -78,6 +78,7 @@ Current shared and domain packages:
 /packages/embeddings
 /packages/retrieval
 /packages/context-pack
+/packages/entities
 ```
 
 Planned domain packages:

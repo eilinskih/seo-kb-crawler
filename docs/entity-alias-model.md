@@ -1,6 +1,6 @@
 # Entity and Alias Layer Model
 
-- Status: Proposed design for Issue #11 review
+- Status: Foundation implementation in progress for Issue #11
 - Issue: #11
 - Date: 2026-07-07
 
@@ -302,6 +302,28 @@ Issue #11 implementation should not add:
 - external enrichment providers;
 - LLM-based entity extraction;
 - SEO Pack or Knowledge Pack generation.
+
+## Current Implementation
+
+The foundation implementation adds:
+
+- `packages/entities`;
+- `EntitiesModule`;
+- `EntityService`;
+- entity repository contract;
+- Knex repository implementation;
+- `entities`, `entity_aliases` and `entity_mentions` migration;
+- null-safe canonical entity uniqueness when `vertical` is omitted;
+- deterministic alias normalization;
+- approved-only alias lookup by default;
+- query expansion from approved aliases and canonical entity names;
+- mention recording with optional exact offsets;
+- tests for idempotent entity creation, multilingual aliases, query expansion,
+  empty expansion and mention recording.
+
+The implementation does not add manual API endpoints yet. Manual creation is
+available at the service boundary and can be exposed through an operator API
+when the Operator Console needs it.
 
 ## Acceptance Criteria
 

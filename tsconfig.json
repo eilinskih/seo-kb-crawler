@@ -66,6 +66,12 @@
       "@seo-kb/embeddings/*": [
         "packages/embeddings/src/*"
       ],
+      "@seo-kb/entities": [
+        "packages/entities/src"
+      ],
+      "@seo-kb/entities/*": [
+        "packages/entities/src/*"
+      ],
       "@seo-kb/retrieval": [
         "packages/retrieval/src"
       ],
