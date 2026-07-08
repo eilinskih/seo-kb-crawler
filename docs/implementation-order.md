@@ -57,28 +57,30 @@ the whole research system.
 |---|---|---|---|
 | 14 | #11 | Entity and Alias Layer | Can start after #7; integrates with #9/#10. |
 | 15 | #12 | Ontology and Predicate Registry | Required before canonical fact extraction. |
-| 16 | #13 | Fact Extraction Worker | Depends on #11 and #12. |
-| 17 | #14 | Knowledge Pack Builder | Depends on #9, #11, #12 and #13. |
-| 18 | #15 | Source Trust and Evidence Scoring | Depends on #13/#14 contracts. |
-| 19 | #16 | SEO Consensus and Conflict Layer | Depends on #13/#15. |
+| 16 | #28 | Topic Classification Strategy | Revisit after #11 and #12; informs downstream knowledge and SEO consumers. |
+| 17 | #13 | Fact Extraction Worker | Depends on #11 and #12. |
+| 18 | #14 | Knowledge Pack Builder | Depends on #9, #11, #12 and #13. |
+| 19 | #15 | Source Trust and Evidence Scoring | Depends on #13/#14 contracts. |
+| 20 | #16 | SEO Consensus and Conflict Layer | Depends on #13/#15. |
 
 ## Phase 5: SEO Intelligence
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 20 | #72 | Demand Engine | Design accepted on `main`; runtime implementation remains deferred until its SEO Intelligence slot. |
-| 21 | #18 | SERP Intelligence Layer | Requires Research Engine and retrieval outputs; validates Demand Engine candidate queries and page types. |
-| 22 | #30 | SERP Intent Analyzer | Deferred until #18. |
-| 23 | #19 | Topic Expansion Engine | Depends on #18, Demand Engine and knowledge signals. |
-| 24 | Future issue | Long-tail Discovery Engine | Depends on Demand Engine, #19, Knowledge Graph, SERP and intent signals. |
-| 25 | #20 | SEO Page Candidate Scoring | Depends on Demand Engine, #18/#19 and long-tail candidate signals when available. |
-| 26 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
+| 21 | #72 | Demand Engine Design | Design accepted on `main`; runtime implementation is tracked by #98. |
+| 22 | #98 | Demand Engine Runtime | Provider-optional keyword discovery and candidate-page foundation; must work without paid provider credentials. |
+| 23 | #18 | SERP Intelligence Layer | Requires Research Engine and Demand Engine Runtime outputs; validates candidate queries and page types. |
+| 24 | #30 | SERP Intent Analyzer | Deferred until #18. |
+| 25 | #19 | Topic Expansion Engine | Depends on #18, Demand Engine Runtime and knowledge signals. |
+| 26 | Future issue | Long-tail Discovery Engine | Depends on Demand Engine Runtime, #19, Knowledge Graph, SERP and intent signals. |
+| 27 | #20 | SEO Page Candidate Scoring | Depends on Demand Engine Runtime, #18/#19 and long-tail candidate signals when available. |
+| 28 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 
 ## Phase 6: LLM Integration
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 27 | #42 | SEO Agent Gateway | Deferred until #10, #14, Demand Engine, #18, #21 and #43. |
+| 29 | #42 | SEO Agent Gateway | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 
 Codex is the first consumer, not the only consumer. Context, Knowledge, SERP
 and SEO packs must remain model-agnostic.
@@ -87,8 +89,8 @@ and SEO packs must remain model-agnostic.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 28 | #17 | External Entity Enrichment Providers | Optional enrichment after local entity contracts. |
-| 29 | #40 | External SEO Data Providers | Optional enrichment after Demand Engine provider contracts and internal SEO signals. |
+| 30 | #17 | External Entity Enrichment Providers | Optional enrichment after local entity contracts. |
+| 31 | #40 | External SEO Data Providers | Optional enrichment after Demand Engine Runtime provider contracts and internal SEO signals. |
 
 External providers improve scoring and enrichment. They must never block the
 core pipeline or become required dependencies.
@@ -97,7 +99,7 @@ core pipeline or become required dependencies.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 30 | #86 | Operator Console | Depends on stable operator APIs; richer version depends on #10 and #43. |
+| 32 | #86 | Operator Console | Depends on stable operator APIs; richer version depends on #10 and #43. |
 
 The Operator Console is an internal UI for managing topics, crawl operations,
 failures, retries and provider/fallback status. It must use API/service
@@ -113,14 +115,14 @@ contracts rather than bypassing domain modules.
                                                               #6 -> #7 -> #8 -> #9 -> #10
                                                                      |           |      |
                                                                      v           v      v
-                                                                    #11 -> #12 -> #13 -> #14 -> #15 -> #16
+                                                                    #11 -> #12 -> #28 -> #13 -> #14 -> #15 -> #16
                                                                                                 |
                                                                                                 v
-                                                                         Demand Engine -> #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
+                                                                         #98 Demand Engine Runtime -> #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
 
 Optional:
 #17 enriches #11/#12/#14/#18.
-#40 enriches Demand Engine/#18/#19/#20/#21/#42 and does not block #30.
+#40 enriches #98/#18/#19/#20/#21/#42 and does not block #30.
 ```
 
 ## Future capability: Demand Engine
@@ -137,16 +139,17 @@ that scope and produces keyword candidates, keyword clusters, parent-topic
 signals and candidate pages. SERP Intelligence, Knowledge Intelligence and SEO
 Pack generation then validate and enrich those candidates.
 
-The first Demand Engine issue should be design-only or thin implementation
-scope. It should introduce the architecture boundary, candidate keyword model,
-candidate page model, provider-optional adapter contracts, nullable metric
-snapshots, evidence/confidence fields and fallback mode. It should not attempt
-to clone Ahrefs, Semrush or SE Ranking.
+Issue #72 introduced the Demand Engine architecture boundary as a design-only
+roadmap correction. Issue #98 tracks runtime implementation and should start
+with a thin foundation: candidate keyword model, candidate page model,
+provider-optional adapter contracts, nullable metric snapshots,
+evidence/confidence fields and fallback mode. It should not attempt to clone
+Ahrefs, Semrush or SE Ranking.
 
 Issue #72 is allowed to land early as a design-only roadmap correction because
 it records a Product Owner decision and prevents Keyword Discovery semantics
 from being invented later inside unrelated issues. Runtime implementation still
-waits for its roadmap position and accepted dependencies.
+waits for Issue #98 in the roadmap position and accepted dependencies.
 
 Demand Engine must support three provider tiers:
 

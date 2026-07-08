@@ -68,7 +68,8 @@ Phase 4:
 - #16 SEO Consensus
 
 Phase 5:
-- #72 Demand Engine
+- #72 Demand Engine Design
+- #98 Demand Engine Runtime
 - #18 SERP Intelligence
 - #30 SERP Intent Analyzer
 - #19 Topic Expansion

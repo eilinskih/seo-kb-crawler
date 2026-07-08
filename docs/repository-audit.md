@@ -7,6 +7,10 @@ time of the documentation stabilization PR. Current implementation status lives
 in `docs/progress.md`, and canonical roadmap order lives in
 `docs/implementation-order.md`.
 
+Post-audit update: completed stale GitHub issues #1, #2, #4, #5 and #41 have
+been closed. Demand Engine design remains closed as #72; runtime implementation
+is tracked separately by #98.
+
 ## Summary
 
 The repository is a private, local-first NestJS monorepo for an SEO knowledge
@@ -128,7 +132,7 @@ Architectural drift found:
 ## Recommendations before implementation resumes
 
 1. Review this stabilization PR before continuing roadmap work.
-2. Decide whether to close or update GitHub issues #1, #2 and #41 after merge.
+2. Completed after the audit: GitHub issues #1, #2, #4, #5 and #41 were closed.
 3. Review `issue/4-discovery-sources-design` separately before merging its
    design into `main`.
 4. Decide whether URL Frontier design needs a formal ADR, since issue #3 asked
