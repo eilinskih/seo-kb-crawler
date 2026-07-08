@@ -47,7 +47,7 @@ Roadmap order, phases and dependency rules live only in
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
-| #12 | Ontology and Predicate Registry | In progress | Design is merged; foundation implementation is adding registry contracts, seed predicates and schema. |
+| #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #13 may start. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
@@ -68,6 +68,22 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-08
+Issue: #12
+Status: Done
+Summary:
+- Stabilized the Ontology and Predicate Registry scope after PR #95 merged the
+  foundation.
+- Confirmed the implemented registry contracts, seed predicates, alias resolver,
+  raw/canonical fact contracts and schema satisfy Issue #12 foundation scope.
+- Kept LLM fact extraction and Knowledge Graph traversal deferred to later
+  issues.
+Changed files:
+- docs/ontology-predicate-model.md
+- docs/progress.md
+Next step:
+- Start Issue #13 Fact Extraction Worker from updated `main`.
 
 Date: 2026-07-08
 Issue: #12
