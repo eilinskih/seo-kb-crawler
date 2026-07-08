@@ -204,6 +204,14 @@ Context Pack API:
 POST /context-pack
 ```
 
+Entity and Alias manual operations:
+
+```txt
+POST /entities
+POST /entities/:id/aliases
+POST /entities/mentions
+```
+
 Node.js 24 LTS is used instead of Node.js 26 Current because this service is
 intended to run continuously on a secondary machine. LTS provides a longer
 support window and lower dependency compatibility risk while retaining a

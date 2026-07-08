@@ -1,6 +1,6 @@
 # Entity and Alias Layer Model
 
-- Status: Foundation implementation in progress for Issue #11
+- Status: Foundation implementation complete for Issue #11
 - Issue: #11
 - Date: 2026-07-07
 
@@ -318,12 +318,21 @@ The foundation implementation adds:
 - approved-only alias lookup by default;
 - query expansion from approved aliases and canonical entity names;
 - mention recording with optional exact offsets;
+- internal API endpoints for manual entity creation, alias creation and mention
+  recording;
 - tests for idempotent entity creation, multilingual aliases, query expansion,
   empty expansion and mention recording.
 
-The implementation does not add manual API endpoints yet. Manual creation is
-available at the service boundary and can be exposed through an operator API
-when the Operator Console needs it.
+Manual API endpoints:
+
+```txt
+POST /entities
+POST /entities/:id/aliases
+POST /entities/mentions
+```
+
+Listing, review queues and richer admin flows remain deferred to the Operator
+Console and future review workflows.
 
 ## Acceptance Criteria
 

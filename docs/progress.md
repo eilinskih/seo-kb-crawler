@@ -46,7 +46,7 @@ Roadmap order, phases and dependency rules live only in
 | #8 | Embedding Pipeline | Done | Design, foundation implementation and close-out stabilization are complete; Issue #9 may start. |
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
-| #11 | Entity and Alias Layer | In progress | Design is merged; foundation implementation is adding the package, schema and alias resolution service. |
+| #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
@@ -68,6 +68,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-08
+Issue: #11
+Status: Done
+Summary:
+- Stabilized the Entity and Alias Layer scope after PR #92 merged the
+  foundation.
+- Added internal manual API endpoints for creating entities, adding aliases and
+  recording mentions.
+- Confirmed richer listing, review queues and admin UI flows remain deferred to
+  Operator Console and future review workflows.
+Changed files:
+- README.md
+- apps/api/src/api.module.ts
+- apps/api/src/entities/*
+- docs/entity-alias-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Start Issue #12 Ontology and Predicate Registry from updated `main`.
 
 Date: 2026-07-07
 Issue: #11
