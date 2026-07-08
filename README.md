@@ -115,6 +115,8 @@ Planned domain packages:
   foundation implementation.
 - `docs/entity-alias-model.md` documents the proposed Entity and Alias Layer
   design.
+- `docs/ontology-predicate-model.md` documents the proposed Ontology and
+  Predicate Registry design.
 - `docs/operator-console-model.md` documents the proposed internal Operator
   Console.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
