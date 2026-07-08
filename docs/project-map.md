@@ -113,7 +113,8 @@ Implemented on `main`:
 - Context Pack package boundary, request/profile contracts, deterministic
   retrieval packaging and API endpoint.
 - Entity and Alias package boundary, canonical entities, aliases, mention
-  contracts, storage migration and alias resolution service.
+  contracts, storage migration, alias resolution service and manual API
+  endpoints.
 
 Designed but not implemented on `main`:
 
