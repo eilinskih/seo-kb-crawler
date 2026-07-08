@@ -47,7 +47,7 @@ Roadmap order, phases and dependency rules live only in
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
-| #12 | Ontology and Predicate Registry | Not started | Required before canonical fact extraction. |
+| #12 | Ontology and Predicate Registry | Review needed | Design-only PR started after #11 close-out. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
@@ -68,6 +68,27 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-08
+Issue: #12
+Status: Review needed
+Summary:
+- Started the Ontology and Predicate Registry as a design-only PR from updated
+  `main` after Issue #11 closed.
+- Added the proposed model covering entity type registry, predicate registry,
+  predicate aliases, attribute schemas, raw facts, canonical facts and
+  normalization rules.
+- Kept runtime implementation, LLM fact extraction, Knowledge Graph traversal,
+  trust scoring and pack generation out of this design PR.
+Changed files:
+- README.md
+- docs/architecture.md
+- docs/ontology-predicate-model.md
+- docs/progress.md
+- docs/project-map.md
+Next step:
+- Review and merge the design-only PR before implementing Ontology and
+  Predicate Registry runtime code.
 
 Date: 2026-07-08
 Issue: #11

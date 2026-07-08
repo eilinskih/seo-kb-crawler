@@ -147,6 +147,11 @@ in `docs/entity-alias-model.md`. It is a lightweight normalization layer for
 canonical entities, multilingual aliases and chunk mentions. It is not the full
 Knowledge Graph and must not make retrieval dependent on entity data.
 
+The proposed Ontology and Predicate Registry design is documented in
+`docs/ontology-predicate-model.md`. It prevents future fact extraction from
+turning model-generated predicate strings into canonical knowledge without
+reviewed registry normalization.
+
 ### SEO intelligence layer
 
 - Demand Engine
