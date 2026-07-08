@@ -47,7 +47,7 @@ Roadmap order, phases and dependency rules live only in
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
-| #12 | Ontology and Predicate Registry | Review needed | Design-only PR started after #11 close-out. |
+| #12 | Ontology and Predicate Registry | In progress | Design is merged; foundation implementation is adding registry contracts, seed predicates and schema. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
@@ -68,6 +68,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-08
+Issue: #12
+Status: In progress
+Summary:
+- Created `issue/12-ontology-predicate-registry-foundation` from updated
+  `main` after the design-only PR merged.
+- Added the initial Ontology package boundary, predicate alias resolver,
+  seed-backed registry, raw/canonical fact contracts and storage migration.
+- Kept LLM fact extraction, Knowledge Graph traversal, source trust scoring and
+  pack generation out of this foundation PR.
+Changed files:
+- README.md
+- docs/ontology-predicate-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/008-ontology-predicate-registry.ts
+- packages/ontology/*
+- tsconfig.json
+Next step:
+- Run targeted tests, full tests and build before opening the foundation PR.
 
 Date: 2026-07-08
 Issue: #12

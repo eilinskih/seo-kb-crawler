@@ -1,6 +1,6 @@
 # Ontology and Predicate Registry Model
 
-- Status: Proposed design for Issue #12 review
+- Status: Foundation implementation in progress for Issue #12
 - Issue: #12
 - Date: 2026-07-08
 
@@ -325,6 +325,25 @@ Issue #12 implementation should not add:
 - SEO consensus;
 - Knowledge Pack generation;
 - SEO Pack generation.
+
+## Current Implementation
+
+The foundation implementation adds:
+
+- `packages/ontology`;
+- `OntologyModule`;
+- predicate alias resolver service;
+- seed-backed predicate registry repository;
+- global seed predicate registry;
+- entity type, predicate, predicate alias, attribute schema, raw fact and
+  canonical fact contracts;
+- database migration for registry, raw fact and canonical fact tables;
+- tests for approved alias mapping, deprecated predicates, draft pending state,
+  unknown raw predicate candidates and vertical-specific alias preference.
+
+The implementation does not add LLM fact extraction, Knowledge Graph traversal
+or Knowledge Pack generation. Raw extracted predicate strings still cannot
+become canonical facts without registry normalization.
 
 ## Acceptance Criteria
 

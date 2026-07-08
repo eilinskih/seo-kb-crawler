@@ -79,6 +79,7 @@ Current shared and domain packages:
 /packages/retrieval
 /packages/context-pack
 /packages/entities
+/packages/ontology
 ```
 
 Planned domain packages:
