@@ -135,6 +135,15 @@
         "tsConfigPath": "packages/entities/tsconfig.lib.json"
       }
     },
+    "ontology": {
+      "type": "library",
+      "root": "packages/ontology",
+      "entryFile": "index",
+      "sourceRoot": "packages/ontology/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/ontology/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

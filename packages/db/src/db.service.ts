@@ -12,6 +12,7 @@ import { contentProcessingFoundationMigration } from './migrations/004-content-p
 import { chunkingFoundationMigration } from './migrations/005-chunking-foundation';
 import { embeddingFoundationMigration } from './migrations/006-embedding-foundation';
 import { entityAliasFoundationMigration } from './migrations/007-entity-alias-foundation';
+import { ontologyPredicateRegistryMigration } from './migrations/008-ontology-predicate-registry';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -57,6 +58,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     chunkingFoundationMigration,
     embeddingFoundationMigration,
     entityAliasFoundationMigration,
+    ontologyPredicateRegistryMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -72,6 +74,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [chunkingFoundationMigration, '005-chunking-foundation'],
     [embeddingFoundationMigration, '006-embedding-foundation'],
     [entityAliasFoundationMigration, '007-entity-alias-foundation'],
+    [ontologyPredicateRegistryMigration, '008-ontology-predicate-registry'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {

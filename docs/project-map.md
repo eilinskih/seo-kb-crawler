@@ -116,10 +116,11 @@ Implemented on `main`:
 - Entity and Alias package boundary, canonical entities, aliases, mention
   contracts, storage migration, alias resolution service and manual API
   endpoints.
+- Ontology package boundary, predicate alias resolver, seed predicate registry,
+  raw/canonical fact contracts and storage migration.
 
 Designed but not implemented on `main`:
 
-- Ontology and Predicate Registry.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 

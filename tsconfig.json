@@ -72,6 +72,12 @@
       "@seo-kb/entities/*": [
         "packages/entities/src/*"
       ],
+      "@seo-kb/ontology": [
+        "packages/ontology/src"
+      ],
+      "@seo-kb/ontology/*": [
+        "packages/ontology/src/*"
+      ],
       "@seo-kb/retrieval": [
         "packages/retrieval/src"
       ],
