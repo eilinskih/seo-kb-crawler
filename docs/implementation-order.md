@@ -25,7 +25,7 @@ and merged into `main`.
 | Order | Issue | Scope | Current state |
 |---|---|---|---|
 | 1 | #1 | Foundation: monorepo bootstrap and local infrastructure | Done on `main`. |
-| 2 | #2 | Topic Engine | Implemented on `main`; issue remains open in GitHub. |
+| 2 | #2 | Topic Engine | Implemented on `main`; issue is closed. |
 | 3 | #3 | URL Frontier design | Design approved on `main`; initial lifecycle subset implemented through #5 work. |
 | 4 | #41 | Implementation order and roadmap governance | Done on `main`. |
 

@@ -36,7 +36,7 @@ Roadmap order, phases and dependency rules live only in
 | Issue | Title | Status | Notes |
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
-| #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue remains open. |
+| #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
 | #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Initial lifecycle subset is implemented on `main`; remaining observation ingestion, canonical relations and adaptive scheduling are deferred. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
