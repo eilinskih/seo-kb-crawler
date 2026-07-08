@@ -2,6 +2,7 @@
 
 - Status: Design accepted; runtime implementation deferred
 - Issue: #72
+- Runtime issue: #98
 - Related ADR: `docs/decisions/0003-demand-engine-provider-optional.md`
 
 ## Purpose
@@ -369,4 +370,5 @@ Before Demand Engine runtime implementation begins:
 
 Issue #72 is a design-only architecture correction allowed before the runtime
 implementation slot because it prevents roadmap drift in later SEO Intelligence
-issues. Runtime implementation still follows `docs/implementation-order.md`.
+issues. Runtime implementation is tracked separately by Issue #98 and follows
+`docs/implementation-order.md`.

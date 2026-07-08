@@ -47,27 +47,51 @@ Roadmap order, phases and dependency rules live only in
 | #9 | Hybrid Retrieval Engine | Done | Design, foundation implementation and close-out stabilization are complete; Issue #10 may start. |
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
-| #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #13 may start. |
+| #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
+| #28 | Topic Classification Strategy | Not started | Deferred until #11 and #12 are complete; now eligible for review before downstream knowledge/SEO consumers. |
 | #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
-| #72 | Demand Engine | Done | Design-only architecture correction merged through PR #73; runtime implementation remains deferred to roadmap order. |
-| #18 | SERP Intelligence Layer | Not started | SEO-first layer; required before #30. |
+| #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
+| #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows #28 and #13-#17 in roadmap order. |
+| #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
-| #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine and knowledge signals. |
-| Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine, Topic Expansion, Knowledge Graph, SERP and intent signals. |
-| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine, #18/#19. |
+| #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
+| Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
+| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
-| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine, #18, #21 and #43. |
+| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
-| #40 | External SEO Data Providers | Not started | Optional enrichment after Demand Engine provider contracts; must never block the core pipeline. |
+| #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-08
+Issue: roadmap sync
+Status: In progress
+Summary:
+- Audited closed and open GitHub issues for design-only or missing runtime
+  work.
+- Confirmed Issue #72 was intentionally closed by PR #73 as Demand Engine
+  design only.
+- Created Issue #98 to track Demand Engine Runtime so provider-optional keyword
+  discovery implementation is not lost.
+- Closed stale completed governance Issue #41.
+- Added missing open Issue #28 Topic Classification Strategy to the canonical
+  roadmap after #11 and #12.
+Changed files:
+- docs/demand-engine-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/repository-audit.md
+Next step:
+- Review and merge this roadmap synchronization PR before continuing with the
+  next implementation issue.
 
 Date: 2026-07-08
 Issue: #12
