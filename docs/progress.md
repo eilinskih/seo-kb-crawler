@@ -55,7 +55,7 @@ Roadmap order, phases and dependency rules live only in
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
-| #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows #28 and #13-#17 in roadmap order. |
+| #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
 | #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
