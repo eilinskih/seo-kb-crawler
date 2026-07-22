@@ -125,11 +125,13 @@ Implemented on `main`:
   providers, candidate selection, Entity mention hints, raw validation,
   predicate normalization orchestration, worker-owned extraction metadata
   migration, dispatch service and dedicated worker app.
+- Knowledge Pack package boundary, model-agnostic DTOs, profiles,
+  deterministic assembly service, canonical fact packaging, entity/alias and
+  ontology reference packaging, evidence chunk/source linking and evidence gap
+  generation.
 
 Designed but not implemented on `main`:
 
-- Knowledge Pack Builder contract for model-agnostic packages assembled from
-  entities, aliases, canonical facts, ontology references and evidence chunks.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -138,6 +140,6 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine.
-- Knowledge Pack runtime, SERP and SEO pack generation.
+- Knowledge Pack Context Pack bridge, SERP and SEO pack generation.
 - Operator Console.
 - SEO Agent Gateway.

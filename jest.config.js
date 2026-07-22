@@ -37,6 +37,10 @@ module.exports = {
       '<rootDir>/packages/fact-extraction/src',
     '^@seo-kb/fact-extraction/(.*)$':
       '<rootDir>/packages/fact-extraction/src/$1',
+    '^@seo-kb/knowledge-pack$':
+      '<rootDir>/packages/knowledge-pack/src',
+    '^@seo-kb/knowledge-pack/(.*)$':
+      '<rootDir>/packages/knowledge-pack/src/$1',
     '^@seo-kb/ontology$': '<rootDir>/packages/ontology/src',
     '^@seo-kb/ontology/(.*)$': '<rootDir>/packages/ontology/src/$1',
     '^@seo-kb/retrieval$': '<rootDir>/packages/retrieval/src',

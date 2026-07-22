@@ -153,6 +153,15 @@
         "tsConfigPath": "packages/fact-extraction/tsconfig.lib.json"
       }
     },
+    "knowledge-pack": {
+      "type": "library",
+      "root": "packages/knowledge-pack",
+      "entryFile": "index",
+      "sourceRoot": "packages/knowledge-pack/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/knowledge-pack/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",
