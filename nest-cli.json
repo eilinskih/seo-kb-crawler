@@ -162,6 +162,15 @@
         "tsConfigPath": "packages/knowledge-pack/tsconfig.lib.json"
       }
     },
+    "source-trust": {
+      "type": "library",
+      "root": "packages/source-trust",
+      "entryFile": "index",
+      "sourceRoot": "packages/source-trust/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/source-trust/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

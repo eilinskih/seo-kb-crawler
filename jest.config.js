@@ -45,6 +45,9 @@ module.exports = {
     '^@seo-kb/ontology/(.*)$': '<rootDir>/packages/ontology/src/$1',
     '^@seo-kb/retrieval$': '<rootDir>/packages/retrieval/src',
     '^@seo-kb/retrieval/(.*)$': '<rootDir>/packages/retrieval/src/$1',
+    '^@seo-kb/source-trust$': '<rootDir>/packages/source-trust/src',
+    '^@seo-kb/source-trust/(.*)$':
+      '<rootDir>/packages/source-trust/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',
