@@ -12,8 +12,8 @@ This document is the architecture overview. Keep subsystem details in
 specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
 `docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
-`docs/chunking-model.md`, `docs/demand-engine-model.md` and ADRs under
-`docs/decisions/`.
+`docs/chunking-model.md`, `docs/topic-classification-model.md`,
+`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -29,6 +29,7 @@ Topics
   -> Hybrid Retrieval
   -> Entity and Alias Layer
   -> Ontology and Predicate Registry
+  -> Topic Classification
   -> Fact Extraction
   -> Trust and Evidence Scoring
   -> SEO Consensus
@@ -138,6 +139,7 @@ final content or emitting vendor-specific prompts.
 - Entity and Alias Layer
 - External Entity Enrichment Providers
 - Ontology and Predicate Registry
+- Topic Classification
 - Fact Extraction Worker
 - Source Trust and Evidence Scoring
 - SEO Consensus and Conflict Layer
@@ -151,6 +153,11 @@ The Ontology and Predicate Registry design and foundation implementation are
 documented in `docs/ontology-predicate-model.md`. It prevents future fact
 extraction from turning model-generated predicate strings into canonical
 knowledge without reviewed registry normalization.
+
+The Topic Classification Strategy is documented in
+`docs/topic-classification-model.md`. It defines primary and secondary semantic
+topic classification after Entity and Ontology foundations without moving
+topic lifecycle, crawl policy or relevance policy out of the Topic Engine.
 
 ### SEO intelligence layer
 
