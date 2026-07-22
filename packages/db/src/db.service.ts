@@ -16,6 +16,7 @@ import { ontologyPredicateRegistryMigration } from './migrations/008-ontology-pr
 import { factExtractionFoundationMigration } from './migrations/009-fact-extraction-foundation';
 import { sourceTrustFoundationMigration } from './migrations/010-source-trust-foundation';
 import { seoConsensusFoundationMigration } from './migrations/011-seo-consensus-foundation';
+import { seoConsensusFactMappingsMigration } from './migrations/012-seo-consensus-fact-mappings';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -65,6 +66,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     factExtractionFoundationMigration,
     sourceTrustFoundationMigration,
     seoConsensusFoundationMigration,
+    seoConsensusFactMappingsMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -84,6 +86,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [factExtractionFoundationMigration, '009-fact-extraction-foundation'],
     [sourceTrustFoundationMigration, '010-source-trust-foundation'],
     [seoConsensusFoundationMigration, '011-seo-consensus-foundation'],
+    [seoConsensusFactMappingsMigration, '012-seo-consensus-fact-mappings'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {

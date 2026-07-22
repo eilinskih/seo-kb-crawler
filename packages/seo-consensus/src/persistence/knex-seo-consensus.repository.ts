@@ -55,6 +55,7 @@ export class KnexSeoConsensusRepository implements SeoConsensusRepository {
         rule_version: group.ruleVersion,
         updated_at: this.db.knex.fn.now(),
       });
+    await this.saveConsensusGroupFacts(id, group);
     return id;
   }
 
@@ -85,6 +86,7 @@ export class KnexSeoConsensusRepository implements SeoConsensusRepository {
         rule_version: conflict.ruleVersion,
         updated_at: this.db.knex.fn.now(),
       });
+    await this.saveConflictSetFacts(id, conflict);
     return id;
   }
 
@@ -117,5 +119,64 @@ export class KnexSeoConsensusRepository implements SeoConsensusRepository {
       created_at: this.db.knex.fn.now(),
     });
     return id;
+  }
+
+  private async saveConsensusGroupFacts(
+    groupId: string,
+    group: ConsensusGroupForStorage,
+  ): Promise<void> {
+    const rows = group.alternatives.flatMap((alternative) =>
+      alternative.factIds.map((factId) => ({
+        id: randomUUID(),
+        consensus_group_id: groupId,
+        group_key: group.groupKey,
+        canonical_fact_id: factId,
+        value_fingerprint: alternative.value.fingerprint,
+        support_role:
+          group.strongestAlternative?.value.fingerprint === alternative.value.fingerprint
+            ? 'strongest'
+            : 'supporting',
+        score_summary: {
+          supportScore: alternative.supportScore,
+          supportingDomainCount: alternative.supportingDomainCount,
+        },
+        created_at: this.db.knex.fn.now(),
+      })),
+    );
+    if (rows.length === 0) {
+      return;
+    }
+    await this.db.knex('consensus_group_facts')
+      .insert(rows)
+      .onConflict(['consensus_group_id', 'canonical_fact_id'])
+      .merge(['value_fingerprint', 'support_role', 'score_summary']);
+  }
+
+  private async saveConflictSetFacts(
+    conflictId: string,
+    conflict: ConflictSetForStorage,
+  ): Promise<void> {
+    const rows = conflict.alternatives.flatMap((alternative) =>
+      alternative.factIds.map((factId) => ({
+        id: randomUUID(),
+        conflict_set_id: conflictId,
+        conflict_key: conflict.conflictKey,
+        canonical_fact_id: factId,
+        value_fingerprint: alternative.value.fingerprint,
+        side_label: alternative.value.summary,
+        score_summary: {
+          supportScore: alternative.supportScore,
+          supportingDomainCount: alternative.supportingDomainCount,
+        },
+        created_at: this.db.knex.fn.now(),
+      })),
+    );
+    if (rows.length === 0) {
+      return;
+    }
+    await this.db.knex('conflict_set_facts')
+      .insert(rows)
+      .onConflict(['conflict_set_id', 'canonical_fact_id'])
+      .merge(['value_fingerprint', 'side_label', 'score_summary']);
   }
 }

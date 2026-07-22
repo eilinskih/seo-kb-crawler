@@ -9,6 +9,7 @@ import {
   KnowledgePackRepository,
   KnowledgePackSourceTrustRecord,
   KnowledgePackEntityTrustRecord,
+  KnowledgePackConsensusRecord,
 } from '../domain/knowledge-pack-types';
 
 interface CanonicalFactRow {
@@ -76,6 +77,18 @@ interface EntityScoreRow {
   average_source_trust: string | number | null;
   final_confidence: string | number;
   score_components: Record<string, unknown>;
+}
+
+interface ConsensusRow {
+  canonical_fact_id: string;
+  group_key: string | null;
+  confidence_level: string | null;
+  support_counts: Record<string, unknown> | null;
+  strongest_value: Record<string, unknown> | null;
+  conflict_key: string | null;
+  severity: string | null;
+  suggested_handling: string | null;
+  competing_values: unknown[] | null;
 }
 
 @Injectable()
@@ -239,6 +252,47 @@ export class KnexKnowledgePackRepository implements KnowledgePackRepository {
 
     return rows.map(toEntityTrustRecord);
   }
+
+  async findConsensusByFactIds(
+    factIds: string[],
+  ): Promise<KnowledgePackConsensusRecord[]> {
+    if (factIds.length === 0) {
+      return [];
+    }
+
+    const rows = await this.db.knex<ConsensusRow>('consensus_group_facts')
+      .leftJoin(
+        'consensus_groups',
+        'consensus_group_facts.consensus_group_id',
+        'consensus_groups.id',
+      )
+      .leftJoin(
+        'conflict_set_facts',
+        'consensus_group_facts.canonical_fact_id',
+        'conflict_set_facts.canonical_fact_id',
+      )
+      .leftJoin(
+        'conflict_sets',
+        'conflict_set_facts.conflict_set_id',
+        'conflict_sets.id',
+      )
+      .whereIn('consensus_group_facts.canonical_fact_id', factIds)
+      .select([
+        'consensus_group_facts.canonical_fact_id',
+        'consensus_groups.group_key',
+        this.db.knex.raw(
+          "consensus_groups.score_summary->>'confidenceLevel' as confidence_level",
+        ),
+        'consensus_groups.support_counts',
+        'consensus_groups.strongest_value',
+        'conflict_sets.conflict_key',
+        'conflict_sets.severity',
+        'conflict_sets.suggested_handling',
+        'conflict_sets.competing_values',
+      ]);
+
+    return rows.map(toConsensusRecord);
+  }
 }
 
 function toFactRecord(row: CanonicalFactRow): KnowledgePackFactRecord {
@@ -327,5 +381,23 @@ function toEntityTrustRecord(row: EntityScoreRow): KnowledgePackEntityTrustRecor
       : Number(row.average_source_trust),
     finalConfidence: Number(row.final_confidence),
     components: row.score_components,
+  };
+}
+
+function toConsensusRecord(row: ConsensusRow): KnowledgePackConsensusRecord {
+  return {
+    factId: row.canonical_fact_id,
+    groupKey: row.group_key,
+    confidenceLevel: row.confidence_level,
+    supportCounts: row.support_counts,
+    strongestValue: row.strongest_value,
+    conflict: row.conflict_key
+      ? {
+          conflictKey: row.conflict_key,
+          severity: row.severity ?? 'unknown',
+          suggestedHandling: row.suggested_handling ?? 'phrase_cautiously',
+          competingValues: row.competing_values ?? [],
+        }
+      : null,
   };
 }

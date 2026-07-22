@@ -136,7 +136,7 @@ Implemented on `main`:
   calculation, storage migration and safe Knowledge Pack score consumption.
 - SEO Consensus package boundary, comparable value normalization, consensus
   grouping, conflict detection, SEO phrasing hints, content gap hints and
-  storage migration.
+  storage migration, plus safe Knowledge Pack consensus consumption.
 
 Designed but not implemented on `main`:
 
