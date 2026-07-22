@@ -50,7 +50,7 @@ Roadmap order, phases and dependency rules live only in
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
-| #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
+| #14 | Knowledge Pack Builder | Review needed | Design PR defines model-agnostic Knowledge Pack contracts, profiles, evidence linking and gap semantics. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
@@ -70,6 +70,23 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #14
+Status: Review needed
+Summary:
+- Started Knowledge Pack Builder as a design-only PR after #13 closed.
+- Defined model-agnostic request/response contracts, profiles, assembly rules,
+  fact prioritization, evidence linking, source references and gap semantics.
+- Kept Source Trust, SEO Consensus, SERP/SEO Pack generation and content
+  generation out of the Issue #14 foundation scope.
+Changed files:
+- docs/architecture.md
+- docs/knowledge-pack-model.md
+- docs/project-map.md
+- docs/progress.md
+Next step:
+- Review and merge the Knowledge Pack design before implementation.
 
 Date: 2026-07-23
 Issue: #13

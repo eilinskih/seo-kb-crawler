@@ -13,8 +13,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
 `docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
 `docs/chunking-model.md`, `docs/topic-classification-model.md`,
-`docs/fact-extraction-worker-model.md`, `docs/demand-engine-model.md` and ADRs
-under `docs/decisions/`.
+`docs/fact-extraction-worker-model.md`, `docs/knowledge-pack-model.md`,
+`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -142,6 +142,7 @@ final content or emitting vendor-specific prompts.
 - Ontology and Predicate Registry
 - Topic Classification
 - Fact Extraction Worker
+- Knowledge Pack Builder
 - Source Trust and Evidence Scoring
 - SEO Consensus and Conflict Layer
 
@@ -166,6 +167,11 @@ generators and creates canonical facts only after Ontology and Predicate
 Registry normalization. The first foundation owns domain contracts,
 provider/noop boundaries, candidate selection, Entity mention hints, validation,
 normalization orchestration and dedicated worker-app queue orchestration.
+
+The Knowledge Pack Builder design is documented in
+`docs/knowledge-pack-model.md`. It assembles entities, aliases, canonical facts,
+ontology references, evidence chunks and source references into model-agnostic
+knowledge packages for LLM consumers.
 
 ### SEO intelligence layer
 
