@@ -56,8 +56,8 @@ Roadmap order, phases and dependency rules live only in
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
-| #18 | SERP Intelligence Layer | Review needed | Foundation PR adds package contracts, deterministic pattern analysis and SERP Pack assembly. |
-| #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
+| #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
+| #30 | SERP Intent Analyzer | Not started | Depends on #18 SERP Pack outputs. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
@@ -73,6 +73,36 @@ Add entries here in reverse chronological order.
 
 Date: 2026-07-23
 Issue: #18
+Status: Done
+Summary:
+- Closed out SERP Intelligence Layer after design and foundation implementation
+  merged.
+- Added the missing repository abstraction required by the accepted design and
+  kept concrete database persistence deferred.
+- Confirmed #18 owns SERP Pack foundations only; live SERP providers, rank
+  tracking, SERP Intent Analyzer, SEO Pack generation and operator UI remain
+  later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+- docs/serp-intelligence-model.md
+- packages/serp-intelligence/src/index.ts
+- packages/serp-intelligence/src/persistence/serp-intelligence.repository.ts
+- packages/serp-intelligence/src/persistence/serp-intelligence.repository.spec.ts
+- packages/serp-intelligence/src/testing/in-memory-serp-intelligence.repository.ts
+Validation:
+- npm test
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/serp-intelligence/src/serp-pack.service.spec.ts packages/serp-intelligence/src/persistence/serp-intelligence.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/serp-intelligence/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build serp-intelligence
+- git diff --check
+Next step:
+- Close GitHub Issue #18 and start Issue #30 SERP Intent Analyzer from
+  updated `main`.
+
+Date: 2026-07-23
+Issue: #18
 Status: Review needed
 Summary:
 - Added `packages/serp-intelligence` as the runtime foundation for the SERP
@@ -80,6 +110,8 @@ Summary:
 - Implemented SERP snapshot/result/page-evidence contracts, heading/FAQ/entity
   pattern analysis, content depth summaries, content angle detection and SERP
   Pack assembly.
+- Added the SERP Intelligence repository abstraction and in-memory test
+  implementation; concrete database persistence remains deferred.
 - Kept live SERP providers, persistence, rank tracking, SERP Intent Analyzer
   and SEO Pack generation out of scope for this foundation PR.
 Changed files:
@@ -91,7 +123,7 @@ Changed files:
 - packages/serp-intelligence/**
 Validation:
 - npm test
-- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/serp-intelligence/src/serp-pack.service.spec.ts
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/serp-intelligence/src/serp-pack.service.spec.ts packages/serp-intelligence/src/persistence/serp-intelligence.repository.spec.ts
 - ./node_modules/.bin/tsc -p packages/serp-intelligence/tsconfig.lib.json --noEmit
 - ./node_modules/.bin/nest build serp-intelligence
 - git diff --check

@@ -5,6 +5,8 @@ export * from './entity-pattern.service';
 export * from './faq-pattern.service';
 export * from './heading-pattern.service';
 export * from './normalize-serp-text';
+export * from './persistence/serp-intelligence.repository';
 export * from './serp-intelligence.module';
 export * from './serp-intelligence.service';
 export * from './serp-pack.service';
+export * from './testing/in-memory-serp-intelligence.repository';
