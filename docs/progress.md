@@ -50,8 +50,8 @@ Roadmap order, phases and dependency rules live only in
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
-| #14 | Knowledge Pack Builder | Review needed | Foundation and safe opt-in Context Pack bridge are in review. |
-| #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
+| #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
+| #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts; may start after #14. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
@@ -70,6 +70,25 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #14
+Status: Done
+Summary:
+- Closed out Knowledge Pack Builder after the design, foundation package and
+  safe opt-in Context Pack bridge merged.
+- Confirmed GitHub Issue #14 is closed and repository docs now mark the issue
+  complete.
+- Confirmed Source Trust, SEO Consensus, SERP/SEO Pack generation and content
+  generation remain later roadmap items.
+Changed files:
+- docs/implementation-order.md
+- docs/knowledge-pack-model.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Start Issue #15 Source Trust and Evidence Scoring from updated `main`.
 
 Date: 2026-07-23
 Issue: #14
@@ -116,7 +135,11 @@ Changed files:
 - packages/knowledge-pack/*
 - tsconfig.json
 Validation:
-- Pending.
+- npm test -- knowledge-pack
+- npx nest build knowledge-pack
+- npm test
+- npm run build
+- git diff --check
 Next step:
 - Review and merge the foundation PR, then add the safe opt-in Context Pack
   bridge before closing Issue #14.
