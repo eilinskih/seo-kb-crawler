@@ -42,6 +42,7 @@ specialized documents:
 - `docs/ontology-predicate-model.md` for the Ontology and Predicate Registry.
 - `docs/topic-classification-model.md` for Topic Classification Strategy.
 - `docs/fact-extraction-worker-model.md` for the Fact Extraction Worker.
+- `docs/knowledge-pack-model.md` for the Knowledge Pack Builder.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -127,6 +128,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Knowledge Pack Builder contract for model-agnostic packages assembled from
+  entities, aliases, canonical facts, ontology references and evidence chunks.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -135,6 +138,6 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine.
-- Knowledge, SERP and SEO pack generation.
+- Knowledge Pack runtime, SERP and SEO pack generation.
 - Operator Console.
 - SEO Agent Gateway.
