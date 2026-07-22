@@ -1,6 +1,6 @@
 # Topic Classification Strategy
 
-- Status: Design proposed for Issue #28
+- Status: Design accepted for Issue #28
 - Issue: #28
 - Date: 2026-07-23
 
