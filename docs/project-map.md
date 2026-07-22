@@ -120,19 +120,20 @@ Implemented on `main`:
   endpoints.
 - Ontology package boundary, predicate alias resolver, seed predicate registry,
   raw/canonical fact contracts and storage migration.
+- Fact Extraction package boundary, extraction provider interface, noop/test
+  providers, candidate selection, raw validation, predicate normalization
+  orchestration and worker-owned extraction metadata migration.
 
 Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- Fact Extraction Worker contract for extracting raw facts from chunks and
-  normalizing them through the Ontology and Predicate Registry.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 
-- Fact Extraction Worker runtime.
+- Dedicated Fact Extraction worker app and queue orchestration.
 - Demand Engine.
 - Knowledge, SERP and SEO pack generation.
 - Operator Console.

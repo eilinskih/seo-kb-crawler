@@ -1,6 +1,6 @@
 # Fact Extraction Worker Model
 
-- Status: Design proposed for Issue #13
+- Status: Foundation implementation in review for Issue #13
 - Issue: #13
 - Date: 2026-07-23
 
@@ -419,6 +419,12 @@ The first implementation PR should include:
 - canonical fact persistence only when predicate normalization is approved;
 - tests for validation, predicate normalization, idempotency and provider
   unavailability.
+
+The foundation implementation introduces the package boundary, provider
+interface, noop/test providers, candidate selector, validation and normalization
+orchestration, extraction-run metadata migration and tests. A dedicated worker
+app and queue orchestration remain deferred until the package contract is
+reviewed.
 
 The first implementation should not include:
 
