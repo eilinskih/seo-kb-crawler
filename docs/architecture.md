@@ -15,7 +15,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/chunking-model.md`, `docs/topic-classification-model.md`,
 `docs/fact-extraction-worker-model.md`, `docs/knowledge-pack-model.md`,
 `docs/source-trust-model.md`, `docs/seo-consensus-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/serp-intelligence-model.md`, `docs/demand-engine-model.md` and ADRs
+under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -196,6 +197,11 @@ Demand Engine answers what should be written by producing keyword candidates,
 clusters and candidate pages from provider-optional demand sources. Paid SEO
 providers improve confidence and prioritization, but fallback discovery must
 continue without Ahrefs, Semrush, SE Ranking or equivalent credentials.
+
+The SERP Intelligence Layer design is documented in
+`docs/serp-intelligence-model.md`. It learns recurring search-result
+structures, headings, FAQ patterns, entities, depth hints and content angles
+for future SERP Packs and SEO Packs.
 
 ### Codex integration layer
 
