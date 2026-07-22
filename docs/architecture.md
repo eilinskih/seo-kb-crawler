@@ -14,7 +14,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
 `docs/chunking-model.md`, `docs/topic-classification-model.md`,
 `docs/fact-extraction-worker-model.md`, `docs/knowledge-pack-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/source-trust-model.md`, `docs/demand-engine-model.md` and ADRs under
+`docs/decisions/`.
 
 ## Core pipeline
 
@@ -172,6 +173,11 @@ The Knowledge Pack Builder design is documented in
 `docs/knowledge-pack-model.md`. It assembles entities, aliases, canonical facts,
 ontology references, evidence chunks and source references into model-agnostic
 knowledge packages for LLM consumers.
+
+The Source Trust and Evidence Scoring design is documented in
+`docs/source-trust-model.md`. It keeps extraction confidence, source trust,
+evidence strength and final confidence as separate visible signals for
+Knowledge Packs and future SEO Packs.
 
 ### SEO intelligence layer
 

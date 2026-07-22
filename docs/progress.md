@@ -51,7 +51,7 @@ Roadmap order, phases and dependency rules live only in
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
-| #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts; may start after #14. |
+| #15 | Source Trust and Evidence Scoring | Review needed | Design PR defines source trust, evidence strength and score-component boundaries. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
@@ -70,6 +70,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #15
+Status: Review needed
+Summary:
+- Started Source Trust and Evidence Scoring as a design-only PR after #14
+  closed.
+- Defined the core separation between extraction confidence, normalization
+  confidence, source trust, evidence strength and final confidence.
+- Documented source types, scoring dimensions, storage model, service
+  boundaries, Knowledge Pack integration and MVP exclusions.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/source-trust-model.md
+Validation:
+- git diff --check
+Next step:
+- Review and merge the design before implementing `packages/source-trust`.
 
 Date: 2026-07-23
 Issue: #14
