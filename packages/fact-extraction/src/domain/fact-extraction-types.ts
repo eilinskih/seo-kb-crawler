@@ -45,10 +45,13 @@ export interface FactExtractionProfile {
 
 export interface FactExtractionJob {
   jobId: string;
-  topicId: string;
-  documentVersionId: string;
-  chunkId: string;
-  requestedAt: Date;
+  chunkIds: string[];
+  providerKey: string;
+  modelKey: string;
+  modelVersion: string;
+  profileKey: string;
+  profileVersion: string;
+  requestedAt: string;
   reason: 'new_chunk' | 'profile_changed' | 'model_changed' | 'manual';
 }
 

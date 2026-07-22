@@ -33,6 +33,10 @@ module.exports = {
     '^@seo-kb/embeddings/(.*)$': '<rootDir>/packages/embeddings/src/$1',
     '^@seo-kb/entities$': '<rootDir>/packages/entities/src',
     '^@seo-kb/entities/(.*)$': '<rootDir>/packages/entities/src/$1',
+    '^@seo-kb/fact-extraction$':
+      '<rootDir>/packages/fact-extraction/src',
+    '^@seo-kb/fact-extraction/(.*)$':
+      '<rootDir>/packages/fact-extraction/src/$1',
     '^@seo-kb/ontology$': '<rootDir>/packages/ontology/src',
     '^@seo-kb/ontology/(.*)$': '<rootDir>/packages/ontology/src/$1',
     '^@seo-kb/retrieval$': '<rootDir>/packages/retrieval/src',

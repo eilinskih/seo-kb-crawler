@@ -162,6 +162,20 @@ export interface EntityQueryExpansion {
   expandedTerms: string[];
 }
 
+export interface EntityTextMentionInput {
+  text: string;
+  language?: string;
+  geo?: EntityGeoHint;
+  includeSuggested?: boolean;
+}
+
+export interface EntityTextMention {
+  entity: EntityReference;
+  alias: AliasReference;
+  mentionText: string;
+  confidence: number;
+}
+
 export interface EntityRepository {
   createEntity(record: EntityRecord): Promise<void>;
   createAlias(record: EntityAliasRecord): Promise<void>;
@@ -175,6 +189,12 @@ export interface EntityRepository {
   }): Promise<EntityRecord | null>;
   findAliasesByNormalizedText(input: {
     normalizedAliasText: string;
+    language?: string;
+    geoKey?: string | null;
+    statuses: EntityReviewStatus[];
+  }): Promise<EntityAliasRecord[]>;
+  findAliasesByNormalizedTexts(input: {
+    normalizedAliasTexts: string[];
     language?: string;
     geoKey?: string | null;
     statuses: EntityReviewStatus[];

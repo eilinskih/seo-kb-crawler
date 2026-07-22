@@ -106,6 +106,38 @@ describe('EntityService', () => {
     });
   });
 
+  it('finds approved entity aliases mentioned inside chunk text', async () => {
+    const repository = new InMemoryEntityRepository();
+    const service = new EntityService(repository);
+    const entity = await service.createEntity({
+      canonicalName: 'Laser hair removal',
+      entityType: 'procedure',
+      confidence: 0.9,
+    });
+    await service.addAlias({
+      entityId: entity.id,
+      aliasText: 'laser hair removal',
+      aliasType: 'exact',
+      confidence: 0.8,
+    });
+
+    const mentions = await service.findMentionsInText({
+      text: 'FAQ: laser hair removal cost and aftercare',
+      language: 'en',
+    });
+
+    expect(mentions).toEqual([
+      expect.objectContaining({
+        mentionText: 'laser hair removal',
+        confidence: 0.8,
+        entity: expect.objectContaining({
+          entityId: entity.id,
+          entityType: 'procedure',
+        }),
+      }),
+    ]);
+  });
+
   it('records chunk mentions without requiring exact offsets', async () => {
     const repository = new InMemoryEntityRepository();
     const service = new EntityService(repository);

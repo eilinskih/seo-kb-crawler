@@ -164,8 +164,8 @@ The Fact Extraction Worker design and foundation package are documented in
 `docs/fact-extraction-worker-model.md`. It treats extractors as candidate
 generators and creates canonical facts only after Ontology and Predicate
 Registry normalization. The first foundation owns domain contracts,
-provider/noop boundaries, candidate selection, validation and normalization
-orchestration; dedicated worker-app queue orchestration remains later work.
+provider/noop boundaries, candidate selection, Entity mention hints, validation,
+normalization orchestration and dedicated worker-app queue orchestration.
 
 ### SEO intelligence layer
 

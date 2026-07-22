@@ -22,6 +22,8 @@ import {
   EntityRepository,
   EntityReviewStatus,
   EntitySourceMetadata,
+  EntityTextMention,
+  EntityTextMentionInput,
   EntityValidationError,
 } from './domain/entity-types';
 import { ENTITY_REPOSITORY } from './entities.tokens';
@@ -161,6 +163,48 @@ export class EntityService {
     };
   }
 
+  async findMentionsInText(
+    input: EntityTextMentionInput,
+  ): Promise<EntityTextMention[]> {
+    const normalizedTexts = normalizedNgrams(input.text);
+    if (normalizedTexts.length === 0) {
+      return [];
+    }
+    const aliases = await this.repository.findAliasesByNormalizedTexts({
+      normalizedAliasTexts: normalizedTexts,
+      language: input.language,
+      geoKey: normalizeGeoKey(input.geo),
+      statuses: input.includeSuggested ? ['approved', 'suggested'] : ['approved'],
+    });
+    const entityIds = unique(aliases.map((alias) => alias.entityId));
+    const entities = new Map(
+      (await Promise.all(
+        entityIds.map((entityId) => this.repository.findEntityById(entityId)),
+      ))
+        .filter((entity): entity is EntityRecord => Boolean(entity))
+        .map((entity) => [entity.id, entity]),
+    );
+
+    return aliases
+      .map((alias) => {
+        const entity = entities.get(alias.entityId);
+        if (!entity) {
+          return null;
+        }
+        return {
+          entity: toEntityReference(entity),
+          alias: toAliasReference(alias),
+          mentionText: alias.aliasText,
+          confidence: Math.min(entity.confidence, alias.confidence),
+        };
+      })
+      .filter((mention): mention is EntityTextMention => Boolean(mention))
+      .sort((a, b) =>
+        b.confidence - a.confidence ||
+        a.entity.canonicalName.localeCompare(b.entity.canonicalName),
+      );
+  }
+
   private async requireEntity(id: string): Promise<EntityRecord> {
     const entity = await this.repository.findEntityById(id);
     if (!entity) {
@@ -232,4 +276,17 @@ function buildExpandedTerms(
 
 function unique(values: string[]): string[] {
   return [...new Set(values)];
+}
+
+function normalizedNgrams(text: string): string[] {
+  const normalized = normalizeEntityLookupText(text, 'text');
+  const tokens = normalized.split(' ').filter(Boolean);
+  const values: string[] = [];
+  const maxLength = Math.min(6, tokens.length);
+  for (let size = 1; size <= maxLength; size += 1) {
+    for (let index = 0; index <= tokens.length - size; index += 1) {
+      values.push(tokens.slice(index, index + size).join(' '));
+    }
+  }
+  return unique(values);
 }

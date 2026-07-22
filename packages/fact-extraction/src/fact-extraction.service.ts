@@ -4,6 +4,7 @@ import {
   PredicateAliasResolution,
   PredicateAliasResolverService,
 } from '@seo-kb/ontology';
+import { EntityService } from '@seo-kb/entities';
 import {
   FactExtractionProvider,
   FactExtractionProviderUnavailableError,
@@ -19,6 +20,7 @@ import {
   FactExtractionProfile,
   FactExtractionRepository,
   FactExtractionResult,
+  KnownEntityHint,
   RawFactCandidate,
   RawFactForStorage,
   StoredCanonicalFactRecord,
@@ -42,6 +44,7 @@ export class FactExtractionService {
     @Inject(FACT_EXTRACTION_PROVIDER)
     private readonly provider: FactExtractionProvider,
     private readonly predicateResolver: PredicateAliasResolverService,
+    private readonly entityService: EntityService,
   ) {}
 
   async findCandidates(options: {
@@ -116,9 +119,10 @@ export class FactExtractionService {
     }
 
     try {
+      const knownEntities = await this.findKnownEntities(chunk);
       const providerResult = await this.provider.extractFacts({
         chunk,
-        knownEntities: [],
+        knownEntities,
         topicClassification: null,
         profile,
       });
@@ -202,6 +206,25 @@ export class FactExtractionService {
       canonicalFacts,
       normalizationAttempts,
     };
+  }
+
+  private async findKnownEntities(
+    chunk: ChunkForFactExtraction,
+  ): Promise<KnownEntityHint[]> {
+    const mentions = await this.entityService.findMentionsInText({
+      text: [chunk.sectionTitle, ...chunk.headingPath, chunk.text]
+        .filter(Boolean)
+        .join(' '),
+      language: chunk.language ?? undefined,
+    });
+
+    return mentions.map((mention) => ({
+      entityId: mention.entity.entityId,
+      canonicalName: mention.entity.canonicalName,
+      entityType: mention.entity.entityType,
+      aliases: [mention.alias.aliasText],
+      confidence: mention.confidence,
+    }));
   }
 }
 

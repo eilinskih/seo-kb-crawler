@@ -121,8 +121,9 @@ Implemented on `main`:
 - Ontology package boundary, predicate alias resolver, seed predicate registry,
   raw/canonical fact contracts and storage migration.
 - Fact Extraction package boundary, extraction provider interface, noop/test
-  providers, candidate selection, raw validation, predicate normalization
-  orchestration and worker-owned extraction metadata migration.
+  providers, candidate selection, Entity mention hints, raw validation,
+  predicate normalization orchestration, worker-owned extraction metadata
+  migration, dispatch service and dedicated worker app.
 
 Designed but not implemented on `main`:
 
@@ -133,7 +134,6 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
-- Dedicated Fact Extraction worker app and queue orchestration.
 - Demand Engine.
 - Knowledge, SERP and SEO pack generation.
 - Operator Console.
