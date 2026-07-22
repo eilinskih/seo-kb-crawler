@@ -8,12 +8,15 @@ import {
   KnowledgePackEvidenceGap,
   KnowledgePackFact,
   KnowledgePackFactRecord,
+  KnowledgePackFactTrustRecord,
   KnowledgePackProfile,
   KnowledgePackRequest,
   KnowledgePackResponse,
   KnowledgePackSource,
+  KnowledgePackSourceTrustRecord,
   KnowledgePackValidationError,
   KnowledgePackRepository,
+  KnowledgePackEntityTrustRecord,
 } from './domain/knowledge-pack-types';
 import { KNOWLEDGE_PACK_REPOSITORY } from './knowledge-pack.tokens';
 
@@ -73,21 +76,34 @@ export class KnowledgePackService {
       await this.repository.findOntologyReferencesByPredicateIds(
         unique(packedFacts.map((fact) => fact.predicateId)),
       );
-    const confidence = buildConfidence(packedFacts, sources);
+    const sourceTrust = await this.repository.findSourceTrustByUrls(
+      unique(sources.flatMap((source) => [
+        source.sourceUrl,
+        source.canonicalUrl,
+      ].filter((url): url is string => Boolean(url)))),
+    );
+    const factTrust = await this.repository.findFactTrustByFactIds(
+      packedFacts.map((fact) => fact.factId),
+    );
+    const entityTrust = await this.repository.findEntityTrustByEntityIds(entityIds);
+    const trustedSources = attachSourceTrust(sources, sourceTrust);
+    const trustedFacts = attachFactTrust(packedFacts, factTrust);
+    const trustedEntities = attachEntityTrust(entities, entityTrust);
+    const confidence = buildConfidence(trustedFacts, trustedSources);
     const visibleAliases = filterAliasesForLanguage(aliases, request.language);
 
     return {
       normalizedQuery,
       profile: profile.name,
-      entities,
+      entities: trustedEntities,
       aliases: visibleAliases,
-      facts: packedFacts,
+      facts: trustedFacts,
       evidenceChunks,
-      sources,
+      sources: trustedSources,
       ontologyReferences,
       evidenceGaps: buildGaps({
-        facts: packedFacts,
-        sources,
+        facts: trustedFacts,
+        sources: trustedSources,
         aliases: visibleAliases,
         ontologyReferenceCount: ontologyReferences.length,
         retrievalDegraded: retrieval.degraded,
@@ -103,6 +119,84 @@ export class KnowledgePackService {
       debug: request.includeDebug ? { profile } : undefined,
     };
   }
+}
+
+function attachSourceTrust(
+  sources: KnowledgePackSource[],
+  trustRecords: KnowledgePackSourceTrustRecord[],
+): KnowledgePackSource[] {
+  const trustByUrl = new Map<string, KnowledgePackSourceTrustRecord>();
+  for (const record of trustRecords) {
+    trustByUrl.set(record.sourceUrl, record);
+    if (record.canonicalUrl) {
+      trustByUrl.set(record.canonicalUrl, record);
+    }
+  }
+
+  return sources.map((source) => {
+    const trust = trustByUrl.get(source.canonicalUrl ?? source.sourceUrl);
+    return trust
+      ? {
+          ...source,
+          trust: {
+            sourceType: trust.sourceType,
+            reviewStatus: trust.reviewStatus,
+            score: trust.score,
+            ruleVersion: trust.ruleVersion,
+            components: trust.components,
+          },
+        }
+      : source;
+  });
+}
+
+function attachFactTrust(
+  facts: KnowledgePackFact[],
+  trustRecords: KnowledgePackFactTrustRecord[],
+): KnowledgePackFact[] {
+  const trustByFactId = new Map(trustRecords.map((record) => [record.factId, record]));
+  return facts.map((fact) => {
+    const trust = trustByFactId.get(fact.factId);
+    return trust
+      ? {
+          ...fact,
+          trust: {
+            evidenceStrengthScore: trust.evidenceStrengthScore,
+            sourceTrustScore: trust.sourceTrustScore,
+            extractionConfidence: trust.extractionConfidence,
+            normalizationConfidence: trust.normalizationConfidence,
+            finalConfidence: trust.finalConfidence,
+            uncertaintyFlags: trust.uncertaintyFlags,
+            components: trust.components,
+          },
+        }
+      : fact;
+  });
+}
+
+function attachEntityTrust<T extends { entityId: string }>(
+  entities: T[],
+  trustRecords: KnowledgePackEntityTrustRecord[],
+): T[] {
+  const trustByEntityId = new Map(
+    trustRecords.map((record) => [record.entityId, record]),
+  );
+  return entities.map((entity) => {
+    const trust = trustByEntityId.get(entity.entityId);
+    return trust
+      ? {
+          ...entity,
+          trust: {
+            aliasConfidence: trust.aliasConfidence,
+            mentionCount: trust.mentionCount,
+            sourceDiversityScore: trust.sourceDiversityScore,
+            averageSourceTrust: trust.averageSourceTrust,
+            finalConfidence: trust.finalConfidence,
+            components: trust.components,
+          },
+        }
+      : entity;
+  });
 }
 
 function buildSources(results: RetrievalResult[]): KnowledgePackSource[] {
@@ -253,6 +347,14 @@ function buildGaps(input: {
     gaps.push({
       code: 'retrieval_degraded',
       detail: input.retrievalWarnings.join('; ') || 'Retrieval ran degraded',
+    });
+  }
+  if (input.facts.some((fact) =>
+    fact.trust?.uncertaintyFlags.includes('possible_conflict_unresolved'),
+  )) {
+    gaps.push({
+      code: 'possible_conflict_unresolved',
+      detail: 'At least one fact has unresolved conflict uncertainty',
     });
   }
   return gaps;

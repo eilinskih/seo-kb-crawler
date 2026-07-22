@@ -1,6 +1,6 @@
 # Source Trust And Evidence Scoring Model
 
-- Status: Foundation implementation in review for Issue #15
+- Status: Knowledge Pack score consumption in review for Issue #15
 - Issue: #15
 - Date: 2026-07-23
 
@@ -297,6 +297,15 @@ The initial implementation:
 Knowledge Pack integration remains safe-by-default. Score production and score
 consumption can be introduced independently; consumers must continue to handle
 missing trust scores as unknown trust.
+
+The first Knowledge Pack integration:
+
+- reads `source_profiles`, `fact_scores` and `entity_scores` when available;
+- exposes optional `trust` metadata on sources, facts and entities;
+- keeps existing output valid when trust score records are absent;
+- surfaces `possible_conflict_unresolved` as an evidence gap when fact score
+  uncertainty flags include it;
+- does not resolve conflicts or replace component scores with one opaque value.
 
 The first implementation should not include:
 

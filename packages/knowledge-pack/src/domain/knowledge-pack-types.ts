@@ -41,6 +41,7 @@ export interface KnowledgePackEntity {
   entityType: string;
   vertical: string | null;
   confidence: number;
+  trust?: KnowledgePackEntityTrust;
 }
 
 export interface KnowledgePackAlias {
@@ -63,6 +64,7 @@ export interface KnowledgePackFact {
   provenance: Record<string, unknown>;
   supportingChunkIds: string[];
   sourceIds: string[];
+  trust?: KnowledgePackFactTrust;
 }
 
 export interface KnowledgePackEvidenceChunk {
@@ -86,6 +88,34 @@ export interface KnowledgePackSource {
   sourceDomain: string | null;
   language: string | null;
   geoHints: GeoHint[];
+  trust?: KnowledgePackSourceTrust;
+}
+
+export interface KnowledgePackSourceTrust {
+  sourceType: string;
+  reviewStatus: string;
+  score: number;
+  ruleVersion: string;
+  components: Record<string, unknown>;
+}
+
+export interface KnowledgePackFactTrust {
+  evidenceStrengthScore: number;
+  sourceTrustScore: number | null;
+  extractionConfidence: number;
+  normalizationConfidence: number | null;
+  finalConfidence: number;
+  uncertaintyFlags: string[];
+  components: Record<string, unknown>;
+}
+
+export interface KnowledgePackEntityTrust {
+  aliasConfidence: number | null;
+  mentionCount: number;
+  sourceDiversityScore: number;
+  averageSourceTrust: number | null;
+  finalConfidence: number;
+  components: Record<string, unknown>;
 }
 
 export interface KnowledgePackOntologyReference {
@@ -155,6 +185,22 @@ export interface KnowledgePackAliasRecord extends KnowledgePackAlias {}
 export interface KnowledgePackOntologyRecord
   extends KnowledgePackOntologyReference {}
 
+export interface KnowledgePackSourceTrustRecord
+  extends KnowledgePackSourceTrust {
+  sourceUrl: string;
+  canonicalUrl: string | null;
+}
+
+export interface KnowledgePackFactTrustRecord
+  extends KnowledgePackFactTrust {
+  factId: string;
+}
+
+export interface KnowledgePackEntityTrustRecord
+  extends KnowledgePackEntityTrust {
+  entityId: string;
+}
+
 export interface KnowledgePackRepository {
   findCanonicalFactsByChunkIds(chunkIds: string[]): Promise<KnowledgePackFactRecord[]>;
   findEntitiesByIds(entityIds: string[]): Promise<KnowledgePackEntityRecord[]>;
@@ -162,6 +208,11 @@ export interface KnowledgePackRepository {
   findOntologyReferencesByPredicateIds(
     predicateIds: string[],
   ): Promise<KnowledgePackOntologyRecord[]>;
+  findSourceTrustByUrls(urls: string[]): Promise<KnowledgePackSourceTrustRecord[]>;
+  findFactTrustByFactIds(factIds: string[]): Promise<KnowledgePackFactTrustRecord[]>;
+  findEntityTrustByEntityIds(
+    entityIds: string[],
+  ): Promise<KnowledgePackEntityTrustRecord[]>;
 }
 
 export class KnowledgePackValidationError extends Error {
