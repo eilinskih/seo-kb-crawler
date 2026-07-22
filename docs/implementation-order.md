@@ -60,7 +60,7 @@ the whole research system.
 | 16 | #28 | Topic Classification Strategy | Design accepted on `main`; informs downstream knowledge and SEO consumers. |
 | 17 | #13 | Fact Extraction Worker | Done on `main`; Issue #14 may start. |
 | 18 | #14 | Knowledge Pack Builder | Done on `main`; Issue #15 may start. |
-| 19 | #15 | Source Trust and Evidence Scoring | Depends on #13/#14 contracts. |
+| 19 | #15 | Source Trust and Evidence Scoring | Done on `main`; Issue #16 may start. |
 | 20 | #16 | SEO Consensus and Conflict Layer | Depends on #13/#15. |
 
 ## Phase 5: SEO Intelligence

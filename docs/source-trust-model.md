@@ -1,6 +1,6 @@
 # Source Trust And Evidence Scoring Model
 
-- Status: Knowledge Pack score consumption in review for Issue #15
+- Status: Done
 - Issue: #15
 - Date: 2026-07-23
 
