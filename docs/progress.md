@@ -52,7 +52,7 @@ Roadmap order, phases and dependency rules live only in
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
-| #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15; may start after #15. |
+| #16 | SEO Consensus and Conflict Layer | Review needed | Design PR defines consensus groups, conflict sets and SEO phrasing hint boundaries. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
@@ -70,6 +70,25 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #16
+Status: Review needed
+Summary:
+- Started SEO Consensus and Conflict Layer as a design-only PR after #15
+  closed.
+- Defined the boundary between Source Trust scoring and consensus decisions.
+- Documented consensus groups, conflict sets, comparable value handling, SEO
+  phrasing hints, content gap hints, storage model and MVP exclusions.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-consensus-model.md
+Validation:
+- git diff --check
+Next step:
+- Review and merge the design before implementing `packages/seo-consensus`.
 
 Date: 2026-07-23
 Issue: #15
