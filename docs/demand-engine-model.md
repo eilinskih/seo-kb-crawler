@@ -1,6 +1,6 @@
 # Demand Engine Model
 
-- Status: Runtime foundation in review
+- Status: Runtime foundation done
 - Issue: #72
 - Runtime issue: #98
 - Related ADR: `docs/decisions/0003-demand-engine-provider-optional.md`

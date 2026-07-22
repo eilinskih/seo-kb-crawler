@@ -68,7 +68,7 @@ the whole research system.
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
 | 21 | #72 | Demand Engine Design | Design accepted on `main`; runtime implementation is tracked by #98. |
-| 22 | #98 | Demand Engine Runtime | Provider-optional keyword discovery and candidate-page foundation; must work without paid provider credentials. |
+| 22 | #98 | Demand Engine Runtime | Done on `main`; provider integrations, persistence and scheduling are later hardening work. |
 | 23 | #18 | SERP Intelligence Layer | Requires Research Engine and Demand Engine Runtime outputs; validates candidate queries and page types. |
 | 24 | #30 | SERP Intent Analyzer | Deferred until #18. |
 | 25 | #19 | Topic Expansion Engine | Depends on #18, Demand Engine Runtime and knowledge signals. |
