@@ -4,6 +4,7 @@ import {
 } from '@seo-kb/ontology';
 import { PredicateAliasResolverService } from '@seo-kb/ontology';
 import { SeedPredicateRegistryRepository } from '@seo-kb/ontology';
+import { EntityService } from '@seo-kb/entities';
 import { NoFactExtractionProvider } from './domain/no-fact-extraction.provider';
 import {
   CanonicalFactForStorage,
@@ -108,6 +109,63 @@ describe('FactExtractionService', () => {
     });
   });
 
+  it('passes known entity aliases to the extraction provider', async () => {
+    const chunk = chunkFixture();
+    const repository = new InMemoryFactExtractionRepository([chunk]);
+    const provider = new StaticFactExtractionProvider(providerIdentity, [
+      rawCandidate({ predicateCandidate: 'cost' }),
+    ]);
+    const entityService = {
+      findMentionsInText: jest.fn().mockResolvedValue([
+        {
+          entity: {
+            entityId: 'entity-subject',
+            canonicalName: 'Laser hair removal',
+            entityType: 'procedure',
+            vertical: null,
+            confidence: 0.9,
+          },
+          alias: {
+            aliasId: 'alias-1',
+            entityId: 'entity-subject',
+            aliasText: 'laser hair removal',
+            aliasType: 'exact',
+            language: 'en',
+            geo: null,
+            confidence: 0.8,
+            reviewStatus: 'approved',
+          },
+          mentionText: 'laser hair removal',
+          confidence: 0.8,
+        },
+      ]),
+    } as unknown as EntityService;
+    const service = serviceFrom(
+      repository,
+      provider,
+      registrySnapshot({
+        predicates: [predicate('predicate-price', 'has_price', 'approved')],
+        aliases: [alias('alias-cost', 'predicate-price', 'cost')],
+      }),
+      entityService,
+    );
+
+    await service.extractBatch({
+      chunkIds: [chunk.id],
+      now,
+    });
+
+    expect(provider.lastInput?.knownEntities).toEqual([
+      {
+        entityId: 'entity-subject',
+        canonicalName: 'Laser hair removal',
+        entityType: 'procedure',
+        aliases: ['laser hair removal'],
+        confidence: 0.8,
+      },
+    ]);
+  });
+
   it('skips low-value chunks before calling the provider', async () => {
     const chunk = chunkFixture({
       id: 'chunk-low',
@@ -160,6 +218,9 @@ function serviceFrom(
   repository: FactExtractionRepository,
   provider: ConstructorParameters<typeof FactExtractionService>[1],
   snapshot: PredicateRegistrySnapshot,
+  entityService: EntityService = {
+    findMentionsInText: jest.fn().mockResolvedValue([]),
+  } as unknown as EntityService,
 ): FactExtractionService {
   return new FactExtractionService(
     repository,
@@ -167,6 +228,7 @@ function serviceFrom(
     new PredicateAliasResolverService(
       new SeedPredicateRegistryRepository(snapshot),
     ),
+    entityService,
   );
 }
 

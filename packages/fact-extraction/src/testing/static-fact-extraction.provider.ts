@@ -8,6 +8,7 @@ import {
 
 export class StaticFactExtractionProvider implements FactExtractionProvider {
   calls = 0;
+  lastInput: FactExtractionProviderInput | null = null;
 
   constructor(
     readonly identity: FactExtractionProviderIdentity,
@@ -15,9 +16,10 @@ export class StaticFactExtractionProvider implements FactExtractionProvider {
   ) {}
 
   async extractFacts(
-    _input: FactExtractionProviderInput,
+    input: FactExtractionProviderInput,
   ): Promise<FactExtractionProviderResult> {
     this.calls += 1;
+    this.lastInput = input;
     return {
       candidates: this.candidates,
     };

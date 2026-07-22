@@ -1,6 +1,6 @@
 # Fact Extraction Worker Model
 
-- Status: Foundation implementation in review for Issue #13
+- Status: Worker queue implementation in review for Issue #13
 - Issue: #13
 - Date: 2026-07-23
 
@@ -421,10 +421,9 @@ The first implementation PR should include:
   unavailability.
 
 The foundation implementation introduces the package boundary, provider
-interface, noop/test providers, candidate selector, validation and normalization
-orchestration, extraction-run metadata migration and tests. A dedicated worker
-app and queue orchestration remain deferred until the package contract is
-reviewed.
+interface, noop/test providers, candidate selector, Entity mention hints,
+validation and normalization orchestration, extraction-run metadata migration,
+dedicated worker app, queue dispatch and tests.
 
 The first implementation should not include:
 

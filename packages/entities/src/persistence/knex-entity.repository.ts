@@ -130,6 +130,32 @@ export class KnexEntityRepository implements EntityRepository {
     return rows.map(fromAliasRow);
   }
 
+  async findAliasesByNormalizedTexts(input: {
+    normalizedAliasTexts: string[];
+    language?: string;
+    geoKey?: string | null;
+    statuses: EntityReviewStatus[];
+  }): Promise<EntityAliasRecord[]> {
+    if (input.normalizedAliasTexts.length === 0) {
+      return [];
+    }
+    const query = this.knex<AliasRow>('entity_aliases')
+      .whereIn('normalized_alias_text', input.normalizedAliasTexts)
+      .whereIn('review_status', input.statuses);
+    if (input.language !== undefined) {
+      query.andWhere((builder) => {
+        builder.where({ language: input.language }).orWhereNull('language');
+      });
+    }
+    if (input.geoKey !== undefined) {
+      query.andWhere((builder) => {
+        builder.where({ geo_key: input.geoKey }).orWhereNull('geo_key');
+      });
+    }
+    const rows = await query.orderBy('confidence', 'desc');
+    return rows.map(fromAliasRow);
+  }
+
   async findApprovedAliasesByEntityIds(
     entityIds: string[],
   ): Promise<EntityAliasRecord[]> {

@@ -60,6 +60,22 @@ export class InMemoryEntityRepository implements EntityRepository {
       .sort((a, b) => b.confidence - a.confidence);
   }
 
+  async findAliasesByNormalizedTexts(input: {
+    normalizedAliasTexts: string[];
+    language?: string;
+    geoKey?: string | null;
+    statuses: EntityReviewStatus[];
+  }): Promise<EntityAliasRecord[]> {
+    return [...this.aliases.values()]
+      .filter((alias) =>
+        input.normalizedAliasTexts.includes(alias.normalizedAliasText) &&
+        input.statuses.includes(alias.reviewStatus) &&
+        matchesOptional(alias.language, input.language) &&
+        matchesOptional(alias.geoKey, input.geoKey),
+      )
+      .sort((a, b) => b.confidence - a.confidence);
+  }
+
   async findApprovedAliasesByEntityIds(
     entityIds: string[],
   ): Promise<EntityAliasRecord[]> {

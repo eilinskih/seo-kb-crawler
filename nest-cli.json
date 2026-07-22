@@ -161,6 +161,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/embedding-worker/tsconfig.app.json"
       }
+    },
+    "fact-extraction-worker": {
+      "type": "application",
+      "root": "apps/fact-extraction-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/fact-extraction-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/fact-extraction-worker/tsconfig.app.json"
+      }
     }
   }
 }

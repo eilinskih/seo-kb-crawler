@@ -49,7 +49,7 @@ Roadmap order, phases and dependency rules live only in
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
-| #13 | Fact Extraction Worker | Review needed | Foundation PR adds package boundary, provider/noop contracts, candidate selection, validation, normalization orchestration and metadata migration. |
+| #13 | Fact Extraction Worker | Review needed | Worker queue PR adds Entity mention hints, dispatch service, dedicated worker app and queue processor on top of the foundation package. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
@@ -70,6 +70,40 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #13
+Status: Review needed
+Summary:
+- Added Fact Extraction queue orchestration after PR #108 merged the foundation
+  package.
+- Added `FACT_EXTRACTION_QUEUE_NAME`, dispatch batching, `FactExtractionJob`
+  payloads, dedicated `fact-extraction-worker` app and BullMQ processor.
+- Added minimal Entity mention support by resolving approved aliases in chunk
+  text through the Entity Layer and passing known entity hints to extraction
+  providers.
+- Kept production model adapters, source trust scoring, SEO consensus,
+  Knowledge Pack generation and automatic entity creation out of scope.
+Changed files:
+- apps/fact-extraction-worker/*
+- docs/fact-extraction-worker-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- package.json
+- packages/common/src/queue/queue.constants.ts
+- packages/entities/*
+- packages/fact-extraction/*
+Validation:
+- npm test -- fact-extraction
+- npm test -- entities
+- npm test
+- npm run build
+- npm run build:fact-extraction-worker
+Next step:
+- Run full test/build checks, review and merge the worker queue PR, then close
+  Issue #13 if no review comments identify missing acceptance criteria.
 
 Date: 2026-07-23
 Issue: #13
