@@ -1,6 +1,6 @@
 # Knowledge Pack Builder Model
 
-- Status: Context Pack bridge in review for Issue #14
+- Status: Done
 - Issue: #14
 - Date: 2026-07-23
 
@@ -278,6 +278,7 @@ Issue #14 is complete when:
 - missing or weak evidence is surfaced explicitly;
 - output is deterministic and model-agnostic;
 - Context Pack integration is documented or implemented safely;
+- documentation, progress and project map are synchronized;
 - Source Trust, SEO Consensus, SERP Pack generation and content generation
   remain explicitly out of scope for the foundation.
 
@@ -309,4 +310,3 @@ The opt-in bridge:
 - returns Knowledge Pack data in `knowledgePack`;
 - reports `knowledge_pack_unavailable` if the bridge is requested without an
   available Knowledge Pack service.
-- documentation, progress and project map are synchronized.
