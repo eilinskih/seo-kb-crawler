@@ -55,7 +55,7 @@ Roadmap order, phases and dependency rules live only in
 | #16 | SEO Consensus and Conflict Layer | Done | Design, foundation implementation, safe Knowledge Pack consensus consumption and close-out synchronization are complete; roadmap continues with #98. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
-| #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
+| #98 | Demand Engine Runtime | Review needed | Runtime foundation is in review with provider-optional fallback discovery. |
 | #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
@@ -70,6 +70,35 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #98
+Status: Review needed
+Summary:
+- Started Demand Engine Runtime after #16 closed and #72 design was already
+  accepted.
+- Added the initial `packages/demand-engine` boundary with provider adapter
+  contracts, fallback/manual discovery, keyword candidates, candidate pages,
+  nullable metric snapshots, confidence and explicit fallback mode.
+- Kept paid provider integrations, SERP Intelligence runtime, Topic Expansion,
+  Long-tail Discovery, SEO Pack generation and persistence out of this
+  foundation PR.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- jest.config.js
+- nest-cli.json
+- packages/demand-engine/*
+- tsconfig.json
+Validation:
+- npm test -- demand-engine
+- npx nest build demand-engine
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge the runtime foundation before deciding whether #98 needs a
+  persistence/API follow-up or close-out stabilization.
 
 Date: 2026-07-23
 Issue: #16

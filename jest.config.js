@@ -51,6 +51,9 @@ module.exports = {
     '^@seo-kb/seo-consensus$': '<rootDir>/packages/seo-consensus/src',
     '^@seo-kb/seo-consensus/(.*)$':
       '<rootDir>/packages/seo-consensus/src/$1',
+    '^@seo-kb/demand-engine$': '<rootDir>/packages/demand-engine/src',
+    '^@seo-kb/demand-engine/(.*)$':
+      '<rootDir>/packages/demand-engine/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

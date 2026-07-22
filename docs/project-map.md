@@ -137,6 +137,9 @@ Implemented on `main`:
 - SEO Consensus package boundary, comparable value normalization, consensus
   grouping, conflict detection, SEO phrasing hints, content gap hints and
   storage migration, plus safe Knowledge Pack consensus consumption.
+- Demand Engine package boundary, provider adapter contracts, manual/free
+  fallback discovery, keyword candidates, candidate pages, nullable metrics and
+  explicit fallback mode.
 
 Designed but not implemented on `main`:
 
@@ -147,7 +150,7 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
-- Demand Engine.
+- Demand Engine persistence, scheduling and provider integrations.
 - SERP and SEO pack generation.
 - Operator Console.
 - SEO Agent Gateway.
