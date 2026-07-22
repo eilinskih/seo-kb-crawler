@@ -48,8 +48,8 @@ Roadmap order, phases and dependency rules live only in
 | #10 | Codex Context Pack API | Done | Design, foundation implementation and close-out stabilization are complete; Issue #11 may start. |
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
-| #28 | Topic Classification Strategy | Review needed | Design/contract PR defines `topicClassification` semantics after #11 and #12; runtime storage remains deferred until a consumer needs it. |
-| #13 | Fact Extraction Worker | Not started | Depends on #11 and #12. |
+| #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
+| #13 | Fact Extraction Worker | Not started | Depends on #11, #12 and accepted #28 context. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
@@ -73,7 +73,7 @@ Add entries here in reverse chronological order.
 
 Date: 2026-07-23
 Issue: #28
-Status: Review needed
+Status: Done
 Summary:
 - Started Topic Classification Strategy after Entity and Ontology foundations
   were completed.
@@ -81,14 +81,16 @@ Summary:
   Topic Engine scope prematurely.
 - Drafted `topicClassification` semantics with primary/secondary assignments,
   evidence, confidence and review-state rules.
+- Merged PR #105 and closed Issue #28 as a strategy/design issue.
 Changed files:
 - docs/architecture.md
+- docs/implementation-order.md
 - docs/topic-classification-model.md
 - docs/project-map.md
 - docs/progress.md
 Next step:
-- Review and merge the design contract before Issue #13 starts using topic
-  classification as context.
+- Start Issue #13 Fact Extraction Worker using accepted Entity, Ontology and
+  Topic Classification context.
 
 Date: 2026-07-08
 Issue: roadmap sync
