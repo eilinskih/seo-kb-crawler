@@ -189,6 +189,15 @@
         "tsConfigPath": "packages/demand-engine/tsconfig.lib.json"
       }
     },
+    "serp-intelligence": {
+      "type": "library",
+      "root": "packages/serp-intelligence",
+      "entryFile": "index",
+      "sourceRoot": "packages/serp-intelligence/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/serp-intelligence/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

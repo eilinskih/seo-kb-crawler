@@ -141,11 +141,12 @@ Implemented on `main`:
 - Demand Engine package boundary, provider adapter contracts, manual/free
   fallback discovery, keyword candidates, candidate pages, nullable metrics and
   explicit fallback mode.
+- SERP Intelligence package boundary, SERP snapshot/result contracts,
+  heading/FAQ/entity pattern analysis, depth summaries, content angle
+  detection and SERP Pack assembly.
 
 Designed but not implemented on `main`:
 
-- SERP Intelligence contracts for snapshots, heading/FAQ/entity patterns,
-  depth hints, content angles and SERP Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -154,6 +155,7 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
-- SERP and SEO pack generation.
+- SERP persistence, live SERP providers, SERP Intent Analyzer and SEO Pack
+  generation.
 - Operator Console.
 - SEO Agent Gateway.
