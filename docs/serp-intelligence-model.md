@@ -1,6 +1,6 @@
 # SERP Intelligence Model
 
-- Status: Design proposed for Issue #18
+- Status: Foundation implementation in review for Issue #18
 - Issue: #18
 - Date: 2026-07-23
 
@@ -276,6 +276,19 @@ Recommended package:
 ```txt
 packages/serp-intelligence
 ```
+
+Implemented foundation package:
+
+- `packages/serp-intelligence/src/domain/serp-intelligence-types.ts`
+  defines SERP snapshots, result references, page evidence, pattern summaries,
+  depth summaries, angle summaries and SERP Pack contracts.
+- `packages/serp-intelligence/src/serp-pack.service.ts` assembles deterministic
+  SERP Packs from an imported snapshot and processed competitor-page evidence.
+- `packages/serp-intelligence/src/*-pattern.service.ts` provides deterministic
+  heading, FAQ and entity pattern analysis.
+- `packages/serp-intelligence/src/content-depth.service.ts` and
+  `packages/serp-intelligence/src/content-angle.service.ts` provide the first
+  depth and angle heuristics.
 
 Recommended services:
 

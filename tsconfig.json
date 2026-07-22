@@ -114,6 +114,12 @@
       "@seo-kb/demand-engine/*": [
         "packages/demand-engine/src/*"
       ],
+      "@seo-kb/serp-intelligence": [
+        "packages/serp-intelligence/src"
+      ],
+      "@seo-kb/serp-intelligence/*": [
+        "packages/serp-intelligence/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],
