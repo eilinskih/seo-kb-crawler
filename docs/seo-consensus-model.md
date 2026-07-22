@@ -1,6 +1,6 @@
 # SEO Consensus And Conflict Model
 
-- Status: Foundation implementation in review for Issue #16
+- Status: Knowledge Pack consensus consumption in review for Issue #16
 - Issue: #16
 - Date: 2026-07-23
 
@@ -298,6 +298,15 @@ The initial implementation:
 
 Knowledge Pack and SEO Pack consumption remain safe follow-ups. Until then,
 downstream consumers continue using existing Knowledge Pack uncertainty fields.
+
+The first Knowledge Pack integration:
+
+- adds explicit consensus-to-fact mapping tables;
+- writes consensus group and conflict set fact mappings from the
+  `SeoConsensusRepository`;
+- reads consensus metadata by canonical fact id in Knowledge Pack;
+- exposes optional fact-level `consensus` metadata;
+- keeps existing Knowledge Pack output valid when consensus records are absent.
 
 The first implementation should not include:
 

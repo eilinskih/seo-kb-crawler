@@ -1,6 +1,7 @@
 import { RetrievalResponse, RetrievalService } from '@seo-kb/retrieval';
 import {
   KnowledgePackAliasRecord,
+  KnowledgePackConsensusRecord,
   KnowledgePackEntityRecord,
   KnowledgePackEntityTrustRecord,
   KnowledgePackFactRecord,
@@ -19,6 +20,7 @@ class InMemoryKnowledgePackRepository implements KnowledgePackRepository {
   sourceTrust: KnowledgePackSourceTrustRecord[] = [];
   factTrust: KnowledgePackFactTrustRecord[] = [];
   entityTrust: KnowledgePackEntityTrustRecord[] = [];
+  consensus: KnowledgePackConsensusRecord[] = [];
 
   async findCanonicalFactsByChunkIds(
     chunkIds: string[],
@@ -65,6 +67,12 @@ class InMemoryKnowledgePackRepository implements KnowledgePackRepository {
     entityIds: string[],
   ): Promise<KnowledgePackEntityTrustRecord[]> {
     return this.entityTrust.filter((trust) => entityIds.includes(trust.entityId));
+  }
+
+  async findConsensusByFactIds(
+    factIds: string[],
+  ): Promise<KnowledgePackConsensusRecord[]> {
+    return this.consensus.filter((record) => factIds.includes(record.factId));
   }
 }
 
@@ -374,6 +382,26 @@ describe('KnowledgePackService', () => {
         components: { mentionSupport: 0.2 },
       },
     ];
+    repository.consensus = [
+      {
+        factId: 'fact-1',
+        groupKey: 'entity-1:predicate-1:value',
+        confidenceLevel: 'moderate',
+        supportCounts: {
+          factCount: 2,
+          supportingDomainCount: 2,
+        },
+        strongestValue: {
+          summary: 'diode laser',
+        },
+        conflict: {
+          conflictKey: 'entity-1:predicate-1:value:conflict',
+          severity: 'medium',
+          suggestedHandling: 'phrase_cautiously',
+          competingValues: [{ summary: 'diode' }, { summary: 'alexandrite' }],
+        },
+      },
+    ];
 
     const pack = await service.build({
       query: 'laser hair removal',
@@ -390,6 +418,13 @@ describe('KnowledgePackService', () => {
     }));
     expect(pack.entities[0].trust).toEqual(expect.objectContaining({
       finalConfidence: 0.78,
+    }));
+    expect(pack.facts[0].consensus).toEqual(expect.objectContaining({
+      groupKey: 'entity-1:predicate-1:value',
+      confidenceLevel: 'moderate',
+      conflict: expect.objectContaining({
+        severity: 'medium',
+      }),
     }));
     expect(pack.evidenceGaps).toContainEqual({
       code: 'possible_conflict_unresolved',

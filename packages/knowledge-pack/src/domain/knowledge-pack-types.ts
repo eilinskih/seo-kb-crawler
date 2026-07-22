@@ -65,6 +65,7 @@ export interface KnowledgePackFact {
   supportingChunkIds: string[];
   sourceIds: string[];
   trust?: KnowledgePackFactTrust;
+  consensus?: KnowledgePackFactConsensus;
 }
 
 export interface KnowledgePackEvidenceChunk {
@@ -116,6 +117,19 @@ export interface KnowledgePackEntityTrust {
   averageSourceTrust: number | null;
   finalConfidence: number;
   components: Record<string, unknown>;
+}
+
+export interface KnowledgePackFactConsensus {
+  groupKey: string | null;
+  confidenceLevel: string | null;
+  supportCounts: Record<string, unknown> | null;
+  strongestValue: Record<string, unknown> | null;
+  conflict: {
+    conflictKey: string;
+    severity: string;
+    suggestedHandling: string;
+    competingValues: unknown[];
+  } | null;
 }
 
 export interface KnowledgePackOntologyReference {
@@ -201,6 +215,11 @@ export interface KnowledgePackEntityTrustRecord
   entityId: string;
 }
 
+export interface KnowledgePackConsensusRecord
+  extends KnowledgePackFactConsensus {
+  factId: string;
+}
+
 export interface KnowledgePackRepository {
   findCanonicalFactsByChunkIds(chunkIds: string[]): Promise<KnowledgePackFactRecord[]>;
   findEntitiesByIds(entityIds: string[]): Promise<KnowledgePackEntityRecord[]>;
@@ -213,6 +232,7 @@ export interface KnowledgePackRepository {
   findEntityTrustByEntityIds(
     entityIds: string[],
   ): Promise<KnowledgePackEntityTrustRecord[]>;
+  findConsensusByFactIds(factIds: string[]): Promise<KnowledgePackConsensusRecord[]>;
 }
 
 export class KnowledgePackValidationError extends Error {

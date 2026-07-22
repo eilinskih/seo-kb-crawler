@@ -17,6 +17,7 @@ import {
   KnowledgePackValidationError,
   KnowledgePackRepository,
   KnowledgePackEntityTrustRecord,
+  KnowledgePackConsensusRecord,
 } from './domain/knowledge-pack-types';
 import { KNOWLEDGE_PACK_REPOSITORY } from './knowledge-pack.tokens';
 
@@ -86,8 +87,14 @@ export class KnowledgePackService {
       packedFacts.map((fact) => fact.factId),
     );
     const entityTrust = await this.repository.findEntityTrustByEntityIds(entityIds);
+    const consensus = await this.repository.findConsensusByFactIds(
+      packedFacts.map((fact) => fact.factId),
+    );
     const trustedSources = attachSourceTrust(sources, sourceTrust);
-    const trustedFacts = attachFactTrust(packedFacts, factTrust);
+    const trustedFacts = attachConsensus(
+      attachFactTrust(packedFacts, factTrust),
+      consensus,
+    );
     const trustedEntities = attachEntityTrust(entities, entityTrust);
     const confidence = buildConfidence(trustedFacts, trustedSources);
     const visibleAliases = filterAliasesForLanguage(aliases, request.language);
@@ -168,6 +175,30 @@ function attachFactTrust(
             finalConfidence: trust.finalConfidence,
             uncertaintyFlags: trust.uncertaintyFlags,
             components: trust.components,
+          },
+        }
+      : fact;
+  });
+}
+
+function attachConsensus(
+  facts: KnowledgePackFact[],
+  consensusRecords: KnowledgePackConsensusRecord[],
+): KnowledgePackFact[] {
+  const consensusByFactId = new Map(
+    consensusRecords.map((record) => [record.factId, record]),
+  );
+  return facts.map((fact) => {
+    const consensus = consensusByFactId.get(fact.factId);
+    return consensus
+      ? {
+          ...fact,
+          consensus: {
+            groupKey: consensus.groupKey,
+            confidenceLevel: consensus.confidenceLevel,
+            supportCounts: consensus.supportCounts,
+            strongestValue: consensus.strongestValue,
+            conflict: consensus.conflict,
           },
         }
       : fact;

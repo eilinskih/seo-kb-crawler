@@ -52,7 +52,7 @@ Roadmap order, phases and dependency rules live only in
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
-| #16 | SEO Consensus and Conflict Layer | Review needed | Foundation implementation is in review; pack consumption remains a safe follow-up. |
+| #16 | SEO Consensus and Conflict Layer | Review needed | Foundation implementation and safe Knowledge Pack consensus consumption are in review. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
@@ -70,6 +70,35 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #16
+Status: Review needed
+Summary:
+- Added safe Knowledge Pack consumption of SEO Consensus metadata after the
+  SEO Consensus foundation merged.
+- Added explicit consensus/conflict fact mapping tables so Knowledge Pack can
+  resolve consensus metadata by canonical fact id without JSON scans.
+- Knowledge Pack now exposes optional fact-level `consensus` metadata while
+  preserving existing output when consensus records are absent.
+Changed files:
+- docs/progress.md
+- docs/seo-consensus-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/012-seo-consensus-fact-mappings.ts
+- packages/knowledge-pack/*
+- packages/seo-consensus/*
+Validation:
+- npm test -- knowledge-pack
+- npm test -- seo-consensus
+- npx nest build knowledge-pack
+- npx nest build seo-consensus
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge score consumption, then close out Issue #16 if no remaining
+  accepted scope is missing.
 
 Date: 2026-07-23
 Issue: #16
