@@ -1,3 +1,4 @@
+import { KnowledgePackService } from '@seo-kb/knowledge-pack';
 import { RetrievalService } from '@seo-kb/retrieval';
 import { ContextPackService } from './context-pack.service';
 import {
@@ -120,6 +121,74 @@ describe('ContextPackService', () => {
       code: 'research_asset_filter_deferred',
       detail:
         'Research Assets filtering is accepted by the API contract but not connected to a Research Assets subsystem yet',
+    });
+  });
+
+  it('includes Knowledge Pack only when explicitly requested', async () => {
+    const retrieval = {
+      search: jest.fn().mockResolvedValue(retrievalResponseFixture()),
+    } as unknown as RetrievalService;
+    const knowledgePack = {
+      build: jest.fn().mockResolvedValue({
+        normalizedQuery: 'laser',
+        profile: 'entity_research',
+        entities: [],
+        aliases: [],
+        facts: [],
+        evidenceChunks: [],
+        sources: [],
+        ontologyReferences: [],
+        evidenceGaps: [],
+        confidence: {
+          level: 'unknown',
+          factCount: 0,
+          sourceCount: 0,
+          averageFactConfidence: null,
+        },
+        retrieval: {
+          degraded: false,
+          warnings: [],
+          resultCount: 0,
+        },
+      }),
+    } as unknown as KnowledgePackService;
+    const service = new ContextPackService(retrieval, knowledgePack);
+
+    const packWithoutKnowledge = await service.build({
+      query: 'laser',
+      profile: 'research',
+    });
+    const packWithKnowledge = await service.build({
+      query: 'laser',
+      profile: 'research',
+      includeKnowledgePack: true,
+    });
+
+    expect(packWithoutKnowledge.knowledgePack).toBeUndefined();
+    expect(knowledgePack.build).toHaveBeenCalledTimes(1);
+    expect(knowledgePack.build).toHaveBeenCalledWith(expect.objectContaining({
+      query: 'laser',
+      profile: 'entity_research',
+    }));
+    expect(packWithKnowledge.knowledgePack?.profile).toBe('entity_research');
+  });
+
+  it('surfaces a gap when Knowledge Pack is requested but unavailable', async () => {
+    const retrieval = {
+      search: jest.fn().mockResolvedValue(retrievalResponseFixture()),
+    } as unknown as RetrievalService;
+    const service = new ContextPackService(retrieval);
+
+    const pack = await service.build({
+      query: 'laser',
+      profile: 'research',
+      includeKnowledgePack: true,
+    });
+
+    expect(pack.knowledgePack).toBeUndefined();
+    expect(pack.contentGaps).toContainEqual({
+      code: 'knowledge_pack_unavailable',
+      detail: 'Knowledge Pack was requested but the service is not available',
     });
   });
 });

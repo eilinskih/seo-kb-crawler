@@ -50,7 +50,7 @@ Roadmap order, phases and dependency rules live only in
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
-| #14 | Knowledge Pack Builder | Review needed | Foundation implementation is in review; Context Pack bridge remains the next safe follow-up before close-out. |
+| #14 | Knowledge Pack Builder | Review needed | Foundation and safe opt-in Context Pack bridge are in review. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
@@ -70,6 +70,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #14
+Status: Review needed
+Summary:
+- Added the safe opt-in Context Pack bridge after the Knowledge Pack foundation
+  merged.
+- Context Pack behavior remains unchanged by default; callers must request
+  `includeKnowledgePack` to receive Knowledge Pack data.
+- Added profile mapping and an explicit `knowledge_pack_unavailable` content
+  gap for manual/incomplete wiring cases.
+Changed files:
+- docs/knowledge-pack-model.md
+- docs/progress.md
+- docs/project-map.md
+- packages/context-pack/*
+Validation:
+- npm test -- context-pack
+- npx nest build api
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge the bridge PR, then close out Issue #14 if review confirms
+  the accepted scope is complete.
 
 Date: 2026-07-23
 Issue: #14

@@ -3,6 +3,10 @@ import {
   RankingProfileName,
   RetrievalResult,
 } from '@seo-kb/retrieval';
+import type {
+  KnowledgePackProfileName,
+  KnowledgePackResponse,
+} from '@seo-kb/knowledge-pack';
 
 export type ContextPackProfileName =
   | 'article_generation'
@@ -35,6 +39,8 @@ export interface ContextPackRequest {
   limit?: number;
   includeDebug?: boolean;
   includeRawRetrieval?: boolean;
+  includeKnowledgePack?: boolean;
+  knowledgePackProfile?: KnowledgePackProfileName;
 }
 
 export interface ContextPackProfile {
@@ -94,7 +100,8 @@ export interface ContextPackGap {
     | 'missing_language'
     | 'missing_geo'
     | 'no_faq_candidates'
-    | 'research_asset_filter_deferred';
+    | 'research_asset_filter_deferred'
+    | 'knowledge_pack_unavailable';
   detail: string;
 }
 
@@ -111,6 +118,7 @@ export interface ContextPackResponse {
     warnings: string[];
     resultCount: number;
   };
+  knowledgePack?: KnowledgePackResponse;
   rawRetrieval?: RetrievalResult[];
   debug?: {
     profile: ContextPackProfile;

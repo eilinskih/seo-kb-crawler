@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+import {
+  KnowledgePackProfileName,
+  KnowledgePackService,
+} from '@seo-kb/knowledge-pack';
 import { RetrievalService } from '@seo-kb/retrieval';
 import { CONTEXT_PACK_PROFILES } from './domain/context-pack-profiles';
 import {
   ContextPackGap,
+  ContextPackProfileName,
   ContextPackRequest,
   ContextPackResponse,
   ContextPackSection,
@@ -13,7 +18,11 @@ import {
 
 @Injectable()
 export class ContextPackService {
-  constructor(private readonly retrieval: RetrievalService) {}
+  constructor(
+    private readonly retrieval: RetrievalService,
+    @Optional()
+    private readonly knowledgePack?: KnowledgePackService,
+  ) {}
 
   async build(request: ContextPackRequest): Promise<ContextPackResponse> {
     if (!request || typeof request.query !== 'string') {
@@ -48,6 +57,21 @@ export class ContextPackService {
           sourceIds: section.sourceIds,
         }))
       : [];
+    const knowledgePack = request.includeKnowledgePack && this.knowledgePack
+      ? await this.knowledgePack.build({
+          query: normalized.normalizedQuery,
+          topicId: normalized.topicId,
+          language: normalized.language,
+          geo: normalized.geo,
+          vertical: request.vertical,
+          profile: request.knowledgePackProfile ?? toKnowledgePackProfile(
+            request.profile,
+          ),
+          limit: request.limit,
+          includeDebug: request.includeDebug,
+          includeRawRetrieval: request.includeRawRetrieval,
+        })
+      : undefined;
 
     return {
       normalizedQuery: normalized.normalizedQuery,
@@ -61,12 +85,14 @@ export class ContextPackService {
         retrieval.warnings,
         sources,
         request,
+        request.includeKnowledgePack === true && !this.knowledgePack,
       ),
       retrieval: {
         degraded: retrieval.degraded,
         warnings: retrieval.warnings,
         resultCount: retrieval.results.length,
       },
+      knowledgePack,
       rawRetrieval: request.includeRawRetrieval ? retrieval.results : undefined,
       debug: request.includeDebug ? { profile } : undefined,
     };
@@ -172,8 +198,15 @@ function buildGaps(
   warnings: string[],
   sources: ContextPackSource[],
   request: ContextPackRequest,
+  knowledgePackUnavailable: boolean,
 ): ContextPackGap[] {
   const gaps: ContextPackGap[] = [];
+  if (knowledgePackUnavailable) {
+    gaps.push({
+      code: 'knowledge_pack_unavailable',
+      detail: 'Knowledge Pack was requested but the service is not available',
+    });
+  }
   if (hasResearchAssetFilter(request)) {
     gaps.push({
       code: 'research_asset_filter_deferred',
@@ -211,6 +244,23 @@ function buildGaps(
     });
   }
   return gaps;
+}
+
+function toKnowledgePackProfile(
+  profile: ContextPackProfileName,
+): KnowledgePackProfileName {
+  switch (profile) {
+    case 'article_generation':
+      return 'article_generation';
+    case 'competitor_analysis':
+      return 'competitor_research';
+    case 'outline':
+      return 'content_planning';
+    case 'raw_retrieval':
+      return 'fact_verification';
+    case 'research':
+      return 'entity_research';
+  }
 }
 
 function hasResearchAssetFilter(request: ContextPackRequest): boolean {
