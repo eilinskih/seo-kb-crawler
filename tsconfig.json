@@ -78,6 +78,12 @@
       "@seo-kb/fact-extraction/*": [
         "packages/fact-extraction/src/*"
       ],
+      "@seo-kb/knowledge-pack": [
+        "packages/knowledge-pack/src"
+      ],
+      "@seo-kb/knowledge-pack/*": [
+        "packages/knowledge-pack/src/*"
+      ],
       "@seo-kb/ontology": [
         "packages/ontology/src"
       ],

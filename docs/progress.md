@@ -50,7 +50,7 @@ Roadmap order, phases and dependency rules live only in
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
-| #14 | Knowledge Pack Builder | Review needed | Design PR defines model-agnostic Knowledge Pack contracts, profiles, evidence linking and gap semantics. |
+| #14 | Knowledge Pack Builder | Review needed | Foundation implementation is in review; Context Pack bridge remains the next safe follow-up before close-out. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
@@ -70,6 +70,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #14
+Status: Review needed
+Summary:
+- Implemented the initial Knowledge Pack package boundary after the design PR
+  merged.
+- Added model-agnostic DTOs, profiles, deterministic assembly service,
+  repository abstraction, Knex repository, fact/source/evidence linking and
+  evidence gap generation.
+- Kept Source Trust, SEO Consensus, SERP/SEO Pack generation, content
+  generation and Context Pack behavior changes out of this foundation PR.
+Changed files:
+- docs/knowledge-pack-model.md
+- docs/progress.md
+- docs/project-map.md
+- jest.config.js
+- nest-cli.json
+- packages/knowledge-pack/*
+- tsconfig.json
+Validation:
+- Pending.
+Next step:
+- Review and merge the foundation PR, then add the safe opt-in Context Pack
+  bridge before closing Issue #14.
 
 Date: 2026-07-23
 Issue: #14

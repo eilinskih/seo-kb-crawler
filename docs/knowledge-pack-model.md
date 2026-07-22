@@ -1,6 +1,6 @@
 # Knowledge Pack Builder Model
 
-- Status: Design proposed for Issue #14
+- Status: Foundation implementation in review for Issue #14
 - Issue: #14
 - Date: 2026-07-23
 
@@ -248,8 +248,8 @@ The first implementation should include:
 - profile definitions;
 - request/response DTOs;
 - deterministic assembly service;
-- repository abstraction for entities, aliases, canonical facts, chunks and
-  sources;
+- repository abstraction for entities, aliases, canonical facts and ontology
+  references;
 - degraded behavior when no facts exist;
 - evidence gap generation;
 - tests for deterministic pack generation, fact prioritization and missing
@@ -278,4 +278,26 @@ Issue #14 is complete when:
 - missing or weak evidence is surfaced explicitly;
 - output is deterministic and model-agnostic;
 - Context Pack integration is documented or implemented safely;
+- Source Trust, SEO Consensus, SERP Pack generation and content generation
+  remain explicitly out of scope for the foundation.
+
+## Implementation Notes
+
+The foundation package is `packages/knowledge-pack`.
+
+The initial implementation:
+
+- calls Hybrid Retrieval for evidence chunks using accepted ranking profiles;
+- reads canonical facts by retrieved chunk ids;
+- links facts back to evidence chunks and source ids;
+- packages related entities, approved aliases and ontology predicate
+  references;
+- reports missing canonical facts, weak support, single-source support,
+  missing aliases, missing ontology references and degraded retrieval as
+  evidence gaps;
+- returns deterministic, model-agnostic DTOs.
+
+Context Pack integration is intentionally safe-by-default. Existing Context
+Pack behavior is not changed by the foundation package. Consumers may request
+Knowledge Pack directly until a later PR adds an opt-in Context Pack bridge.
 - documentation, progress and project map are synchronized.
