@@ -4,8 +4,11 @@ import {
   KnowledgePackAliasRecord,
   KnowledgePackEntityRecord,
   KnowledgePackFactRecord,
+  KnowledgePackFactTrustRecord,
   KnowledgePackOntologyRecord,
   KnowledgePackRepository,
+  KnowledgePackSourceTrustRecord,
+  KnowledgePackEntityTrustRecord,
 } from '../domain/knowledge-pack-types';
 
 interface CanonicalFactRow {
@@ -42,6 +45,37 @@ interface OntologyPredicateRow {
   key: string;
   label: string;
   description: string;
+}
+
+interface SourceTrustRow {
+  source_url: string;
+  canonical_url: string | null;
+  source_type: string;
+  review_status: string;
+  rule_version: string;
+  score_components: Record<string, unknown>;
+  source_trust_score: string | number;
+}
+
+interface FactScoreRow {
+  canonical_fact_id: string;
+  evidence_strength: string | number;
+  source_trust_score: string | number | null;
+  extraction_confidence: string | number;
+  normalization_confidence: string | number | null;
+  final_confidence: string | number;
+  score_components: Record<string, unknown>;
+  uncertainty_flags: string[];
+}
+
+interface EntityScoreRow {
+  entity_id: string;
+  alias_confidence: string | number | null;
+  mention_count: number;
+  source_diversity_score: string | number;
+  average_source_trust: string | number | null;
+  final_confidence: string | number;
+  score_components: Record<string, unknown>;
 }
 
 @Injectable()
@@ -133,6 +167,78 @@ export class KnexKnowledgePackRepository implements KnowledgePackRepository {
 
     return rows.map(toOntologyRecord);
   }
+
+  async findSourceTrustByUrls(
+    urls: string[],
+  ): Promise<KnowledgePackSourceTrustRecord[]> {
+    if (urls.length === 0) {
+      return [];
+    }
+
+    const rows = await this.db.knex<SourceTrustRow>('source_profiles')
+      .where((builder) =>
+        builder
+          .whereIn('source_url', urls)
+          .orWhereIn('canonical_url', urls),
+      )
+      .orderBy('source_trust_score', 'desc')
+      .select([
+        'source_url',
+        'canonical_url',
+        'source_type',
+        'review_status',
+        'rule_version',
+        'score_components',
+        'source_trust_score',
+      ]);
+
+    return rows.map(toSourceTrustRecord);
+  }
+
+  async findFactTrustByFactIds(
+    factIds: string[],
+  ): Promise<KnowledgePackFactTrustRecord[]> {
+    if (factIds.length === 0) {
+      return [];
+    }
+
+    const rows = await this.db.knex<FactScoreRow>('fact_scores')
+      .whereIn('canonical_fact_id', factIds)
+      .select([
+        'canonical_fact_id',
+        'evidence_strength',
+        'source_trust_score',
+        'extraction_confidence',
+        'normalization_confidence',
+        'final_confidence',
+        'score_components',
+        'uncertainty_flags',
+      ]);
+
+    return rows.map(toFactTrustRecord);
+  }
+
+  async findEntityTrustByEntityIds(
+    entityIds: string[],
+  ): Promise<KnowledgePackEntityTrustRecord[]> {
+    if (entityIds.length === 0) {
+      return [];
+    }
+
+    const rows = await this.db.knex<EntityScoreRow>('entity_scores')
+      .whereIn('entity_id', entityIds)
+      .select([
+        'entity_id',
+        'alias_confidence',
+        'mention_count',
+        'source_diversity_score',
+        'average_source_trust',
+        'final_confidence',
+        'score_components',
+      ]);
+
+    return rows.map(toEntityTrustRecord);
+  }
 }
 
 function toFactRecord(row: CanonicalFactRow): KnowledgePackFactRecord {
@@ -176,5 +282,50 @@ function toOntologyRecord(row: OntologyPredicateRow): KnowledgePackOntologyRecor
     predicateKey: row.key,
     label: row.label,
     description: row.description,
+  };
+}
+
+function toSourceTrustRecord(row: SourceTrustRow): KnowledgePackSourceTrustRecord {
+  return {
+    sourceUrl: row.source_url,
+    canonicalUrl: row.canonical_url,
+    sourceType: row.source_type,
+    reviewStatus: row.review_status,
+    score: Number(row.source_trust_score),
+    ruleVersion: row.rule_version,
+    components: row.score_components,
+  };
+}
+
+function toFactTrustRecord(row: FactScoreRow): KnowledgePackFactTrustRecord {
+  return {
+    factId: row.canonical_fact_id,
+    evidenceStrengthScore: Number(row.evidence_strength),
+    sourceTrustScore: row.source_trust_score === null
+      ? null
+      : Number(row.source_trust_score),
+    extractionConfidence: Number(row.extraction_confidence),
+    normalizationConfidence: row.normalization_confidence === null
+      ? null
+      : Number(row.normalization_confidence),
+    finalConfidence: Number(row.final_confidence),
+    uncertaintyFlags: row.uncertainty_flags,
+    components: row.score_components,
+  };
+}
+
+function toEntityTrustRecord(row: EntityScoreRow): KnowledgePackEntityTrustRecord {
+  return {
+    entityId: row.entity_id,
+    aliasConfidence: row.alias_confidence === null
+      ? null
+      : Number(row.alias_confidence),
+    mentionCount: row.mention_count,
+    sourceDiversityScore: Number(row.source_diversity_score),
+    averageSourceTrust: row.average_source_trust === null
+      ? null
+      : Number(row.average_source_trust),
+    finalConfidence: Number(row.final_confidence),
+    components: row.score_components,
   };
 }

@@ -51,7 +51,7 @@ Roadmap order, phases and dependency rules live only in
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
-| #15 | Source Trust and Evidence Scoring | Review needed | Foundation implementation is in review; Knowledge Pack score consumption remains the next safe follow-up. |
+| #15 | Source Trust and Evidence Scoring | Review needed | Foundation implementation and safe Knowledge Pack score consumption are in review. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
@@ -70,6 +70,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #15
+Status: Review needed
+Summary:
+- Added safe Knowledge Pack consumption of Source Trust score records after the
+  Source Trust foundation merged.
+- Knowledge Pack now exposes optional `trust` metadata on sources, facts and
+  entities when score records exist, while preserving unknown trust when they
+  do not.
+- Unresolved conflict flags from fact scores become explicit Knowledge Pack
+  evidence gaps without attempting consensus.
+Changed files:
+- docs/progress.md
+- docs/source-trust-model.md
+- packages/knowledge-pack/*
+Validation:
+- npm test -- knowledge-pack
+- npx nest build knowledge-pack
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge score consumption, then close out Issue #15 if no remaining
+  accepted scope is missing.
 
 Date: 2026-07-23
 Issue: #15

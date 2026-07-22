@@ -132,7 +132,7 @@ Implemented on `main`:
   generation, plus safe opt-in Context Pack bridge.
 - Source Trust package boundary, deterministic source classification, source
   trust scoring, evidence aggregation, fact score calculation, entity score
-  calculation and storage migration.
+  calculation, storage migration and safe Knowledge Pack score consumption.
 
 Designed but not implemented on `main`:
 

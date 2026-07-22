@@ -2,9 +2,12 @@ import { RetrievalResponse, RetrievalService } from '@seo-kb/retrieval';
 import {
   KnowledgePackAliasRecord,
   KnowledgePackEntityRecord,
+  KnowledgePackEntityTrustRecord,
   KnowledgePackFactRecord,
+  KnowledgePackFactTrustRecord,
   KnowledgePackOntologyRecord,
   KnowledgePackRepository,
+  KnowledgePackSourceTrustRecord,
 } from './domain/knowledge-pack-types';
 import { KnowledgePackService } from './knowledge-pack.service';
 
@@ -13,6 +16,9 @@ class InMemoryKnowledgePackRepository implements KnowledgePackRepository {
   entities: KnowledgePackEntityRecord[] = [];
   aliases: KnowledgePackAliasRecord[] = [];
   ontologyReferences: KnowledgePackOntologyRecord[] = [];
+  sourceTrust: KnowledgePackSourceTrustRecord[] = [];
+  factTrust: KnowledgePackFactTrustRecord[] = [];
+  entityTrust: KnowledgePackEntityTrustRecord[] = [];
 
   async findCanonicalFactsByChunkIds(
     chunkIds: string[],
@@ -38,6 +44,27 @@ class InMemoryKnowledgePackRepository implements KnowledgePackRepository {
     return this.ontologyReferences.filter((reference) =>
       predicateIds.includes(reference.predicateId),
     );
+  }
+
+  async findSourceTrustByUrls(
+    urls: string[],
+  ): Promise<KnowledgePackSourceTrustRecord[]> {
+    return this.sourceTrust.filter((trust) =>
+      urls.includes(trust.sourceUrl) ||
+      (trust.canonicalUrl ? urls.includes(trust.canonicalUrl) : false),
+    );
+  }
+
+  async findFactTrustByFactIds(
+    factIds: string[],
+  ): Promise<KnowledgePackFactTrustRecord[]> {
+    return this.factTrust.filter((trust) => factIds.includes(trust.factId));
+  }
+
+  async findEntityTrustByEntityIds(
+    entityIds: string[],
+  ): Promise<KnowledgePackEntityTrustRecord[]> {
+    return this.entityTrust.filter((trust) => entityIds.includes(trust.entityId));
   }
 }
 
@@ -288,5 +315,85 @@ describe('KnowledgePackService', () => {
       'alias-pl',
       'alias-any',
     ]);
+  });
+
+  it('attaches optional trust metadata when score records are available', async () => {
+    repository.facts = [
+      {
+        factId: 'fact-1',
+        subjectEntityId: 'entity-1',
+        objectEntityId: null,
+        predicateId: 'predicate-1',
+        predicateKey: 'has_price',
+        normalizedAttributes: {},
+        sourceChunkId: 'chunk-1',
+        confidence: 0.7,
+        provenance: {},
+      },
+    ];
+    repository.entities = [
+      {
+        entityId: 'entity-1',
+        canonicalName: 'Laser hair removal',
+        entityType: 'procedure',
+        vertical: 'beauty',
+        confidence: 0.9,
+      },
+    ];
+    repository.sourceTrust = [
+      {
+        sourceUrl: 'https://example.com/laser',
+        canonicalUrl: 'https://example.com/laser',
+        sourceType: 'official_documentation',
+        reviewStatus: 'inferred',
+        score: 0.86,
+        ruleVersion: 'source-trust-default-v1',
+        components: { baseScore: 0.9 },
+      },
+    ];
+    repository.factTrust = [
+      {
+        factId: 'fact-1',
+        evidenceStrengthScore: 0.72,
+        sourceTrustScore: 0.86,
+        extractionConfidence: 0.7,
+        normalizationConfidence: 0.82,
+        finalConfidence: 0.76,
+        uncertaintyFlags: ['possible_conflict_unresolved'],
+        components: { evidenceStrength: 0.72 },
+      },
+    ];
+    repository.entityTrust = [
+      {
+        entityId: 'entity-1',
+        aliasConfidence: 0.8,
+        mentionCount: 4,
+        sourceDiversityScore: 0.5,
+        averageSourceTrust: 0.86,
+        finalConfidence: 0.78,
+        components: { mentionSupport: 0.2 },
+      },
+    ];
+
+    const pack = await service.build({
+      query: 'laser hair removal',
+      profile: 'article_generation',
+    });
+
+    expect(pack.sources[0].trust).toEqual(expect.objectContaining({
+      sourceType: 'official_documentation',
+      score: 0.86,
+    }));
+    expect(pack.facts[0].trust).toEqual(expect.objectContaining({
+      evidenceStrengthScore: 0.72,
+      finalConfidence: 0.76,
+    }));
+    expect(pack.entities[0].trust).toEqual(expect.objectContaining({
+      finalConfidence: 0.78,
+    }));
+    expect(pack.evidenceGaps).toContainEqual({
+      code: 'possible_conflict_unresolved',
+      detail: 'At least one fact has unresolved conflict uncertainty',
+    });
   });
 });
