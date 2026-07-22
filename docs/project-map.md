@@ -143,7 +143,7 @@ Implemented on `main`:
   explicit fallback mode.
 - SERP Intelligence package boundary, SERP snapshot/result contracts,
   heading/FAQ/entity pattern analysis, depth summaries, content angle
-  detection and SERP Pack assembly.
+  detection, SERP Pack assembly and repository abstraction.
 
 Designed but not implemented on `main`:
 

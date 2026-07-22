@@ -1,6 +1,6 @@
 # SERP Intelligence Model
 
-- Status: Foundation implementation in review for Issue #18
+- Status: Foundation complete for Issue #18
 - Issue: #18
 - Date: 2026-07-23
 
@@ -289,6 +289,11 @@ Implemented foundation package:
 - `packages/serp-intelligence/src/content-depth.service.ts` and
   `packages/serp-intelligence/src/content-angle.service.ts` provide the first
   depth and angle heuristics.
+- `packages/serp-intelligence/src/persistence/serp-intelligence.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
+- `packages/serp-intelligence/src/testing/in-memory-serp-intelligence.repository.ts`
+  provides deterministic test storage for repository contract consumers.
 
 Recommended services:
 
@@ -334,6 +339,7 @@ The first implementation should include:
 
 The first implementation should not include:
 
+- concrete database persistence;
 - live paid SERP provider integrations;
 - rank tracking alerts;
 - SERP Intent Analyzer runtime;
@@ -346,9 +352,10 @@ The first implementation should not include:
 
 Issue #18 is complete when:
 
-- SERP snapshot and result contracts exist;
-- heading, FAQ, depth and angle analysis foundations are implemented;
-- SERP Pack DTOs are implemented;
-- degraded/fallback SERP state is explicit;
-- Knowledge Pack, Demand Engine and SEO Consensus boundaries remain separate;
-- documentation, progress and project map are synchronized.
+- SERP snapshot and result contracts exist. Done.
+- heading, FAQ, depth and angle analysis foundations are implemented. Done.
+- SERP Pack DTOs are implemented. Done.
+- degraded/fallback SERP state is explicit. Done.
+- Knowledge Pack, Demand Engine and SEO Consensus boundaries remain separate.
+  Done.
+- documentation, progress and project map are synchronized. Done.
