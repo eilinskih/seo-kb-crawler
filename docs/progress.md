@@ -55,8 +55,8 @@ Roadmap order, phases and dependency rules live only in
 | #16 | SEO Consensus and Conflict Layer | Done | Design, foundation implementation, safe Knowledge Pack consensus consumption and close-out synchronization are complete; roadmap continues with #98. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
-| #98 | Demand Engine Runtime | Review needed | Runtime foundation is in review with provider-optional fallback discovery. |
-| #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30. |
+| #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
+| #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30; may start after #98. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
@@ -70,6 +70,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #98
+Status: Done
+Summary:
+- Closed out Demand Engine Runtime foundation after the provider-optional
+  package, fallback/manual discovery, keyword candidates, candidate pages and
+  nullable metric snapshots merged.
+- Confirmed missing paid provider data is non-blocking and unknown metrics
+  remain null.
+- Confirmed persistence, scheduling, paid provider integrations, SERP
+  Intelligence runtime, Topic Expansion, Long-tail Discovery and SEO Pack
+  generation remain later roadmap work.
+Changed files:
+- docs/demand-engine-model.md
+- docs/implementation-order.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #98 and start Issue #18 SERP Intelligence Layer from
+  updated `main`.
 
 Date: 2026-07-23
 Issue: #98
