@@ -144,6 +144,15 @@
         "tsConfigPath": "packages/ontology/tsconfig.lib.json"
       }
     },
+    "fact-extraction": {
+      "type": "library",
+      "root": "packages/fact-extraction",
+      "entryFile": "index",
+      "sourceRoot": "packages/fact-extraction/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/fact-extraction/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

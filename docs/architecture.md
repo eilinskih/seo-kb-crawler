@@ -160,10 +160,12 @@ The Topic Classification Strategy is documented in
 topic classification after Entity and Ontology foundations without moving
 topic lifecycle, crawl policy or relevance policy out of the Topic Engine.
 
-The Fact Extraction Worker design is documented in
+The Fact Extraction Worker design and foundation package are documented in
 `docs/fact-extraction-worker-model.md`. It treats extractors as candidate
 generators and creates canonical facts only after Ontology and Predicate
-Registry normalization.
+Registry normalization. The first foundation owns domain contracts,
+provider/noop boundaries, candidate selection, validation and normalization
+orchestration; dedicated worker-app queue orchestration remains later work.
 
 ### SEO intelligence layer
 

@@ -49,7 +49,7 @@ Roadmap order, phases and dependency rules live only in
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
-| #13 | Fact Extraction Worker | Review needed | Design PR defines extraction provider, raw fact, normalization, storage and idempotency contracts. |
+| #13 | Fact Extraction Worker | Review needed | Foundation PR adds package boundary, provider/noop contracts, candidate selection, validation, normalization orchestration and metadata migration. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
@@ -70,6 +70,38 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #13
+Status: Review needed
+Summary:
+- Implemented the initial Fact Extraction package boundary and NestJS module.
+- Added extraction provider interface, noop provider, deterministic test
+  provider, candidate selection, raw candidate validation and predicate
+  normalization orchestration through the Ontology registry.
+- Added worker-owned extraction run and normalization attempt metadata migration
+  while reusing the existing `raw_facts` and `canonical_facts` tables from #12.
+- Kept production model adapters, dedicated worker app, queue orchestration,
+  source trust scoring and SEO consensus out of this foundation scope.
+Changed files:
+- docs/architecture.md
+- docs/fact-extraction-worker-model.md
+- docs/progress.md
+- docs/project-map.md
+- nest-cli.json
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/009-fact-extraction-foundation.ts
+- packages/fact-extraction/*
+- tsconfig.json
+Validation:
+- npm test -- fact-extraction
+- npm test
+- npm run build
+- npx nest build fact-extraction
+Next step:
+- Run full test/build checks, review and merge the foundation PR, then decide
+  whether Issue #13 needs a worker-app/queue follow-up or close-out
+  stabilization first.
 
 Date: 2026-07-23
 Issue: #13
