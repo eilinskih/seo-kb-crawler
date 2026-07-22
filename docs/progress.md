@@ -58,7 +58,7 @@ Roadmap order, phases and dependency rules live only in
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
-| #19 | Topic Expansion Engine | Not started | Depends on Demand Engine Runtime, #18 SERP Pack outputs, #30 SERP Intent Pack outputs and knowledge signals. |
+| #19 | Topic Expansion Engine | Review needed | Design PR defines Expansion Pack contracts, candidate generation boundaries and Long-tail Discovery separation. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
@@ -70,6 +70,27 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #19
+Status: Review needed
+Summary:
+- Started Topic Expansion Engine as a design-only PR after Issue #30 closed.
+- Defined expansion signals, candidate types, topic clusters, Expansion Pack
+  contracts and deterministic generation rules.
+- Explicitly separated Issue #19 first-pass expansion from future Long-tail
+  Discovery Engine combinatorics and advanced Opportunity Scoring.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/topic-expansion-model.md
+Validation:
+- git diff --check
+- Architecture Steward review: no runtime architecture blocker; wording
+  tightened around candidate-generator scope and operator seed constraints.
+Next step:
+- Merge the design before implementing `packages/topic-expansion`.
 
 Date: 2026-07-23
 Issue: #30

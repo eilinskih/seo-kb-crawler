@@ -16,7 +16,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/fact-extraction-worker-model.md`, `docs/knowledge-pack-model.md`,
 `docs/source-trust-model.md`, `docs/seo-consensus-model.md`,
 `docs/serp-intelligence-model.md`, `docs/serp-intent-analyzer-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/topic-expansion-model.md`, `docs/demand-engine-model.md` and ADRs under
+`docs/decisions/`.
 
 ## Core pipeline
 
@@ -38,6 +39,7 @@ Topics
   -> SEO Consensus
   -> SERP Intelligence
   -> SERP Intent Analyzer
+  -> Topic Expansion
   -> Knowledge Pack Builder
   -> Codex Context Pack API
   -> Codex
@@ -208,6 +210,11 @@ The SERP Intent Analyzer design is documented in
 `docs/serp-intent-analyzer-model.md`. It classifies SERP Pack evidence into
 mandatory intents and opportunity intents without inventing topic coverage
 percentages.
+
+The Topic Expansion Engine design is documented in
+`docs/topic-expansion-model.md`. It turns existing demand, SERP, intent and
+knowledge signals into traceable expansion candidates without replacing the
+future Long-tail Discovery Engine.
 
 ### Codex integration layer
 
