@@ -180,6 +180,15 @@
         "tsConfigPath": "packages/seo-consensus/tsconfig.lib.json"
       }
     },
+    "demand-engine": {
+      "type": "library",
+      "root": "packages/demand-engine",
+      "entryFile": "index",
+      "sourceRoot": "packages/demand-engine/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/demand-engine/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

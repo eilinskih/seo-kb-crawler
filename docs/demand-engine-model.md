@@ -1,6 +1,6 @@
 # Demand Engine Model
 
-- Status: Design accepted; runtime implementation deferred
+- Status: Runtime foundation in review
 - Issue: #72
 - Runtime issue: #98
 - Related ADR: `docs/decisions/0003-demand-engine-provider-optional.md`
@@ -355,6 +355,21 @@ The first Demand Engine implementation should be intentionally small:
 
 Advanced clustering, paid provider integrations, rank tracking, SERP feature
 history and sophisticated opportunity scoring can follow later.
+
+## Implementation Notes
+
+The runtime foundation package is `packages/demand-engine`.
+
+The initial implementation:
+
+- defines candidate keyword, candidate page, demand observation and nullable
+  metric snapshot contracts;
+- defines provider adapter contracts across provider tiers;
+- includes a manual/free fallback provider;
+- keeps missing paid provider data non-blocking;
+- marks unknown volume, difficulty, CPC and traffic potential as `null`;
+- promotes fallback candidate pages only when enough fallback evidence exists;
+- exposes fallback mode and provider warnings explicitly.
 
 ## Review gates
 
