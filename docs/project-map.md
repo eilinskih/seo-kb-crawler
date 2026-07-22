@@ -46,6 +46,7 @@ specialized documents:
 - `docs/source-trust-model.md` for Source Trust and Evidence Scoring.
 - `docs/seo-consensus-model.md` for SEO Consensus and Conflict Layer.
 - `docs/serp-intelligence-model.md` for SERP Intelligence Layer.
+- `docs/serp-intent-analyzer-model.md` for SERP Intent Analyzer.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -147,6 +148,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- SERP Intent Analyzer contracts for mandatory intents, opportunity intents,
+  frequency/depth/gap signals and SERP Intent Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -155,7 +158,6 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
-- SERP persistence, live SERP providers, SERP Intent Analyzer and SEO Pack
-  generation.
+- SERP persistence, live SERP providers and SEO Pack generation.
 - Operator Console.
 - SEO Agent Gateway.

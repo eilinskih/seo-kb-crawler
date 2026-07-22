@@ -57,7 +57,7 @@ Roadmap order, phases and dependency rules live only in
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
-| #30 | SERP Intent Analyzer | Not started | Depends on #18 SERP Pack outputs. |
+| #30 | SERP Intent Analyzer | Review needed | Design PR defines mandatory/opportunity intent classification over SERP Pack evidence. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
@@ -70,6 +70,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #30
+Status: Review needed
+Summary:
+- Started SERP Intent Analyzer as a design-only PR after Issue #18 closed.
+- Defined SERP Intent Pack contracts, intent candidates, mandatory/opportunity
+  classes, frequency/depth/gap signals and degraded/fallback behavior.
+- Kept semantic clustering, concrete persistence, target page auditing, Topic
+  Expansion runtime, SEO Pack generation and content generation out of the
+  Issue #30 MVP scope.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/serp-intent-analyzer-model.md
+Validation:
+- git diff --check
+Next step:
+- Review and merge the design before implementing `packages/serp-intent`.
 
 Date: 2026-07-23
 Issue: #18
