@@ -57,8 +57,8 @@ Roadmap order, phases and dependency rules live only in
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
-| #30 | SERP Intent Analyzer | Review needed | Foundation PR adds package contracts, deterministic candidate extraction and must-cover/opportunity classification. |
-| #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
+| #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
+| #19 | Topic Expansion Engine | Not started | Depends on Demand Engine Runtime, #18 SERP Pack outputs, #30 SERP Intent Pack outputs and knowledge signals. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
@@ -70,6 +70,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #30
+Status: Done
+Summary:
+- Closed out SERP Intent Analyzer after design and foundation implementation
+  merged.
+- Confirmed deterministic SERP Intent Pack contracts, candidate extraction,
+  frequency/depth/gap classification, degraded SERP handling and repository
+  abstraction satisfy the accepted Issue #30 scope.
+- Confirmed semantic clustering, concrete persistence, target page auditing,
+  Topic Expansion runtime, SEO Pack generation and content generation remain
+  later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/serp-intent-analyzer-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #30 and start Issue #19 Topic Expansion Engine from
+  updated `main`.
 
 Date: 2026-07-23
 Issue: #30
