@@ -48,6 +48,9 @@ module.exports = {
     '^@seo-kb/source-trust$': '<rootDir>/packages/source-trust/src',
     '^@seo-kb/source-trust/(.*)$':
       '<rootDir>/packages/source-trust/src/$1',
+    '^@seo-kb/seo-consensus$': '<rootDir>/packages/seo-consensus/src',
+    '^@seo-kb/seo-consensus/(.*)$':
+      '<rootDir>/packages/seo-consensus/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

@@ -171,6 +171,15 @@
         "tsConfigPath": "packages/source-trust/tsconfig.lib.json"
       }
     },
+    "seo-consensus": {
+      "type": "library",
+      "root": "packages/seo-consensus",
+      "entryFile": "index",
+      "sourceRoot": "packages/seo-consensus/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/seo-consensus/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

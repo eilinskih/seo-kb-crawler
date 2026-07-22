@@ -1,6 +1,6 @@
 # SEO Consensus And Conflict Model
 
-- Status: Design proposed for Issue #16
+- Status: Foundation implementation in review for Issue #16
 - Issue: #16
 - Date: 2026-07-23
 
@@ -279,6 +279,25 @@ The first implementation should include:
 - minimum persistence schema;
 - tests for agreement, conflict and unsupported comparison scenarios;
 - documentation and progress synchronization.
+
+## Implementation Notes
+
+The foundation package is `packages/seo-consensus`.
+
+The initial implementation:
+
+- normalizes primitive comparable values deterministically;
+- marks unsupported comparison shapes as `comparison_deferred`;
+- groups facts by subject entity, predicate and comparable key;
+- ranks alternatives by support count, source diversity and optional
+  trust/evidence scores;
+- detects conflict sets when comparable values disagree;
+- emits structured SEO phrasing hints and content gap hints;
+- adds persistence contracts and minimum storage tables for consensus groups,
+  conflict sets, SEO phrasing hints and content gap hints.
+
+Knowledge Pack and SEO Pack consumption remain safe follow-ups. Until then,
+downstream consumers continue using existing Knowledge Pack uncertainty fields.
 
 The first implementation should not include:
 

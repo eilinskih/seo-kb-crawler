@@ -102,6 +102,12 @@
       "@seo-kb/source-trust/*": [
         "packages/source-trust/src/*"
       ],
+      "@seo-kb/seo-consensus": [
+        "packages/seo-consensus/src"
+      ],
+      "@seo-kb/seo-consensus/*": [
+        "packages/seo-consensus/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],
