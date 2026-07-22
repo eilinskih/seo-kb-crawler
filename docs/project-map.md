@@ -41,6 +41,7 @@ specialized documents:
 - `docs/entity-alias-model.md` for the Entity and Alias Layer.
 - `docs/ontology-predicate-model.md` for the Ontology and Predicate Registry.
 - `docs/topic-classification-model.md` for Topic Classification Strategy.
+- `docs/fact-extraction-worker-model.md` for the Fact Extraction Worker.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -124,11 +125,14 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
+- Fact Extraction Worker contract for extracting raw facts from chunks and
+  normalizing them through the Ontology and Predicate Registry.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 
+- Fact Extraction Worker runtime.
 - Demand Engine.
 - Knowledge, SERP and SEO pack generation.
 - Operator Console.

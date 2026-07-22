@@ -13,7 +13,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/url-frontier-model.md`, `docs/discovery-sources-model.md`,
 `docs/crawler-worker-model.md`, `docs/content-processing-model.md`,
 `docs/chunking-model.md`, `docs/topic-classification-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/fact-extraction-worker-model.md`, `docs/demand-engine-model.md` and ADRs
+under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -158,6 +159,11 @@ The Topic Classification Strategy is documented in
 `docs/topic-classification-model.md`. It defines primary and secondary semantic
 topic classification after Entity and Ontology foundations without moving
 topic lifecycle, crawl policy or relevance policy out of the Topic Engine.
+
+The Fact Extraction Worker design is documented in
+`docs/fact-extraction-worker-model.md`. It treats extractors as candidate
+generators and creates canonical facts only after Ontology and Predicate
+Registry normalization.
 
 ### SEO intelligence layer
 

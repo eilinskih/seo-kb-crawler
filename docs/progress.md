@@ -49,7 +49,7 @@ Roadmap order, phases and dependency rules live only in
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
-| #13 | Fact Extraction Worker | Not started | Depends on #11, #12 and accepted #28 context. |
+| #13 | Fact Extraction Worker | Review needed | Design PR defines extraction provider, raw fact, normalization, storage and idempotency contracts. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
@@ -70,6 +70,24 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #13
+Status: Review needed
+Summary:
+- Started Fact Extraction Worker as a design-only PR after #11, #12 and #28
+  were accepted.
+- Defined the worker guardrail: extractors generate candidates, while canonical
+  facts require approved Ontology and Predicate Registry normalization.
+- Documented provider modes, raw validation, predicate normalization, storage,
+  job flow, reprocessing and Topic Classification context rules.
+Changed files:
+- docs/architecture.md
+- docs/fact-extraction-worker-model.md
+- docs/project-map.md
+- docs/progress.md
+Next step:
+- Review and merge the design contract before implementing the worker runtime.
 
 Date: 2026-07-23
 Issue: #28
