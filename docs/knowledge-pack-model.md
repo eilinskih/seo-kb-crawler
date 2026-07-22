@@ -1,6 +1,6 @@
 # Knowledge Pack Builder Model
 
-- Status: Foundation implementation in review for Issue #14
+- Status: Context Pack bridge in review for Issue #14
 - Issue: #14
 - Date: 2026-07-23
 
@@ -298,6 +298,15 @@ The initial implementation:
 - returns deterministic, model-agnostic DTOs.
 
 Context Pack integration is intentionally safe-by-default. Existing Context
-Pack behavior is not changed by the foundation package. Consumers may request
-Knowledge Pack directly until a later PR adds an opt-in Context Pack bridge.
+Pack behavior does not change unless `includeKnowledgePack` is requested.
+
+The opt-in bridge:
+
+- adds `includeKnowledgePack` to Context Pack requests;
+- optionally accepts an explicit `knowledgePackProfile`;
+- maps Context Pack profiles to Knowledge Pack profiles when no explicit
+  profile is provided;
+- returns Knowledge Pack data in `knowledgePack`;
+- reports `knowledge_pack_unavailable` if the bridge is requested without an
+  available Knowledge Pack service.
 - documentation, progress and project map are synchronized.

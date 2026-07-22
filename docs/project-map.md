@@ -128,7 +128,7 @@ Implemented on `main`:
 - Knowledge Pack package boundary, model-agnostic DTOs, profiles,
   deterministic assembly service, canonical fact packaging, entity/alias and
   ontology reference packaging, evidence chunk/source linking and evidence gap
-  generation.
+  generation, plus safe opt-in Context Pack bridge.
 
 Designed but not implemented on `main`:
 
@@ -140,6 +140,6 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine.
-- Knowledge Pack Context Pack bridge, SERP and SEO pack generation.
+- SERP and SEO pack generation.
 - Operator Console.
 - SEO Agent Gateway.
