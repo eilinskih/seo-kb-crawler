@@ -51,8 +51,8 @@ Roadmap order, phases and dependency rules live only in
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
-| #15 | Source Trust and Evidence Scoring | Review needed | Foundation implementation and safe Knowledge Pack score consumption are in review. |
-| #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
+| #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
+| #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15; may start after #15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
@@ -70,6 +70,24 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #15
+Status: Done
+Summary:
+- Closed out Source Trust and Evidence Scoring after the design, foundation
+  package and safe Knowledge Pack score consumption merged.
+- Confirmed score components remain visible and separate from final confidence.
+- Confirmed contradiction resolution and consensus decisions remain reserved
+  for Issue #16 SEO Consensus and Conflict Layer.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/source-trust-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #15 and start Issue #16 from updated `main`.
 
 Date: 2026-07-23
 Issue: #15
