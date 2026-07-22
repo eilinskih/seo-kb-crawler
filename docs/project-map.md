@@ -43,6 +43,7 @@ specialized documents:
 - `docs/topic-classification-model.md` for Topic Classification Strategy.
 - `docs/fact-extraction-worker-model.md` for the Fact Extraction Worker.
 - `docs/knowledge-pack-model.md` for the Knowledge Pack Builder.
+- `docs/source-trust-model.md` for Source Trust and Evidence Scoring.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -132,6 +133,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Source Trust and Evidence Scoring contracts for source profiles, source type
+  classification, evidence aggregation and fact/entity score components.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
