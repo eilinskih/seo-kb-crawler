@@ -56,7 +56,7 @@ Roadmap order, phases and dependency rules live only in
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
-| #18 | SERP Intelligence Layer | Not started | SEO-first layer; depends on Demand Engine Runtime signals and is required before #30; may start after #98. |
+| #18 | SERP Intelligence Layer | Review needed | Design PR defines SERP snapshots, pattern analysis and SERP Pack boundaries. |
 | #30 | SERP Intent Analyzer | Not started | Deferred until #18. |
 | #19 | Topic Expansion Engine | Not started | Depends on #18, Demand Engine Runtime and knowledge signals. |
 | Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
@@ -70,6 +70,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #18
+Status: Review needed
+Summary:
+- Started SERP Intelligence Layer as a design-only PR after #98 closed.
+- Defined SERP snapshots, result references, heading/FAQ/entity/depth/angle
+  analysis, SERP expectations and SERP Pack contracts.
+- Kept live paid SERP providers, rank tracking, SERP Intent Analyzer, SEO Pack
+  generation, semantic FAQ clustering and competitor crawl orchestration out of
+  the Issue #18 foundation scope.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/serp-intelligence-model.md
+Validation:
+- git diff --check
+Next step:
+- Review and merge the design before implementing `packages/serp-intelligence`.
 
 Date: 2026-07-23
 Issue: #98
