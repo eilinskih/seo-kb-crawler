@@ -51,7 +51,7 @@ Roadmap order, phases and dependency rules live only in
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
-| #15 | Source Trust and Evidence Scoring | Review needed | Design PR defines source trust, evidence strength and score-component boundaries. |
+| #15 | Source Trust and Evidence Scoring | Review needed | Foundation implementation is in review; Knowledge Pack score consumption remains the next safe follow-up. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #15
+Status: Review needed
+Summary:
+- Implemented the initial Source Trust package boundary after the design PR
+  merged.
+- Added deterministic source classification, source trust scoring, evidence
+  aggregation, fact score calculation, entity score calculation, repository
+  contracts and minimum persistence schema.
+- Kept external authority providers, contradiction resolution, SEO Consensus,
+  worker orchestration and Knowledge Pack score consumption out of this
+  foundation PR.
+Changed files:
+- docs/progress.md
+- docs/source-trust-model.md
+- jest.config.js
+- nest-cli.json
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/010-source-trust-foundation.ts
+- packages/source-trust/*
+- tsconfig.json
+Validation:
+- npm test -- source-trust
+- npx nest build source-trust
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge the foundation PR, then add safe score consumption or
+  close-out stabilization depending on review.
 
 Date: 2026-07-23
 Issue: #15

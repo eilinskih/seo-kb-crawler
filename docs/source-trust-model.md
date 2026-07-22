@@ -1,6 +1,6 @@
 # Source Trust And Evidence Scoring Model
 
-- Status: Design proposed for Issue #15
+- Status: Foundation implementation in review for Issue #15
 - Issue: #15
 - Date: 2026-07-23
 
@@ -277,6 +277,26 @@ The first implementation should include:
 - evidence aggregation tests;
 - fact score calculation tests;
 - documentation and progress synchronization.
+
+## Implementation Notes
+
+The foundation package is `packages/source-trust`.
+
+The initial implementation:
+
+- classifies sources using deterministic local rules;
+- calculates source trust without external provider credentials;
+- aggregates evidence strength across chunks, documents and domains;
+- calculates fact confidence while preserving extraction, normalization,
+  evidence and source trust components;
+- calculates entity confidence from entity, alias, mention and source-diversity
+  signals;
+- adds persistence contracts and minimum accepted storage tables for source
+  profiles, source trust scores, evidence links, fact scores and entity scores.
+
+Knowledge Pack integration remains safe-by-default. Score production and score
+consumption can be introduced independently; consumers must continue to handle
+missing trust scores as unknown trust.
 
 The first implementation should not include:
 

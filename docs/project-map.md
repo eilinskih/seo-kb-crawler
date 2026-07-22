@@ -130,11 +130,12 @@ Implemented on `main`:
   deterministic assembly service, canonical fact packaging, entity/alias and
   ontology reference packaging, evidence chunk/source linking and evidence gap
   generation, plus safe opt-in Context Pack bridge.
+- Source Trust package boundary, deterministic source classification, source
+  trust scoring, evidence aggregation, fact score calculation, entity score
+  calculation and storage migration.
 
 Designed but not implemented on `main`:
 
-- Source Trust and Evidence Scoring contracts for source profiles, source type
-  classification, evidence aggregation and fact/entity score components.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,

@@ -14,6 +14,7 @@ import { embeddingFoundationMigration } from './migrations/006-embedding-foundat
 import { entityAliasFoundationMigration } from './migrations/007-entity-alias-foundation';
 import { ontologyPredicateRegistryMigration } from './migrations/008-ontology-predicate-registry';
 import { factExtractionFoundationMigration } from './migrations/009-fact-extraction-foundation';
+import { sourceTrustFoundationMigration } from './migrations/010-source-trust-foundation';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -61,6 +62,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     entityAliasFoundationMigration,
     ontologyPredicateRegistryMigration,
     factExtractionFoundationMigration,
+    sourceTrustFoundationMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -78,6 +80,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [entityAliasFoundationMigration, '007-entity-alias-foundation'],
     [ontologyPredicateRegistryMigration, '008-ontology-predicate-registry'],
     [factExtractionFoundationMigration, '009-fact-extraction-foundation'],
+    [sourceTrustFoundationMigration, '010-source-trust-foundation'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {
