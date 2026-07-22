@@ -52,7 +52,7 @@ Roadmap order, phases and dependency rules live only in
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
-| #16 | SEO Consensus and Conflict Layer | Review needed | Design PR defines consensus groups, conflict sets and SEO phrasing hint boundaries. |
+| #16 | SEO Consensus and Conflict Layer | Review needed | Foundation implementation is in review; pack consumption remains a safe follow-up. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #16
+Status: Review needed
+Summary:
+- Implemented the initial SEO Consensus package boundary after the design PR
+  merged.
+- Added comparable value normalization, consensus grouping, conflict detection,
+  SEO phrasing hints, content gap hints, repository contracts and minimum
+  persistence schema.
+- Kept Knowledge Pack/SEO Pack consumption, SERP analysis, keyword demand
+  scoring, editorial UI and generation out of this foundation PR.
+Changed files:
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-consensus-model.md
+- jest.config.js
+- nest-cli.json
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/011-seo-consensus-foundation.ts
+- packages/seo-consensus/*
+- tsconfig.json
+Validation:
+- npm test -- seo-consensus
+- npx nest build seo-consensus
+- npm test
+- npm run build
+- git diff --check
+Next step:
+- Review and merge the foundation PR, then add safe pack consumption or
+  close-out stabilization depending on review.
 
 Date: 2026-07-23
 Issue: #16

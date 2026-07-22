@@ -134,11 +134,12 @@ Implemented on `main`:
 - Source Trust package boundary, deterministic source classification, source
   trust scoring, evidence aggregation, fact score calculation, entity score
   calculation, storage migration and safe Knowledge Pack score consumption.
+- SEO Consensus package boundary, comparable value normalization, consensus
+  grouping, conflict detection, SEO phrasing hints, content gap hints and
+  storage migration.
 
 Designed but not implemented on `main`:
 
-- SEO Consensus and Conflict Layer contracts for consensus groups, conflict
-  sets, comparable values and SEO phrasing hints.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
