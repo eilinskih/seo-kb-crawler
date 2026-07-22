@@ -61,7 +61,7 @@ the whole research system.
 | 17 | #13 | Fact Extraction Worker | Done on `main`; Issue #14 may start. |
 | 18 | #14 | Knowledge Pack Builder | Done on `main`; Issue #15 may start. |
 | 19 | #15 | Source Trust and Evidence Scoring | Done on `main`; Issue #16 may start. |
-| 20 | #16 | SEO Consensus and Conflict Layer | Depends on #13/#15. |
+| 20 | #16 | SEO Consensus and Conflict Layer | Done on `main`; canonical roadmap continues with #98 because #72 is already design-complete. |
 
 ## Phase 5: SEO Intelligence
 

@@ -52,7 +52,7 @@ Roadmap order, phases and dependency rules live only in
 | #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
-| #16 | SEO Consensus and Conflict Layer | Review needed | Foundation implementation and safe Knowledge Pack consensus consumption are in review. |
+| #16 | SEO Consensus and Conflict Layer | Done | Design, foundation implementation, safe Knowledge Pack consensus consumption and close-out synchronization are complete; roadmap continues with #98. |
 | #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Not started | Provider-optional keyword discovery and candidate-page foundation; follows the canonical roadmap after #28 and core knowledge foundations. |
@@ -70,6 +70,25 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #16
+Status: Done
+Summary:
+- Closed out SEO Consensus and Conflict Layer after design, foundation package,
+  fact mapping storage and safe Knowledge Pack consensus consumption merged.
+- Confirmed Source Trust remains an input, not a replacement for consensus.
+- Confirmed SEO Pack generation, SERP analysis, keyword demand scoring,
+  editorial UI and content generation remain later roadmap items.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/seo-consensus-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #16 and continue the canonical roadmap at #98 Demand
+  Engine Runtime, since #72 Demand Engine Design is already done.
 
 Date: 2026-07-23
 Issue: #16
