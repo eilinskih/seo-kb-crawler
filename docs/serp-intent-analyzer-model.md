@@ -1,6 +1,6 @@
 # SERP Intent Analyzer Model
 
-- Status: Design proposed for Issue #30
+- Status: Foundation implementation in review for Issue #30
 - Issue: #30
 - Date: 2026-07-23
 
@@ -285,6 +285,22 @@ Recommended package:
 ```txt
 packages/serp-intent
 ```
+
+Implemented foundation package:
+
+- `packages/serp-intent/src/domain/serp-intent-types.ts` defines SERP Intent
+  Pack, intent candidate, intent classification, depth, gap, confidence and
+  configuration contracts.
+- `packages/serp-intent/src/intent-candidate.service.ts` extracts normalized
+  candidates from SERP Pack expectations, missing opportunities and content
+  angle signals.
+- `packages/serp-intent/src/intent-depth.service.ts` and
+  `packages/serp-intent/src/intent-gap.service.ts` provide deterministic depth
+  and must-cover/opportunity classification rules.
+- `packages/serp-intent/src/serp-intent-pack.service.ts` assembles the
+  model-agnostic SERP Intent Pack.
+- `packages/serp-intent/src/persistence/serp-intent.repository.ts` defines the
+  repository abstraction; concrete database persistence remains deferred.
 
 Recommended services:
 

@@ -198,6 +198,15 @@
         "tsConfigPath": "packages/serp-intelligence/tsconfig.lib.json"
       }
     },
+    "serp-intent": {
+      "type": "library",
+      "root": "packages/serp-intent",
+      "entryFile": "index",
+      "sourceRoot": "packages/serp-intent/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/serp-intent/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

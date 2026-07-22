@@ -54,6 +54,13 @@ module.exports = {
     '^@seo-kb/demand-engine$': '<rootDir>/packages/demand-engine/src',
     '^@seo-kb/demand-engine/(.*)$':
       '<rootDir>/packages/demand-engine/src/$1',
+    '^@seo-kb/serp-intelligence$':
+      '<rootDir>/packages/serp-intelligence/src',
+    '^@seo-kb/serp-intelligence/(.*)$':
+      '<rootDir>/packages/serp-intelligence/src/$1',
+    '^@seo-kb/serp-intent$': '<rootDir>/packages/serp-intent/src',
+    '^@seo-kb/serp-intent/(.*)$':
+      '<rootDir>/packages/serp-intent/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

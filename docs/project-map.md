@@ -145,11 +145,12 @@ Implemented on `main`:
 - SERP Intelligence package boundary, SERP snapshot/result contracts,
   heading/FAQ/entity pattern analysis, depth summaries, content angle
   detection, SERP Pack assembly and repository abstraction.
+- SERP Intent Analyzer package boundary, intent candidates, must-cover and
+  opportunity classification, frequency/depth/gap signals, SERP Intent Pack
+  assembly and repository abstraction.
 
 Designed but not implemented on `main`:
 
-- SERP Intent Analyzer contracts for mandatory intents, opportunity intents,
-  frequency/depth/gap signals and SERP Intent Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -158,6 +159,7 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
-- SERP persistence, live SERP providers and SEO Pack generation.
+- SERP and SERP Intent persistence, live SERP providers and SEO Pack
+  generation.
 - Operator Console.
 - SEO Agent Gateway.

@@ -120,6 +120,12 @@
       "@seo-kb/serp-intelligence/*": [
         "packages/serp-intelligence/src/*"
       ],
+      "@seo-kb/serp-intent": [
+        "packages/serp-intent/src"
+      ],
+      "@seo-kb/serp-intent/*": [
+        "packages/serp-intent/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],
