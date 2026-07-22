@@ -49,7 +49,7 @@ Roadmap order, phases and dependency rules live only in
 | #11 | Entity and Alias Layer | Done | Design, foundation implementation and close-out stabilization are complete; Issue #12 may start. |
 | #12 | Ontology and Predicate Registry | Done | Design, foundation implementation and close-out stabilization are complete; Issue #28 may start. |
 | #28 | Topic Classification Strategy | Done | PR #105 merged the design/contract; runtime storage remains deferred until a consumer needs it. |
-| #13 | Fact Extraction Worker | Review needed | Worker queue PR adds Entity mention hints, dispatch service, dedicated worker app and queue processor on top of the foundation package. |
+| #13 | Fact Extraction Worker | Done | PR #109 merged worker queue orchestration and closed Issue #13; Issue #14 may start. |
 | #14 | Knowledge Pack Builder | Not started | Depends on #9, #11, #12, #13. |
 | #15 | Source Trust and Evidence Scoring | Not started | Depends on #13/#14 contracts. |
 | #16 | SEO Consensus and Conflict Layer | Not started | Depends on #13/#15. |
@@ -70,6 +70,24 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #13
+Status: Done
+Summary:
+- Closed out Fact Extraction Worker after PR #107, PR #108 and PR #109 merged.
+- Confirmed Issue #13 is closed and the repository now has the design model,
+  package boundary, provider/noop contracts, Entity mention hints,
+  raw/canonical normalization orchestration, metadata migration, dispatch
+  service and dedicated worker app.
+- Confirmed production model adapters, Source Trust, SEO Consensus and
+  Knowledge Pack generation remain later roadmap items.
+Changed files:
+- docs/fact-extraction-worker-model.md
+- docs/implementation-order.md
+- docs/progress.md
+Next step:
+- Start Issue #14 Knowledge Pack Builder from updated `main`.
 
 Date: 2026-07-23
 Issue: #13
