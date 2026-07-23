@@ -36,7 +36,7 @@ and merged into `main`.
 | 5 | #4 | Discovery Sources design and implementation | Done on `main`; initial package contracts, planner and seed/link adapters only. |
 | 6 | #5 | Crawler Worker controlled crawling pipeline | Done on `main`; lifecycle implementation is ready for downstream issues. |
 | 7 | #3 | URL Frontier implementation | Initial lifecycle subset implemented with #5; remaining observation ingestion, canonical relations and adaptive scheduling follow reviewed contracts. |
-| 8 | #43 | Research Engine Scheduling | Requires Topic, Frontier, Discovery and Crawler contracts. |
+| 8 | #43 | Research Engine Scheduling | Done on `main`; downstream LLM integration may start. |
 
 The Crawler Worker is one worker inside the broader Research Engine. It is not
 the whole research system.
@@ -74,13 +74,13 @@ the whole research system.
 | 25 | #19 | Topic Expansion Engine | Done on `main`; Issue #134 may start. |
 | 26 | #134 | Long-tail Discovery Engine | Done on `main`; Issue #20 may start. |
 | 27 | #20 | SEO Page Candidate Scoring | Done on `main`; Issue #21 may start. |
-| 28 | #21 | SEO Pack Generator | Done on `main`; Issue #42 may start when #43 dependency is accepted or deferred. |
+| 28 | #21 | SEO Pack Generator | Done on `main`; Issue #42 may start. |
 
 ## Phase 6: LLM Integration
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 29 | #42 | SEO Agent Gateway | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
+| 29 | #42 | SEO Agent Gateway | Required dependencies are complete; Issue #42 may start. |
 
 Codex is the first consumer, not the only consumer. Context, Knowledge, SERP
 and SEO packs must remain model-agnostic.
