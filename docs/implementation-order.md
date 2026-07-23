@@ -80,7 +80,7 @@ the whole research system.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 29 | #42 | SEO Agent Gateway | Required dependencies are complete; Issue #42 may start. |
+| 29 | #42 | SEO Agent Gateway | Done on `main`; optional external enrichment may start. |
 
 Codex is the first consumer, not the only consumer. Context, Knowledge, SERP
 and SEO packs must remain model-agnostic.

@@ -62,7 +62,7 @@ Roadmap order, phases and dependency rules live only in
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
-| #42 | SEO Agent Gateway | Review needed | Foundation PR adds model-agnostic generation request contracts, Focused Research requirement output, structured context assembly, retrieval-only safeguards and repository abstraction. |
+| #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
@@ -70,6 +70,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #42
+Status: Done
+Summary:
+- Closed out SEO Agent Gateway after design and foundation implementation
+  merged.
+- Confirmed model-agnostic generation request contracts, objective
+  normalization, Focused Research requirement output, required pack references,
+  structured generation context assembly, fallback states, retrieval-only
+  safeguards, consumer adapter contracts and repository abstraction satisfy the
+  accepted Issue #42 scope.
+- Confirmed prompt rendering, LLM provider calls, final content generation,
+  SEO Agent runtime execution, concrete persistence, operator UI, publishing
+  workflows and rank tracking remain later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/seo-agent-gateway-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #42 and start Issue #40 External SEO Data Providers from
+  updated `main`.
 
 Date: 2026-07-23
 Issue: #42
