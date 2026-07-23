@@ -65,11 +65,40 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Provider status PR adds provider-neutral fallback/degraded visibility; failure/detail workflows remain deferred. |
+| #86 | Operator Console | Review needed | Topic edit PR adds configuration editing for seed URLs, seed keywords, language, country and max-page policy through Topic API. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added Topic configuration editing to the Operator Console.
+- Implemented Topic API configuration updates for name, description, seed URLs,
+  seed keywords, language, country and max-page policy using the current
+  configuration version.
+- Kept direct database access, advanced crawl-policy editing, retry/readiness
+  screens, failure inspection, content generation workflows and unbounded
+  operations out of scope.
+- Architecture Steward review determined Issue #86 is not ready for close-out;
+  remaining slices are URL Frontier topic status/read models, unified
+  jobs/failures/readiness, inspection/health and close-out stabilization.
+Changed files:
+- apps/operator-console/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- ./node_modules/.bin/nest build operator-console
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the topic edit slice before continuing URL Frontier and
+  failures/readiness workflows.
 
 Date: 2026-07-23
 Issue: #86

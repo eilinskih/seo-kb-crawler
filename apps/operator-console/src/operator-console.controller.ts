@@ -12,6 +12,7 @@ import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
   OperatorDispatchCommand,
+  OperatorUpdateTopicCommand,
 } from './operator-console-api.client';
 import { renderOperatorConsoleHtml } from './operator-console.renderer';
 import { OperatorConsoleService } from './operator-console.service';
@@ -39,6 +40,18 @@ export class OperatorConsoleController {
   @Redirect('/', 303)
   async createTopic(@Body() body: Record<string, unknown>): Promise<void> {
     await this.apiClient.createTopic(toCreateTopicCommand(body));
+  }
+
+  @Post('topics/:id/configuration')
+  @Redirect('/', 303)
+  async updateTopicConfiguration(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.updateTopicConfiguration(
+      id,
+      toUpdateTopicCommand(body),
+    );
   }
 
   @Post('topics/:id/pause')
@@ -80,7 +93,15 @@ function toCreateTopicCommand(
   body: Record<string, unknown>,
 ): OperatorCreateTopicCommand {
   return {
+    ...toTopicFormCommand(body),
     slug: requiredText(body.slug, 'slug'),
+  };
+}
+
+function toTopicFormCommand(
+  body: Record<string, unknown>,
+): Omit<OperatorCreateTopicCommand, 'slug'> {
+  return {
     name: requiredText(body.name, 'name'),
     description: optionalText(body.description),
     seedUrls: lines(body.seedUrls),
@@ -88,6 +109,19 @@ function toCreateTopicCommand(
     language: optionalText(body.language) ?? 'en',
     countryCode: optionalText(body.countryCode) ?? 'US',
     maxPages: positiveInteger(body.maxPages, 100),
+  };
+}
+
+function toUpdateTopicCommand(
+  body: Record<string, unknown>,
+): OperatorUpdateTopicCommand {
+  return {
+    ...toTopicFormCommand(body),
+    slug: 'unchanged',
+    expectedConfigurationVersion: positiveInteger(
+      body.expectedConfigurationVersion,
+      1,
+    ),
   };
 }
 

@@ -38,6 +38,21 @@ export interface OperatorTopicSummary {
   status: string;
   configurationVersion: number;
   updatedAt: string;
+  discovery?: {
+    search?: {
+      queries?: Array<{ text: string; language?: string; geo?: { countryCode?: string } }>;
+    };
+    seeds?: {
+      urls?: string[];
+    };
+  };
+  languageGeo?: {
+    languages?: Array<{ tag: string }>;
+    geoTargets?: Array<{ countryCode: string }>;
+  };
+  crawlPolicy?: {
+    maxPages?: number;
+  };
 }
 
 export interface OperatorProviderStatusSummary {

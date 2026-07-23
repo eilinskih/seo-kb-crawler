@@ -8,6 +8,21 @@ export interface OperatorTopicRecord {
   status: 'draft' | 'active' | 'paused' | 'archived';
   configurationVersion: number;
   updatedAt: string;
+  discovery?: {
+    search?: {
+      queries?: Array<{ text: string; language?: string; geo?: { countryCode?: string } }>;
+    };
+    seeds?: {
+      urls?: string[];
+    };
+  };
+  languageGeo?: {
+    languages?: Array<{ tag: string }>;
+    geoTargets?: Array<{ countryCode: string }>;
+  };
+  crawlPolicy?: {
+    maxPages?: number;
+  };
 }
 
 export interface OperatorCreateTopicCommand {
@@ -19,6 +34,10 @@ export interface OperatorCreateTopicCommand {
   language: string;
   countryCode: string;
   maxPages: number;
+}
+
+export interface OperatorUpdateTopicCommand extends OperatorCreateTopicCommand {
+  expectedConfigurationVersion: number;
 }
 
 export interface OperatorDispatchCommand {
@@ -43,6 +62,24 @@ export class OperatorConsoleApiClient {
     await this.request('/topics', {
       method: 'POST',
       body: JSON.stringify(toCreateTopicInput(command)),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+
+  async updateTopicConfiguration(
+    topicId: string,
+    command: OperatorUpdateTopicCommand,
+  ): Promise<void> {
+    await this.request(`/topics/${encodeURIComponent(topicId)}/configuration`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        ...toTopicConfigurationInput(command),
+        name: command.name,
+        description: command.description,
+        expectedConfigurationVersion: command.expectedConfigurationVersion,
+      }),
       headers: {
         'content-type': 'application/json',
       },
@@ -116,11 +153,19 @@ function normalizeBaseUrl(value: string | undefined): string {
   return (value ?? 'http://127.0.0.1:3000').replace(/\/+$/u, '');
 }
 
-function toCreateTopicInput(command: OperatorCreateTopicCommand): unknown {
+function toCreateTopicInput(command: OperatorCreateTopicCommand): Record<string, unknown> {
   return {
     slug: command.slug,
     name: command.name,
     description: command.description,
+    ...toTopicConfigurationInput(command),
+  };
+}
+
+function toTopicConfigurationInput(
+  command: OperatorCreateTopicCommand,
+): Record<string, unknown> {
+  return {
     discovery: {
       schemaVersion: 1,
       search: {
