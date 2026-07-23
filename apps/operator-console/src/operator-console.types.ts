@@ -26,6 +26,7 @@ export interface OperatorConsoleViewModel {
   sections: OperatorConsoleSection[];
   warnings: string[];
   topics: OperatorTopicSummary[];
+  providerStatuses: OperatorProviderStatusSummary[];
   flash: string | null;
 }
 
@@ -37,4 +38,12 @@ export interface OperatorTopicSummary {
   status: string;
   configurationVersion: number;
   updatedAt: string;
+}
+
+export interface OperatorProviderStatusSummary {
+  providerKey: string;
+  status: string;
+  tier: string;
+  capabilities: string[];
+  warnings: string[];
 }

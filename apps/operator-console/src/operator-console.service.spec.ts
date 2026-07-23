@@ -1,10 +1,11 @@
 import { renderOperatorConsoleHtml } from './operator-console.renderer';
 import { OperatorConsoleApiClient } from './operator-console-api.client';
 import { OperatorConsoleService } from './operator-console.service';
+import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-providers';
 
 describe('OperatorConsoleService', () => {
   it('builds an internal operator-only view model', async () => {
-    const service = new OperatorConsoleService(mockClient());
+    const service = new OperatorConsoleService(mockClient(), mockExternalSeo());
 
     const model = await service.buildViewModel(
       new Date('2026-07-23T00:00:00.000Z'),
@@ -26,10 +27,13 @@ describe('OperatorConsoleService', () => {
     expect(model.topics).toEqual([
       expect.objectContaining({ slug: 'laser-hair-removal' }),
     ]);
+    expect(model.providerStatuses).toEqual([
+      expect.objectContaining({ providerKey: 'fallback_seo_signals' }),
+    ]);
   });
 
   it('marks mutating actions as bounded and keeps missing read models planned', async () => {
-    const service = new OperatorConsoleService(mockClient());
+    const service = new OperatorConsoleService(mockClient(), mockExternalSeo());
 
     const model = await service.buildViewModel();
     const actions = model.sections.flatMap((section) =>
@@ -63,6 +67,7 @@ describe('OperatorConsoleService', () => {
       warnings: ['Use <safe> APIs'],
       sections: [],
       topics: [],
+      providerStatuses: [],
       flash: null,
     });
 
@@ -88,6 +93,13 @@ describe('OperatorConsoleService', () => {
         configurationVersion: 1,
         updatedAt: '2026-07-23T00:00:00.000Z',
       }],
+      providerStatuses: [{
+        providerKey: 'fallback_seo_signals',
+        status: 'available',
+        tier: 'fallback',
+        capabilities: ['keyword_intelligence'],
+        warnings: ['Only fallback SEO signals are available.'],
+      }],
     });
 
     expect(html).toContain('action="/topics"');
@@ -96,6 +108,8 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('action="/topics/topic-1/pause"');
     expect(html).toContain('action="/url-frontier/dispatch"');
     expect(html).toContain('action="/content-processing/dispatch"');
+    expect(html).toContain('fallback_seo_signals');
+    expect(html).toContain('Only fallback SEO signals are available.');
   });
 });
 
@@ -117,4 +131,21 @@ function mockClient(): OperatorConsoleApiClient {
     dispatchUrlFrontier: jest.fn(),
     dispatchContentProcessing: jest.fn(),
   } as unknown as OperatorConsoleApiClient;
+}
+
+function mockExternalSeo(): ExternalSeoEnrichmentService {
+  return {
+    enrich: jest.fn().mockResolvedValue({
+      providerStatuses: [{
+        providerKey: 'fallback_seo_signals',
+        status: 'available',
+        tier: 'fallback',
+        capabilities: ['keyword_intelligence'],
+      }],
+      warnings: [{
+        providerKey: 'fallback_seo_signals',
+        message: 'Only fallback SEO signals are available.',
+      }],
+    }),
+  } as unknown as ExternalSeoEnrichmentService;
 }

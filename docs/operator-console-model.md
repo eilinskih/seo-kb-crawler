@@ -298,6 +298,13 @@ The dispatch workflow implementation:
 - caps operator-submitted dispatch limits before forwarding requests;
 - leaves retry-specific forms until owning modules expose safe retry commands.
 
+The provider status implementation:
+
+- shows provider-neutral External SEO Data Provider status;
+- surfaces fallback/degraded provider warnings in the console;
+- uses the External SEO Data Providers service boundary;
+- avoids paid-provider SDK calls and credentials management.
+
 Richer read models, authenticated access, failure/provider detail screens,
 frontier retry forms, processing retry forms and provider status screens remain
 future implementation work.

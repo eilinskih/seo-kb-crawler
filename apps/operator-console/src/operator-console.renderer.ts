@@ -53,12 +53,39 @@ export function renderOperatorConsoleHtml(
     </div>
     ${renderTopicWorkflow(model)}
     ${renderDispatchWorkflow()}
+    ${renderProviderStatus(model)}
     <div class="grid">
       ${model.sections.map(renderSection).join('')}
     </div>
   </main>
 </body>
 </html>`;
+}
+
+function renderProviderStatus(model: OperatorConsoleViewModel): string {
+  return `<section id="provider-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Provider Status</h2>
+      <p>Provider-neutral fallback and degraded mode visibility.</p>
+    </div>
+    <span class="badge">available</span>
+  </div>
+  ${model.providerStatuses.length === 0 ? '<p class="empty">No provider status available.</p>' : `<table>
+    <thead>
+      <tr><th>Provider</th><th>Status</th><th>Tier</th><th>Capabilities</th><th>Warnings</th></tr>
+    </thead>
+    <tbody>
+      ${model.providerStatuses.map((provider) => `<tr>
+        <td><code>${escapeHtml(provider.providerKey)}</code></td>
+        <td>${escapeHtml(provider.status)}</td>
+        <td>${escapeHtml(provider.tier)}</td>
+        <td>${provider.capabilities.map(escapeHtml).join(', ')}</td>
+        <td>${provider.warnings.map(escapeHtml).join('<br>')}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`}
+</section>`;
 }
 
 function renderDispatchWorkflow(): string {

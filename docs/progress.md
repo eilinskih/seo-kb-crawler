@@ -65,11 +65,37 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Dispatch workflow PR adds bounded URL Frontier and Content Processing dispatch forms; failure/provider/detail workflows remain deferred. |
+| #86 | Operator Console | Review needed | Provider status PR adds provider-neutral fallback/degraded visibility; failure/detail workflows remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added provider/fallback status visibility to the Operator Console.
+- Integrated the External SEO Data Providers service boundary into the console
+  view model.
+- Rendered provider-neutral status, tier, capabilities and fallback/degraded
+  warnings without calling paid-provider SDKs or requiring credentials.
+- Kept provider credentials management, concrete paid provider integrations,
+  direct provider schema reads and richer provider detail screens out of scope.
+Changed files:
+- apps/operator-console/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- ./node_modules/.bin/nest build operator-console
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the provider status slice before continuing remaining Issue
+  #86 operator workflows.
 
 Date: 2026-07-23
 Issue: #86
