@@ -16,8 +16,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/fact-extraction-worker-model.md`, `docs/knowledge-pack-model.md`,
 `docs/source-trust-model.md`, `docs/seo-consensus-model.md`,
 `docs/serp-intelligence-model.md`, `docs/serp-intent-analyzer-model.md`,
-`docs/topic-expansion-model.md`, `docs/demand-engine-model.md` and ADRs under
-`docs/decisions/`.
+`docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
+`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -37,10 +37,11 @@ Topics
   -> Fact Extraction
   -> Trust and Evidence Scoring
   -> SEO Consensus
+  -> Knowledge Pack Builder
   -> SERP Intelligence
   -> SERP Intent Analyzer
   -> Topic Expansion
-  -> Knowledge Pack Builder
+  -> Long-tail Discovery
   -> Codex Context Pack API
   -> Codex
 ```
@@ -215,6 +216,11 @@ The Topic Expansion Engine design is documented in
 `docs/topic-expansion-model.md`. It turns existing demand, SERP, intent and
 knowledge signals into traceable expansion candidates without replacing the
 future Long-tail Discovery Engine.
+
+The Long-tail Discovery Engine design is documented in
+`docs/long-tail-discovery-model.md`. It derives bounded, evidence-backed
+long-tail page opportunities from Knowledge Graph dimensions, SERP evidence and
+intent signals without requiring paid provider metrics.
 
 ### Codex integration layer
 

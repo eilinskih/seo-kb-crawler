@@ -59,8 +59,8 @@ Roadmap order, phases and dependency rules live only in
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
-| #134 | Long-tail Discovery Engine | Not started | SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
-| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
+| #134 | Long-tail Discovery Engine | Review needed | Design PR defines bounded dimension/rule-based long-tail generation and provider-optional fallback behavior. |
+| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19 and #134 long-tail candidate signals when available. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
@@ -70,6 +70,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #134
+Status: Review needed
+Summary:
+- Started Long-tail Discovery Engine as a design-only PR after Issue #19
+  closed and the roadmap placeholder was synchronized to Issue #134.
+- Defined dimension contracts, explicit combination rules, bounded candidate
+  generation, opportunity trees and Long-tail Discovery Pack contracts.
+- Kept paid provider integrations, concrete persistence, recursive expansion,
+  SEO Page Candidate Scoring, SEO Pack generation, content generation and UI
+  out of the Issue #134 MVP scope.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/long-tail-discovery-model.md
+Validation:
+- git diff --check
+- Architecture Steward review: tightened combination-level evidence
+  safeguards, Knowledge Pack pipeline ordering, #20 dependency wording and
+  downstream ownership of `promoted` status.
+Next step:
+- Merge design before implementing `packages/long-tail-discovery`.
 
 Date: 2026-07-23
 Issue: #134
