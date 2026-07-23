@@ -19,6 +19,7 @@ import { HealthController } from './health/health.controller';
 import { InfrastructureHealthService } from './health/infrastructure-health.service';
 import { TopicsController } from './topics/topics.controller';
 import { UrlFrontierDispatchController } from './url-frontier/url-frontier-dispatch.controller';
+import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.controller';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { UrlFrontierDispatchController } from './url-frontier/url-frontier-dispa
     HealthController,
     TopicsController,
     UrlFrontierDispatchController,
+    UrlFrontierStatusController,
   ],
   providers: [InfrastructureHealthService],
 })

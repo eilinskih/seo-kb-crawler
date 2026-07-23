@@ -68,6 +68,7 @@ describe('OperatorConsoleService', () => {
       sections: [],
       topics: [],
       providerStatuses: [],
+      frontierStatus: null,
       flash: null,
     });
 
@@ -100,6 +101,24 @@ describe('OperatorConsoleService', () => {
         capabilities: ['keyword_intelligence'],
         warnings: ['Only fallback SEO signals are available.'],
       }],
+      frontierStatus: {
+        topicId: null,
+        totalEntries: 1,
+        counts: [{ status: 'scheduled', count: 1 }],
+        retryableCount: 0,
+        recentEntries: [{
+          id: 'frontier-1',
+          topicId: 'topic-1',
+          normalizedUrl: 'https://example.com/',
+          crawlStatus: 'scheduled',
+          relevanceDecision: 'accepted',
+          priorityScore: 1,
+          nextCrawlAt: '2026-07-23T00:00:00.000Z',
+          leaseOwner: null,
+          consecutiveFailures: 0,
+          updatedAt: '2026-07-23T00:00:00.000Z',
+        }],
+      },
     });
 
     expect(html).toContain('action="/topics"');
@@ -112,6 +131,8 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('action="/content-processing/dispatch"');
     expect(html).toContain('fallback_seo_signals');
     expect(html).toContain('Only fallback SEO signals are available.');
+    expect(html).toContain('URL Frontier Status');
+    expect(html).toContain('https://example.com/');
   });
 });
 
@@ -126,6 +147,13 @@ function mockClient(): OperatorConsoleApiClient {
       configurationVersion: 1,
       updatedAt: '2026-07-23T00:00:00.000Z',
     }]),
+    getFrontierStatus: jest.fn().mockResolvedValue({
+      topicId: null,
+      totalEntries: 0,
+      counts: [],
+      retryableCount: 0,
+      recentEntries: [],
+    }),
     createTopic: jest.fn(),
     updateTopicConfiguration: jest.fn(),
     pauseTopic: jest.fn(),

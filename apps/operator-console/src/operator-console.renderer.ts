@@ -1,4 +1,7 @@
-import { OperatorConsoleViewModel } from './operator-console.types';
+import {
+  OperatorConsoleViewModel,
+  OperatorFrontierRecentEntry,
+} from './operator-console.types';
 
 export function renderOperatorConsoleHtml(
   model: OperatorConsoleViewModel,
@@ -53,6 +56,7 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderFrontierStatus(model)}
     ${renderDispatchWorkflow()}
     ${renderProviderStatus(model)}
     <div class="grid">
@@ -61,6 +65,54 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+function renderFrontierStatus(model: OperatorConsoleViewModel): string {
+  const status = model.frontierStatus;
+  return `<section id="frontier-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>URL Frontier Status</h2>
+      <p>Topic-safe frontier status from the URL Frontier read model.</p>
+    </div>
+    <span class="badge">${status ? 'available' : 'planned'}</span>
+  </div>
+  ${status ? `<table>
+    <thead>
+      <tr><th>Total</th><th>Retryable</th><th>Status counts</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${escapeHtml(String(status.totalEntries))}</td>
+        <td>${escapeHtml(String(status.retryableCount))}</td>
+        <td>${status.counts.map((row) => `${escapeHtml(row.status)}: ${escapeHtml(String(row.count))}`).join('<br>')}</td>
+      </tr>
+    </tbody>
+  </table>
+  ${renderFrontierRecentEntries(status.recentEntries)}` : '<p class="empty">Frontier status is unavailable.</p>'}
+</section>`;
+}
+
+function renderFrontierRecentEntries(
+  entries: OperatorFrontierRecentEntry[],
+): string {
+  if (entries.length === 0) {
+    return '<p class="empty">No recent frontier entries.</p>';
+  }
+  return `<table>
+    <thead>
+      <tr><th>URL</th><th>Status</th><th>Relevance</th><th>Next crawl</th><th>Failures</th></tr>
+    </thead>
+    <tbody>
+      ${entries.map((entry) => `<tr>
+        <td><code>${escapeHtml(entry.normalizedUrl)}</code></td>
+        <td>${escapeHtml(entry.crawlStatus)}</td>
+        <td>${escapeHtml(entry.relevanceDecision)}</td>
+        <td>${escapeHtml(entry.nextCrawlAt)}</td>
+        <td>${escapeHtml(String(entry.consecutiveFailures))}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
 }
 
 function renderProviderStatus(model: OperatorConsoleViewModel): string {

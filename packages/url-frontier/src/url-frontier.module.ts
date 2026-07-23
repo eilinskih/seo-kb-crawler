@@ -4,6 +4,7 @@ import { CRAWL_QUEUE_NAME } from '@seo-kb/common';
 import { DbModule } from '@seo-kb/db';
 import { UrlFrontierCompletionService } from './application/url-frontier-completion.service';
 import { UrlFrontierDispatchService } from './application/url-frontier-dispatch.service';
+import { UrlFrontierStatusService } from './application/url-frontier-status.service';
 import { KnexUrlFrontierRepository } from './persistence/knex-url-frontier.repository';
 import { URL_FRONTIER_REPOSITORY } from './url-frontier.tokens';
 
@@ -12,6 +13,7 @@ import { URL_FRONTIER_REPOSITORY } from './url-frontier.tokens';
   providers: [
     UrlFrontierCompletionService,
     UrlFrontierDispatchService,
+    UrlFrontierStatusService,
     KnexUrlFrontierRepository,
     {
       provide: URL_FRONTIER_REPOSITORY,
@@ -22,6 +24,7 @@ import { URL_FRONTIER_REPOSITORY } from './url-frontier.tokens';
     URL_FRONTIER_REPOSITORY,
     UrlFrontierCompletionService,
     UrlFrontierDispatchService,
+    UrlFrontierStatusService,
     KnexUrlFrontierRepository,
   ],
 })

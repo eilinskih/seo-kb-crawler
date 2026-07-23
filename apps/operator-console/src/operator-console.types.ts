@@ -27,6 +27,7 @@ export interface OperatorConsoleViewModel {
   warnings: string[];
   topics: OperatorTopicSummary[];
   providerStatuses: OperatorProviderStatusSummary[];
+  frontierStatus: OperatorFrontierStatusSummary | null;
   flash: string | null;
 }
 
@@ -61,4 +62,25 @@ export interface OperatorProviderStatusSummary {
   tier: string;
   capabilities: string[];
   warnings: string[];
+}
+
+export interface OperatorFrontierStatusSummary {
+  topicId: string | null;
+  totalEntries: number;
+  counts: Array<{ status: string; count: number }>;
+  retryableCount: number;
+  recentEntries: OperatorFrontierRecentEntry[];
+}
+
+export interface OperatorFrontierRecentEntry {
+  id: string;
+  topicId: string;
+  normalizedUrl: string;
+  crawlStatus: string;
+  relevanceDecision: string;
+  priorityScore: number;
+  nextCrawlAt: string;
+  leaseOwner: string | null;
+  consecutiveFailures: number;
+  updatedAt: string;
 }
