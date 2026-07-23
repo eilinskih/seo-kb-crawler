@@ -48,6 +48,7 @@ specialized documents:
 - `docs/serp-intelligence-model.md` for SERP Intelligence Layer.
 - `docs/serp-intent-analyzer-model.md` for SERP Intent Analyzer.
 - `docs/topic-expansion-model.md` for Topic Expansion Engine.
+- `docs/long-tail-discovery-model.md` for Long-tail Discovery Engine.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -155,6 +156,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Long-tail Discovery Engine contracts for dimensions, explicit combination
+  rules, candidates, opportunity trees and Long-tail Discovery Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
@@ -162,7 +165,6 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
-- Long-tail Discovery Engine (#134).
 - Demand Engine persistence, scheduling and provider integrations.
 - SERP and SERP Intent persistence, live SERP providers and SEO Pack
   generation.
