@@ -73,9 +73,9 @@ Phase 5:
 - #18 SERP Intelligence
 - #30 SERP Intent Analyzer
 - #19 Topic Expansion
-- Future issue Long-tail Discovery
+- #134 Long-tail Discovery Engine
 - #20 SEO Page Candidate Scoring
-- #21 Codex SEO Pack Generator
+- #21 SEO Pack Generator
 
 Phase 6:
 - #42 SEO Agent Gateway

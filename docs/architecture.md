@@ -17,8 +17,9 @@ specialized documents such as `docs/topic-model.md`,
 `docs/source-trust-model.md`, `docs/seo-consensus-model.md`,
 `docs/serp-intelligence-model.md`, `docs/serp-intent-analyzer-model.md`,
 `docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
-`docs/seo-page-candidate-scoring-model.md`, `docs/demand-engine-model.md` and
-ADRs under `docs/decisions/`.
+`docs/seo-page-candidate-scoring-model.md`,
+`docs/seo-pack-generator-model.md`, `docs/demand-engine-model.md` and ADRs
+under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -44,7 +45,8 @@ Topics
   -> Topic Expansion
   -> Long-tail Discovery
   -> SEO Page Candidate Scoring
-  -> Codex Context Pack API
+  -> SEO Pack Generator
+  -> SEO Agent Gateway
   -> Codex
 ```
 
@@ -196,7 +198,7 @@ phrasing guidance without becoming a generic truth engine.
 - SERP Intelligence Layer
 - Topic Expansion Engine
 - SEO Page Candidate Scoring
-- Codex SEO Pack Generator
+- SEO Pack Generator
 
 The Demand Engine contract is documented in `docs/demand-engine-model.md`.
 Demand Engine answers what should be written by producing keyword candidates,
@@ -229,11 +231,21 @@ The SEO Page Candidate Scoring design is documented in
 opportunities with explainable signals and focused-research hints without
 creating fake readiness percentages.
 
+The SEO Pack Generator design is documented in
+`docs/seo-pack-generator-model.md`. It assembles model-agnostic,
+generation-ready SEO context from Knowledge Pack, SERP Pack, SERP Intent Pack,
+Demand Pack and scored candidate evidence without generating final content or
+emitting vendor-specific prompts.
+
 ### Codex integration layer
+
+This section lists Codex-facing outputs and integration boundaries. Ownership
+remains with the subsystem documents above.
 
 - Context Pack API
 - Knowledge Pack Builder
 - SERP Pack Builder
+- SEO Pack Generator
 
 ## Universal core, vertical-specific extension
 
