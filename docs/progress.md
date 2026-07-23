@@ -60,8 +60,8 @@ Roadmap order, phases and dependency rules live only in
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
-| #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19 and #134 long-tail candidate signals when available. |
-| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
+| #20 | SEO Page Candidate Scoring | Review needed | Design PR defines explainable opportunity scoring, confidence/rationale metadata and Focused Research hints. |
+| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack, SERP Intent Pack and scored candidate outputs from #20. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
@@ -70,6 +70,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #20
+Status: Review needed
+Summary:
+- Started SEO Page Candidate Scoring as a design-only PR after Issue #134
+  closed.
+- Defined scoring signals, scoring profiles, opportunity score output,
+  confidence/rationale metadata, recommended page type hints and Focused
+  Research hints.
+- Kept paid provider integrations, concrete persistence, operator UI, SEO Pack
+  generation, content generation, automatic publish decisions and rank tracking
+  out of the Issue #20 MVP scope.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-page-candidate-scoring-model.md
+Validation:
+- git diff --check
+- Architecture Steward review: no blocker; synchronized #21 dependency on #20
+  scored candidate outputs and constrained topic-authority signals to
+  candidate-level prioritization evidence.
+Next step:
+- Merge design before implementing `packages/seo-candidate-scoring`.
 
 Date: 2026-07-23
 Issue: #134

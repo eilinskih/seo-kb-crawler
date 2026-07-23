@@ -17,7 +17,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/source-trust-model.md`, `docs/seo-consensus-model.md`,
 `docs/serp-intelligence-model.md`, `docs/serp-intent-analyzer-model.md`,
 `docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/seo-page-candidate-scoring-model.md`, `docs/demand-engine-model.md` and
+ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -42,6 +43,7 @@ Topics
   -> SERP Intent Analyzer
   -> Topic Expansion
   -> Long-tail Discovery
+  -> SEO Page Candidate Scoring
   -> Codex Context Pack API
   -> Codex
 ```
@@ -221,6 +223,11 @@ The Long-tail Discovery Engine design is documented in
 `docs/long-tail-discovery-model.md`. It derives bounded, evidence-backed
 long-tail page opportunities from Knowledge Graph dimensions, SERP evidence and
 intent signals without requiring paid provider metrics.
+
+The SEO Page Candidate Scoring design is documented in
+`docs/seo-page-candidate-scoring-model.md`. It ranks discovered page
+opportunities with explainable signals and focused-research hints without
+creating fake readiness percentages.
 
 ### Codex integration layer
 
