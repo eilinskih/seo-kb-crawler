@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Initial lifecycle subset is implemented on `main`; remaining observation ingestion, canonical relations and adaptive scheduling are deferred. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Scope reconciled after #86 close-out; next slice is discovery observation ingestion and source tracking. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -70,6 +70,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #3
+Status: In progress
+Summary:
+- Resumed URL Frontier after Issue #86 close-out.
+- Architecture Steward review determined #17 should wait because it is optional
+  enrichment and #3 remains the required open roadmap issue.
+- Reconciled #3 documentation to separate already implemented lifecycle work
+  from remaining implementation slices.
+- Confirmed the next runtime slice should be discovery observation ingestion
+  and source tracking.
+Changed files:
+- docs/url-frontier-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+Validation:
+- git diff --check
+Next step:
+- Review and merge this documentation-only reconciliation, then implement
+  discovery observation ingestion for #3.
 
 Date: 2026-07-23
 Issue: #86

@@ -26,7 +26,7 @@ and merged into `main`.
 |---|---|---|---|
 | 1 | #1 | Foundation: monorepo bootstrap and local infrastructure | Done on `main`. |
 | 2 | #2 | Topic Engine | Implemented on `main`; issue is closed. |
-| 3 | #3 | URL Frontier design | Design approved on `main`; initial lifecycle subset implemented through #5 work. |
+| 3 | #3 | URL Frontier design | Design approved on `main`; implementation continues under Order 7. |
 | 4 | #41 | Implementation order and roadmap governance | Done on `main`. |
 
 ## Phase 2: Research Engine Core
@@ -35,7 +35,7 @@ and merged into `main`.
 |---|---|---|---|
 | 5 | #4 | Discovery Sources design and implementation | Done on `main`; initial package contracts, planner and seed/link adapters only. |
 | 6 | #5 | Crawler Worker controlled crawling pipeline | Done on `main`; lifecycle implementation is ready for downstream issues. |
-| 7 | #3 | URL Frontier implementation | Initial lifecycle subset implemented with #5; remaining observation ingestion, canonical relations and adaptive scheduling follow reviewed contracts. |
+| 7 | #3 | URL Frontier implementation | In progress on `main`; next slice is discovery observation ingestion and source tracking. |
 | 8 | #43 | Research Engine Scheduling | Done on `main`; downstream LLM integration may start. |
 
 The Crawler Worker is one worker inside the broader Research Engine. It is not
