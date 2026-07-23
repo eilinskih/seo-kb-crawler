@@ -59,7 +59,7 @@ Roadmap order, phases and dependency rules live only in
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
-| #134 | Long-tail Discovery Engine | Review needed | Foundation PR adds dimension extraction, explicit rules, compatibility safeguards and bounded candidate generation. |
+| #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19 and #134 long-tail candidate signals when available. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
@@ -70,6 +70,29 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #134
+Status: Done
+Summary:
+- Closed out Long-tail Discovery Engine after design and foundation
+  implementation merged.
+- Confirmed Long-tail Discovery Pack contracts, dimension extraction,
+  explicit combination rules, compatibility/co-occurrence safeguards, bounded
+  candidate generation, opportunity trees, provider-optional nullable metrics
+  and repository abstraction satisfy the accepted Issue #134 scope.
+- Confirmed paid provider integrations, concrete persistence, recursive
+  expansion, SEO Page Candidate Scoring, SEO Pack generation, content
+  generation and UI remain later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/long-tail-discovery-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #134 and start Issue #20 SEO Page Candidate Scoring from
+  updated `main`.
 
 Date: 2026-07-23
 Issue: #134
