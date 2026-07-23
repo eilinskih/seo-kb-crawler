@@ -63,13 +63,38 @@ Roadmap order, phases and dependency rules live only in
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; #42 remains deferred until #43 dependency is accepted or explicitly deferred. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
-| #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
+| #43 | Research Engine Scheduling | Review needed | Design-only PR defines Focused Research, Manual Research, fair Background Research, TTL-aware reuse and media metadata policy. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #43
+Status: Review needed
+Summary:
+- Started Research Engine Scheduling as a design-only PR after Issue #21 closed.
+- Defined Focused Research, Manual Research, fair Background Research, Topic
+  research policies, priority classes, TTL-aware reuse, observable Research
+  Assets, media metadata policy and integration boundaries.
+- Kept runtime scheduler implementation, database migrations, queue workers,
+  media downloader, operator UI, SEO Agent Gateway execution and provider
+  integrations out of the design PR scope.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+- docs/project-map.md
+- docs/research-engine-scheduling-model.md
+Validation:
+- git diff --check
+- Architecture Steward review: no blockers; clarified Topic Engine ownership
+  of policy validation, generic resource-limit wording and Scheduling as an
+  orchestration layer rather than a data-transform package.
+Next step:
+- Review and merge the design before implementing Research Engine Scheduling
+  runtime contracts.
 
 Date: 2026-07-23
 Issue: #21
