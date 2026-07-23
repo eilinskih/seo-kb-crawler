@@ -162,6 +162,7 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
+- Long-tail Discovery Engine (#134).
 - Demand Engine persistence, scheduling and provider integrations.
 - SERP and SERP Intent persistence, live SERP providers and SEO Pack
   generation.

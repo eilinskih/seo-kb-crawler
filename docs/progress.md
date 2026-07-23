@@ -58,8 +58,8 @@ Roadmap order, phases and dependency rules live only in
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
-| #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; future Long-tail Discovery issue may start when created. |
-| Future issue | Long-tail Discovery Engine | Not started | Future SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
+| #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
+| #134 | Long-tail Discovery Engine | Not started | SEO Intelligence capability after Demand Engine Runtime, Topic Expansion, Knowledge Graph, SERP and intent signals. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
@@ -70,6 +70,22 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #134
+Status: Not started
+Summary:
+- Created GitHub Issue #134 for the Long-tail Discovery Engine roadmap item
+  that was previously tracked as `Future issue`.
+- Synchronized canonical roadmap and progress tracking to reference the real
+  issue number before starting design or implementation work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Start Issue #134 Long-tail Discovery Engine design from updated `main`.
 
 Date: 2026-07-23
 Issue: #19
