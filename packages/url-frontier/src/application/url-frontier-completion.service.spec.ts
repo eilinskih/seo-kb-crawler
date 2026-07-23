@@ -1,5 +1,6 @@
 import {
   retryDelayMs,
+  retryPolicyFromCrawlPolicy,
   successRecrawlDelayMs,
   toCrawlAttemptRow,
   toFrontierCompletionUpdate,
@@ -181,6 +182,7 @@ describe('UrlFrontierCompletionService', () => {
           baseBackoffMs: 100,
           maxBackoffMs: 250,
           maxRetryableFailures: 5,
+          jitterRatio: 0,
         },
       ),
     ).toMatchObject({
@@ -199,6 +201,7 @@ describe('UrlFrontierCompletionService', () => {
           baseBackoffMs: 100,
           maxBackoffMs: 250,
           maxRetryableFailures: 5,
+          jitterRatio: 0,
         },
       ),
     ).toMatchObject({
@@ -214,8 +217,34 @@ describe('UrlFrontierCompletionService', () => {
         baseBackoffMs: 100,
         maxBackoffMs: 500,
         maxRetryableFailures: 5,
+        jitterRatio: 0,
       }),
     ).toBe(500);
+  });
+
+  it('derives bounded retry policy from crawl policy and applies jitter', () => {
+    const retryPolicy = retryPolicyFromCrawlPolicy({
+      userAgent: 'seo-kb-crawler',
+      respectRobots: true,
+      maxBodyBytes: 1000,
+      maxRedirects: 5,
+      timeoutMs: 30000,
+      maxOutgoingLinks: 100,
+      maxMediaAssets: 25,
+      retryBaseBackoffMs: 100,
+      retryMaxBackoffMs: 1000,
+      retryMaxFailures: 3,
+      retryJitterRatio: 0.5,
+    });
+
+    expect(retryPolicy).toEqual({
+      baseBackoffMs: 100,
+      maxBackoffMs: 1000,
+      maxRetryableFailures: 3,
+      jitterRatio: 0.5,
+    });
+    expect(retryDelayMs(1, retryPolicy, 'attempt-1')).toBeGreaterThanOrEqual(200);
+    expect(retryDelayMs(1, retryPolicy, 'attempt-1')).toBeLessThanOrEqual(300);
   });
 
   it('computes bounded success recrawl delay from crawl policy', () => {

@@ -44,6 +44,10 @@ export interface UrlFrontierCrawlPolicySnapshot {
   recrawlIntervalHours?: number;
   minRecrawlIntervalHours?: number;
   maxRecrawlIntervalHours?: number;
+  retryBaseBackoffMs?: number;
+  retryMaxBackoffMs?: number;
+  retryMaxFailures?: number;
+  retryJitterRatio?: number;
 }
 
 export interface UrlFrontierCrawlCommandPayload {
