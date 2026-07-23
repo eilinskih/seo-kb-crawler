@@ -162,6 +162,12 @@
       "@seo-kb/seo-agent-gateway/*": [
         "packages/seo-agent-gateway/src/*"
       ],
+      "@seo-kb/external-seo-data-providers": [
+        "packages/external-seo-data-providers/src"
+      ],
+      "@seo-kb/external-seo-data-providers/*": [
+        "packages/external-seo-data-providers/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

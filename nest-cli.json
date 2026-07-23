@@ -261,6 +261,15 @@
         "tsConfigPath": "packages/seo-agent-gateway/tsconfig.lib.json"
       }
     },
+    "external-seo-data-providers": {
+      "type": "library",
+      "root": "packages/external-seo-data-providers",
+      "entryFile": "index",
+      "sourceRoot": "packages/external-seo-data-providers/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/external-seo-data-providers/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

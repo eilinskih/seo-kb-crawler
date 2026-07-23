@@ -83,6 +83,10 @@ module.exports = {
       '<rootDir>/packages/seo-agent-gateway/src',
     '^@seo-kb/seo-agent-gateway/(.*)$':
       '<rootDir>/packages/seo-agent-gateway/src/$1',
+    '^@seo-kb/external-seo-data-providers$':
+      '<rootDir>/packages/external-seo-data-providers/src',
+    '^@seo-kb/external-seo-data-providers/(.*)$':
+      '<rootDir>/packages/external-seo-data-providers/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

@@ -1,6 +1,6 @@
 # External SEO Data Providers Model
 
-Status: Design in review for Issue #40.
+Status: Foundation implementation in review for Issue #40.
 
 ## Purpose
 
@@ -242,9 +242,31 @@ The first implementation should not include:
 - provider-specific schemas outside the provider adapter boundary;
 - any hard dependency from core modules to paid provider availability.
 
+## Implementation Notes
+
+The runtime foundation package is `packages/external-seo-data-providers`.
+
+The initial implementation:
+
+- defines provider capability, status, warning, observation, metric snapshot
+  and enrichment pack contracts;
+- defines the `ExternalSeoDataProvider` adapter boundary;
+- includes `FallbackSeoSignalsProvider` for free-first, no-credential fallback
+  behavior;
+- exposes `ExternalSeoProviderRegistry` for capability-based provider
+  selection;
+- exposes `ExternalSeoEnrichmentService` for fail-open enrichment requests;
+- records missing fallback metrics as `null`;
+- returns provider warnings instead of throwing when providers are disabled,
+  misconfigured or unavailable;
+- defines repository contracts and an in-memory test repository.
+
+Concrete paid provider integrations, credentials management, scheduled refresh
+jobs and durable persistence remain future work.
+
 ## Review Gates
 
-Before runtime implementation begins:
+Before concrete provider integration begins:
 
 - Architecture Steward must confirm the provider boundary does not leak
   provider-specific schemas into core modules.

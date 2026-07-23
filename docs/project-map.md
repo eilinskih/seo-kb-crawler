@@ -177,13 +177,15 @@ Implemented on `main`:
   contracts, Focused Research requirement representation, structured
   generation context assembly, retrieval-only safeguards, consumer adapter
   contracts and repository abstraction.
+- External SEO Data Providers package boundary, provider capability/status
+  contracts, provider-neutral observations, nullable metric snapshots,
+  fail-open enrichment service, fallback SEO signals provider and repository
+  abstraction.
 
 Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- External SEO Data Providers optional enrichment, fail-open provider
-  contracts, provider-neutral observations and nullable metric snapshots.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
