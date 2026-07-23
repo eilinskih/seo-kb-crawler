@@ -207,6 +207,15 @@
         "tsConfigPath": "packages/serp-intent/tsconfig.lib.json"
       }
     },
+    "topic-expansion": {
+      "type": "library",
+      "root": "packages/topic-expansion",
+      "entryFile": "index",
+      "sourceRoot": "packages/topic-expansion/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/topic-expansion/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

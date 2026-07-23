@@ -1,6 +1,6 @@
 # Topic Expansion Engine Model
 
-- Status: Design proposed for Issue #19
+- Status: Foundation implementation in review for Issue #19
 - Issue: #19
 - Date: 2026-07-23
 
@@ -273,6 +273,22 @@ Recommended package:
 ```txt
 packages/topic-expansion
 ```
+
+Implemented foundation package:
+
+- `packages/topic-expansion/src/domain/topic-expansion-types.ts` defines
+  expansion signals, candidates, clusters and Expansion Pack contracts.
+- `packages/topic-expansion/src/expansion-signal.service.ts` normalizes and
+  deduplicates upstream signals.
+- `packages/topic-expansion/src/expansion-candidate.service.ts` generates
+  deterministic first-pass expansion candidates from explicit signals.
+- `packages/topic-expansion/src/expansion-cluster.service.ts` groups candidates
+  into review/scoring-oriented clusters.
+- `packages/topic-expansion/src/expansion-pack.service.ts` assembles the
+  model-agnostic Expansion Pack.
+- `packages/topic-expansion/src/persistence/topic-expansion.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
 
 Recommended services:
 

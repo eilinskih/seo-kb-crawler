@@ -149,11 +149,12 @@ Implemented on `main`:
 - SERP Intent Analyzer package boundary, intent candidates, must-cover and
   opportunity classification, frequency/depth/gap signals, SERP Intent Pack
   assembly and repository abstraction.
+- Topic Expansion package boundary, expansion signal normalization, first-pass
+  candidate generation, topic clusters, Expansion Pack assembly and repository
+  abstraction.
 
 Designed but not implemented on `main`:
 
-- Topic Expansion Engine contracts for expansion signals, candidates, clusters
-  and Expansion Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
