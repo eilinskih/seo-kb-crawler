@@ -71,7 +71,7 @@ the whole research system.
 | 22 | #98 | Demand Engine Runtime | Done on `main`; provider integrations, persistence and scheduling are later hardening work. |
 | 23 | #18 | SERP Intelligence Layer | Done on `main`; Issue #30 may start. |
 | 24 | #30 | SERP Intent Analyzer | Done on `main`; Issue #19 may start. |
-| 25 | #19 | Topic Expansion Engine | Depends on Demand Engine Runtime, #18 SERP Pack outputs, #30 SERP Intent Pack outputs and knowledge signals. |
+| 25 | #19 | Topic Expansion Engine | Done on `main`; future Long-tail Discovery issue may start when created. |
 | 26 | Future issue | Long-tail Discovery Engine | Depends on Demand Engine Runtime, #19, Knowledge Graph, SERP and intent signals. |
 | 27 | #20 | SEO Page Candidate Scoring | Depends on Demand Engine Runtime, #18/#19 and long-tail candidate signals when available. |
 | 28 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
