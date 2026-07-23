@@ -7,6 +7,7 @@ import {
   UrlFrontierPendingObservation,
   UrlFrontierRelevanceDecision,
 } from '../domain/url-frontier-types';
+import { calculateUrlFrontierPriority } from '../domain/url-frontier-priority';
 import { KnexUrlFrontierRepository } from '../persistence/knex-url-frontier.repository';
 
 export interface UrlFrontierReevaluationOptions {
@@ -128,6 +129,12 @@ export function evaluatePreCrawlObservation(
   );
   if (missingRequiredGroup) {
     if (profile.allowExploratoryCrawl) {
+      const priority = calculateUrlFrontierPriority({
+        relevanceScore: null,
+        discoveryObservationCount: 1,
+        retryCount: 0,
+        freshnessRatio: 1,
+      });
       return {
         relevanceScore: null,
         relevanceDecision: 'insufficient_evidence',
@@ -135,8 +142,9 @@ export function evaluatePreCrawlObservation(
           reason: 'missing_required_pre_crawl_evidence',
           missingRequiredGroup,
           exploratoryCrawlAllowed: true,
+          priority,
         },
-        priorityScore: 100,
+        priorityScore: priority.priorityScore,
       };
     }
     return rejected(0, 'missing_required_pre_crawl_evidence', {
@@ -158,6 +166,13 @@ export function evaluatePreCrawlObservation(
     });
   }
 
+  const priority = calculateUrlFrontierPriority({
+    relevanceScore: score,
+    discoveryObservationCount: 1,
+    retryCount: 0,
+    freshnessRatio: 1,
+  });
+
   return {
     relevanceScore: score,
     relevanceDecision: 'accepted',
@@ -165,8 +180,9 @@ export function evaluatePreCrawlObservation(
       reason: 'pre_crawl_evidence_matched',
       weightedScore,
       hostAdjustment,
+      priority,
     },
-    priorityScore: Math.round(250 + score * 400),
+    priorityScore: priority.priorityScore,
   };
 }
 

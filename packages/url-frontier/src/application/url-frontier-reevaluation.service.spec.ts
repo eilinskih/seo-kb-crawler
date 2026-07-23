@@ -74,7 +74,7 @@ describe('UrlFrontierReevaluationService', () => {
     expect(evaluation).toMatchObject({
       relevanceDecision: 'insufficient_evidence',
       relevanceScore: null,
-      priorityScore: 100,
+      priorityScore: 365,
       relevanceExplanation: {
         reason: 'missing_required_pre_crawl_evidence',
         exploratoryCrawlAllowed: true,
