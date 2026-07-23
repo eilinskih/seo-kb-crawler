@@ -5,11 +5,12 @@
   "description": "Local-first SEO knowledge-base crawler",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npm run build:api && npm run build:crawler-worker && npm run build:embedding-worker && npm run build:fact-extraction-worker",
+    "build": "npm run build:api && npm run build:crawler-worker && npm run build:embedding-worker && npm run build:fact-extraction-worker && npm run build:operator-console",
     "build:api": "nest build api",
     "build:crawler-worker": "nest build crawler-worker",
     "build:embedding-worker": "nest build embedding-worker",
     "build:fact-extraction-worker": "nest build fact-extraction-worker",
+    "build:operator-console": "nest build operator-console",
     "start:api": "nest start api",
     "start:api:dev": "nest start api --watch",
     "start:crawler-worker": "nest start crawler-worker",
@@ -18,6 +19,8 @@
     "start:embedding-worker:dev": "nest start embedding-worker --watch",
     "start:fact-extraction-worker": "nest start fact-extraction-worker",
     "start:fact-extraction-worker:dev": "nest start fact-extraction-worker --watch",
+    "start:operator-console": "nest start operator-console",
+    "start:operator-console:dev": "nest start operator-console --watch",
     "test": "jest --runInBand",
     "test:watch": "jest --watch"
   },

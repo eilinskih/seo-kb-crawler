@@ -65,11 +65,44 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Design-only PR defines internal UI scope, API/service boundaries, screens and bounded operator actions. |
+| #86 | Operator Console | Review needed | Foundation app adds internal HTML/status shell, operator sections and bounded action descriptors; full workflows remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added `apps/operator-console` as the runtime foundation for the internal
+  Operator Console.
+- Implemented a NestJS app serving an internal HTML shell and JSON status view
+  model with topic, frontier, processing, inspection, provider and research
+  sections.
+- Marked existing safe API/service actions as enabled and missing read
+  models/future operations as planned, while keeping mutating action
+  descriptors bounded.
+- Kept full interactive forms, API clients, richer read models,
+  authentication, direct database access, content generation workflows, paid
+  provider integrations and unbounded dispatch actions out of scope.
+Changed files:
+- package.json
+- nest-cli.json
+- apps/operator-console/**
+- docs/operator-console-model.md
+- docs/progress.md
+- docs/project-map.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- ./node_modules/.bin/nest build operator-console
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #86.
 
 Date: 2026-07-23
 Issue: #86

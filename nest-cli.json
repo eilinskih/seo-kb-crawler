@@ -287,6 +287,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/fact-extraction-worker/tsconfig.app.json"
       }
+    },
+    "operator-console": {
+      "type": "application",
+      "root": "apps/operator-console",
+      "entryFile": "main",
+      "sourceRoot": "apps/operator-console/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/operator-console/tsconfig.app.json"
+      }
     }
   }
 }
