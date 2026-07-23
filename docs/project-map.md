@@ -109,6 +109,8 @@ Implemented on `main`:
 - URL Frontier BullMQ dispatch, manual dispatch API, completion feedback,
   frontier-owned crawl completion service, bounded retry backoff and success
   recrawl scheduling.
+- URL Frontier operator status read model for topic-safe queue/failure
+  visibility.
 - Content Processing package boundary, domain contracts and foundation
   persistence schema.
 - Content Processing service boundary and Knex repository for idempotent
@@ -192,7 +194,8 @@ Designed but not implemented on `main`:
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
-  configurable retry policy, jitter and adaptive recrawl adjustment.
+  candidate reevaluation, freshness/priority hardening, configurable retry
+  policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 

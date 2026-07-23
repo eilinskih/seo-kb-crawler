@@ -581,17 +581,32 @@ Topic Engine implementation is complete. The initial URL Frontier lifecycle
 subset was implemented during Issue #5 work so the Crawler Worker could operate
 against durable leases and completion feedback.
 
-Remaining Issue #3 implementation may later add:
+Implemented on `main`:
 
 - `packages/url-frontier`.
 - Frontier domain model and repository contracts.
-- Knex migrations and PostgreSQL adapter.
-- Candidate ingestion and reevaluation use cases.
-- Atomic leasing and crawl-result use cases.
-- Unit and PostgreSQL integration tests.
+- Knex-backed frontier entries, leases and crawl attempts.
+- Atomic leasing and BullMQ dispatch.
+- Crawl-result completion feedback.
+- Bounded retry backoff and success recrawl scheduling.
+- Operator-safe URL Frontier status read model.
+- Unit and integration tests for the implemented lifecycle subset.
+
+Remaining Issue #3 implementation should proceed in small PRs:
+
+1. Discovery observation ingestion and source tracking.
+2. Candidate reevaluation and richer candidate status transitions.
+3. Canonical relation persistence and consolidation.
+4. Freshness and priority signal hardening.
+5. Configurable retry policy, jitter and adaptive recrawl adjustment.
+6. Close-out stabilization, including ADR confirmation.
 
 No Discovery Sources implementation or crawler request logic belongs to this
 issue.
+
+The ADR requested by the original issue should be introduced during #3
+close-out, unless a remaining implementation slice accepts a durable new
+architecture decision earlier.
 
 ## Review questions
 
