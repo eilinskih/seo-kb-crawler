@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-providers';
 
 import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
@@ -9,7 +10,10 @@ import {
 
 @Injectable()
 export class OperatorConsoleService {
-  constructor(private readonly apiClient: OperatorConsoleApiClient) {}
+  constructor(
+    private readonly apiClient: OperatorConsoleApiClient,
+    private readonly externalSeo: ExternalSeoEnrichmentService,
+  ) {}
 
   async buildViewModel(
     now = new Date(),
@@ -29,6 +33,7 @@ export class OperatorConsoleService {
       'Content generation and publishing workflows are intentionally absent.',
     ];
     const topics = await this.loadTopics(warnings);
+    const providerStatuses = await this.loadProviderStatuses(warnings, now);
 
     return {
       generatedAt: now.toISOString(),
@@ -37,6 +42,7 @@ export class OperatorConsoleService {
       sections,
       warnings,
       topics,
+      providerStatuses,
       flash,
     };
   }
@@ -46,6 +52,30 @@ export class OperatorConsoleService {
       return await this.apiClient.listTopics();
     } catch (error) {
       warnings.push(`Topic API unavailable: ${errorMessage(error)}`);
+      return [];
+    }
+  }
+
+  private async loadProviderStatuses(warnings: string[], now: Date) {
+    try {
+      const pack = await this.externalSeo.enrich({
+        now: now.toISOString(),
+        requestedCapabilities: ['keyword_intelligence', 'traffic_potential'],
+      });
+      return pack.providerStatuses.map((status) => ({
+        providerKey: status.providerKey,
+        status: status.status,
+        tier: status.tier,
+        capabilities: [...status.capabilities],
+        warnings: [
+          ...(status.warnings ?? []).map((warning) => warning.message),
+          ...pack.warnings
+            .filter((warning) => warning.providerKey === status.providerKey)
+            .map((warning) => warning.message),
+        ],
+      }));
+    } catch (error) {
+      warnings.push(`Provider status unavailable: ${errorMessage(error)}`);
       return [];
     }
   }
