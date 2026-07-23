@@ -74,7 +74,7 @@ the whole research system.
 | 25 | #19 | Topic Expansion Engine | Done on `main`; Issue #134 may start. |
 | 26 | #134 | Long-tail Discovery Engine | Done on `main`; Issue #20 may start. |
 | 27 | #20 | SEO Page Candidate Scoring | Done on `main`; Issue #21 may start. |
-| 28 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack, SERP Pack, SERP Intent Pack and scored candidate outputs from #20. |
+| 28 | #21 | SEO Pack Generator | Done on `main`; Issue #42 may start when #43 dependency is accepted or deferred. |
 
 ## Phase 6: LLM Integration
 
