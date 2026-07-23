@@ -47,6 +47,7 @@ specialized documents:
 - `docs/seo-consensus-model.md` for SEO Consensus and Conflict Layer.
 - `docs/serp-intelligence-model.md` for SERP Intelligence Layer.
 - `docs/serp-intent-analyzer-model.md` for SERP Intent Analyzer.
+- `docs/topic-expansion-model.md` for Topic Expansion Engine.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -151,6 +152,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- Topic Expansion Engine contracts for expansion signals, candidates, clusters
+  and Expansion Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
