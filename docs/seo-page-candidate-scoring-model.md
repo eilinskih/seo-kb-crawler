@@ -1,6 +1,6 @@
 # SEO Page Candidate Scoring Model
 
-- Status: Foundation implementation in review for Issue #20
+- Status: Foundation complete for Issue #20
 - Issue: #20
 - Date: 2026-07-23
 
@@ -327,11 +327,11 @@ The first implementation should not include:
 
 Issue #20 is complete when:
 
-- scored candidate contracts exist;
-- scoring signal normalization exists;
-- deterministic scoring profile foundation exists;
-- opportunity score, confidence and rationale foundations are implemented;
-- Focused Research hints are generated from missing or weak evidence;
-- missing paid metrics do not block scoring;
-- scores are documented as ranking aids, not readiness percentages;
-- documentation, progress and project map are synchronized.
+- scored candidate contracts exist. Done.
+- scoring signal normalization exists. Done.
+- deterministic scoring profile foundation exists. Done.
+- opportunity score, confidence and rationale foundations are implemented. Done.
+- Focused Research hints are generated from missing or weak evidence. Done.
+- missing paid metrics do not block scoring. Done.
+- scores are documented as ranking aids, not readiness percentages. Done.
+- documentation, progress and project map are synchronized. Done.
