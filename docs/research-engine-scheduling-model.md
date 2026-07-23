@@ -1,6 +1,6 @@
 # Research Engine Scheduling Model
 
-- Status: Foundation implementation in review for Issue #43
+- Status: Foundation complete for Issue #43
 - Issue: #43
 - Date: 2026-07-23
 
@@ -557,15 +557,15 @@ The first implementation should not include:
 
 Issue #43 is complete when:
 
-- Focused Research contracts exist;
-- Manual Research contracts exist;
-- Background Research contracts exist;
-- priority model exists;
-- fair background allocation foundation exists;
-- Topic research policy contracts exist;
-- TTL-aware freshness decision contracts exist;
-- Research Asset metrics contracts exist;
-- media metadata policy contracts exist;
-- dispatch boundaries preserve URL Frontier and Crawler Worker ownership;
-- no fake coverage, readiness or completeness percentages are introduced;
-- documentation, progress and project map are synchronized.
+- Focused Research contracts exist. Done.
+- Manual Research contracts exist. Done.
+- Background Research contracts exist. Done.
+- priority model exists. Done.
+- fair background allocation foundation exists. Done.
+- Topic research policy contracts exist. Done.
+- TTL-aware freshness decision contracts exist. Done.
+- Research Asset metrics contracts exist. Done.
+- media metadata policy contracts exist. Done.
+- dispatch boundaries preserve URL Frontier and Crawler Worker ownership. Done.
+- no fake coverage, readiness or completeness percentages are introduced. Done.
+- documentation, progress and project map are synchronized. Done.

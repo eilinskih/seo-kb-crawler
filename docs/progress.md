@@ -61,15 +61,39 @@ Roadmap order, phases and dependency rules live only in
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
-| #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; #42 remains deferred until #43 dependency is accepted or explicitly deferred. |
-| #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
-| #43 | Research Engine Scheduling | Review needed | Foundation PR adds research job contracts, priority mapping, fair background allocation, TTL-aware freshness decisions, dispatch planning and repository abstraction. |
+| #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
+| #42 | SEO Agent Gateway | Not started | Required dependencies are complete; ready to start from updated `main`. |
+| #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #43
+Status: Done
+Summary:
+- Closed out Research Engine Scheduling after design and foundation
+  implementation merged.
+- Confirmed Focused, Manual and Background Research contracts, priority model,
+  fair background allocation, Topic research policy contracts, TTL-aware
+  freshness decisions, Research Asset metrics, media policy decisions, dispatch
+  boundaries and repository abstraction satisfy the accepted Issue #43 scope.
+- Confirmed concrete persistence, long-running scheduler daemon, queue workers,
+  new crawler adapters, direct crawler execution, provider integrations, media
+  downloader, operator UI, SEO Agent Gateway runtime and content generation
+  remain later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #43 and start Issue #42 SEO Agent Gateway from updated
+  `main`.
 
 Date: 2026-07-23
 Issue: #43
