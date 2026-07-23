@@ -18,14 +18,15 @@ specialized documents such as `docs/topic-model.md`,
 `docs/serp-intelligence-model.md`, `docs/serp-intent-analyzer-model.md`,
 `docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
 `docs/seo-page-candidate-scoring-model.md`,
-`docs/seo-pack-generator-model.md`, `docs/demand-engine-model.md` and ADRs
-under `docs/decisions/`.
+`docs/seo-pack-generator-model.md`, `docs/research-engine-scheduling-model.md`,
+`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
 
 ## Core pipeline
 
 ```txt
 Topics
   -> Demand Engine
+  -> Research Engine Scheduling
   -> Discovery Sources
   -> URL Frontier
   -> Crawler Worker
@@ -93,6 +94,14 @@ design is approved. The initial implementation lives in
 `packages/discovery-sources` and covers contracts, deterministic planning,
 seed and extracted-link adapters; URL Frontier persistence, external search
 providers and sitemap fetching remain later work.
+
+The Research Engine Scheduling design is documented in
+`docs/research-engine-scheduling-model.md`. It defines Focused Research,
+Manual Research and fair Background Research orchestration across Active
+Topics while preserving URL Frontier ownership of URL-level identity, leases,
+priority and recrawl state.
+It appears in the pipeline overview to show orchestration order; it is not a
+data-transform package and does not produce a domain pack by itself.
 
 The Crawler Worker adapter boundary, safe network gateway, robots policy,
 crawl-result and extracted-link contracts are documented in

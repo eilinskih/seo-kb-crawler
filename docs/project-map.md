@@ -32,6 +32,8 @@ specialized documents:
 - `docs/topic-model.md` for the Topic Engine.
 - `docs/url-frontier-model.md` for the URL Frontier.
 - `docs/discovery-sources-model.md` for Discovery Sources.
+- `docs/research-engine-scheduling-model.md` for Focused Research,
+  Background Research and Research Engine Scheduling.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
 - `docs/chunking-model.md` for the Chunking Engine.
@@ -169,6 +171,8 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
+- Research Engine Scheduling for Focused Research, Manual Research, fair
+  Background Research, TTL-aware reuse and media metadata policy.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
