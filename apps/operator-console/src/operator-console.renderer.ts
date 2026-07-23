@@ -58,6 +58,7 @@ export function renderOperatorConsoleHtml(
     </div>
     ${renderTopicWorkflow(model)}
     ${renderJobsReadiness(model)}
+    ${renderInspectionHealth(model)}
     ${renderFrontierStatus(model)}
     ${renderDispatchWorkflow()}
     ${renderProviderStatus(model)}
@@ -67,6 +68,74 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+function renderInspectionHealth(model: OperatorConsoleViewModel): string {
+  const status = model.operatorStatus;
+  return `<section id="inspection-health" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Inspection And Health</h2>
+      <p>Recent documents, chunks and retrieval smoke readiness.</p>
+    </div>
+    <span class="badge">${status ? 'available' : 'planned'}</span>
+  </div>
+  ${status ? `<table>
+    <thead>
+      <tr><th>Signal</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Documents</td><td>${escapeHtml(String(status.inspection.recentDocuments.length))} recent</td></tr>
+      <tr><td>Chunks</td><td>${escapeHtml(String(status.inspection.recentChunks.length))} recent</td></tr>
+      <tr><td>Retrieval smoke</td><td>keyword ${status.retrieval.keywordReady ? 'ready' : 'not ready'}, vector ${status.retrieval.vectorReady ? 'ready' : 'not ready'}</td></tr>
+      <tr><td>Retrieval mode</td><td>${status.retrieval.degradedMode ? 'degraded keyword/metadata mode' : 'normal or empty'}</td></tr>
+    </tbody>
+  </table>
+  ${renderRecentDocuments(status.inspection.recentDocuments)}
+  ${renderRecentChunks(status.inspection.recentChunks)}` : '<p class="empty">Inspection data is unavailable.</p>'}
+</section>`;
+}
+
+function renderRecentDocuments(
+  documents: NonNullable<OperatorConsoleViewModel['operatorStatus']>['inspection']['recentDocuments'],
+): string {
+  if (documents.length === 0) {
+    return '<p class="empty">No recent documents.</p>';
+  }
+  return `<table>
+    <thead>
+      <tr><th>Document</th><th>URL</th><th>Words</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+      ${documents.map((document) => `<tr>
+        <td>${escapeHtml(document.title ?? document.documentVersionId)}<br><code>${escapeHtml(document.documentVersionId)}</code></td>
+        <td><code>${escapeHtml(document.finalUrl ?? document.requestedUrl)}</code></td>
+        <td>${escapeHtml(String(document.wordCount ?? 'unknown'))}</td>
+        <td>${escapeHtml(document.createdAt)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderRecentChunks(
+  chunks: NonNullable<OperatorConsoleViewModel['operatorStatus']>['inspection']['recentChunks'],
+): string {
+  if (chunks.length === 0) {
+    return '<p class="empty">No recent chunks.</p>';
+  }
+  return `<table>
+    <thead>
+      <tr><th>Chunk</th><th>Type</th><th>Tokens</th><th>Preview</th></tr>
+    </thead>
+    <tbody>
+      ${chunks.map((chunk) => `<tr>
+        <td><code>${escapeHtml(chunk.chunkId)}</code><br>${escapeHtml(chunk.createdAt)}</td>
+        <td>${escapeHtml(chunk.chunkType)}<br>${escapeHtml(chunk.language ?? 'unknown')}</td>
+        <td>${escapeHtml(String(chunk.tokenCount))}</td>
+        <td>${escapeHtml(chunk.textPreview)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
 }
 
 function renderJobsReadiness(model: OperatorConsoleViewModel): string {

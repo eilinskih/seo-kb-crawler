@@ -194,3 +194,16 @@ export interface ContentProcessingStatusSummary {
     updatedAt: string;
   }>;
 }
+
+export interface ContentInspectionSummary {
+  recentDocuments: Array<{
+    documentId: string;
+    documentVersionId: string;
+    topicId: string;
+    requestedUrl: string;
+    finalUrl: string | null;
+    title: string | null;
+    wordCount: number | null;
+    createdAt: string;
+  }>;
+}

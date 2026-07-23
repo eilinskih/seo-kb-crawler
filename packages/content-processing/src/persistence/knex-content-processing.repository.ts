@@ -7,6 +7,7 @@ import {
   ContentProcessingRecord,
   ContentProcessingRepository,
   ContentProcessingRunCommand,
+  ContentInspectionSummary,
   ContentProcessingStatusSummary,
   ContentProcessingStatus,
   CrawlAttemptForProcessing,
@@ -222,6 +223,25 @@ export class KnexContentProcessingRepository
           retryable: row.failure!.retryable,
           updatedAt: toIsoString(row.updated_at),
         })),
+    };
+  }
+
+  async summarizeInspection(): Promise<ContentInspectionSummary> {
+    const rows = await this.db.knex<DocumentVersionRow>('document_versions')
+      .orderBy('created_at', 'desc')
+      .limit(10);
+
+    return {
+      recentDocuments: rows.map((row) => ({
+        documentId: row.document_id,
+        documentVersionId: row.id,
+        topicId: row.topic_id,
+        requestedUrl: row.requested_url,
+        finalUrl: row.final_url,
+        title: row.title,
+        wordCount: row.metadata.wordCount,
+        createdAt: toIsoString(row.created_at),
+      })),
     };
   }
 

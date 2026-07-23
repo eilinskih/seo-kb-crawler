@@ -17,12 +17,16 @@ export class OperatorStatusController {
   async status() {
     const [
       contentProcessing,
+      contentInspection,
       chunking,
+      chunkInspection,
       embeddings,
       retrieval,
     ] = await Promise.all([
       this.contentProcessing.summarizeStatus(),
+      this.contentProcessing.summarizeInspection(),
       this.chunking.summarizeStatus(),
+      this.chunking.summarizeInspection(),
       this.embeddings.summarizeStatus(),
       this.retrieval.summarizeReadiness(),
     ]);
@@ -32,6 +36,10 @@ export class OperatorStatusController {
       chunking,
       embeddings,
       retrieval,
+      inspection: {
+        ...contentInspection,
+        ...chunkInspection,
+      },
     };
   }
 }

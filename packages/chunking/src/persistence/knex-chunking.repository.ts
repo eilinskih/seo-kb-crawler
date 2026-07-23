@@ -9,6 +9,7 @@ import {
   ChunkingRunIdentity,
   ChunkingRunRecord,
   ChunkingRunStatus,
+  ChunkInspectionSummary,
   ChunkingStatusSummary,
   ChunkType,
   ChunkTypeConfidence,
@@ -251,6 +252,25 @@ export class KnexChunkingRepository implements ChunkingRepository {
           retryable: row.failure!.retryable,
           updatedAt: toIsoString(row.updated_at),
         })),
+    };
+  }
+
+  async summarizeInspection(): Promise<ChunkInspectionSummary> {
+    const rows = await this.db.knex<ChunkRow>('chunks')
+      .orderBy('created_at', 'desc')
+      .limit(10);
+
+    return {
+      recentChunks: rows.map((row) => ({
+        chunkId: row.id,
+        topicId: row.topic_id,
+        documentVersionId: row.document_version_id,
+        chunkType: row.chunk_type,
+        tokenCount: row.token_count,
+        language: row.language,
+        textPreview: row.text.slice(0, 180),
+        createdAt: toIsoString(row.created_at),
+      })),
     };
   }
 }

@@ -325,6 +325,14 @@ The jobs/failures/readiness implementation:
 - renders pipeline totals, status counts, failure counts, recent failures and
   retrieval degraded mode in the console.
 
+The inspection/health implementation:
+
+- adds recent document inspection from Content Processing;
+- adds recent chunk inspection from Chunking;
+- shows retrieval smoke readiness from Retrieval readiness state;
+- shows basic document, chunk, keyword retrieval and vector retrieval health
+  signals.
+
 Authenticated access, richer failure/provider detail screens, frontier retry
 forms and processing retry forms remain future implementation work.
 
