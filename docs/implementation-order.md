@@ -71,8 +71,8 @@ the whole research system.
 | 22 | #98 | Demand Engine Runtime | Done on `main`; provider integrations, persistence and scheduling are later hardening work. |
 | 23 | #18 | SERP Intelligence Layer | Done on `main`; Issue #30 may start. |
 | 24 | #30 | SERP Intent Analyzer | Done on `main`; Issue #19 may start. |
-| 25 | #19 | Topic Expansion Engine | Done on `main`; future Long-tail Discovery issue may start when created. |
-| 26 | Future issue | Long-tail Discovery Engine | Depends on Demand Engine Runtime, #19, Knowledge Graph, SERP and intent signals. |
+| 25 | #19 | Topic Expansion Engine | Done on `main`; Issue #134 may start. |
+| 26 | #134 | Long-tail Discovery Engine | Depends on Demand Engine Runtime, #19, Knowledge Graph, SERP and intent signals. |
 | 27 | #20 | SEO Page Candidate Scoring | Depends on Demand Engine Runtime, #18/#19 and long-tail candidate signals when available. |
 | 28 | #21 | SEO Pack Generator | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 
@@ -118,7 +118,7 @@ contracts rather than bypassing domain modules.
                                                                     #11 -> #12 -> #28 -> #13 -> #14 -> #15 -> #16
                                                                                                 |
                                                                                                 v
-                                                                         #98 Demand Engine Runtime -> #18 -> #30 -> #19 -> Long-tail Discovery -> #20 -> #21 -> #42
+                                                                         #98 Demand Engine Runtime -> #18 -> #30 -> #19 -> #134 Long-tail Discovery -> #20 -> #21 -> #42
 
 Optional:
 #17 enriches #11/#12/#14/#18.
@@ -171,6 +171,8 @@ See `docs/demand-engine-model.md` and
 `docs/decisions/0003-demand-engine-provider-optional.md`.
 
 ## Future capability: Long-tail Discovery Engine
+
+Issue #134 tracks this capability.
 
 The current architecture already supports long-tail discovery through Focused
 Research, Background Research, SERP analysis, competitor crawling, Knowledge
@@ -298,10 +300,10 @@ Long-tail candidates should be ranked by an Opportunity Score that can include:
 - Existing knowledge already available in the local database.
 - Optional external keyword volume and difficulty when providers are enabled.
 
-This future capability should be added as a dedicated roadmap issue after the
+This capability has now been added as a dedicated roadmap issue after the
 Demand Engine, Research Engine, Content Processing Pipeline, base Retrieval and
-foundational Knowledge Intelligence layers are available. It should evolve the
-platform naturally rather than changing the current MVP architecture.
+foundational Knowledge Intelligence layers became available. It should evolve
+the platform naturally rather than changing the current MVP architecture.
 
 ## Architecture principles
 
