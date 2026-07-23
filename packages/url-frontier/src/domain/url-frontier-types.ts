@@ -19,6 +19,12 @@ export type UrlFrontierDiscoverySourceType =
   | 'link'
   | 'operator';
 
+export type UrlFrontierCanonicalEvidenceType =
+  | 'operator'
+  | 'redirect'
+  | 'http_link'
+  | 'html_link';
+
 export interface UrlFrontierCrawlPolicySnapshot {
   userAgent: string;
   respectRobots: boolean;
@@ -118,6 +124,25 @@ export interface UrlFrontierPendingObservation
   observationId: string;
   normalizedUrl: string;
   normalizedUrlHash: string;
+}
+
+export interface UrlFrontierCanonicalRelationCommand {
+  sourceFrontierEntryId: string;
+  targetCanonicalUrl: string;
+  evidenceType: UrlFrontierCanonicalEvidenceType;
+  evidence: Record<string, unknown>;
+  now: Date;
+}
+
+export interface UrlFrontierCanonicalRelationResult {
+  status:
+    | 'consolidated'
+    | 'recorded_unresolved'
+    | 'rejected'
+    | 'self_canonical';
+  relationId: string | null;
+  targetFrontierEntryId: string | null;
+  reason: string | null;
 }
 
 export interface UrlFrontierRepository {
