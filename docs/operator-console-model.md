@@ -1,6 +1,6 @@
 # Operator Console Model
 
-- Status: Foundation implementation in review for Issue #86
+- Status: Implemented internal MVP for Issue #86
 - Issue: #86
 - Date: 2026-07-23
 
@@ -336,6 +336,32 @@ The inspection/health implementation:
 
 Authenticated access, richer failure/provider detail screens, frontier retry
 forms and processing retry forms remain future implementation work.
+
+## Close-Out Status
+
+Issue #86 is complete as an internal operator MVP.
+
+Implemented scope:
+
+- topic create, view, edit, pause, archive and reactivate workflows;
+- seed URL, seed keyword, language, geo and crawl-policy editing;
+- topic-scoped URL Frontier status visibility;
+- bounded URL Frontier and Content Processing dispatch controls;
+- jobs, failures and readiness visibility for Content Processing, Chunking,
+  Embeddings and Retrieval;
+- provider/fallback/degraded status visibility;
+- recent document, chunk and embedding inspection;
+- retrieval smoke readiness;
+- API/service-bound console access without direct UI database reads.
+
+Deferred scope:
+
+- authenticated access and production access control;
+- richer per-domain failure/provider detail screens;
+- URL Frontier retry-specific forms;
+- Content Processing retry-specific forms;
+- full Research Scheduling controls;
+- production-grade frontend hardening.
 
 ## Acceptance Criteria
 

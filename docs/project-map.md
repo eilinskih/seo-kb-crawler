@@ -181,16 +181,16 @@ Implemented on `main`:
   contracts, provider-neutral observations, nullable metric snapshots,
   fail-open enrichment service, fallback SEO signals provider and repository
   abstraction.
-- Operator Console application boundary, internal HTML/status shell,
-  operator section view model, bounded action descriptors and disabled planned
-  surfaces for missing read models.
+- Operator Console internal MVP with topic create/view/edit/lifecycle
+  workflows, seed/crawl configuration editing, URL Frontier status, bounded
+  dispatch controls, provider/fallback status, pipeline readiness, failure
+  visibility and recent document/chunk/embedding inspection through API/service
+  boundaries.
 
 Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- Full Operator Console interactive workflows, API clients, richer read models,
-  authentication, topic/failure/provider detail screens and forms.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
@@ -206,4 +206,6 @@ Not implemented:
   consumption.
 - SEO Agent Gateway concrete persistence, prompt rendering, LLM provider calls,
   final content generation and publishing workflows.
-- Operator Console production-ready UI workflows.
+- Operator Console authenticated access, production UI hardening, richer
+  per-domain detail screens, retry-specific forms and full Research Scheduling
+  controls.

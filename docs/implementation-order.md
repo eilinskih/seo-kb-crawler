@@ -99,7 +99,7 @@ core pipeline or become required dependencies.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 32 | #86 | Operator Console | Depends on stable operator APIs; richer version depends on #10 and #43. |
+| 32 | #86 | Operator Console | Done on `main`; production hardening and richer detail/retry workflows remain future work. |
 
 The Operator Console is an internal UI for managing topics, crawl operations,
 failures, retries and provider/fallback status. It must use API/service
