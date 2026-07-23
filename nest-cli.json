@@ -234,6 +234,15 @@
         "tsConfigPath": "packages/seo-candidate-scoring/tsconfig.lib.json"
       }
     },
+    "seo-pack": {
+      "type": "library",
+      "root": "packages/seo-pack",
+      "entryFile": "index",
+      "sourceRoot": "packages/seo-pack/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/seo-pack/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

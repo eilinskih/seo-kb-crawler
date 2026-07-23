@@ -144,6 +144,12 @@
       "@seo-kb/seo-candidate-scoring/*": [
         "packages/seo-candidate-scoring/src/*"
       ],
+      "@seo-kb/seo-pack": [
+        "packages/seo-pack/src"
+      ],
+      "@seo-kb/seo-pack/*": [
+        "packages/seo-pack/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

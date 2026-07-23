@@ -161,6 +161,9 @@ Implemented on `main`:
 - SEO Page Candidate Scoring package boundary, scoring signal normalization,
   deterministic profile scoring, opportunity score/rationale output,
   Focused Research hints and repository abstraction.
+- SEO Pack Generator package boundary, model-agnostic SEO Pack DTOs,
+  deterministic page brief, outline, FAQ, evidence, SERP requirement,
+  generation constraint assembly and repository abstraction.
 
 Designed but not implemented on `main`:
 
@@ -173,6 +176,7 @@ Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
 - SERP and SERP Intent persistence and live SERP providers.
-- SEO Pack Generator runtime.
+- SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
+  consumption.
 - Operator Console.
 - SEO Agent Gateway.

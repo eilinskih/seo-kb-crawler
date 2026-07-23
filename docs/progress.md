@@ -61,7 +61,7 @@ Roadmap order, phases and dependency rules live only in
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
-| #21 | SEO Pack Generator | Review needed | Design-only PR defines model-agnostic SEO Pack contracts, assembly rules and Agent Gateway boundaries. |
+| #21 | SEO Pack Generator | Review needed | Foundation PR adds model-agnostic SEO Pack contracts, deterministic assembly services and repository abstraction. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
@@ -70,6 +70,35 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #21
+Status: Review needed
+Summary:
+- Added `packages/seo-pack` as the runtime foundation for SEO Pack Generator.
+- Implemented model-agnostic SEO Pack contracts, deterministic page brief,
+  outline, FAQ, required evidence, SERP requirement, internal linking hint and
+  generation constraint assembly.
+- Kept content generation, prompt rendering, SEO Agent Gateway runtime,
+  operator UI, concrete persistence, scheduling, paid provider integrations,
+  automatic publishing and rank tracking out of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-pack-generator-model.md
+- packages/seo-pack/**
+Validation:
+- npm test -- --runTestsByPath packages/seo-pack/src/seo-pack.service.spec.ts packages/seo-pack/src/persistence/seo-pack.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/seo-pack/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build seo-pack
+- npm test
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #21.
 
 Date: 2026-07-23
 Issue: #21
