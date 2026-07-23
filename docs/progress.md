@@ -64,12 +64,42 @@ Roadmap order, phases and dependency rules live only in
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
-| #40 | External SEO Data Providers | Review needed | Design-only PR defines fail-open provider enrichment contracts, provider capabilities and downstream consumer boundaries. |
+| #40 | External SEO Data Providers | Review needed | Foundation package adds fail-open provider contracts, fallback SEO signals and repository abstraction; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #40
+Status: Review needed
+Summary:
+- Added `packages/external-seo-data-providers` as the runtime foundation for
+  optional external SEO enrichment.
+- Implemented provider capability/status contracts, provider-neutral
+  observations, nullable metric snapshots, enrichment packs, fail-open
+  enrichment orchestration, fallback SEO signals and repository abstraction.
+- Kept concrete Ahrefs, Semrush, SE Ranking or other paid provider API calls,
+  credentials management, provider scheduling, concrete persistence, billing
+  and quota handling out of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/external-seo-data-providers-model.md
+- docs/progress.md
+- docs/project-map.md
+- packages/external-seo-data-providers/**
+Validation:
+- npm test -- --runTestsByPath packages/external-seo-data-providers/src/external-seo-enrichment.service.spec.ts
+- ./node_modules/.bin/tsc -p packages/external-seo-data-providers/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build external-seo-data-providers
+- npm test
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #40.
 
 Date: 2026-07-23
 Issue: #40
