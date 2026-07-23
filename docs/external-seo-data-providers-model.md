@@ -1,6 +1,6 @@
 # External SEO Data Providers Model
 
-Status: Foundation implementation in review for Issue #40.
+Status: Foundation implementation complete for Issue #40.
 
 ## Purpose
 
@@ -263,6 +263,35 @@ The initial implementation:
 
 Concrete paid provider integrations, credentials management, scheduled refresh
 jobs and durable persistence remain future work.
+
+## Close-out
+
+Issue #40 is complete for the accepted foundation scope.
+
+Completed:
+
+- provider-neutral external SEO enrichment contracts;
+- provider capability and status model;
+- fail-open enrichment orchestration;
+- fallback SEO signals provider;
+- nullable metric snapshots;
+- provider warning propagation;
+- repository abstraction;
+- tests proving fallback and provider failure behavior remain non-blocking.
+
+Deferred:
+
+- concrete Ahrefs, Semrush, SE Ranking or other paid API adapters;
+- Google Search Console owned-data adapter;
+- provider credentials management;
+- scheduled refresh jobs;
+- durable provider snapshot persistence;
+- billing, quota and rate-limit operations UI.
+
+Future provider integrations should build on this package instead of adding
+provider-specific schemas or API logic inside Demand Engine, SERP
+Intelligence, Topic Expansion, Long-tail Discovery, SEO Page Candidate Scoring,
+SEO Pack Generator or SEO Agent Gateway.
 
 ## Review Gates
 

@@ -90,7 +90,7 @@ and SEO packs must remain model-agnostic.
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
 | 30 | #17 | External Entity Enrichment Providers | Optional enrichment after local entity contracts. |
-| 31 | #40 | External SEO Data Providers | Optional enrichment after Demand Engine Runtime provider contracts and internal SEO signals. |
+| 31 | #40 | External SEO Data Providers | Done on `main`; concrete provider adapters remain future provider-specific work. |
 
 External providers improve scoring and enrichment. They must never block the
 core pipeline or become required dependencies.
