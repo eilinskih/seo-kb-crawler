@@ -1,11 +1,14 @@
 import { renderOperatorConsoleHtml } from './operator-console.renderer';
+import { OperatorConsoleApiClient } from './operator-console-api.client';
 import { OperatorConsoleService } from './operator-console.service';
 
 describe('OperatorConsoleService', () => {
-  it('builds an internal operator-only view model', () => {
-    const service = new OperatorConsoleService();
+  it('builds an internal operator-only view model', async () => {
+    const service = new OperatorConsoleService(mockClient());
 
-    const model = service.buildViewModel(new Date('2026-07-23T00:00:00.000Z'));
+    const model = await service.buildViewModel(
+      new Date('2026-07-23T00:00:00.000Z'),
+    );
 
     expect(model.generatedAt).toBe('2026-07-23T00:00:00.000Z');
     expect(model.warnings).toEqual(expect.arrayContaining([
@@ -20,12 +23,16 @@ describe('OperatorConsoleService', () => {
       'providers',
       'research',
     ]);
+    expect(model.topics).toEqual([
+      expect.objectContaining({ slug: 'laser-hair-removal' }),
+    ]);
   });
 
-  it('marks mutating actions as bounded and keeps missing read models planned', () => {
-    const service = new OperatorConsoleService();
+  it('marks mutating actions as bounded and keeps missing read models planned', async () => {
+    const service = new OperatorConsoleService(mockClient());
 
-    const actions = service.buildViewModel().sections.flatMap((section) =>
+    const model = await service.buildViewModel();
+    const actions = model.sections.flatMap((section) =>
       section.actions,
     );
 
@@ -55,10 +62,55 @@ describe('OperatorConsoleService', () => {
       subtitle: 'Internal',
       warnings: ['Use <safe> APIs'],
       sections: [],
+      topics: [],
+      flash: null,
     });
 
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
     expect(html).toContain('Use &lt;safe&gt; APIs');
     expect(html).not.toContain('<script>alert(1)</script>');
   });
+
+  it('renders topic workflow forms and lifecycle actions', () => {
+    const html = renderOperatorConsoleHtml({
+      generatedAt: '2026-07-23T00:00:00.000Z',
+      title: 'Console',
+      subtitle: 'Internal',
+      warnings: [],
+      flash: null,
+      sections: [],
+      topics: [{
+        id: 'topic-1',
+        slug: 'laser-hair-removal',
+        name: 'Laser Hair Removal',
+        description: null,
+        status: 'active',
+        configurationVersion: 1,
+        updatedAt: '2026-07-23T00:00:00.000Z',
+      }],
+    });
+
+    expect(html).toContain('action="/topics"');
+    expect(html).toContain('Seed keywords');
+    expect(html).toContain('Laser Hair Removal');
+    expect(html).toContain('action="/topics/topic-1/pause"');
+  });
 });
+
+function mockClient(): OperatorConsoleApiClient {
+  return {
+    listTopics: jest.fn().mockResolvedValue([{
+      id: 'topic-1',
+      slug: 'laser-hair-removal',
+      name: 'Laser Hair Removal',
+      description: null,
+      status: 'active',
+      configurationVersion: 1,
+      updatedAt: '2026-07-23T00:00:00.000Z',
+    }]),
+    createTopic: jest.fn(),
+    pauseTopic: jest.fn(),
+    archiveTopic: jest.fn(),
+    reactivateTopic: jest.fn(),
+  } as unknown as OperatorConsoleApiClient;
+}

@@ -280,8 +280,19 @@ The initial implementation:
 - keeps content generation, publishing, paid provider credentials and direct
   database access out of scope.
 
-Full interactive forms, API clients, richer read models, authenticated access,
-and topic/failure/provider detail screens remain future implementation work.
+The topic workflow implementation:
+
+- adds an operator API client that calls the existing Topic API;
+- lists topics through the Topic API;
+- adds a topic creation form for slug, name, description, seed URLs, seed
+  keywords, language, country and max-page policy;
+- maps the form into the existing Topic Engine configuration contract;
+- adds bounded pause, archive and reactivate form actions;
+- keeps all topic lifecycle changes behind Topic API endpoints.
+
+Richer read models, authenticated access, failure/provider detail screens,
+frontier retry forms, processing retry forms and provider status screens remain
+future implementation work.
 
 ## Acceptance Criteria
 

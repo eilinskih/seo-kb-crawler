@@ -25,4 +25,16 @@ export interface OperatorConsoleViewModel {
   subtitle: string;
   sections: OperatorConsoleSection[];
   warnings: string[];
+  topics: OperatorTopicSummary[];
+  flash: string | null;
+}
+
+export interface OperatorTopicSummary {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  status: string;
+  configurationVersion: number;
+  updatedAt: string;
 }

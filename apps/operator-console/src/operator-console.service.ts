@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
   OperatorConsoleAction,
   OperatorConsoleSection,
@@ -8,7 +9,12 @@ import {
 
 @Injectable()
 export class OperatorConsoleService {
-  buildViewModel(now = new Date()): OperatorConsoleViewModel {
+  constructor(private readonly apiClient: OperatorConsoleApiClient) {}
+
+  async buildViewModel(
+    now = new Date(),
+    flash: string | null = null,
+  ): Promise<OperatorConsoleViewModel> {
     const sections = [
       topicSection(),
       frontierSection(),
@@ -17,18 +23,31 @@ export class OperatorConsoleService {
       providerSection(),
       researchSection(),
     ];
+    const warnings = [
+      'Internal operator-only UI. Not a public dashboard.',
+      'Actions must use API/service contracts and remain bounded.',
+      'Content generation and publishing workflows are intentionally absent.',
+    ];
+    const topics = await this.loadTopics(warnings);
 
     return {
       generatedAt: now.toISOString(),
       title: 'SEO KB Operator Console',
       subtitle: 'Internal operations surface for topics, dispatches and status.',
       sections,
-      warnings: [
-        'Internal operator-only UI. Not a public dashboard.',
-        'Actions must use API/service contracts and remain bounded.',
-        'Content generation and publishing workflows are intentionally absent.',
-      ],
+      warnings,
+      topics,
+      flash,
     };
+  }
+
+  private async loadTopics(warnings: string[]) {
+    try {
+      return await this.apiClient.listTopics();
+    } catch (error) {
+      warnings.push(`Topic API unavailable: ${errorMessage(error)}`);
+      return [];
+    }
   }
 }
 
@@ -138,4 +157,8 @@ function action(
     owner,
     note,
   };
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
