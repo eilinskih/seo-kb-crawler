@@ -49,6 +49,7 @@ specialized documents:
 - `docs/serp-intent-analyzer-model.md` for SERP Intent Analyzer.
 - `docs/topic-expansion-model.md` for Topic Expansion Engine.
 - `docs/long-tail-discovery-model.md` for Long-tail Discovery Engine.
+- `docs/seo-page-candidate-scoring-model.md` for SEO Page Candidate Scoring.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -159,6 +160,8 @@ Implemented on `main`:
 
 Designed but not implemented on `main`:
 
+- SEO Page Candidate Scoring contracts for scoring signals, profiles, scored
+  candidates, opportunity score rationale and Focused Research hints.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,
