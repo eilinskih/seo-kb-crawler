@@ -76,7 +76,7 @@ function renderInspectionHealth(model: OperatorConsoleViewModel): string {
   <div class="section-head">
     <div>
       <h2>Inspection And Health</h2>
-      <p>Recent documents, chunks and retrieval smoke readiness.</p>
+      <p>Recent documents, chunks, embeddings and retrieval smoke readiness.</p>
     </div>
     <span class="badge">${status ? 'available' : 'planned'}</span>
   </div>
@@ -87,12 +87,14 @@ function renderInspectionHealth(model: OperatorConsoleViewModel): string {
     <tbody>
       <tr><td>Documents</td><td>${escapeHtml(String(status.inspection.recentDocuments.length))} recent</td></tr>
       <tr><td>Chunks</td><td>${escapeHtml(String(status.inspection.recentChunks.length))} recent</td></tr>
+      <tr><td>Embeddings</td><td>${escapeHtml(String(status.inspection.recentEmbeddings.length))} recent</td></tr>
       <tr><td>Retrieval smoke</td><td>keyword ${status.retrieval.keywordReady ? 'ready' : 'not ready'}, vector ${status.retrieval.vectorReady ? 'ready' : 'not ready'}</td></tr>
       <tr><td>Retrieval mode</td><td>${status.retrieval.degradedMode ? 'degraded keyword/metadata mode' : 'normal or empty'}</td></tr>
     </tbody>
   </table>
   ${renderRecentDocuments(status.inspection.recentDocuments)}
-  ${renderRecentChunks(status.inspection.recentChunks)}` : '<p class="empty">Inspection data is unavailable.</p>'}
+  ${renderRecentChunks(status.inspection.recentChunks)}
+  ${renderRecentEmbeddings(status.inspection.recentEmbeddings)}` : '<p class="empty">Inspection data is unavailable.</p>'}
 </section>`;
 }
 
@@ -133,6 +135,27 @@ function renderRecentChunks(
         <td>${escapeHtml(chunk.chunkType)}<br>${escapeHtml(chunk.language ?? 'unknown')}</td>
         <td>${escapeHtml(String(chunk.tokenCount))}</td>
         <td>${escapeHtml(chunk.textPreview)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderRecentEmbeddings(
+  embeddings: NonNullable<OperatorConsoleViewModel['operatorStatus']>['inspection']['recentEmbeddings'],
+): string {
+  if (embeddings.length === 0) {
+    return '<p class="empty">No recent embeddings.</p>';
+  }
+  return `<table>
+    <thead>
+      <tr><th>Embedding</th><th>Model</th><th>Status</th><th>Updated</th></tr>
+    </thead>
+    <tbody>
+      ${embeddings.map((embedding) => `<tr>
+        <td><code>${escapeHtml(embedding.embeddingId)}</code><br><code>${escapeHtml(embedding.chunkId)}</code></td>
+        <td>${escapeHtml(embedding.providerKey)} ${escapeHtml(embedding.modelKey)} ${escapeHtml(embedding.modelVersion)}<br>${escapeHtml(String(embedding.dimensions))} dimensions</td>
+        <td>${escapeHtml(embedding.status)}<br>${escapeHtml(embedding.language ?? 'unknown')} ${escapeHtml(embedding.chunkType)}</td>
+        <td>${escapeHtml(embedding.embeddedAt ?? 'not embedded')}<br>${escapeHtml(embedding.updatedAt)}</td>
       </tr>`).join('')}
     </tbody>
   </table>`;

@@ -13,6 +13,7 @@ import {
   EmbeddingDistanceMetric,
   EmbeddingStatsRow,
   EmbeddingStatusSummary,
+  EmbeddingInspectionSummary,
 } from '../domain/embedding-types';
 
 interface ChunkRow {
@@ -62,6 +63,22 @@ interface ChunkEmbeddingRow {
   embedded_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
+}
+
+interface EmbeddingInspectionRow {
+  id: string;
+  chunk_id: string;
+  topic_id: string;
+  document_version_id: string;
+  language: string | null;
+  chunk_type: ChunkEmbeddingRecord['chunkType'];
+  status: EmbeddingStatus;
+  embedded_at: Date | string | null;
+  updated_at: Date | string;
+  provider_key: string;
+  model_key: string;
+  model_version: string;
+  dimensions: number;
 }
 
 @Injectable()
@@ -316,6 +333,52 @@ export class KnexEmbeddingRepository implements EmbeddingRepository {
       terminalFailures: stats
         .filter((row) => row.status === 'failed_terminal')
         .reduce((total, row) => total + row.count, 0),
+    };
+  }
+
+  async summarizeInspection(
+    options: { limit?: number } = {},
+  ): Promise<EmbeddingInspectionSummary> {
+    const rows = await this.db.knex<EmbeddingInspectionRow>('chunk_embeddings')
+      .join(
+        'embedding_models',
+        'chunk_embeddings.embedding_model_id',
+        'embedding_models.id',
+      )
+      .select([
+        'chunk_embeddings.id',
+        'chunk_embeddings.chunk_id',
+        'chunk_embeddings.topic_id',
+        'chunk_embeddings.document_version_id',
+        'chunk_embeddings.language',
+        'chunk_embeddings.chunk_type',
+        'chunk_embeddings.status',
+        'chunk_embeddings.embedded_at',
+        'chunk_embeddings.updated_at',
+        'embedding_models.provider_key',
+        'embedding_models.model_key',
+        'embedding_models.model_version',
+        'embedding_models.dimensions',
+      ])
+      .orderBy('chunk_embeddings.updated_at', 'desc')
+      .limit(options.limit ?? 10);
+
+    return {
+      recentEmbeddings: rows.map((row) => ({
+        embeddingId: row.id,
+        chunkId: row.chunk_id,
+        topicId: row.topic_id,
+        documentVersionId: row.document_version_id,
+        providerKey: row.provider_key,
+        modelKey: row.model_key,
+        modelVersion: row.model_version,
+        dimensions: Number(row.dimensions),
+        status: row.status,
+        language: row.language,
+        chunkType: row.chunk_type,
+        embeddedAt: row.embedded_at ? new Date(row.embedded_at) : null,
+        updatedAt: new Date(row.updated_at),
+      })),
     };
   }
 

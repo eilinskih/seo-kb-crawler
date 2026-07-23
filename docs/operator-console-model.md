@@ -329,8 +329,9 @@ The inspection/health implementation:
 
 - adds recent document inspection from Content Processing;
 - adds recent chunk inspection from Chunking;
+- adds recent embedding inspection from Embeddings;
 - shows retrieval smoke readiness from Retrieval readiness state;
-- shows basic document, chunk, keyword retrieval and vector retrieval health
+- shows basic document, chunk, embedding, keyword retrieval and vector retrieval health
   signals.
 
 Authenticated access, richer failure/provider detail screens, frontier retry

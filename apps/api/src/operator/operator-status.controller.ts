@@ -21,6 +21,7 @@ export class OperatorStatusController {
       chunking,
       chunkInspection,
       embeddings,
+      embeddingInspection,
       retrieval,
     ] = await Promise.all([
       this.contentProcessing.summarizeStatus(),
@@ -28,6 +29,7 @@ export class OperatorStatusController {
       this.chunking.summarizeStatus(),
       this.chunking.summarizeInspection(),
       this.embeddings.summarizeStatus(),
+      this.embeddings.summarizeInspection(),
       this.retrieval.summarizeReadiness(),
     ]);
 
@@ -39,6 +41,7 @@ export class OperatorStatusController {
       inspection: {
         ...contentInspection,
         ...chunkInspection,
+        ...embeddingInspection,
       },
     };
   }

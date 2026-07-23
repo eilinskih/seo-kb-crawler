@@ -109,6 +109,26 @@ export interface EmbeddingStatsRow {
   count: number;
 }
 
+export interface EmbeddingInspectionSummary {
+  recentEmbeddings: RecentEmbeddingInspection[];
+}
+
+export interface RecentEmbeddingInspection {
+  embeddingId: string;
+  chunkId: string;
+  topicId: string;
+  documentVersionId: string;
+  providerKey: string;
+  modelKey: string;
+  modelVersion: string;
+  dimensions: number;
+  status: EmbeddingStatus;
+  language: string | null;
+  chunkType: ChunkType;
+  embeddedAt: Date | null;
+  updatedAt: Date;
+}
+
 export interface EmbeddingRepository {
   upsertEmbeddingModel(
     identity: EmbeddingModelIdentity,
@@ -151,6 +171,7 @@ export interface EmbeddingRepository {
     },
   ): Promise<EmbeddingBatchResult>;
   getEmbeddingStats(): Promise<EmbeddingStatsRow[]>;
+  summarizeInspection(options?: { limit?: number }): Promise<EmbeddingInspectionSummary>;
 }
 
 export interface EmbeddingStatusSummary {

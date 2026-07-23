@@ -144,6 +144,8 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Inspection And Health');
     expect(html).toContain('Recent Document');
     expect(html).toContain('Recent chunk text');
+    expect(html).toContain('embedding-1');
+    expect(html).toContain('local test 1');
   });
 });
 
@@ -233,6 +235,21 @@ function operatorStatusFixture() {
         language: 'en',
         textPreview: 'Recent chunk text',
         createdAt: '2026-07-23T00:00:00.000Z',
+      }],
+      recentEmbeddings: [{
+        embeddingId: 'embedding-1',
+        chunkId: 'chunk-1',
+        topicId: 'topic-1',
+        documentVersionId: 'document-version-1',
+        providerKey: 'local',
+        modelKey: 'test',
+        modelVersion: '1',
+        dimensions: 384,
+        status: 'embedded',
+        language: 'en',
+        chunkType: 'section',
+        embeddedAt: '2026-07-23T00:00:00.000Z',
+        updatedAt: '2026-07-23T00:00:00.000Z',
       }],
     },
   };

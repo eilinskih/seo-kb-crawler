@@ -65,11 +65,40 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Inspection/health PR adds recent documents, recent chunks and retrieval smoke readiness; close-out remains deferred. |
+| #86 | Operator Console | Review needed | Architecture Steward close-out review found one remaining accepted-scope gap: recent embedding inspection. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Architecture Steward close-out review found that Issue #86 still needs recent
+  embedding inspection before close-out.
+- Added recent embedding inspection summaries through the Embeddings repository
+  boundary.
+- Exposed recent embeddings through `/operator/status` and rendered them in the
+  Operator Console inspection/health view.
+- Kept embedding execution, retry-specific forms, authenticated access and
+  direct console database access out of scope.
+Changed files:
+- apps/api/src/operator/operator-status.controller.ts
+- apps/operator-console/**
+- packages/embeddings/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts packages/embeddings/src/embedding.service.spec.ts
+- npm run build:api
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate, review and merge the embedding inspection slice, then rerun
+  close-out review for Issue #86.
 
 Date: 2026-07-23
 Issue: #86
