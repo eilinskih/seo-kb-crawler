@@ -65,6 +65,10 @@ module.exports = {
       '<rootDir>/packages/topic-expansion/src',
     '^@seo-kb/topic-expansion/(.*)$':
       '<rootDir>/packages/topic-expansion/src/$1',
+    '^@seo-kb/long-tail-discovery$':
+      '<rootDir>/packages/long-tail-discovery/src',
+    '^@seo-kb/long-tail-discovery/(.*)$':
+      '<rootDir>/packages/long-tail-discovery/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

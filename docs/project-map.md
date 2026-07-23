@@ -153,11 +153,12 @@ Implemented on `main`:
 - Topic Expansion package boundary, expansion signal normalization, first-pass
   candidate generation, topic clusters, Expansion Pack assembly and repository
   abstraction.
+- Long-tail Discovery package boundary, dimension extraction, explicit
+  combination rules, compatibility/co-occurrence safeguards, bounded candidate
+  generation, opportunity trees and repository abstraction.
 
 Designed but not implemented on `main`:
 
-- Long-tail Discovery Engine contracts for dimensions, explicit combination
-  rules, candidates, opportunity trees and Long-tail Discovery Packs.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,

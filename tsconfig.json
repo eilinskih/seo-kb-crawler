@@ -132,6 +132,12 @@
       "@seo-kb/topic-expansion/*": [
         "packages/topic-expansion/src/*"
       ],
+      "@seo-kb/long-tail-discovery": [
+        "packages/long-tail-discovery/src"
+      ],
+      "@seo-kb/long-tail-discovery/*": [
+        "packages/long-tail-discovery/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

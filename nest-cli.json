@@ -216,6 +216,15 @@
         "tsConfigPath": "packages/topic-expansion/tsconfig.lib.json"
       }
     },
+    "long-tail-discovery": {
+      "type": "library",
+      "root": "packages/long-tail-discovery",
+      "entryFile": "index",
+      "sourceRoot": "packages/long-tail-discovery/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/long-tail-discovery/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

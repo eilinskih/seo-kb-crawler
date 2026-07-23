@@ -1,6 +1,6 @@
 # Long-tail Discovery Engine Model
 
-- Status: Design proposed for Issue #134
+- Status: Foundation implementation in review for Issue #134
 - Issue: #134
 - Date: 2026-07-23
 
@@ -306,6 +306,24 @@ Recommended package:
 ```txt
 packages/long-tail-discovery
 ```
+
+Implemented foundation package:
+
+- `packages/long-tail-discovery/src/domain/long-tail-discovery-types.ts`
+  defines dimensions, combination rules, candidates, opportunity trees and
+  Long-tail Discovery Pack contracts.
+- `packages/long-tail-discovery/src/long-tail-dimension.service.ts` normalizes
+  and deduplicates evidence-backed dimensions.
+- `packages/long-tail-discovery/src/combination-rule.service.ts` applies
+  explicit rule allow-lists, compatibility/co-occurrence safeguards and
+  degraded-run limits.
+- `packages/long-tail-discovery/src/long-tail-candidate.service.ts` assembles
+  provider-optional long-tail candidates with nullable metrics.
+- `packages/long-tail-discovery/src/opportunity-tree.service.ts` groups
+  candidates into reviewable opportunity trees.
+- `packages/long-tail-discovery/src/persistence/long-tail-discovery.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
 
 Recommended services:
 
