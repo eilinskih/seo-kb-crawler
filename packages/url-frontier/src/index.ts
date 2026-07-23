@@ -1,3 +1,4 @@
+export * from './application/url-frontier-canonical.service';
 export * from './application/url-frontier-completion.service';
 export * from './application/url-frontier-dispatch.service';
 export * from './application/url-frontier-reevaluation.service';

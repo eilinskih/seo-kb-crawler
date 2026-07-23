@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '@seo-kb/db';
 import {
+  UrlFrontierCanonicalEvidenceType,
   UrlFrontierCrawlPolicySnapshot,
   UrlFrontierCrawlStatus,
   UrlFrontierDiscoveryObservation,
@@ -34,10 +35,28 @@ export interface UrlFrontierEntryRow {
   lease_owner: string | null;
   lease_expires_at: Date | string | null;
   active_attempt_id: string | null;
+  canonical_url: string | null;
+  canonical_source: UrlFrontierCanonicalEvidenceType | null;
+  suppression_reason: string | null;
   last_crawled_at: Date | string | null;
   consecutive_failures: number;
   created_at: Date | string;
   updated_at: Date | string;
+}
+
+export interface UrlCanonicalRelationRow {
+  id: string;
+  topic_id: string;
+  source_frontier_entry_id: string;
+  target_frontier_entry_id: string | null;
+  source_normalized_url: string;
+  target_normalized_url: string;
+  target_normalized_url_hash: string;
+  evidence_type: UrlFrontierCanonicalEvidenceType;
+  evidence: Record<string, unknown>;
+  accepted: boolean;
+  rejection_reason: string | null;
+  created_at: Date | string;
 }
 
 export interface UrlDiscoveryObservationRow {
@@ -306,6 +325,77 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
       })),
     };
   }
+
+  async findEntryById(entryId: string): Promise<UrlFrontierEntryRow | null> {
+    const row = await this.db.knex<UrlFrontierEntryRow>(
+      'url_frontier_entries',
+    )
+      .where('id', entryId)
+      .first();
+    return row ?? null;
+  }
+
+  async findEntryByTopicAndUrlHash(
+    topicId: string,
+    normalizedUrlHash: string,
+  ): Promise<UrlFrontierEntryRow | null> {
+    const row = await this.db.knex<UrlFrontierEntryRow>(
+      'url_frontier_entries',
+    )
+      .where({
+        topic_id: topicId,
+        normalized_url_hash: normalizedUrlHash,
+      })
+      .first();
+    return row ?? null;
+  }
+
+  async insertCanonicalRelation(
+    row: UrlCanonicalRelationRow,
+  ): Promise<void> {
+    await this.db.knex<UrlCanonicalRelationRow>('url_canonical_relations')
+      .insert(row)
+      .onConflict([
+        'source_frontier_entry_id',
+        'target_normalized_url_hash',
+        'evidence_type',
+      ])
+      .merge({
+        target_frontier_entry_id: row.target_frontier_entry_id,
+        target_normalized_url: row.target_normalized_url,
+        evidence: row.evidence,
+        accepted: row.accepted,
+        rejection_reason: row.rejection_reason,
+        created_at: row.created_at,
+      });
+  }
+
+  async suppressCanonicalDuplicate(
+    sourceEntryId: string,
+    targetNormalizedUrl: string,
+    canonicalSource: UrlFrontierCanonicalEvidenceType,
+    now: Date,
+  ): Promise<boolean> {
+    const updated = await this.db.knex<UrlFrontierEntryRow>(
+      'url_frontier_entries',
+    )
+      .where('id', sourceEntryId)
+      .update({
+        canonical_url: targetNormalizedUrl,
+        canonical_source: canonicalSource,
+        suppression_reason: 'canonical_duplicate',
+        relevance_decision: 'rejected',
+        relevance_score: 0,
+        relevance_explanation: {
+          reason: 'canonical_duplicate',
+          canonicalUrl: targetNormalizedUrl,
+        },
+        priority_score: 0,
+        updated_at: now,
+      });
+
+    return updated === 1;
+  }
 }
 
 export function toLease(
@@ -353,6 +443,9 @@ export function toEntryRow(seed: UrlFrontierEntrySeed): UrlFrontierEntryRow {
     lease_owner: null,
     lease_expires_at: null,
     active_attempt_id: null,
+    canonical_url: null,
+    canonical_source: null,
+    suppression_reason: null,
     last_crawled_at: null,
     consecutive_failures: 0,
     created_at: seed.now,
@@ -363,7 +456,7 @@ export function toEntryRow(seed: UrlFrontierEntrySeed): UrlFrontierEntryRow {
 export function toObservationRowInput(
   observation: UrlFrontierDiscoveryObservation,
 ): Omit<UrlDiscoveryObservationRow, 'id' | 'frontier_entry_id'> | null {
-  const normalizedUrl = normalizeObservedUrl(observation.discoveredUrl);
+  const normalizedUrl = normalizeFrontierUrl(observation.discoveredUrl);
   if (!normalizedUrl) {
     return null;
   }
@@ -376,7 +469,7 @@ export function toObservationRowInput(
     source_key: observation.sourceKey,
     discovered_url: observation.discoveredUrl,
     normalized_url: normalizedUrl,
-    normalized_url_hash: sha256Hex(normalizedUrl),
+    normalized_url_hash: urlFrontierHash(normalizedUrl),
     discovered_at: observation.discoveredAt,
     source_url: observation.sourceUrl ?? null,
     title: observation.title ?? null,
@@ -427,7 +520,7 @@ function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
 
-function normalizeObservedUrl(value: string): string | null {
+export function normalizeFrontierUrl(value: string): string | null {
   try {
     const url = new URL(value);
     if (!['http:', 'https:'].includes(url.protocol)) {
@@ -448,6 +541,6 @@ function normalizeObservedUrl(value: string): string | null {
   }
 }
 
-function sha256Hex(value: string): string {
+export function urlFrontierHash(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }

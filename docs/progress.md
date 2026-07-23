@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Candidate reevaluation PR adds bounded pre-crawl evaluation from pending observations; next slice is canonical relations. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Canonical relation PR adds topic-scoped relation persistence and bounded consolidation; next slice is freshness/priority hardening. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -70,6 +70,32 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #3
+Status: Review needed
+Summary:
+- Added topic-scoped canonical relation persistence for URL Frontier.
+- Added a bounded canonical consolidation service that records evidence,
+  rejects unsafe targets and suppresses source entries only when the target
+  frontier entry already exists.
+- Added canonical metadata and suppression reason fields to frontier entries.
+- Kept global URL alias registry, content duplicate detection, automatic target
+  creation and adaptive scheduling out of this slice.
+Changed files:
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/014-url-frontier-canonical-relations.ts
+- packages/url-frontier/**
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/application/url-frontier-canonical.service.spec.ts packages/url-frontier/src/persistence/knex-url-frontier.repository.spec.ts
+- npm run build:api
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge canonical relations, then continue with freshness/priority
+  signal hardening.
 
 Date: 2026-07-23
 Issue: #3
