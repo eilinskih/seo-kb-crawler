@@ -61,7 +61,7 @@ Roadmap order, phases and dependency rules live only in
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
-| #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack, SERP Intent Pack and scored candidate outputs from #20. |
+| #21 | SEO Pack Generator | Review needed | Design-only PR defines model-agnostic SEO Pack contracts, assembly rules and Agent Gateway boundaries. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
@@ -70,6 +70,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #21
+Status: Review needed
+Summary:
+- Started SEO Pack Generator as a design-only PR after Issue #20 closed.
+- Defined SEO Pack boundaries, inputs, outputs, page brief structure,
+  recommended outline sections, FAQ recommendations, required entities/facts,
+  SERP intent requirements, internal linking hints, uncertainty metadata and
+  consumer boundaries.
+- Kept runtime implementation, content generation, prompt generation,
+  automatic publishing, scheduling, operator UI and provider integrations out
+  of the design PR scope.
+Changed files:
+- docs/architecture.md
+- docs/codex-workflow.md
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-pack-generator-model.md
+Validation:
+- git diff --check
+- Architecture Steward review: no blockers; clarified Context Pack vs SEO Pack,
+  SEO Agent Gateway as the integration boundary and Codex-facing ownership.
+Next step:
+- Review and merge the design before implementing `packages/seo-pack`.
 
 Date: 2026-07-23
 Issue: #20
