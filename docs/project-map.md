@@ -171,13 +171,15 @@ Implemented on `main`:
   priority mapping, fair background budget allocation, TTL-aware freshness
   decisions, dispatch planning, media policy decisions and repository
   abstraction.
+- SEO Agent Gateway package boundary, model-agnostic generation request
+  contracts, Focused Research requirement representation, structured
+  generation context assembly, retrieval-only safeguards, consumer adapter
+  contracts and repository abstraction.
 
 Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- SEO Agent Gateway for model-agnostic generation request orchestration and
-  structured pack enforcement.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
@@ -189,4 +191,6 @@ Not implemented:
   queue workers and media downloader.
 - SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
   consumption.
+- SEO Agent Gateway concrete persistence, prompt rendering, LLM provider calls,
+  final content generation and publishing workflows.
 - Operator Console.

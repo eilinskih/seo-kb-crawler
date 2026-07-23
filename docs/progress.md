@@ -62,7 +62,7 @@ Roadmap order, phases and dependency rules live only in
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
-| #42 | SEO Agent Gateway | Review needed | Design-only PR defines model-agnostic gateway contracts, Focused Research enforcement, structured pack requirements and fallback behavior. |
+| #42 | SEO Agent Gateway | Review needed | Foundation PR adds model-agnostic generation request contracts, Focused Research requirement output, structured context assembly, retrieval-only safeguards and repository abstraction. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #42
+Status: Review needed
+Summary:
+- Added `packages/seo-agent-gateway` as the runtime foundation for SEO Agent
+  Gateway.
+- Implemented model-agnostic generation request contracts, objective
+  normalization, Focused Research requirement output, required pack references,
+  structured generation context assembly, fallback states, retrieval-only
+  safeguards, consumer adapter contracts and repository abstraction.
+- Kept prompt rendering, LLM provider calls, final content generation, SEO
+  Agent runtime execution, concrete persistence, operator UI, publishing
+  workflows and rank tracking out of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-agent-gateway-model.md
+- packages/seo-agent-gateway/**
+Validation:
+- npm test -- --runTestsByPath packages/seo-agent-gateway/src/seo-agent-gateway.service.spec.ts packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/seo-agent-gateway/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build seo-agent-gateway
+- npm test
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #42.
 
 Date: 2026-07-23
 Issue: #42

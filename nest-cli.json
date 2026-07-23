@@ -252,6 +252,15 @@
         "tsConfigPath": "packages/research-scheduling/tsconfig.lib.json"
       }
     },
+    "seo-agent-gateway": {
+      "type": "library",
+      "root": "packages/seo-agent-gateway",
+      "entryFile": "index",
+      "sourceRoot": "packages/seo-agent-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/seo-agent-gateway/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",
