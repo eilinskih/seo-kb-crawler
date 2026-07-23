@@ -1,6 +1,6 @@
 # Operator Console Model
 
-- Status: Design in review for Issue #86
+- Status: Foundation implementation in review for Issue #86
 - Issue: #86
 - Date: 2026-07-23
 
@@ -261,6 +261,27 @@ Issue #86 implementation should not add:
 
 The first implementation should keep styling and frontend architecture small
 enough that the console remains easy to replace or extend.
+
+## Implementation Notes
+
+The runtime foundation application is `apps/operator-console`.
+
+The initial implementation:
+
+- adds a NestJS Operator Console application;
+- serves an internal HTML shell at `/`;
+- exposes the same view model as JSON at `/status`;
+- defines operator sections for topics, URL Frontier, processing, inspection,
+  providers and research scheduling;
+- lists enabled actions only where existing API/service contracts already
+  exist;
+- marks missing read models and unsafe future actions as planned/disabled;
+- keeps all mutating action descriptors bounded;
+- keeps content generation, publishing, paid provider credentials and direct
+  database access out of scope.
+
+Full interactive forms, API clients, richer read models, authenticated access,
+and topic/failure/provider detail screens remain future implementation work.
 
 ## Acceptance Criteria
 
