@@ -1,8 +1,8 @@
 # Operator Console Model
 
-- Status: Proposed future operational layer
+- Status: Design in review for Issue #86
 - Issue: #86
-- Date: 2026-07-07
+- Date: 2026-07-23
 
 ## Purpose
 
@@ -26,10 +26,12 @@ The Operator Console owns:
 
 - Internal UI workflows for operators.
 - Topic and project management screens.
+- Topic seed URL, seed keyword and crawl configuration editing workflows.
 - Queue/job status views.
 - Failure and retry screens.
 - Provider/fallback status views.
 - Lightweight document, chunk, embedding and retrieval inspection.
+- UI state, filters, sort order and operator-facing workflow composition.
 
 The Operator Console does not own:
 
@@ -38,8 +40,34 @@ The Operator Console does not own:
 - SEO page generation.
 - Public customer-facing dashboards.
 - Direct database mutation that bypasses service contracts.
+- Provider integrations or provider credentials storage.
+- Long-running schedulers or worker execution loops.
+- Content publishing workflows.
 
 All operator actions should go through existing API or service boundaries.
+
+The console may compose several service/API responses into a useful screen, but
+the underlying lifecycle transition must remain owned by the relevant domain
+module.
+
+## Product Shape
+
+The Operator Console should be a small internal web application, likely under
+`apps/operator-console`, backed by operator-safe API/service contracts.
+
+It should optimize for repeated operations, not marketing presentation:
+
+- dense topic and job tables;
+- filters for topic, status, provider mode and retryability;
+- bounded action buttons with clear disabled states;
+- detail drawers for failures, warnings and recent artifacts;
+- compact health summaries;
+- no public account, billing or customer-dashboard concepts.
+
+The first implementation should prefer server- or build-time simplicity over a
+large frontend framework migration. The console may start with the repository's
+existing NestJS/API surface plus a minimal frontend app once the package/app
+boundary is accepted.
 
 ## Primary Workflows
 
@@ -55,6 +83,7 @@ Operators should be able to:
 - inspect topic lifecycle state;
 - manage seed URLs and seed keywords;
 - review language, geo and crawl-policy configuration.
+- see when topic policy or crawl configuration makes a URL ineligible.
 
 This is the most important first workflow. Managing active and obsolete topics
 only through raw API calls becomes error-prone once many projects exist.
@@ -69,6 +98,8 @@ Operators should be able to:
 - inspect crawl failures;
 - retry eligible crawl work;
 - see why URLs were rejected or suppressed.
+- avoid unbounded crawl starts by requiring explicit limits for dispatch
+  actions.
 
 ### Processing Operations
 
@@ -79,6 +110,7 @@ Operators should be able to:
 - inspect chunking, embedding and retrieval readiness;
 - view retryable and terminal failures;
 - trigger retries where the underlying domain service allows it.
+- distinguish "not ready yet" from terminal failure.
 
 ### Provider and Fallback Status
 
@@ -93,6 +125,11 @@ Operators should be able to see whether the platform is running with:
 The UI should make degraded mode visible without treating it as a fatal system
 failure.
 
+Provider state should use provider-neutral status from packages such as Demand
+Engine, Embeddings, Retrieval and External SEO Data Providers. The console
+should not call paid provider SDKs or infer health by querying provider-specific
+schemas directly.
+
 ### Inspection Views
 
 Initial inspection views may include:
@@ -105,6 +142,63 @@ Initial inspection views may include:
 - source URLs and canonical URLs.
 
 These views are for debugging and operator confidence, not content authoring.
+
+## UI/API Boundary
+
+The console should consume operator-facing API/service contracts rather than
+database tables.
+
+Expected API/service surfaces:
+
+- Topic Engine: topic create, update, pause, archive, reactivate and policy
+  read models.
+- URL Frontier: topic-scoped frontier state, dispatch plans, retryable failures
+  and bounded dispatch commands.
+- Content Processing: successful crawl attempt processing status, retryable
+  failures and bounded processing dispatch commands.
+- Chunking, Embeddings and Retrieval: readiness summaries and inspection
+  read models.
+- Context Pack API: retrieval/context preview requests.
+- Research Engine Scheduling: focused/manual/background research job state,
+  dispatch planning and freshness status.
+- External SEO Data Providers: provider/fallback/degraded status and recent
+  enrichment warnings.
+
+If an operator screen needs data that no domain module exposes yet, the next
+step should be a small operator-safe read model or command in that module, not
+a direct database query from the console.
+
+## Screen Model
+
+The minimal console should include:
+
+- Topics list with status, language, geo, crawl policy, recent activity and
+  provider/degraded indicators.
+- Topic detail with seed URLs, seed keywords, crawl configuration, lifecycle
+  actions and recent research/crawl/processing state.
+- Frontier view filtered by topic and URL status.
+- Jobs/failures view across crawl, content processing, chunking, embeddings,
+  retrieval and research scheduling.
+- Provider status view for local/free/fallback/paid-provider availability.
+- Inspection view for recent documents, chunks, embedding status and Context
+  Pack smoke results.
+
+The console should avoid content generation screens in Issue #86. Content
+generation, SEO Pack previews and SEO Agent Gateway execution are future
+review workflows only, not part of the initial Operator Console scope.
+
+## Action Safety
+
+Operator actions should be explicit and bounded:
+
+- pause, archive and reactivate should affect a selected topic only;
+- retry and dispatch actions should require limits or explicit selected items;
+- destructive or irreversible actions should be absent from the initial scope;
+- failed actions should show domain-returned warnings instead of pretending
+  success;
+- provider/fallback degraded modes should be warnings, not fatal UI states.
+
+Actions should be idempotent where the domain boundary supports it.
 
 ## Dependencies
 
@@ -137,6 +231,7 @@ Issue #86 implementation may add:
 - API clients for existing operator endpoints;
 - read-only inspection views for documents, chunks, embeddings and retrieval;
 - bounded action buttons for pause/archive/reactivate/retry/dispatch;
+- provider/fallback/degraded status cards based on provider-neutral contracts;
 - tests for critical operator workflows.
 
 Issue #86 implementation should not add:
@@ -146,6 +241,26 @@ Issue #86 implementation should not add:
 - content generation workflows;
 - direct database write paths;
 - new crawling or ranking behavior.
+- paid provider integrations;
+- provider credentials management;
+- unbounded crawl, processing or research dispatches.
+
+## Implementation Plan
+
+1. Add an `apps/operator-console` boundary and routing shell.
+2. Add typed operator API clients for existing Topic, Frontier, Processing,
+   Context Pack, Research Scheduling and provider-status contracts.
+3. Build topic list and topic detail workflows first.
+4. Add frontier/job/failure read-only views.
+5. Add bounded action buttons only where a domain service already exposes a
+   safe command.
+6. Add provider/fallback status views from provider-neutral status contracts.
+7. Add inspection views for recent documents, chunks, embeddings and retrieval
+   smoke results.
+8. Add tests around critical operator flows and disabled/bounded action states.
+
+The first implementation should keep styling and frontend architecture small
+enough that the console remains easy to replace or extend.
 
 ## Acceptance Criteria
 
@@ -155,3 +270,5 @@ Issue #86 implementation should not add:
 - Operators can trigger only bounded, explicit dispatch/retry actions.
 - Provider/fallback/degraded modes are visible.
 - The UI uses API/service contracts rather than direct database mutation.
+- The UI does not expose content generation workflows.
+- The UI does not require paid provider credentials.
