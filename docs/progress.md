@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | In progress | Scope reconciled after #86 close-out; next slice is discovery observation ingestion and source tracking. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Discovery observation ingestion PR adds append-only source tracking; next slice is candidate reevaluation. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -70,6 +70,32 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #3
+Status: Review needed
+Summary:
+- Added append-only URL discovery observation storage owned by URL Frontier.
+- Added a Frontier-owned discovery observation DTO and repository append
+  boundary compatible with Discovery Sources candidate observations.
+- Persisted normalized URL identity and source/provenance metadata without
+  creating new crawl jobs or changing crawler behavior.
+- Kept candidate reevaluation, canonical consolidation, adaptive scheduling and
+  retry policy hardening out of this slice.
+Changed files:
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/013-url-frontier-observations.ts
+- packages/url-frontier/**
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/persistence/knex-url-frontier.repository.spec.ts packages/url-frontier/src/application/url-frontier-dispatch.service.spec.ts
+- npm run build:api
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge observation ingestion, then continue with candidate
+  reevaluation and richer candidate status transitions.
 
 Date: 2026-07-23
 Issue: #3

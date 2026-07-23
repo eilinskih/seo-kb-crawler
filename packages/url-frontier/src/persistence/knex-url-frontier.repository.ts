@@ -1,9 +1,12 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '@seo-kb/db';
 import {
   UrlFrontierCrawlPolicySnapshot,
   UrlFrontierCrawlStatus,
+  UrlFrontierDiscoveryObservation,
+  UrlFrontierDiscoveryObservationReceipt,
+  UrlFrontierDiscoverySourceType,
   UrlFrontierEntrySeed,
   UrlFrontierLease,
   UrlFrontierLeaseOptions,
@@ -36,6 +39,28 @@ export interface UrlFrontierEntryRow {
   updated_at: Date | string;
 }
 
+export interface UrlDiscoveryObservationRow {
+  id: string;
+  frontier_entry_id: string | null;
+  topic_id: string;
+  topic_configuration_version: number;
+  discovery_run_id: string;
+  source_type: UrlFrontierDiscoverySourceType;
+  source_key: string;
+  discovered_url: string;
+  normalized_url: string;
+  normalized_url_hash: string;
+  discovered_at: Date | string;
+  source_url: string | null;
+  title: string | null;
+  snippet: string | null;
+  anchor_text: string | null;
+  source_rank: number | null;
+  metadata: Record<string, unknown>;
+  idempotency_key: string;
+  created_at: Date | string;
+}
+
 @Injectable()
 export class KnexUrlFrontierRepository implements UrlFrontierRepository {
   constructor(private readonly db: DbService) {}
@@ -59,6 +84,64 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
         next_crawl_at: row.next_crawl_at,
         updated_at: row.updated_at,
       });
+  }
+
+  async appendDiscoveryObservations(
+    observations: UrlFrontierDiscoveryObservation[],
+  ): Promise<UrlFrontierDiscoveryObservationReceipt[]> {
+    const receipts: UrlFrontierDiscoveryObservationReceipt[] = [];
+
+    for (const observation of observations) {
+      const rowInput = toObservationRowInput(observation);
+      if (!rowInput) {
+        receipts.push({
+          idempotencyKey: observation.idempotencyKey,
+          status: 'malformed',
+          frontierEntryId: null,
+        });
+        continue;
+      }
+
+      const existing = await this.db.knex<UrlDiscoveryObservationRow>(
+        'url_discovery_observations',
+      )
+        .where('idempotency_key', observation.idempotencyKey)
+        .first();
+      if (existing) {
+        receipts.push({
+          idempotencyKey: observation.idempotencyKey,
+          status: 'duplicate',
+          frontierEntryId: existing.frontier_entry_id,
+        });
+        continue;
+      }
+
+      const entry = await this.db.knex<UrlFrontierEntryRow>(
+        'url_frontier_entries',
+      )
+        .where({
+          topic_id: observation.topicId,
+          normalized_url_hash: rowInput.normalized_url_hash,
+        })
+        .first();
+      const row: UrlDiscoveryObservationRow = {
+        ...rowInput,
+        id: randomUUID(),
+        frontier_entry_id: entry?.id ?? null,
+      };
+
+      await this.db.knex<UrlDiscoveryObservationRow>(
+        'url_discovery_observations',
+      ).insert(row);
+
+      receipts.push({
+        idempotencyKey: observation.idempotencyKey,
+        status: 'accepted',
+        frontierEntryId: row.frontier_entry_id,
+      });
+    }
+
+    return receipts;
   }
 
   async leaseNext(
@@ -244,6 +327,35 @@ export function toEntryRow(seed: UrlFrontierEntrySeed): UrlFrontierEntryRow {
   };
 }
 
+export function toObservationRowInput(
+  observation: UrlFrontierDiscoveryObservation,
+): Omit<UrlDiscoveryObservationRow, 'id' | 'frontier_entry_id'> | null {
+  const normalizedUrl = normalizeObservedUrl(observation.discoveredUrl);
+  if (!normalizedUrl) {
+    return null;
+  }
+
+  return {
+    topic_id: observation.topicId,
+    topic_configuration_version: observation.topicConfigurationVersion,
+    discovery_run_id: observation.discoveryRunId,
+    source_type: observation.sourceType,
+    source_key: observation.sourceKey,
+    discovered_url: observation.discoveredUrl,
+    normalized_url: normalizedUrl,
+    normalized_url_hash: sha256Hex(normalizedUrl),
+    discovered_at: observation.discoveredAt,
+    source_url: observation.sourceUrl ?? null,
+    title: observation.title ?? null,
+    snippet: observation.snippet ?? null,
+    anchor_text: observation.anchorText ?? null,
+    source_rank: observation.sourceRank ?? null,
+    metadata: observation.metadata,
+    idempotency_key: observation.idempotencyKey,
+    created_at: observation.discoveredAt,
+  };
+}
+
 function commandDeadline(
   now: Date,
   leaseExpiresAt: Date,
@@ -256,4 +368,29 @@ function commandDeadline(
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function normalizeObservedUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return null;
+    }
+    url.protocol = url.protocol.toLowerCase();
+    url.hostname = url.hostname.toLowerCase().replace(/\.$/u, '');
+    if (
+      (url.protocol === 'http:' && url.port === '80') ||
+      (url.protocol === 'https:' && url.port === '443')
+    ) {
+      url.port = '';
+    }
+    url.hash = '';
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function sha256Hex(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
 }
