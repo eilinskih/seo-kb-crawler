@@ -1,6 +1,6 @@
 # SEO Pack Generator Model
 
-- Status: Design in review for Issue #21
+- Status: Foundation implementation in review for Issue #21
 - Issue: #21
 - Date: 2026-07-23
 
@@ -304,6 +304,22 @@ Recommended package:
 ```txt
 packages/seo-pack
 ```
+
+Implemented foundation package:
+
+- `packages/seo-pack/src/domain/seo-pack-types.ts` defines SEO Pack requests,
+  source pack references, page briefs, outline sections, FAQ recommendations,
+  required evidence, SERP requirements, internal linking hints, generation
+  constraints and final SEO Pack output.
+- `packages/seo-pack/src/seo-pack.service.ts` assembles deterministic
+  model-agnostic SEO Packs from upstream pack-like inputs.
+- `packages/seo-pack/src/page-brief.service.ts`,
+  `recommended-outline.service.ts`, `faq-recommendation.service.ts`,
+  `required-evidence.service.ts`, `serp-requirement.service.ts`,
+  `internal-linking-hint.service.ts` and `generation-constraint.service.ts`
+  own focused assembly slices.
+- `packages/seo-pack/src/persistence/seo-pack.repository.ts` defines the
+  repository abstraction; concrete database persistence remains deferred.
 
 Recommended services:
 

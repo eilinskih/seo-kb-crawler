@@ -73,6 +73,8 @@ module.exports = {
       '<rootDir>/packages/seo-candidate-scoring/src',
     '^@seo-kb/seo-candidate-scoring/(.*)$':
       '<rootDir>/packages/seo-candidate-scoring/src/$1',
+    '^@seo-kb/seo-pack$': '<rootDir>/packages/seo-pack/src',
+    '^@seo-kb/seo-pack/(.*)$': '<rootDir>/packages/seo-pack/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',
