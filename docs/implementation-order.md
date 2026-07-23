@@ -122,7 +122,7 @@ contracts rather than bypassing domain modules.
 
 Optional:
 #17 enriches #11/#12/#14/#18.
-#40 enriches #98/#18/#19/#20/#21/#42 and does not block #30.
+#40 enriches #98/#18/#19/#134/#20/#21/#42 and does not block #30.
 ```
 
 ## Future capability: Demand Engine

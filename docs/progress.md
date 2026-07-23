@@ -64,12 +64,38 @@ Roadmap order, phases and dependency rules live only in
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
-| #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
+| #40 | External SEO Data Providers | Review needed | Design-only PR defines fail-open provider enrichment contracts, provider capabilities and downstream consumer boundaries. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #40
+Status: Review needed
+Summary:
+- Started External SEO Data Providers as a design-only PR after Issue #42
+  closed.
+- Defined provider-optional enrichment contracts, provider capabilities,
+  provider-neutral observations, nullable metric snapshots, fail-open behavior,
+  downstream consumer boundaries and future persistence areas.
+- Kept concrete Ahrefs, Semrush, SE Ranking or other paid provider API calls,
+  credentials management, provider scheduling, concrete persistence, billing
+  and quota handling out of the design PR scope.
+Changed files:
+- docs/architecture.md
+- docs/external-seo-data-providers-model.md
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+Validation:
+- Architecture Steward review: no blockers; synchronized #40 optional
+  dependency line with Long-tail Discovery (#134) and clarified fallback
+  provider naming as adapter-scoped.
+Next step:
+- Run Architecture Steward review and merge the design before implementing the
+  external SEO provider foundation.
 
 Date: 2026-07-23
 Issue: #42
