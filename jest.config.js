@@ -69,6 +69,10 @@ module.exports = {
       '<rootDir>/packages/long-tail-discovery/src',
     '^@seo-kb/long-tail-discovery/(.*)$':
       '<rootDir>/packages/long-tail-discovery/src/$1',
+    '^@seo-kb/seo-candidate-scoring$':
+      '<rootDir>/packages/seo-candidate-scoring/src',
+    '^@seo-kb/seo-candidate-scoring/(.*)$':
+      '<rootDir>/packages/seo-candidate-scoring/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

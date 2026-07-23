@@ -225,6 +225,15 @@
         "tsConfigPath": "packages/long-tail-discovery/tsconfig.lib.json"
       }
     },
+    "seo-candidate-scoring": {
+      "type": "library",
+      "root": "packages/seo-candidate-scoring",
+      "entryFile": "index",
+      "sourceRoot": "packages/seo-candidate-scoring/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/seo-candidate-scoring/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

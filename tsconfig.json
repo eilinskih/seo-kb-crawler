@@ -138,6 +138,12 @@
       "@seo-kb/long-tail-discovery/*": [
         "packages/long-tail-discovery/src/*"
       ],
+      "@seo-kb/seo-candidate-scoring": [
+        "packages/seo-candidate-scoring/src"
+      ],
+      "@seo-kb/seo-candidate-scoring/*": [
+        "packages/seo-candidate-scoring/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

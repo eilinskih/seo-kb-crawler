@@ -157,11 +157,12 @@ Implemented on `main`:
 - Long-tail Discovery package boundary, dimension extraction, explicit
   combination rules, compatibility/co-occurrence safeguards, bounded candidate
   generation, opportunity trees and repository abstraction.
+- SEO Page Candidate Scoring package boundary, scoring signal normalization,
+  deterministic profile scoring, opportunity score/rationale output,
+  Focused Research hints and repository abstraction.
 
 Designed but not implemented on `main`:
 
-- SEO Page Candidate Scoring contracts for scoring signals, profiles, scored
-  candidates, opportunity score rationale and Focused Research hints.
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
 - Full URL Frontier discovery observation ingestion, canonical relations,

@@ -1,6 +1,6 @@
 # SEO Page Candidate Scoring Model
 
-- Status: Design proposed for Issue #20
+- Status: Foundation implementation in review for Issue #20
 - Issue: #20
 - Date: 2026-07-23
 
@@ -249,6 +249,23 @@ Recommended package:
 ```txt
 packages/seo-candidate-scoring
 ```
+
+Implemented foundation package:
+
+- `packages/seo-candidate-scoring/src/domain/seo-candidate-scoring-types.ts`
+  defines scoring signals, profiles, scored candidates, Focused Research hints
+  and Candidate Scoring Pack contracts.
+- `packages/seo-candidate-scoring/src/candidate-signal.service.ts` normalizes
+  raw signals into weighted score contributions.
+- `packages/seo-candidate-scoring/src/opportunity-score.service.ts` calculates
+  deterministic opportunity scores, bands and confidence.
+- `packages/seo-candidate-scoring/src/focused-research-hint.service.ts`
+  generates non-blocking Focused Research hints from missing or weak evidence.
+- `packages/seo-candidate-scoring/src/candidate-scoring-pack.service.ts`
+  assembles model-agnostic scored candidate output.
+- `packages/seo-candidate-scoring/src/persistence/seo-candidate-scoring.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
 
 Recommended services:
 
