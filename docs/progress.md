@@ -65,11 +65,34 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
+| #86 | Operator Console | Review needed | Design-only PR defines internal UI scope, API/service boundaries, screens and bounded operator actions. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Started Operator Console as a design-only PR after Issue #40 closed.
+- Extended the existing Operator Console model with internal UI shape,
+  API/service boundaries, screen model, action safety rules, provider/fallback
+  status handling and implementation plan.
+- Kept runtime UI implementation, direct database access, content generation
+  workflows, paid provider integrations, credentials management and unbounded
+  dispatch actions out of the design PR scope.
+Changed files:
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- git diff --check
+- Architecture Steward review: no blockers; confirmed internal/operator-only
+  scope, API/service boundaries, bounded actions, provider/fallback visibility
+  and no content-generation UI.
+Next step:
+- Review and merge the design before implementing the Operator Console
+  foundation.
 
 Date: 2026-07-23
 Issue: #40

@@ -186,6 +186,8 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
+- Operator Console internal UI scope, API/service boundaries, screen model,
+  provider/fallback status handling and bounded operator action rules.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
@@ -201,4 +203,4 @@ Not implemented:
   consumption.
 - SEO Agent Gateway concrete persistence, prompt rendering, LLM provider calls,
   final content generation and publishing workflows.
-- Operator Console.
+- Operator Console runtime application.
