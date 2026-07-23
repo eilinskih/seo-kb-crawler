@@ -54,6 +54,8 @@ specialized documents:
 - `docs/seo-page-candidate-scoring-model.md` for SEO Page Candidate Scoring.
 - `docs/seo-pack-generator-model.md` for SEO Pack Generator.
 - `docs/seo-agent-gateway-model.md` for SEO Agent Gateway.
+- `docs/external-seo-data-providers-model.md` for optional external SEO data
+  provider enrichment.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -180,12 +182,16 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
+- External SEO Data Providers optional enrichment, fail-open provider
+  contracts, provider-neutral observations and nullable metric snapshots.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
 Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
+- Concrete Ahrefs, Semrush, SE Ranking or other external SEO provider
+  integrations, credentials, scheduled refresh jobs and persistence.
 - SERP and SERP Intent persistence and live SERP providers.
 - Research Scheduling concrete persistence, long-running scheduler daemon,
   queue workers and media downloader.

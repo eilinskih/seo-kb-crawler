@@ -19,8 +19,9 @@ specialized documents such as `docs/topic-model.md`,
 `docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
 `docs/seo-page-candidate-scoring-model.md`,
 `docs/seo-pack-generator-model.md`, `docs/research-engine-scheduling-model.md`,
-`docs/seo-agent-gateway-model.md`, `docs/demand-engine-model.md` and ADRs
-under `docs/decisions/`.
+`docs/seo-agent-gateway-model.md`, `docs/demand-engine-model.md`,
+`docs/external-seo-data-providers-model.md` and ADRs under
+`docs/decisions/`.
 
 ## Core pipeline
 
@@ -209,6 +210,7 @@ phrasing guidance without becoming a generic truth engine.
 - Topic Expansion Engine
 - SEO Page Candidate Scoring
 - SEO Pack Generator
+- External SEO Data Providers
 
 The Demand Engine contract is documented in `docs/demand-engine-model.md`.
 Demand Engine answers what should be written by producing keyword candidates,
@@ -246,6 +248,12 @@ The SEO Pack Generator design is documented in
 generation-ready SEO context from Knowledge Pack, SERP Pack, SERP Intent Pack,
 Demand Pack and scored candidate evidence without generating final content or
 emitting vendor-specific prompts.
+
+The External SEO Data Providers design is documented in
+`docs/external-seo-data-providers-model.md`. It is an optional enrichment layer
+for provider-backed keyword, competitor, traffic and authority signals. Paid
+providers may improve scoring and planning quality, but they must never block
+the core pipeline or become required dependencies.
 
 ### LLM integration layer
 
