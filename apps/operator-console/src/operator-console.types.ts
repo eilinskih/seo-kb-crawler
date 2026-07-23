@@ -28,6 +28,7 @@ export interface OperatorConsoleViewModel {
   topics: OperatorTopicSummary[];
   providerStatuses: OperatorProviderStatusSummary[];
   frontierStatus: OperatorFrontierStatusSummary | null;
+  operatorStatus: OperatorStatusSummary | null;
   flash: string | null;
 }
 
@@ -83,4 +84,43 @@ export interface OperatorFrontierRecentEntry {
   leaseOwner: string | null;
   consecutiveFailures: number;
   updatedAt: string;
+}
+
+export interface OperatorStatusSummary {
+  contentProcessing: OperatorPipelineStageSummary;
+  chunking: OperatorPipelineStageSummary & { totalChunks: number };
+  embeddings: {
+    totalEmbeddings: number;
+    retryableFailures: number;
+    terminalFailures: number;
+    stats: Array<{
+      providerKey: string;
+      modelKey: string;
+      modelVersion: string;
+      language: string | null;
+      status: string;
+      count: number;
+    }>;
+  };
+  retrieval: {
+    totalChunks: number;
+    embeddedChunks: number;
+    keywordReady: boolean;
+    vectorReady: boolean;
+    degradedMode: boolean;
+  };
+}
+
+export interface OperatorPipelineStageSummary {
+  totalRuns: number;
+  counts: Array<{ status: string; count: number }>;
+  retryableFailures: number;
+  terminalFailures: number;
+  recentFailures: Array<{
+    status: string;
+    category: string;
+    detail: string;
+    retryable: boolean;
+    updatedAt: string;
+  }>;
 }

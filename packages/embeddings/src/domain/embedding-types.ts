@@ -152,3 +152,10 @@ export interface EmbeddingRepository {
   ): Promise<EmbeddingBatchResult>;
   getEmbeddingStats(): Promise<EmbeddingStatsRow[]>;
 }
+
+export interface EmbeddingStatusSummary {
+  totalEmbeddings: number;
+  stats: EmbeddingStatsRow[];
+  retryableFailures: number;
+  terminalFailures: number;
+}

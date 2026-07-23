@@ -4,3 +4,4 @@ export * from './domain/retrieval-ranker';
 export * from './retrieval.module';
 export * from './retrieval.service';
 export * from './retrieval.tokens';
+export * from './persistence/knex-retrieval.repository';

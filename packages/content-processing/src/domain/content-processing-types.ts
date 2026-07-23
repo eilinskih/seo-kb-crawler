@@ -179,3 +179,18 @@ export interface ContentProcessingRepository {
     },
   ): Promise<ProcessCrawlAttemptResult>;
 }
+
+export interface ContentProcessingStatusSummary {
+  totalRuns: number;
+  counts: Array<{ status: ContentProcessingStatus; count: number }>;
+  retryableFailures: number;
+  terminalFailures: number;
+  recentFailures: Array<{
+    crawlAttemptId: string;
+    status: ContentProcessingStatus;
+    category: ContentProcessingFailureCategory;
+    detail: string;
+    retryable: boolean;
+    updatedAt: string;
+  }>;
+}

@@ -12,6 +12,7 @@ import {
   EmbeddingModelIdentity,
   EmbeddingDistanceMetric,
   EmbeddingStatsRow,
+  EmbeddingStatusSummary,
 } from '../domain/embedding-types';
 
 interface ChunkRow {
@@ -301,6 +302,21 @@ export class KnexEmbeddingRepository implements EmbeddingRepository {
       status: row.status,
       count: Number(row.count),
     }));
+  }
+
+  async summarizeStatus(): Promise<EmbeddingStatusSummary> {
+    const stats = await this.getEmbeddingStats();
+
+    return {
+      totalEmbeddings: stats.reduce((total, row) => total + row.count, 0),
+      stats,
+      retryableFailures: stats
+        .filter((row) => row.status === 'failed_retryable')
+        .reduce((total, row) => total + row.count, 0),
+      terminalFailures: stats
+        .filter((row) => row.status === 'failed_terminal')
+        .reduce((total, row) => total + row.count, 0),
+    };
   }
 
   private async findModel(

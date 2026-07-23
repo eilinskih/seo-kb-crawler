@@ -35,6 +35,7 @@ export class OperatorConsoleService {
     const topics = await this.loadTopics(warnings);
     const providerStatuses = await this.loadProviderStatuses(warnings, now);
     const frontierStatus = await this.loadFrontierStatus(warnings);
+    const operatorStatus = await this.loadOperatorStatus(warnings);
 
     return {
       generatedAt: now.toISOString(),
@@ -45,6 +46,7 @@ export class OperatorConsoleService {
       topics,
       providerStatuses,
       frontierStatus,
+      operatorStatus,
       flash,
     };
   }
@@ -87,6 +89,15 @@ export class OperatorConsoleService {
       return await this.apiClient.getFrontierStatus();
     } catch (error) {
       warnings.push(`URL Frontier status unavailable: ${errorMessage(error)}`);
+      return null;
+    }
+  }
+
+  private async loadOperatorStatus(warnings: string[]) {
+    try {
+      return await this.apiClient.getOperatorStatus();
+    } catch (error) {
+      warnings.push(`Operator status unavailable: ${errorMessage(error)}`);
       return null;
     }
   }
