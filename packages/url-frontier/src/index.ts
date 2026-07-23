@@ -1,5 +1,6 @@
 export * from './application/url-frontier-completion.service';
 export * from './application/url-frontier-dispatch.service';
+export * from './application/url-frontier-reevaluation.service';
 export * from './application/url-frontier-status.service';
 export * from './domain/url-frontier-types';
 export * from './persistence/knex-url-frontier.repository';
