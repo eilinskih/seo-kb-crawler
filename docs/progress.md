@@ -64,12 +64,36 @@ Roadmap order, phases and dependency rules live only in
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
-| #40 | External SEO Data Providers | Review needed | Foundation package adds fail-open provider contracts, fallback SEO signals and repository abstraction; concrete provider integrations remain deferred. |
+| #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #40
+Status: Done
+Summary:
+- Closed out External SEO Data Providers after design and foundation
+  implementation merged.
+- Confirmed provider-neutral contracts, provider capabilities/statuses,
+  provider-neutral observations, nullable metric snapshots, fail-open
+  enrichment orchestration, fallback SEO signals, provider warnings and
+  repository abstraction satisfy the accepted Issue #40 foundation scope.
+- Confirmed concrete Ahrefs, Semrush, SE Ranking or other paid provider API
+  calls, Google Search Console adapter, credentials management, scheduled
+  refresh jobs, durable persistence, billing, quotas and operations UI remain
+  future provider-specific work.
+Changed files:
+- docs/external-seo-data-providers-model.md
+- docs/implementation-order.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #40 and continue to Issue #86 Operator Console from
+  updated `main`.
 
 Date: 2026-07-23
 Issue: #40
