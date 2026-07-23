@@ -65,11 +65,31 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Architecture Steward close-out review found one remaining accepted-scope gap: recent embedding inspection. |
+| #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Done
+Summary:
+- Completed Operator Console close-out synchronization after PR #163 resolved
+  the recent embedding inspection gap.
+- Architecture Steward review found no remaining blockers for Issue #86
+  close-out.
+- Updated Operator Console model, canonical roadmap, project map and progress
+  to reflect the implemented internal MVP and deferred future hardening.
+Changed files:
+- docs/operator-console-model.md
+- docs/implementation-order.md
+- docs/project-map.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #86 and continue the canonical roadmap.
 
 Date: 2026-07-23
 Issue: #86
@@ -97,8 +117,7 @@ Validation:
 - npm test
 - git diff --check
 Next step:
-- Validate, review and merge the embedding inspection slice, then rerun
-  close-out review for Issue #86.
+- Rerun close-out review for Issue #86 after merge.
 
 Date: 2026-07-23
 Issue: #86
