@@ -65,11 +65,40 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Jobs/readiness PR adds unified operator status API and console view; inspection/health and close-out remain deferred. |
+| #86 | Operator Console | Review needed | Inspection/health PR adds recent documents, recent chunks and retrieval smoke readiness; close-out remains deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added inspection and basic health visibility to the Operator Console.
+- Implemented recent document and recent chunk inspection summaries through
+  owner repository/API boundaries.
+- Rendered document/chunk counts, recent documents, recent chunks and retrieval
+  smoke readiness in the console.
+- Kept direct console database access, authenticated access, richer failure
+  drilldowns, frontier retry forms and processing retry forms out of scope.
+Changed files:
+- apps/api/src/operator/operator-status.controller.ts
+- apps/operator-console/**
+- packages/content-processing/**
+- packages/chunking/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts packages/chunking/src/chunking.service.spec.ts packages/content-processing/src/content-processing.service.spec.ts
+- npm run build:api
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the inspection/health slice before running close-out review
+  for Issue #86.
 
 Date: 2026-07-23
 Issue: #86

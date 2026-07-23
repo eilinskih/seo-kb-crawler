@@ -109,6 +109,32 @@ export interface OperatorStatusSummary {
     vectorReady: boolean;
     degradedMode: boolean;
   };
+  inspection: {
+    recentDocuments: OperatorRecentDocument[];
+    recentChunks: OperatorRecentChunk[];
+  };
+}
+
+export interface OperatorRecentDocument {
+  documentId: string;
+  documentVersionId: string;
+  topicId: string;
+  requestedUrl: string;
+  finalUrl: string | null;
+  title: string | null;
+  wordCount: number | null;
+  createdAt: string;
+}
+
+export interface OperatorRecentChunk {
+  chunkId: string;
+  topicId: string;
+  documentVersionId: string;
+  chunkType: string;
+  tokenCount: number;
+  language: string | null;
+  textPreview: string;
+  createdAt: string;
 }
 
 export interface OperatorPipelineStageSummary {

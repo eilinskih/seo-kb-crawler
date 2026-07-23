@@ -192,3 +192,16 @@ export interface ChunkingStatusSummary {
     updatedAt: string;
   }>;
 }
+
+export interface ChunkInspectionSummary {
+  recentChunks: Array<{
+    chunkId: string;
+    topicId: string;
+    documentVersionId: string;
+    chunkType: ChunkType;
+    tokenCount: number;
+    language: string | null;
+    textPreview: string;
+    createdAt: string;
+  }>;
+}

@@ -141,6 +141,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Jobs, Failures And Readiness');
     expect(html).toContain('Content Processing');
     expect(html).toContain('keyword: ready');
+    expect(html).toContain('Inspection And Health');
+    expect(html).toContain('Recent Document');
+    expect(html).toContain('Recent chunk text');
   });
 });
 
@@ -209,6 +212,28 @@ function operatorStatusFixture() {
       keywordReady: true,
       vectorReady: true,
       degradedMode: false,
+    },
+    inspection: {
+      recentDocuments: [{
+        documentId: 'document-1',
+        documentVersionId: 'document-version-1',
+        topicId: 'topic-1',
+        requestedUrl: 'https://example.com/',
+        finalUrl: null,
+        title: 'Recent Document',
+        wordCount: 250,
+        createdAt: '2026-07-23T00:00:00.000Z',
+      }],
+      recentChunks: [{
+        chunkId: 'chunk-1',
+        topicId: 'topic-1',
+        documentVersionId: 'document-version-1',
+        chunkType: 'section',
+        tokenCount: 42,
+        language: 'en',
+        textPreview: 'Recent chunk text',
+        createdAt: '2026-07-23T00:00:00.000Z',
+      }],
     },
   };
 }
