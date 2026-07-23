@@ -60,7 +60,7 @@ Roadmap order, phases and dependency rules live only in
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
-| #20 | SEO Page Candidate Scoring | Review needed | Foundation PR adds scoring contracts, deterministic profile scoring, rationale metadata and Focused Research hints. |
+| #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack, SERP Intent Pack and scored candidate outputs from #20. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
@@ -70,6 +70,29 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #20
+Status: Done
+Summary:
+- Closed out SEO Page Candidate Scoring after design and foundation
+  implementation merged.
+- Confirmed scored candidate contracts, scoring signal normalization,
+  deterministic profiles, opportunity score/band/confidence calculation,
+  rationale metadata, non-blocking Focused Research hints, page type hints and
+  repository abstraction satisfy the accepted Issue #20 scope.
+- Confirmed paid provider integrations, concrete persistence, operator UI, SEO
+  Pack generation, content generation, automatic publish decisions and rank
+  tracking remain later roadmap work.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/seo-page-candidate-scoring-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #20 and start Issue #21 SEO Pack Generator from updated
+  `main`.
 
 Date: 2026-07-23
 Issue: #20
