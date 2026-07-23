@@ -290,6 +290,31 @@ class InMemoryEmbeddingRepository implements EmbeddingRepository {
     });
   }
 
+  async summarizeInspection() {
+    return {
+      recentEmbeddings: this.embeddings.map((embedding) => {
+        const model = this.models.find((candidate) =>
+          candidate.id === embedding.embeddingModelId,
+        )!;
+        return {
+          embeddingId: embedding.id,
+          chunkId: embedding.chunkId,
+          topicId: embedding.topicId,
+          documentVersionId: embedding.documentVersionId,
+          providerKey: model.providerKey,
+          modelKey: model.modelKey,
+          modelVersion: model.modelVersion,
+          dimensions: model.dimensions,
+          status: embedding.status,
+          language: embedding.language,
+          chunkType: embedding.chunkType,
+          embeddedAt: embedding.embeddedAt,
+          updatedAt: embedding.updatedAt,
+        };
+      }),
+    };
+  }
+
   private upsertEmbedding(
     model: EmbeddingModelRecord,
     chunk: ChunkForEmbedding,

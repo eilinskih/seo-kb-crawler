@@ -112,6 +112,7 @@ export interface OperatorStatusSummary {
   inspection: {
     recentDocuments: OperatorRecentDocument[];
     recentChunks: OperatorRecentChunk[];
+    recentEmbeddings: OperatorRecentEmbedding[];
   };
 }
 
@@ -135,6 +136,22 @@ export interface OperatorRecentChunk {
   language: string | null;
   textPreview: string;
   createdAt: string;
+}
+
+export interface OperatorRecentEmbedding {
+  embeddingId: string;
+  chunkId: string;
+  topicId: string;
+  documentVersionId: string;
+  providerKey: string;
+  modelKey: string;
+  modelVersion: string;
+  dimensions: number;
+  status: string;
+  language: string | null;
+  chunkType: string;
+  embeddedAt: string | null;
+  updatedAt: string;
 }
 
 export interface OperatorPipelineStageSummary {

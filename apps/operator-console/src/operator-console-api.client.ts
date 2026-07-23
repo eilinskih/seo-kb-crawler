@@ -107,6 +107,21 @@ export interface OperatorStatusSummary {
       textPreview: string;
       createdAt: string;
     }>;
+    recentEmbeddings: Array<{
+      embeddingId: string;
+      chunkId: string;
+      topicId: string;
+      documentVersionId: string;
+      providerKey: string;
+      modelKey: string;
+      modelVersion: string;
+      dimensions: number;
+      status: string;
+      language: string | null;
+      chunkType: string;
+      embeddedAt: string | null;
+      updatedAt: string;
+    }>;
   };
 }
 
