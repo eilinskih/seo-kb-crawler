@@ -106,6 +106,8 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Seed keywords');
     expect(html).toContain('Laser Hair Removal');
     expect(html).toContain('action="/topics/topic-1/pause"');
+    expect(html).toContain('action="/topics/topic-1/configuration"');
+    expect(html).toContain('Save config');
     expect(html).toContain('action="/url-frontier/dispatch"');
     expect(html).toContain('action="/content-processing/dispatch"');
     expect(html).toContain('fallback_seo_signals');
@@ -125,6 +127,7 @@ function mockClient(): OperatorConsoleApiClient {
       updatedAt: '2026-07-23T00:00:00.000Z',
     }]),
     createTopic: jest.fn(),
+    updateTopicConfiguration: jest.fn(),
     pauseTopic: jest.fn(),
     archiveTopic: jest.fn(),
     reactivateTopic: jest.fn(),

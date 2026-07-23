@@ -286,6 +286,8 @@ The topic workflow implementation:
 - lists topics through the Topic API;
 - adds a topic creation form for slug, name, description, seed URLs, seed
   keywords, language, country and max-page policy;
+- adds topic configuration editing for name, description, seed URLs, seed
+  keywords, language, country and max-page policy;
 - maps the form into the existing Topic Engine configuration contract;
 - adds bounded pause, archive and reactivate form actions;
 - keeps all topic lifecycle changes behind Topic API endpoints.
