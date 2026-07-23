@@ -290,6 +290,14 @@ The topic workflow implementation:
 - adds bounded pause, archive and reactivate form actions;
 - keeps all topic lifecycle changes behind Topic API endpoints.
 
+The dispatch workflow implementation:
+
+- adds bounded URL Frontier dispatch form support;
+- adds bounded Content Processing dispatch form support;
+- calls existing API endpoints instead of worker internals;
+- caps operator-submitted dispatch limits before forwarding requests;
+- leaves retry-specific forms until owning modules expose safe retry commands.
+
 Richer read models, authenticated access, failure/provider detail screens,
 frontier retry forms, processing retry forms and provider status screens remain
 future implementation work.

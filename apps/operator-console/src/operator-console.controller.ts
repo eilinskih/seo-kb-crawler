@@ -11,6 +11,7 @@ import {
 import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
+  OperatorDispatchCommand,
 } from './operator-console-api.client';
 import { renderOperatorConsoleHtml } from './operator-console.renderer';
 import { OperatorConsoleService } from './operator-console.service';
@@ -57,6 +58,22 @@ export class OperatorConsoleController {
   async reactivateTopic(@Param('id') id: string): Promise<void> {
     await this.apiClient.reactivateTopic(id);
   }
+
+  @Post('url-frontier/dispatch')
+  @Redirect('/', 303)
+  async dispatchUrlFrontier(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.dispatchUrlFrontier(toDispatchCommand(body));
+  }
+
+  @Post('content-processing/dispatch')
+  @Redirect('/', 303)
+  async dispatchContentProcessing(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.dispatchContentProcessing(toDispatchCommand(body));
+  }
 }
 
 function toCreateTopicCommand(
@@ -99,4 +116,12 @@ function positiveInteger(value: unknown, fallback: number): number {
   return typeof parsed === 'number' && Number.isInteger(parsed) && parsed > 0
     ? parsed
     : fallback;
+}
+
+function toDispatchCommand(
+  body: Record<string, unknown>,
+): OperatorDispatchCommand {
+  return {
+    maxDispatches: Math.min(positiveInteger(body.maxDispatches, 10), 100),
+  };
 }

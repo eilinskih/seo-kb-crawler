@@ -52,12 +52,35 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderDispatchWorkflow()}
     <div class="grid">
       ${model.sections.map(renderSection).join('')}
     </div>
   </main>
 </body>
 </html>`;
+}
+
+function renderDispatchWorkflow(): string {
+  return `<section id="dispatch-workflows" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Dispatch Workflows</h2>
+      <p>Trigger bounded dispatches through existing operator-safe APIs.</p>
+    </div>
+    <span class="badge">available</span>
+  </div>
+  <div class="topic-form">
+    <form method="post" action="/url-frontier/dispatch">
+      <label>URL Frontier max dispatches<input name="maxDispatches" type="number" min="1" max="100" value="10" required></label>
+      <button type="submit">Dispatch crawl batch</button>
+    </form>
+    <form method="post" action="/content-processing/dispatch">
+      <label>Content Processing max dispatches<input name="maxDispatches" type="number" min="1" max="100" value="10" required></label>
+      <button type="submit">Dispatch processing batch</button>
+    </form>
+  </div>
+</section>`;
 }
 
 function renderTopicWorkflow(model: OperatorConsoleViewModel): string {
