@@ -351,7 +351,7 @@ Knowledge Pack + Demand Pack + SERP Pack + SERP Intent Pack
   -> generation constraints
   -> SEO Pack
   -> SEO Agent Gateway
-  -> Codex SEO Skill or future LLM consumers
+  -> SEO Agent Gateway consumer adapters
 ```
 
 If some upstream packs are missing, the workflow should still return a
