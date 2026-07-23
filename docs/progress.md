@@ -65,11 +65,37 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Topic workflow PR adds Topic API client, topic list/create and bounded lifecycle forms; failure/provider/frontier detail workflows remain deferred. |
+| #86 | Operator Console | Review needed | Dispatch workflow PR adds bounded URL Frontier and Content Processing dispatch forms; failure/provider/detail workflows remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added bounded dispatch workflow support to the Operator Console.
+- Implemented URL Frontier dispatch and Content Processing dispatch form
+  actions through the existing API endpoints.
+- Capped operator-submitted dispatch limits before forwarding requests.
+- Kept direct worker execution, retry-specific forms, new crawl behavior,
+  failure read models, provider detail screens and unbounded dispatch actions
+  out of scope.
+Changed files:
+- apps/operator-console/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- ./node_modules/.bin/nest build operator-console
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the dispatch workflow slice before continuing remaining
+  Issue #86 operator workflows.
 
 Date: 2026-07-23
 Issue: #86

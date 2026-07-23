@@ -21,6 +21,10 @@ export interface OperatorCreateTopicCommand {
   maxPages: number;
 }
 
+export interface OperatorDispatchCommand {
+  maxDispatches: number;
+}
+
 @Injectable()
 export class OperatorConsoleApiClient {
   constructor(
@@ -55,6 +59,33 @@ export class OperatorConsoleApiClient {
 
   async reactivateTopic(topicId: string): Promise<void> {
     await this.postTopicTransition(topicId, 'resume');
+  }
+
+  async dispatchUrlFrontier(command: OperatorDispatchCommand): Promise<void> {
+    await this.request('/url-frontier/dispatch', {
+      method: 'POST',
+      body: JSON.stringify({
+        leaseOwner: 'operator-console',
+        maxDispatches: command.maxDispatches,
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+
+  async dispatchContentProcessing(
+    command: OperatorDispatchCommand,
+  ): Promise<void> {
+    await this.request('/content-processing/dispatch', {
+      method: 'POST',
+      body: JSON.stringify({
+        maxDispatches: command.maxDispatches,
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
   }
 
   private async postTopicTransition(
