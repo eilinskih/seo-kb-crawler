@@ -9,6 +9,7 @@ import {
   UrlFrontierLeaseOptions,
   UrlFrontierRelevanceDecision,
   UrlFrontierRepository,
+  UrlFrontierStatusSummary,
 } from '../domain/url-frontier-types';
 
 export interface UrlFrontierEntryRow {
@@ -147,6 +148,48 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
 
     return updated === 1;
   }
+
+  async summarizeStatus(topicId?: string): Promise<UrlFrontierStatusSummary> {
+    const base = this.db.knex<UrlFrontierEntryRow>('url_frontier_entries');
+    const filtered = topicId ? base.clone().where('topic_id', topicId) : base.clone();
+
+    const countRows = await filtered
+      .clone()
+      .select('crawl_status')
+      .count({ count: '*' })
+      .groupBy('crawl_status') as Array<{
+        crawl_status: UrlFrontierCrawlStatus;
+        count: string | number;
+      }>;
+    const recentRows = await filtered
+      .clone()
+      .orderBy('updated_at', 'desc')
+      .orderBy('id', 'asc')
+      .limit(25);
+    const counts = countRows.map((row) => ({
+      status: row.crawl_status,
+      count: Number(row.count),
+    }));
+
+    return {
+      topicId: topicId ?? null,
+      totalEntries: counts.reduce((total, row) => total + row.count, 0),
+      counts,
+      retryableCount: counts.find((row) => row.status === 'failed_retryable')?.count ?? 0,
+      recentEntries: recentRows.map((row) => ({
+        id: row.id,
+        topicId: row.topic_id,
+        normalizedUrl: row.normalized_url,
+        crawlStatus: row.crawl_status,
+        relevanceDecision: row.relevance_decision,
+        priorityScore: row.priority_score,
+        nextCrawlAt: toIsoString(row.next_crawl_at),
+        leaseOwner: row.lease_owner,
+        consecutiveFailures: row.consecutive_failures,
+        updatedAt: toIsoString(row.updated_at),
+      })),
+    };
+  }
 }
 
 export function toLease(
@@ -209,4 +252,8 @@ function commandDeadline(
   return new Date(
     Math.min(leaseExpiresAt.getTime(), now.getTime() + policy.timeoutMs),
   );
+}
+
+function toIsoString(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }

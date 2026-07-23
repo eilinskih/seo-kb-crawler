@@ -44,6 +44,25 @@ export interface OperatorDispatchCommand {
   maxDispatches: number;
 }
 
+export interface OperatorFrontierStatusSummary {
+  topicId: string | null;
+  totalEntries: number;
+  counts: Array<{ status: string; count: number }>;
+  retryableCount: number;
+  recentEntries: Array<{
+    id: string;
+    topicId: string;
+    normalizedUrl: string;
+    crawlStatus: string;
+    relevanceDecision: string;
+    priorityScore: number;
+    nextCrawlAt: string;
+    leaseOwner: string | null;
+    consecutiveFailures: number;
+    updatedAt: string;
+  }>;
+}
+
 @Injectable()
 export class OperatorConsoleApiClient {
   constructor(
@@ -54,6 +73,12 @@ export class OperatorConsoleApiClient {
 
   async listTopics(): Promise<OperatorTopicRecord[]> {
     return this.request<OperatorTopicRecord[]>('/topics', {
+      method: 'GET',
+    });
+  }
+
+  async getFrontierStatus(): Promise<OperatorFrontierStatusSummary> {
+    return this.request<OperatorFrontierStatusSummary>('/url-frontier/status', {
       method: 'GET',
     });
   }

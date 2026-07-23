@@ -307,9 +307,17 @@ The provider status implementation:
 - uses the External SEO Data Providers service boundary;
 - avoids paid-provider SDK calls and credentials management.
 
+The URL Frontier status implementation:
+
+- adds an operator-safe URL Frontier status read model in the owning module;
+- exposes URL Frontier status through the API instead of direct console
+  database reads;
+- shows total entries, status counts, retryable count and recent entries in
+  the console.
+
 Richer read models, authenticated access, failure/provider detail screens,
-frontier retry forms, processing retry forms and provider status screens remain
-future implementation work.
+frontier retry forms and processing retry forms remain future implementation
+work.
 
 ## Acceptance Criteria
 

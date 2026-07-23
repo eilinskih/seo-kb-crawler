@@ -65,11 +65,41 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Topic edit PR adds configuration editing for seed URLs, seed keywords, language, country and max-page policy through Topic API. |
+| #86 | Operator Console | Review needed | Frontier status PR adds URL Frontier read model/API and console status view; jobs/failures/readiness and inspection/health remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added URL Frontier topic/status visibility for the Operator Console.
+- Implemented an operator-safe URL Frontier status read model in the owning URL
+  Frontier module and exposed it through the API.
+- Rendered total entries, status counts, retryable count and recent frontier
+  entries in the console.
+- Kept direct database reads from the console, URL retry commands, failure
+  read models, processing readiness, inspection/health and unbounded actions
+  out of scope.
+Changed files:
+- apps/api/src/api.module.ts
+- apps/api/src/url-frontier/url-frontier-status.controller.ts
+- apps/operator-console/**
+- packages/url-frontier/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts packages/url-frontier/src/persistence/knex-url-frontier.repository.spec.ts
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- npm run build:api
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the frontier status slice before continuing jobs,
+  failures, readiness and inspection/health workflows.
 
 Date: 2026-07-23
 Issue: #86

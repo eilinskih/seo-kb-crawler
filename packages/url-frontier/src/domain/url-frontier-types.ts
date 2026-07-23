@@ -82,3 +82,29 @@ export interface UrlFrontierRepository {
   leaseNext(options: UrlFrontierLeaseOptions): Promise<UrlFrontierLease | null>;
   acknowledgeCrawling(attemptId: string, now: Date): Promise<boolean>;
 }
+
+export interface UrlFrontierStatusCount {
+  status: UrlFrontierCrawlStatus;
+  count: number;
+}
+
+export interface UrlFrontierRecentEntry {
+  id: string;
+  topicId: string;
+  normalizedUrl: string;
+  crawlStatus: UrlFrontierCrawlStatus;
+  relevanceDecision: UrlFrontierRelevanceDecision;
+  priorityScore: number;
+  nextCrawlAt: string;
+  leaseOwner: string | null;
+  consecutiveFailures: number;
+  updatedAt: string;
+}
+
+export interface UrlFrontierStatusSummary {
+  topicId: string | null;
+  totalEntries: number;
+  counts: UrlFrontierStatusCount[];
+  retryableCount: number;
+  recentEntries: UrlFrontierRecentEntry[];
+}
