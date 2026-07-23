@@ -79,6 +79,10 @@ module.exports = {
       '<rootDir>/packages/research-scheduling/src',
     '^@seo-kb/research-scheduling/(.*)$':
       '<rootDir>/packages/research-scheduling/src/$1',
+    '^@seo-kb/seo-agent-gateway$':
+      '<rootDir>/packages/seo-agent-gateway/src',
+    '^@seo-kb/seo-agent-gateway/(.*)$':
+      '<rootDir>/packages/seo-agent-gateway/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

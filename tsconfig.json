@@ -156,6 +156,12 @@
       "@seo-kb/research-scheduling/*": [
         "packages/research-scheduling/src/*"
       ],
+      "@seo-kb/seo-agent-gateway": [
+        "packages/seo-agent-gateway/src"
+      ],
+      "@seo-kb/seo-agent-gateway/*": [
+        "packages/seo-agent-gateway/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

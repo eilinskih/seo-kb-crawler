@@ -1,6 +1,6 @@
 # SEO Agent Gateway Model
 
-- Status: Design in review for Issue #42
+- Status: Foundation implementation in review for Issue #42
 - Issue: #42
 - Date: 2026-07-23
 
@@ -270,6 +270,23 @@ Recommended package:
 ```txt
 packages/seo-agent-gateway
 ```
+
+Implemented foundation package:
+
+- `packages/seo-agent-gateway/src/domain/seo-agent-gateway-types.ts` defines
+  SEO generation requests, objectives, Focused Research requirements, context
+  requirements, fallback states, consumer adapters and model-agnostic
+  generation context output.
+- `packages/seo-agent-gateway/src/seo-agent-gateway.service.ts` orchestrates
+  pure gateway context preparation from request, SEO Pack-like input and
+  Research Scheduling dispatch-plan input.
+- `packages/seo-agent-gateway/src/focused-research-gate.service.ts`,
+  `retrieval-only-safeguard.service.ts`, `generation-context.service.ts`,
+  `context-requirement.service.ts`, `consumer-adapter-registry.ts` and
+  `seo-generation-request.service.ts` own focused gateway slices.
+- `packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
 
 Recommended services:
 
