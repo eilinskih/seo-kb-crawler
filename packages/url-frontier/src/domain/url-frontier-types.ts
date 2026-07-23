@@ -113,6 +113,13 @@ export interface UrlFrontierDiscoveryObservationReceipt {
   frontierEntryId: string | null;
 }
 
+export interface UrlFrontierPendingObservation
+  extends UrlFrontierDiscoveryObservation {
+  observationId: string;
+  normalizedUrl: string;
+  normalizedUrlHash: string;
+}
+
 export interface UrlFrontierRepository {
   upsertEntry(seed: UrlFrontierEntrySeed): Promise<void>;
   appendDiscoveryObservations(

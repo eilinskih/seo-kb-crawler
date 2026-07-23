@@ -10,6 +10,7 @@ import {
   UrlFrontierEntrySeed,
   UrlFrontierLease,
   UrlFrontierLeaseOptions,
+  UrlFrontierPendingObservation,
   UrlFrontierRelevanceDecision,
   UrlFrontierRepository,
   UrlFrontierStatusSummary,
@@ -216,6 +217,38 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
     });
   }
 
+  async listPendingDiscoveryObservations(
+    limit: number,
+  ): Promise<UrlFrontierPendingObservation[]> {
+    const rows = await this.db.knex<UrlDiscoveryObservationRow>(
+      'url_discovery_observations',
+    )
+      .whereNull('frontier_entry_id')
+      .orderBy('discovered_at', 'asc')
+      .orderBy('id', 'asc')
+      .limit(limit);
+
+    return rows.map(toPendingObservation);
+  }
+
+  async linkDiscoveryObservation(
+    observationId: string,
+    frontierEntryId: string,
+  ): Promise<boolean> {
+    const updated = await this.db.knex<UrlDiscoveryObservationRow>(
+      'url_discovery_observations',
+    )
+      .where({
+        id: observationId,
+      })
+      .whereNull('frontier_entry_id')
+      .update({
+        frontier_entry_id: frontierEntryId,
+      });
+
+    return updated === 1;
+  }
+
   async acknowledgeCrawling(attemptId: string, now: Date): Promise<boolean> {
     const updated = await this.db
       .knex<UrlFrontierEntryRow>('url_frontier_entries')
@@ -353,6 +386,30 @@ export function toObservationRowInput(
     metadata: observation.metadata,
     idempotency_key: observation.idempotencyKey,
     created_at: observation.discoveredAt,
+  };
+}
+
+export function toPendingObservation(
+  row: UrlDiscoveryObservationRow,
+): UrlFrontierPendingObservation {
+  return {
+    observationId: row.id,
+    topicId: row.topic_id,
+    topicConfigurationVersion: row.topic_configuration_version,
+    discoveryRunId: row.discovery_run_id,
+    sourceType: row.source_type,
+    sourceKey: row.source_key,
+    discoveredUrl: row.discovered_url,
+    discoveredAt: new Date(row.discovered_at),
+    sourceUrl: row.source_url ?? undefined,
+    title: row.title ?? undefined,
+    snippet: row.snippet ?? undefined,
+    anchorText: row.anchor_text ?? undefined,
+    sourceRank: row.source_rank ?? undefined,
+    metadata: row.metadata,
+    idempotencyKey: row.idempotency_key,
+    normalizedUrl: row.normalized_url,
+    normalizedUrlHash: row.normalized_url_hash,
   };
 }
 
