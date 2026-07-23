@@ -60,7 +60,7 @@ Roadmap order, phases and dependency rules live only in
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
 | #134 | Long-tail Discovery Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #20 may start. |
-| #20 | SEO Page Candidate Scoring | Review needed | Design PR defines explainable opportunity scoring, confidence/rationale metadata and Focused Research hints. |
+| #20 | SEO Page Candidate Scoring | Review needed | Foundation PR adds scoring contracts, deterministic profile scoring, rationale metadata and Focused Research hints. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack, SERP Intent Pack and scored candidate outputs from #20. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
 | #43 | Research Engine Scheduling | Not started | Depends on Topic, Frontier, Discovery and Crawler contracts. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #20
+Status: Review needed
+Summary:
+- Added `packages/seo-candidate-scoring` as the runtime foundation for SEO Page
+  Candidate Scoring.
+- Implemented scoring signal contracts, deterministic profile weights,
+  opportunity score/band/confidence calculation, rationale metadata,
+  non-blocking Focused Research hints, recommended page type hints and
+  repository abstraction.
+- Kept paid provider integrations, concrete persistence, operator UI, SEO Pack
+  generation, content generation, automatic publish decisions and rank tracking
+  out of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-page-candidate-scoring-model.md
+- packages/seo-candidate-scoring/**
+Validation:
+- npm test
+- npm test -- --runTestsByPath packages/seo-candidate-scoring/src/candidate-scoring-pack.service.spec.ts packages/seo-candidate-scoring/src/persistence/seo-candidate-scoring.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/seo-candidate-scoring/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build seo-candidate-scoring
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #20.
 
 Date: 2026-07-23
 Issue: #20
