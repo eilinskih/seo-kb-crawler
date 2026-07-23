@@ -126,6 +126,12 @@
       "@seo-kb/serp-intent/*": [
         "packages/serp-intent/src/*"
       ],
+      "@seo-kb/topic-expansion": [
+        "packages/topic-expansion/src"
+      ],
+      "@seo-kb/topic-expansion/*": [
+        "packages/topic-expansion/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

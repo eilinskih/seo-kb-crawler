@@ -61,6 +61,10 @@ module.exports = {
     '^@seo-kb/serp-intent$': '<rootDir>/packages/serp-intent/src',
     '^@seo-kb/serp-intent/(.*)$':
       '<rootDir>/packages/serp-intent/src/$1',
+    '^@seo-kb/topic-expansion$':
+      '<rootDir>/packages/topic-expansion/src',
+    '^@seo-kb/topic-expansion/(.*)$':
+      '<rootDir>/packages/topic-expansion/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',
