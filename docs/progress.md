@@ -63,13 +63,44 @@ Roadmap order, phases and dependency rules live only in
 | #20 | SEO Page Candidate Scoring | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #21 may start. |
 | #21 | SEO Pack Generator | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; #42 remains deferred until #43 dependency is accepted or explicitly deferred. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
-| #43 | Research Engine Scheduling | Review needed | Design-only PR defines Focused Research, Manual Research, fair Background Research, TTL-aware reuse and media metadata policy. |
+| #43 | Research Engine Scheduling | Review needed | Foundation PR adds research job contracts, priority mapping, fair background allocation, TTL-aware freshness decisions, dispatch planning and repository abstraction. |
 | #40 | External SEO Data Providers | Not started | Optional enrichment after #98 Demand Engine Runtime provider contracts; must never block the core pipeline. |
 | #86 | Operator Console | Not started | Internal UI for topics, crawl operations, failures and provider/fallback status; richer version depends on #10 and #43. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #43
+Status: Review needed
+Summary:
+- Added `packages/research-scheduling` as the runtime foundation for Research
+  Engine Scheduling.
+- Implemented research job contracts, priority mapping, fair background budget
+  allocation, TTL-aware freshness decisions, dispatch planning, media policy
+  decisions, Research Asset metric planning and repository abstraction.
+- Kept concrete persistence, long-running scheduler daemon, queue workers, new
+  crawler adapters, direct crawler execution, provider integrations, media
+  downloader, operator UI, SEO Agent Gateway runtime and content generation out
+  of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/progress.md
+- docs/project-map.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts packages/research-scheduling/src/persistence/research-scheduling.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/research-scheduling/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build research-scheduling
+- npm test
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #43.
 
 Date: 2026-07-23
 Issue: #43

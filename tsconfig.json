@@ -150,6 +150,12 @@
       "@seo-kb/seo-pack/*": [
         "packages/seo-pack/src/*"
       ],
+      "@seo-kb/research-scheduling": [
+        "packages/research-scheduling/src"
+      ],
+      "@seo-kb/research-scheduling/*": [
+        "packages/research-scheduling/src/*"
+      ],
       "@seo-kb/discovery-sources": [
         "packages/discovery-sources/src"
       ],

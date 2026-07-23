@@ -166,13 +166,15 @@ Implemented on `main`:
 - SEO Pack Generator package boundary, model-agnostic SEO Pack DTOs,
   deterministic page brief, outline, FAQ, evidence, SERP requirement,
   generation constraint assembly and repository abstraction.
+- Research Engine Scheduling package boundary, research job contracts,
+  priority mapping, fair background budget allocation, TTL-aware freshness
+  decisions, dispatch planning, media policy decisions and repository
+  abstraction.
 
 Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- Research Engine Scheduling for Focused Research, Manual Research, fair
-  Background Research, TTL-aware reuse and media metadata policy.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
@@ -180,6 +182,8 @@ Not implemented:
 
 - Demand Engine persistence, scheduling and provider integrations.
 - SERP and SERP Intent persistence and live SERP providers.
+- Research Scheduling concrete persistence, long-running scheduler daemon,
+  queue workers and media downloader.
 - SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
   consumption.
 - Operator Console.
