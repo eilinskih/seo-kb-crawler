@@ -17,6 +17,7 @@ import { factExtractionFoundationMigration } from './migrations/009-fact-extract
 import { sourceTrustFoundationMigration } from './migrations/010-source-trust-foundation';
 import { seoConsensusFoundationMigration } from './migrations/011-seo-consensus-foundation';
 import { seoConsensusFactMappingsMigration } from './migrations/012-seo-consensus-fact-mappings';
+import { urlFrontierObservationsMigration } from './migrations/013-url-frontier-observations';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -67,6 +68,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     sourceTrustFoundationMigration,
     seoConsensusFoundationMigration,
     seoConsensusFactMappingsMigration,
+    urlFrontierObservationsMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -87,6 +89,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [sourceTrustFoundationMigration, '010-source-trust-foundation'],
     [seoConsensusFoundationMigration, '011-seo-consensus-foundation'],
     [seoConsensusFactMappingsMigration, '012-seo-consensus-fact-mappings'],
+    [urlFrontierObservationsMigration, '013-url-frontier-observations'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {

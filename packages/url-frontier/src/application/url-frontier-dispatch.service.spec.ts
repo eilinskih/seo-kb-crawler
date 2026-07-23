@@ -11,11 +11,9 @@ describe('UrlFrontierDispatchService', () => {
     const crawlQueue = {
       add: jest.fn(async () => ({ id: lease.attemptId })),
     } as unknown as Queue;
-    const repository: UrlFrontierRepository = {
-      upsertEntry: jest.fn(),
+    const repository = repositoryDouble({
       leaseNext: jest.fn(async () => lease),
-      acknowledgeCrawling: jest.fn(),
-    };
+    });
 
     const result = await new UrlFrontierDispatchService(
       crawlQueue,
@@ -47,11 +45,9 @@ describe('UrlFrontierDispatchService', () => {
     const crawlQueue = {
       add: jest.fn(),
     } as unknown as Queue;
-    const repository: UrlFrontierRepository = {
-      upsertEntry: jest.fn(),
+    const repository = repositoryDouble({
       leaseNext: jest.fn(async () => null),
-      acknowledgeCrawling: jest.fn(),
-    };
+    });
 
     const result = await new UrlFrontierDispatchService(
       crawlQueue,
@@ -75,14 +71,12 @@ describe('UrlFrontierDispatchService', () => {
     const crawlQueue = {
       add: jest.fn(async () => ({})),
     } as unknown as Queue;
-    const repository: UrlFrontierRepository = {
-      upsertEntry: jest.fn(),
+    const repository = repositoryDouble({
       leaseNext: jest
         .fn()
         .mockResolvedValueOnce(leases[0])
         .mockResolvedValueOnce(leases[1]),
-      acknowledgeCrawling: jest.fn(),
-    };
+    });
 
     const result = await new UrlFrontierDispatchService(
       crawlQueue,
@@ -108,14 +102,12 @@ describe('UrlFrontierDispatchService', () => {
     const crawlQueue = {
       add: jest.fn(async () => ({})),
     } as unknown as Queue;
-    const repository: UrlFrontierRepository = {
-      upsertEntry: jest.fn(),
+    const repository = repositoryDouble({
       leaseNext: jest
         .fn()
         .mockResolvedValueOnce(lease)
         .mockResolvedValueOnce(null),
-      acknowledgeCrawling: jest.fn(),
-    };
+    });
 
     const result = await new UrlFrontierDispatchService(
       crawlQueue,
@@ -139,11 +131,9 @@ describe('UrlFrontierDispatchService', () => {
   it('rejects non-positive batch limits', async () => {
     const service = new UrlFrontierDispatchService(
       { add: jest.fn() } as unknown as Queue,
-      {
-        upsertEntry: jest.fn(),
+      repositoryDouble({
         leaseNext: jest.fn(),
-        acknowledgeCrawling: jest.fn(),
-      },
+      }),
     );
 
     await expect(
@@ -156,6 +146,18 @@ describe('UrlFrontierDispatchService', () => {
     ).rejects.toThrow('maxDispatches must be a positive integer');
   });
 });
+
+function repositoryDouble(
+  overrides: Partial<UrlFrontierRepository>,
+): UrlFrontierRepository {
+  return {
+    upsertEntry: jest.fn(),
+    appendDiscoveryObservations: jest.fn(async () => []),
+    leaseNext: jest.fn(),
+    acknowledgeCrawling: jest.fn(),
+    ...overrides,
+  };
+}
 
 function frontierLease(attemptId = 'attempt-1'): UrlFrontierLease {
   const leaseExpiresAt = new Date('2026-07-04T00:01:00Z');

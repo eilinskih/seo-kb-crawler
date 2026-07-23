@@ -12,6 +12,13 @@ export type UrlFrontierRelevanceDecision =
   | 'rejected'
   | 'insufficient_evidence';
 
+export type UrlFrontierDiscoverySourceType =
+  | 'search'
+  | 'sitemap'
+  | 'seed'
+  | 'link'
+  | 'operator';
+
 export interface UrlFrontierCrawlPolicySnapshot {
   userAgent: string;
   respectRobots: boolean;
@@ -77,8 +84,40 @@ export interface UrlFrontierEntrySeed {
   now: Date;
 }
 
+export interface UrlFrontierDiscoveryObservation {
+  topicId: string;
+  topicConfigurationVersion: number;
+  discoveryRunId: string;
+  sourceType: UrlFrontierDiscoverySourceType;
+  sourceKey: string;
+  discoveredUrl: string;
+  discoveredAt: Date;
+  sourceUrl?: string;
+  title?: string;
+  snippet?: string;
+  anchorText?: string;
+  sourceRank?: number;
+  metadata: Record<string, unknown>;
+  idempotencyKey: string;
+}
+
+export type UrlFrontierDiscoveryObservationReceiptStatus =
+  | 'accepted'
+  | 'duplicate'
+  | 'malformed'
+  | 'topic_snapshot_mismatch';
+
+export interface UrlFrontierDiscoveryObservationReceipt {
+  idempotencyKey: string;
+  status: UrlFrontierDiscoveryObservationReceiptStatus;
+  frontierEntryId: string | null;
+}
+
 export interface UrlFrontierRepository {
   upsertEntry(seed: UrlFrontierEntrySeed): Promise<void>;
+  appendDiscoveryObservations(
+    observations: UrlFrontierDiscoveryObservation[],
+  ): Promise<UrlFrontierDiscoveryObservationReceipt[]>;
   leaseNext(options: UrlFrontierLeaseOptions): Promise<UrlFrontierLease | null>;
   acknowledgeCrawling(attemptId: string, now: Date): Promise<boolean>;
 }

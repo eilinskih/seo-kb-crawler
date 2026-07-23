@@ -2,8 +2,12 @@ import {
   KnexUrlFrontierRepository,
   toEntryRow,
   toLease,
+  toObservationRowInput,
 } from './knex-url-frontier.repository';
-import { UrlFrontierEntrySeed } from '../domain/url-frontier-types';
+import {
+  UrlFrontierDiscoveryObservation,
+  UrlFrontierEntrySeed,
+} from '../domain/url-frontier-types';
 
 describe('KnexUrlFrontierRepository mapping', () => {
   it('maps accepted seeds to scheduled frontier rows', () => {
@@ -73,6 +77,33 @@ describe('KnexUrlFrontierRepository mapping', () => {
       }),
     ).rejects.toThrow('leaseDurationMs must be a positive integer');
   });
+
+  it('maps discovery observations to append-only source tracking rows', () => {
+    const discoveredAt = new Date('2026-07-04T00:00:00Z');
+
+    expect(toObservationRowInput(observation(discoveredAt))).toMatchObject({
+      topic_id: '00000000-0000-4000-8000-000000000001',
+      topic_configuration_version: 2,
+      discovery_run_id: 'run-1',
+      source_type: 'seed',
+      source_key: 'seed-source',
+      discovered_url: 'HTTPS://Example.com:443/docs#section',
+      normalized_url: 'https://example.com/docs',
+      discovered_at: discoveredAt,
+      source_url: null,
+      source_rank: 1,
+      metadata: { origin: 'test' },
+      idempotency_key: 'observation-key',
+      created_at: discoveredAt,
+    });
+  });
+
+  it('marks unsupported observation URLs as malformed before persistence', () => {
+    expect(toObservationRowInput({
+      ...observation(new Date('2026-07-04T00:00:00Z')),
+      discoveredUrl: 'ftp://example.com/file',
+    })).toBeNull();
+  });
 });
 
 function seed(now: Date, nextCrawlAt: Date): UrlFrontierEntrySeed {
@@ -101,5 +132,20 @@ function seed(now: Date, nextCrawlAt: Date): UrlFrontierEntrySeed {
     relevanceProfileVersion: 1,
     nextCrawlAt,
     now,
+  };
+}
+
+function observation(discoveredAt: Date): UrlFrontierDiscoveryObservation {
+  return {
+    topicId: '00000000-0000-4000-8000-000000000001',
+    topicConfigurationVersion: 2,
+    discoveryRunId: 'run-1',
+    sourceType: 'seed',
+    sourceKey: 'seed-source',
+    discoveredUrl: 'HTTPS://Example.com:443/docs#section',
+    discoveredAt,
+    sourceRank: 1,
+    metadata: { origin: 'test' },
+    idempotencyKey: 'observation-key',
   };
 }
