@@ -63,6 +63,45 @@ export interface OperatorFrontierStatusSummary {
   }>;
 }
 
+export interface OperatorStatusSummary {
+  contentProcessing: OperatorPipelineStageSummary;
+  chunking: OperatorPipelineStageSummary & { totalChunks: number };
+  embeddings: {
+    totalEmbeddings: number;
+    retryableFailures: number;
+    terminalFailures: number;
+    stats: Array<{
+      providerKey: string;
+      modelKey: string;
+      modelVersion: string;
+      language: string | null;
+      status: string;
+      count: number;
+    }>;
+  };
+  retrieval: {
+    totalChunks: number;
+    embeddedChunks: number;
+    keywordReady: boolean;
+    vectorReady: boolean;
+    degradedMode: boolean;
+  };
+}
+
+export interface OperatorPipelineStageSummary {
+  totalRuns: number;
+  counts: Array<{ status: string; count: number }>;
+  retryableFailures: number;
+  terminalFailures: number;
+  recentFailures: Array<{
+    status: string;
+    category: string;
+    detail: string;
+    retryable: boolean;
+    updatedAt: string;
+  }>;
+}
+
 @Injectable()
 export class OperatorConsoleApiClient {
   constructor(
@@ -79,6 +118,12 @@ export class OperatorConsoleApiClient {
 
   async getFrontierStatus(): Promise<OperatorFrontierStatusSummary> {
     return this.request<OperatorFrontierStatusSummary>('/url-frontier/status', {
+      method: 'GET',
+    });
+  }
+
+  async getOperatorStatus(): Promise<OperatorStatusSummary> {
+    return this.request<OperatorStatusSummary>('/operator/status', {
       method: 'GET',
     });
   }

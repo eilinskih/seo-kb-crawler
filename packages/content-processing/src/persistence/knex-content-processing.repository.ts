@@ -7,6 +7,7 @@ import {
   ContentProcessingRecord,
   ContentProcessingRepository,
   ContentProcessingRunCommand,
+  ContentProcessingStatusSummary,
   ContentProcessingStatus,
   CrawlAttemptForProcessing,
   DocumentMetadata,
@@ -183,6 +184,45 @@ export class KnexContentProcessingRepository
       .first();
 
     return row ? toProcessingRecord(row) : null;
+  }
+
+  async summarizeStatus(): Promise<ContentProcessingStatusSummary> {
+    const countRows = await this.db.knex<ContentProcessingRunRow>(
+      'content_processing_runs',
+    )
+      .select('status')
+      .count({ count: '*' })
+      .groupBy('status') as Array<{
+        status: ContentProcessingStatus;
+        count: string | number;
+      }>;
+    const recentFailureRows = await this.db.knex<ContentProcessingRunRow>(
+      'content_processing_runs',
+    )
+      .whereIn('status', ['failed_retryable', 'failed_terminal'])
+      .orderBy('updated_at', 'desc')
+      .limit(10);
+    const counts = countRows.map((row) => ({
+      status: row.status,
+      count: Number(row.count),
+    }));
+
+    return {
+      totalRuns: counts.reduce((total, row) => total + row.count, 0),
+      counts,
+      retryableFailures: countContentProcessingStatus(counts, 'failed_retryable'),
+      terminalFailures: countContentProcessingStatus(counts, 'failed_terminal'),
+      recentFailures: recentFailureRows
+        .filter((row) => row.failure)
+        .map((row) => ({
+          crawlAttemptId: row.crawl_attempt_id,
+          status: row.status,
+          category: row.failure!.category,
+          detail: row.failure!.detail,
+          retryable: row.failure!.retryable,
+          updatedAt: toIsoString(row.updated_at),
+        })),
+    };
   }
 
   async processSuccessfulCrawlAttempt(
@@ -495,6 +535,17 @@ function requireDocumentId(row: ContentProcessingRunRow): string {
     throw new Error('processing run is missing document_id');
   }
   return row.document_id;
+}
+
+function countContentProcessingStatus(
+  counts: Array<{ status: ContentProcessingStatus; count: number }>,
+  status: ContentProcessingStatus,
+): number {
+  return counts.find((row) => row.status === status)?.count ?? 0;
+}
+
+function toIsoString(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
 
 interface TransactionLike {

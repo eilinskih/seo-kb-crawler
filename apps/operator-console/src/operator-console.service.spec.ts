@@ -30,6 +30,9 @@ describe('OperatorConsoleService', () => {
     expect(model.providerStatuses).toEqual([
       expect.objectContaining({ providerKey: 'fallback_seo_signals' }),
     ]);
+    expect(model.operatorStatus).toEqual(expect.objectContaining({
+      retrieval: expect.objectContaining({ keywordReady: true }),
+    }));
   });
 
   it('marks mutating actions as bounded and keeps missing read models planned', async () => {
@@ -69,6 +72,7 @@ describe('OperatorConsoleService', () => {
       topics: [],
       providerStatuses: [],
       frontierStatus: null,
+      operatorStatus: null,
       flash: null,
     });
 
@@ -119,6 +123,7 @@ describe('OperatorConsoleService', () => {
           updatedAt: '2026-07-23T00:00:00.000Z',
         }],
       },
+      operatorStatus: operatorStatusFixture(),
     });
 
     expect(html).toContain('action="/topics"');
@@ -133,6 +138,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Only fallback SEO signals are available.');
     expect(html).toContain('URL Frontier Status');
     expect(html).toContain('https://example.com/');
+    expect(html).toContain('Jobs, Failures And Readiness');
+    expect(html).toContain('Content Processing');
+    expect(html).toContain('keyword: ready');
   });
 });
 
@@ -154,6 +162,7 @@ function mockClient(): OperatorConsoleApiClient {
       retryableCount: 0,
       recentEntries: [],
     }),
+    getOperatorStatus: jest.fn().mockResolvedValue(operatorStatusFixture()),
     createTopic: jest.fn(),
     updateTopicConfiguration: jest.fn(),
     pauseTopic: jest.fn(),
@@ -162,6 +171,46 @@ function mockClient(): OperatorConsoleApiClient {
     dispatchUrlFrontier: jest.fn(),
     dispatchContentProcessing: jest.fn(),
   } as unknown as OperatorConsoleApiClient;
+}
+
+function operatorStatusFixture() {
+  return {
+    contentProcessing: {
+      totalRuns: 1,
+      counts: [{ status: 'processed', count: 1 }],
+      retryableFailures: 0,
+      terminalFailures: 0,
+      recentFailures: [],
+    },
+    chunking: {
+      totalRuns: 1,
+      totalChunks: 4,
+      counts: [{ status: 'chunked', count: 1 }],
+      retryableFailures: 0,
+      terminalFailures: 0,
+      recentFailures: [],
+    },
+    embeddings: {
+      totalEmbeddings: 4,
+      stats: [{
+        providerKey: 'local',
+        modelKey: 'test',
+        modelVersion: '1',
+        language: 'en',
+        status: 'embedded',
+        count: 4,
+      }],
+      retryableFailures: 0,
+      terminalFailures: 0,
+    },
+    retrieval: {
+      totalChunks: 4,
+      embeddedChunks: 4,
+      keywordReady: true,
+      vectorReady: true,
+      degradedMode: false,
+    },
+  };
 }
 
 function mockExternalSeo(): ExternalSeoEnrichmentService {

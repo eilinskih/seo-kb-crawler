@@ -9,6 +9,7 @@ import {
   ChunkingRunIdentity,
   ChunkingRunRecord,
   ChunkingRunStatus,
+  ChunkingStatusSummary,
   ChunkType,
   ChunkTypeConfidence,
   DocumentVersionForChunking,
@@ -211,6 +212,47 @@ export class KnexChunkingRepository implements ChunkingRepository {
       };
     });
   }
+
+  async summarizeStatus(): Promise<ChunkingStatusSummary> {
+    const countRows = await this.db.knex<ChunkingRunRow>('chunking_runs')
+      .select('status')
+      .count({ count: '*' })
+      .groupBy('status') as Array<{
+        status: ChunkingRunStatus;
+        count: string | number;
+      }>;
+    const chunkCountRows = await this.db.knex<ChunkRow>('chunks')
+      .count({ count: '*' }) as Array<{ count: string | number }>;
+    const recentFailureRows = await this.db.knex<ChunkingRunRow>(
+      'chunking_runs',
+    )
+      .whereIn('status', ['failed_retryable', 'failed_terminal'])
+      .orderBy('updated_at', 'desc')
+      .limit(10);
+    const counts = countRows.map((row) => ({
+      status: row.status,
+      count: Number(row.count),
+    }));
+
+    return {
+      totalRuns: counts.reduce((total, row) => total + row.count, 0),
+      totalChunks: Number(chunkCountRows[0]?.count ?? 0),
+      counts,
+      retryableFailures: countChunkingStatus(counts, 'failed_retryable'),
+      terminalFailures: countChunkingStatus(counts, 'failed_terminal'),
+      recentFailures: recentFailureRows
+        .filter((row) => row.failure)
+        .map((row) => ({
+          runId: row.id,
+          documentVersionId: row.document_version_id,
+          status: row.status,
+          category: row.failure!.category,
+          detail: row.failure!.detail,
+          retryable: row.failure!.retryable,
+          updatedAt: toIsoString(row.updated_at),
+        })),
+    };
+  }
 }
 
 function toDocumentVersion(row: DocumentVersionRow): DocumentVersionForChunking {
@@ -254,4 +296,15 @@ function toChunkingRun(row: ChunkingRunRow): ChunkingRunRecord {
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
+}
+
+function countChunkingStatus(
+  counts: Array<{ status: ChunkingRunStatus; count: number }>,
+  status: ChunkingRunStatus,
+): number {
+  return counts.find((row) => row.status === status)?.count ?? 0;
+}
+
+function toIsoString(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }

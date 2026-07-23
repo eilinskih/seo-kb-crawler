@@ -1,6 +1,7 @@
 import {
   OperatorConsoleViewModel,
   OperatorFrontierRecentEntry,
+  OperatorPipelineStageSummary,
 } from './operator-console.types';
 
 export function renderOperatorConsoleHtml(
@@ -56,6 +57,7 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderJobsReadiness(model)}
     ${renderFrontierStatus(model)}
     ${renderDispatchWorkflow()}
     ${renderProviderStatus(model)}
@@ -65,6 +67,84 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+function renderJobsReadiness(model: OperatorConsoleViewModel): string {
+  const status = model.operatorStatus;
+  return `<section id="jobs-readiness" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Jobs, Failures And Readiness</h2>
+      <p>Read-only pipeline status from owning module read models.</p>
+    </div>
+    <span class="badge">${status ? 'available' : 'planned'}</span>
+  </div>
+  ${status ? `<table>
+    <thead>
+      <tr><th>Stage</th><th>Totals</th><th>Failures</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      ${renderStageRow('Content Processing', status.contentProcessing)}
+      ${renderStageRow('Chunking', status.chunking, `chunks: ${status.chunking.totalChunks}`)}
+      <tr>
+        <td>Embeddings</td>
+        <td>embeddings: ${escapeHtml(String(status.embeddings.totalEmbeddings))}</td>
+        <td>retryable: ${escapeHtml(String(status.embeddings.retryableFailures))}<br>terminal: ${escapeHtml(String(status.embeddings.terminalFailures))}</td>
+        <td>${status.embeddings.stats.map((row) => `${escapeHtml(row.providerKey)} ${escapeHtml(row.modelKey)} ${escapeHtml(row.status)}: ${escapeHtml(String(row.count))}`).join('<br>') || 'No embeddings yet'}</td>
+      </tr>
+      <tr>
+        <td>Retrieval</td>
+        <td>chunks: ${escapeHtml(String(status.retrieval.totalChunks))}<br>embedded: ${escapeHtml(String(status.retrieval.embeddedChunks))}</td>
+        <td>${status.retrieval.degradedMode ? 'degraded: vector unavailable' : 'none reported'}</td>
+        <td>keyword: ${status.retrieval.keywordReady ? 'ready' : 'not ready'}<br>vector: ${status.retrieval.vectorReady ? 'ready' : 'not ready'}</td>
+      </tr>
+    </tbody>
+  </table>
+  ${renderRecentFailures(status.contentProcessing.recentFailures, 'Content Processing')}
+  ${renderRecentFailures(status.chunking.recentFailures, 'Chunking')}` : '<p class="empty">Operator status is unavailable.</p>'}
+</section>`;
+}
+
+function renderStageRow(
+  label: string,
+  stage: OperatorPipelineStageSummary,
+  extra = '',
+): string {
+  return `<tr>
+    <td>${escapeHtml(label)}</td>
+    <td>runs: ${escapeHtml(String(stage.totalRuns))}${extra ? `<br>${escapeHtml(extra)}` : ''}</td>
+    <td>retryable: ${escapeHtml(String(stage.retryableFailures))}<br>terminal: ${escapeHtml(String(stage.terminalFailures))}</td>
+    <td>${stage.counts.map((row) => `${escapeHtml(row.status)}: ${escapeHtml(String(row.count))}`).join('<br>') || 'No runs yet'}</td>
+  </tr>`;
+}
+
+function renderRecentFailures(
+  failures: Array<{
+    status: string;
+    category: string;
+    detail: string;
+    retryable: boolean;
+    updatedAt: string;
+  }>,
+  label: string,
+): string {
+  if (failures.length === 0) {
+    return '';
+  }
+  return `<table>
+    <thead>
+      <tr><th colspan="4">${escapeHtml(label)} Recent Failures</th></tr>
+      <tr><th>Status</th><th>Category</th><th>Detail</th><th>Updated</th></tr>
+    </thead>
+    <tbody>
+      ${failures.map((failure) => `<tr>
+        <td>${escapeHtml(failure.status)}</td>
+        <td>${escapeHtml(failure.category)}</td>
+        <td>${escapeHtml(failure.detail)}</td>
+        <td>${escapeHtml(failure.updatedAt)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
 }
 
 function renderFrontierStatus(model: OperatorConsoleViewModel): string {

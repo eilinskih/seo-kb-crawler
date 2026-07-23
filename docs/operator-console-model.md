@@ -315,9 +315,18 @@ The URL Frontier status implementation:
 - shows total entries, status counts, retryable count and recent entries in
   the console.
 
-Richer read models, authenticated access, failure/provider detail screens,
-frontier retry forms and processing retry forms remain future implementation
-work.
+The jobs/failures/readiness implementation:
+
+- adds read-only Content Processing status summaries;
+- adds read-only Chunking status summaries;
+- adds read-only Embedding status summaries;
+- adds Retrieval readiness derived from chunks and embedded chunks;
+- exposes a unified `/operator/status` API endpoint;
+- renders pipeline totals, status counts, failure counts, recent failures and
+  retrieval degraded mode in the console.
+
+Authenticated access, richer failure/provider detail screens, frontier retry
+forms and processing retry forms remain future implementation work.
 
 ## Acceptance Criteria
 

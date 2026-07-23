@@ -6,3 +6,4 @@ export * from './embedding-dispatch.service';
 export * from './embedding.module';
 export * from './embedding.service';
 export * from './embedding.tokens';
+export * from './persistence/knex-embedding.repository';

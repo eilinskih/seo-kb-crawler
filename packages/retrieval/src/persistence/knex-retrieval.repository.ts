@@ -3,6 +3,7 @@ import { DbService } from '@seo-kb/db';
 import {
   RetrievalCandidate,
   RetrievalQuery,
+  RetrievalReadinessSummary,
   RetrievalRepository,
 } from '../domain/retrieval-types';
 
@@ -103,6 +104,24 @@ export class KnexRetrievalRepository implements RetrievalRepository {
       overfetchLimit(query),
     ) as unknown as RetrievalRow[];
     return rows.map((row) => toCandidate(row, query, 'metadata'));
+  }
+
+  async summarizeReadiness(): Promise<RetrievalReadinessSummary> {
+    const chunkRows = await this.db.knex('chunks')
+      .count({ count: '*' }) as Array<{ count: string | number }>;
+    const embeddedRows = await this.db.knex('chunk_embeddings')
+      .where('status', 'embedded')
+      .countDistinct({ count: 'chunk_id' }) as Array<{ count: string | number }>;
+    const totalChunks = Number(chunkRows[0]?.count ?? 0);
+    const embeddedChunks = Number(embeddedRows[0]?.count ?? 0);
+
+    return {
+      totalChunks,
+      embeddedChunks,
+      keywordReady: totalChunks > 0,
+      vectorReady: embeddedChunks > 0,
+      degradedMode: totalChunks > 0 && embeddedChunks === 0,
+    };
   }
 
   private baseQuery(query: RetrievalQuery) {

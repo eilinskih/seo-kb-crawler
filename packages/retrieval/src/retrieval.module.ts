@@ -14,6 +14,6 @@ import { RETRIEVAL_REPOSITORY } from './retrieval.tokens';
       useExisting: KnexRetrievalRepository,
     },
   ],
-  exports: [RETRIEVAL_REPOSITORY, RetrievalService],
+  exports: [RETRIEVAL_REPOSITORY, RetrievalService, KnexRetrievalRepository],
 })
 export class RetrievalModule {}

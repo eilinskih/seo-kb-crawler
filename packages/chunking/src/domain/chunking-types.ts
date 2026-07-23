@@ -175,3 +175,20 @@ export interface ChunkingRepository {
     },
   ): Promise<ChunkingResult>;
 }
+
+export interface ChunkingStatusSummary {
+  totalRuns: number;
+  totalChunks: number;
+  counts: Array<{ status: ChunkingRunStatus; count: number }>;
+  retryableFailures: number;
+  terminalFailures: number;
+  recentFailures: Array<{
+    runId: string;
+    documentVersionId: string;
+    status: ChunkingRunStatus;
+    category: ChunkingFailureCategory;
+    detail: string;
+    retryable: boolean;
+    updatedAt: string;
+  }>;
+}

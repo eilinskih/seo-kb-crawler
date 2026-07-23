@@ -65,11 +65,45 @@ Roadmap order, phases and dependency rules live only in
 | #42 | SEO Agent Gateway | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #40 may start. |
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
-| #86 | Operator Console | Review needed | Frontier status PR adds URL Frontier read model/API and console status view; jobs/failures/readiness and inspection/health remain deferred. |
+| #86 | Operator Console | Review needed | Jobs/readiness PR adds unified operator status API and console view; inspection/health and close-out remain deferred. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #86
+Status: Review needed
+Summary:
+- Added unified jobs, failures and readiness visibility for the Operator
+  Console.
+- Implemented read-only status summaries for Content Processing, Chunking,
+  Embeddings and Retrieval readiness through owner repository/API boundaries.
+- Added `/operator/status` and rendered pipeline totals, status counts,
+  failure counts, recent failures and retrieval degraded mode in the console.
+- Kept direct database reads from the console, retry-specific actions,
+  authenticated access, inspection/health and richer failure detail screens out
+  of scope.
+Changed files:
+- apps/api/src/api.module.ts
+- apps/api/src/operator/operator-status.controller.ts
+- apps/operator-console/**
+- packages/content-processing/**
+- packages/chunking/**
+- packages/embeddings/**
+- packages/retrieval/**
+- docs/operator-console-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts packages/chunking/src/chunking.service.spec.ts packages/embeddings/src/embedding.service.spec.ts packages/retrieval/src/retrieval.service.spec.ts
+- npm run build:api
+- ./node_modules/.bin/tsc -p apps/operator-console/tsconfig.app.json --noEmit
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the jobs/readiness slice before implementing
+  inspection/health and close-out stabilization for Issue #86.
 
 Date: 2026-07-23
 Issue: #86

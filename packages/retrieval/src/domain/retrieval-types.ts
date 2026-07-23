@@ -106,3 +106,11 @@ export interface RetrievalRepository {
   searchKeyword(query: RetrievalQuery): Promise<RetrievalCandidate[]>;
   searchMetadata(query: RetrievalQuery): Promise<RetrievalCandidate[]>;
 }
+
+export interface RetrievalReadinessSummary {
+  totalChunks: number;
+  embeddedChunks: number;
+  keywordReady: boolean;
+  vectorReady: boolean;
+  degradedMode: boolean;
+}
