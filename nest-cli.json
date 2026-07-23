@@ -243,6 +243,15 @@
         "tsConfigPath": "packages/seo-pack/tsconfig.lib.json"
       }
     },
+    "research-scheduling": {
+      "type": "library",
+      "root": "packages/research-scheduling",
+      "entryFile": "index",
+      "sourceRoot": "packages/research-scheduling/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/research-scheduling/tsconfig.lib.json"
+      }
+    },
     "embedding-worker": {
       "type": "application",
       "root": "apps/embedding-worker",

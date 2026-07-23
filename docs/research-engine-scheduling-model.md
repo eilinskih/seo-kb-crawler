@@ -1,6 +1,6 @@
 # Research Engine Scheduling Model
 
-- Status: Design in review for Issue #43
+- Status: Foundation implementation in review for Issue #43
 - Issue: #43
 - Date: 2026-07-23
 
@@ -445,6 +445,23 @@ Recommended package:
 ```txt
 packages/research-scheduling
 ```
+
+Implemented foundation package:
+
+- `packages/research-scheduling/src/domain/research-scheduling-types.ts`
+  defines research modes, priority classes, Topic research policy snapshots,
+  freshness decisions, dispatch commands, Research Asset metrics and media
+  policy decisions.
+- `packages/research-scheduling/src/research-scheduling.service.ts` assembles
+  deterministic dispatch plans from research requests, Topic snapshots and
+  freshness evidence.
+- `packages/research-scheduling/src/research-priority.service.ts`,
+  `background-budget-allocator.service.ts`, `freshness-policy.service.ts`,
+  `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
+  and `research-asset-metrics.service.ts` own focused scheduling slices.
+- `packages/research-scheduling/src/persistence/research-scheduling.repository.ts`
+  defines the repository abstraction; concrete database persistence remains
+  deferred.
 
 Recommended services:
 
