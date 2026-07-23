@@ -19,7 +19,8 @@ specialized documents such as `docs/topic-model.md`,
 `docs/topic-expansion-model.md`, `docs/long-tail-discovery-model.md`,
 `docs/seo-page-candidate-scoring-model.md`,
 `docs/seo-pack-generator-model.md`, `docs/research-engine-scheduling-model.md`,
-`docs/demand-engine-model.md` and ADRs under `docs/decisions/`.
+`docs/seo-agent-gateway-model.md`, `docs/demand-engine-model.md` and ADRs
+under `docs/decisions/`.
 
 ## Core pipeline
 
@@ -246,15 +247,22 @@ generation-ready SEO context from Knowledge Pack, SERP Pack, SERP Intent Pack,
 Demand Pack and scored candidate evidence without generating final content or
 emitting vendor-specific prompts.
 
-### Codex integration layer
+### LLM integration layer
 
-This section lists Codex-facing outputs and integration boundaries. Ownership
-remains with the subsystem documents above.
+This section lists LLM-facing outputs and integration boundaries. Codex is the
+first consumer, but these contracts must remain usable by other LLM consumers.
+Ownership remains with the subsystem documents above.
 
 - Context Pack API
 - Knowledge Pack Builder
 - SERP Pack Builder
 - SEO Pack Generator
+- SEO Agent Gateway
+
+The SEO Agent Gateway design is documented in
+`docs/seo-agent-gateway-model.md`. It enforces Focused Research and structured
+pack usage before SEO generation requests reach Codex, Claude, Gemini, GPT,
+local LLMs or future internal agents.
 
 ## Universal core, vertical-specific extension
 

@@ -53,6 +53,7 @@ specialized documents:
 - `docs/long-tail-discovery-model.md` for Long-tail Discovery Engine.
 - `docs/seo-page-candidate-scoring-model.md` for SEO Page Candidate Scoring.
 - `docs/seo-pack-generator-model.md` for SEO Pack Generator.
+- `docs/seo-agent-gateway-model.md` for SEO Agent Gateway.
 - `docs/operator-console-model.md` for the internal Operator Console.
 - `docs/demand-engine-model.md` for Keyword Discovery, candidate pages and
   provider-optional demand signals.
@@ -175,6 +176,8 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
+- SEO Agent Gateway for model-agnostic generation request orchestration and
+  structured pack enforcement.
 - Full URL Frontier discovery observation ingestion, canonical relations,
   configurable retry policy, jitter and adaptive recrawl adjustment.
 
@@ -187,4 +190,3 @@ Not implemented:
 - SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
   consumption.
 - Operator Console.
-- SEO Agent Gateway.
