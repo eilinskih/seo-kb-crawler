@@ -59,7 +59,7 @@ Roadmap order, phases and dependency rules live only in
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
 | #30 | SERP Intent Analyzer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #19 may start. |
 | #19 | Topic Expansion Engine | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #134 may start. |
-| #134 | Long-tail Discovery Engine | Review needed | Design PR defines bounded dimension/rule-based long-tail generation and provider-optional fallback behavior. |
+| #134 | Long-tail Discovery Engine | Review needed | Foundation PR adds dimension extraction, explicit rules, compatibility safeguards and bounded candidate generation. |
 | #20 | SEO Page Candidate Scoring | Not started | Depends on Demand Engine Runtime, #18/#19 and #134 long-tail candidate signals when available. |
 | #21 | SEO Pack Generator | Not started | Depends on Knowledge Pack, Demand Pack, SERP Pack and SERP Intent Pack. |
 | #42 | SEO Agent Gateway | Not started | Deferred until #10, #14, Demand Engine Runtime, #18, #21 and #43. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #134
+Status: Review needed
+Summary:
+- Added `packages/long-tail-discovery` as the runtime foundation for Long-tail
+  Discovery Engine.
+- Implemented dimension contracts, explicit combination rules,
+  compatibility/co-occurrence safeguards, bounded candidate generation,
+  opportunity tree assembly, provider-optional nullable metrics and repository
+  abstraction.
+- Kept paid provider integrations, concrete persistence, recursive expansion,
+  SEO Page Candidate Scoring, SEO Pack generation, content generation and UI
+  out of scope.
+Changed files:
+- nest-cli.json
+- tsconfig.json
+- jest.config.js
+- docs/progress.md
+- docs/project-map.md
+- docs/long-tail-discovery-model.md
+- packages/long-tail-discovery/**
+Validation:
+- npm test
+- npm test -- --runTestsByPath packages/long-tail-discovery/src/long-tail-discovery-pack.service.spec.ts packages/long-tail-discovery/src/persistence/long-tail-discovery.repository.spec.ts
+- ./node_modules/.bin/tsc -p packages/long-tail-discovery/tsconfig.lib.json --noEmit
+- ./node_modules/.bin/nest build long-tail-discovery
+- git diff --check
+Next step:
+- Review and merge the foundation before close-out stabilization for Issue
+  #134.
 
 Date: 2026-07-23
 Issue: #134
