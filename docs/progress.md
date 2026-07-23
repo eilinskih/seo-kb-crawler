@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Priority hardening PR adds deterministic priority scoring; next slice is configurable retry policy and adaptive recrawl. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Retry/recrawl policy PR adds configurable retry extraction and deterministic jitter; close-out review remains next. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -70,6 +70,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #3
+Status: Review needed
+Summary:
+- Added configurable retry policy extraction from URL Frontier crawl policy
+  snapshots.
+- Added bounded deterministic retry jitter while preserving maximum backoff.
+- Synchronized URL Frontier documentation with current retry/backoff behavior.
+- Kept operator-facing retry policy editing, scheduler automation and broader
+  adaptive recrawl loops out of this slice.
+Changed files:
+- packages/url-frontier/**
+- docs/url-frontier-model.md
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/application/url-frontier-completion.service.spec.ts
+- npm run build:api
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge retry/recrawl policy hardening, then run Issue #3 close-out
+  review.
 
 Date: 2026-07-23
 Issue: #3

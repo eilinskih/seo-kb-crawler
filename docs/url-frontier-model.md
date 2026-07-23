@@ -373,15 +373,18 @@ Transient failures use bounded exponential backoff:
 delay = min(maxBackoff, baseBackoff * 2^consecutiveFailures)
 ```
 
-The current implementation uses a deterministic retry delay without jitter:
+The current implementation uses bounded exponential backoff with deterministic
+jitter:
 
 - Base backoff: 5 minutes.
 - Maximum backoff: 6 hours.
 - Maximum retryable consecutive failures: 5.
+- Default jitter: up to 10 percent, capped by maximum backoff.
 
 When the retryable failure budget is exhausted, the entry is completed as
-`failed_terminal` instead of scheduling another automatic crawl. Configurable
-per-topic retry policy and jitter remain future URL Frontier work.
+`failed_terminal` instead of scheduling another automatic crawl. Optional
+retry policy fields can be carried in the crawl policy snapshot; full
+operator-facing retry policy editing remains future work.
 
 Permanent policy rejection, unsupported content and operator suppression do not
 schedule automatic retries.

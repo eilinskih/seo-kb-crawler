@@ -87,12 +87,14 @@ export interface UrlFrontierRetryPolicy {
   baseBackoffMs: number;
   maxBackoffMs: number;
   maxRetryableFailures: number;
+  jitterRatio: number;
 }
 
 export const DEFAULT_URL_FRONTIER_RETRY_POLICY: UrlFrontierRetryPolicy = {
   baseBackoffMs: 5 * 60 * 1000,
   maxBackoffMs: 6 * 60 * 60 * 1000,
   maxRetryableFailures: 5,
+  jitterRatio: 0.1,
 };
 
 export interface UrlFrontierSuccessRecrawlPolicy {
@@ -152,6 +154,7 @@ export class UrlFrontierCompletionService {
               row.recorded_at,
               frontierEntry.consecutive_failures,
               frontierEntry.crawl_policy,
+              retryPolicyFromCrawlPolicy(frontierEntry.crawl_policy),
             ),
             transaction,
           ),
@@ -269,12 +272,41 @@ function toFrontierCompletionRowUpdate(
 export function retryDelayMs(
   currentConsecutiveFailures: number,
   retryPolicy: UrlFrontierRetryPolicy = DEFAULT_URL_FRONTIER_RETRY_POLICY,
+  jitterSeed = String(currentConsecutiveFailures),
 ): number {
   const exponent = Math.max(0, currentConsecutiveFailures);
-  return Math.min(
+  const exponentialDelay = Math.min(
     retryPolicy.maxBackoffMs,
     retryPolicy.baseBackoffMs * 2 ** exponent,
   );
+  const jitterWindow = Math.round(exponentialDelay * retryPolicy.jitterRatio);
+  const jitter = jitterWindow === 0
+    ? 0
+    : Math.round(stableJitterRatio(jitterSeed) * jitterWindow);
+  return Math.min(retryPolicy.maxBackoffMs, exponentialDelay + jitter);
+}
+
+export function retryPolicyFromCrawlPolicy(
+  crawlPolicy: UrlFrontierCrawlPolicySnapshot,
+): UrlFrontierRetryPolicy {
+  return {
+    baseBackoffMs: positiveOrDefault(
+      crawlPolicy.retryBaseBackoffMs,
+      DEFAULT_URL_FRONTIER_RETRY_POLICY.baseBackoffMs,
+    ),
+    maxBackoffMs: positiveOrDefault(
+      crawlPolicy.retryMaxBackoffMs,
+      DEFAULT_URL_FRONTIER_RETRY_POLICY.maxBackoffMs,
+    ),
+    maxRetryableFailures: positiveOrDefault(
+      crawlPolicy.retryMaxFailures,
+      DEFAULT_URL_FRONTIER_RETRY_POLICY.maxRetryableFailures,
+    ),
+    jitterRatio: boundedRatio(
+      crawlPolicy.retryJitterRatio,
+      DEFAULT_URL_FRONTIER_RETRY_POLICY.jitterRatio,
+    ),
+  };
 }
 
 export function successRecrawlDelayMs(
@@ -294,4 +326,25 @@ export function successRecrawlDelayMs(
 
 function addMilliseconds(date: Date, milliseconds: number): Date {
   return new Date(date.getTime() + milliseconds);
+}
+
+function positiveOrDefault(value: number | undefined, fallback: number): number {
+  return Number.isFinite(value) && value && value > 0
+    ? Math.round(value)
+    : fallback;
+}
+
+function boundedRatio(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(0, Math.min(0.5, value ?? fallback));
+}
+
+function stableJitterRatio(seed: string): number {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+  return hash / 0xffffffff;
 }
