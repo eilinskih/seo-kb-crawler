@@ -404,6 +404,14 @@ The production persistence foundation:
 - exposes a discovery-and-persist service for production flows that should save
   Demand Engine output after discovery.
 
+Provider-backed refresh begins through an External SEO adapter boundary:
+
+- External SEO enrichment packs are converted into Demand observations;
+- provider metric snapshots map into nullable Demand metric snapshots;
+- provider warnings are preserved as Demand discovery warnings;
+- empty or misconfigured external providers do not block manual/free fallback
+  discovery.
+
 ## Review gates
 
 Before Demand Engine runtime implementation begins:

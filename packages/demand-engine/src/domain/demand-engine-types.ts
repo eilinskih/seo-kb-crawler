@@ -10,7 +10,8 @@ export type DemandEvidenceType =
   | 'competitor_heading'
   | 'competitor_sitemap'
   | 'faq_block'
-  | 'knowledge_graph_combination';
+  | 'knowledge_graph_combination'
+  | 'provider_keyword_metric';
 
 export type DemandConfidence = 'unknown' | 'low' | 'medium' | 'high';
 

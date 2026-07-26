@@ -3,6 +3,7 @@ export * from './demand-discovery-persistence.service';
 export * from './demand-engine.service';
 export * from './demand-engine.tokens';
 export * from './domain/demand-engine-types';
+export * from './external-seo-demand.provider';
 export * from './manual-fallback-demand.provider';
 export * from './persistence/demand-engine.repository';
 export * from './persistence/knex-demand-engine.repository';
