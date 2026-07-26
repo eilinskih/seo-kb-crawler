@@ -109,6 +109,10 @@ Implemented on `main`:
 - URL Frontier BullMQ dispatch, manual dispatch API, completion feedback,
   frontier-owned crawl completion service, bounded retry backoff and success
   recrawl scheduling.
+- URL Frontier discovery observation ingestion, candidate reevaluation,
+  canonical relation persistence, duplicate suppression, deterministic
+  priority scoring, configurable retry extraction, deterministic jitter and
+  durable freshness/recrawl scheduling state.
 - URL Frontier operator status read model for topic-safe queue/failure
   visibility.
 - Content Processing package boundary, domain contracts and foundation
@@ -193,9 +197,9 @@ Designed but not implemented on `main`:
 
 - Topic Classification Strategy for primary/secondary semantic topic
   classification after Entity and Ontology foundations.
-- Full URL Frontier discovery observation ingestion, canonical relations,
-  candidate reevaluation, freshness/priority hardening, configurable retry
-  policy, jitter and adaptive recrawl adjustment.
+- URL Frontier adaptive change-frequency recrawl adjustment, production
+  scheduler automation, operator-facing retry policy editing and possible
+  cross-topic URL alias registry.
 
 Not implemented:
 

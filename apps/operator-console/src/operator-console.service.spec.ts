@@ -117,6 +117,8 @@ describe('OperatorConsoleService', () => {
           crawlStatus: 'scheduled',
           relevanceDecision: 'accepted',
           priorityScore: 1,
+          freshnessScore: 1,
+          recrawlReason: 'initial_discovery',
           nextCrawlAt: '2026-07-23T00:00:00.000Z',
           leaseOwner: null,
           consecutiveFailures: 0,

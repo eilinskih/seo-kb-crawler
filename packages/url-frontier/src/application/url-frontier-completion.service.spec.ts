@@ -126,6 +126,8 @@ describe('UrlFrontierCompletionService', () => {
       lease_expires_at: null,
       last_crawled_at: completedAt,
       next_crawl_at: new Date('2026-07-06T00:00:00Z'),
+      freshness_score: 0,
+      recrawl_reason: 'success_recrawl',
       consecutive_failures: 0,
       incrementConsecutiveFailures: false,
       updated_at: completedAt,
@@ -155,6 +157,8 @@ describe('UrlFrontierCompletionService', () => {
       lease_owner: null,
       lease_expires_at: null,
       next_crawl_at: nextCrawlAt,
+      freshness_score: 0,
+      recrawl_reason: 'retry_backoff',
       incrementConsecutiveFailures: true,
       updated_at: completedAt,
     });
