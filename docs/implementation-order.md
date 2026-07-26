@@ -26,7 +26,7 @@ and merged into `main`.
 |---|---|---|---|
 | 1 | #1 | Foundation: monorepo bootstrap and local infrastructure | Done on `main`. |
 | 2 | #2 | Topic Engine | Implemented on `main`; issue is closed. |
-| 3 | #3 | URL Frontier design | Design approved on `main`; implementation continues under Order 7. |
+| 3 | #3 | URL Frontier design | Done on `main`; implementation is complete under Order 7. |
 | 4 | #41 | Implementation order and roadmap governance | Done on `main`. |
 
 ## Phase 2: Research Engine Core
