@@ -1,6 +1,7 @@
 import { BackgroundBudgetAllocator } from './background-budget-allocator.service';
 import { MediaResearchPolicyService } from './media-research-policy.service';
 import { ResearchSchedulingService } from './research-scheduling.service';
+import { ResearchOperationsFrontierTelemetryService } from './research-operations-frontier-telemetry.service';
 import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
@@ -207,6 +208,27 @@ describe('ResearchSchedulingService', () => {
       expiredFrontierLeaseCount: 2,
       frontierEnqueueFailureCount: 1,
       eligibleFrontierBacklogCount: 250,
+      oldestEligibleFrontierAgeMinutes: 90,
+    });
+  });
+
+  it('maps URL Frontier operations telemetry without owning enqueue failures', () => {
+    const telemetry = new ResearchOperationsFrontierTelemetryService()
+      .fromUrlFrontier({
+        urlFrontierTelemetry: {
+          topicId: null,
+          expiredLeaseCount: 2,
+          eligibleBacklogCount: 250,
+          oldestEligibleFrontierAgeMinutes: 90,
+          observedAt: '2026-07-26T00:00:00.000Z',
+        },
+        enqueueFailureCount: 1,
+      });
+
+    expect(telemetry).toEqual({
+      expiredLeaseCount: 2,
+      enqueueFailureCount: 1,
+      eligibleBacklogCount: 250,
       oldestEligibleFrontierAgeMinutes: 90,
     });
   });

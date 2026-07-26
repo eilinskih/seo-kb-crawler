@@ -196,3 +196,11 @@ export interface UrlFrontierStatusSummary {
   retryableCount: number;
   recentEntries: UrlFrontierRecentEntry[];
 }
+
+export interface UrlFrontierOperationsTelemetry {
+  topicId: string | null;
+  expiredLeaseCount: number;
+  eligibleBacklogCount: number;
+  oldestEligibleFrontierAgeMinutes?: number;
+  observedAt: string;
+}

@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health alert foundation is ready; scheduler daemon and adaptive recrawl remain next. |
+| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder and URL Frontier telemetry boundary are ready; scheduler daemon and adaptive recrawl remain next. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
+- Added URL Frontier operations telemetry for expired leases, eligible backlog
+  and oldest eligible backlog age from durable Frontier state.
+- Added a Research Operations adapter that combines URL Frontier telemetry with
+  explicit scheduler/dispatch enqueue failure counts.
+- Documented that queue enqueue failures remain scheduler/dispatch
+  observability signals and are not derived from URL Frontier state.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- docs/url-frontier-model.md
+- packages/research-scheduling/**
+- packages/url-frontier/**
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/persistence/knex-url-frontier.repository.spec.ts packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge the URL Frontier telemetry
+  boundary.
 
 Date: 2026-07-26
 Issue: #180

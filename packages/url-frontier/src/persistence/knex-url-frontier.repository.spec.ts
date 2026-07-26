@@ -1,6 +1,7 @@
 import {
   KnexUrlFrontierRepository,
   toEntryRow,
+  toAgeMinutes,
   toLease,
   toObservationRowInput,
 } from './knex-url-frontier.repository';
@@ -105,6 +106,14 @@ describe('KnexUrlFrontierRepository mapping', () => {
       ...observation(new Date('2026-07-04T00:00:00Z')),
       discoveredUrl: 'ftp://example.com/file',
     })).toBeNull();
+  });
+
+  it('maps oldest eligible frontier age to bounded whole minutes', () => {
+    const now = new Date('2026-07-04T00:10:30Z');
+
+    expect(toAgeMinutes('2026-07-04T00:00:00Z', now)).toBe(10);
+    expect(toAgeMinutes(new Date('2026-07-04T00:20:00Z'), now)).toBe(0);
+    expect(toAgeMinutes(null, now)).toBeUndefined();
   });
 });
 
