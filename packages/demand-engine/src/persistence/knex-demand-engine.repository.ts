@@ -43,6 +43,7 @@ interface DemandObservationRow {
   id: string;
   keyword_candidate_id: string;
   topic_id: string | null;
+  topic_key: string;
   observed_text: string;
   source_tier: DemandObservation['sourceTier'];
   provider_key: string;
@@ -336,6 +337,7 @@ function toObservationRow(
     id: randomUUID(),
     keyword_candidate_id: keywordCandidateId,
     topic_id: topicId ?? null,
+    topic_key: topicKey(topicId),
     observed_text: observation.observedText,
     source_tier: observation.sourceTier,
     provider_key: observation.providerKey,
@@ -477,3 +479,8 @@ function languageKey(language: string | undefined): string {
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
+
+export const __testing = {
+  toCandidatePageRow,
+  toObservationRow,
+};

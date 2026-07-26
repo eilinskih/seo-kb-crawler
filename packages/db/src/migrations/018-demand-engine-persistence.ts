@@ -99,6 +99,7 @@ export const demandEnginePersistenceMigration: Knex.Migration = {
         .references('demand_keyword_candidates.id')
         .onDelete('CASCADE');
       table.uuid('topic_id').nullable();
+      table.string('topic_key', 80).notNullable();
       table.string('slug', 500).notNullable();
       table.string('primary_keyword', 500).notNullable();
       table.jsonb('supporting_keywords').notNullable();
