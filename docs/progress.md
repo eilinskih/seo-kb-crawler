@@ -71,13 +71,38 @@ Roadmap order, phases and dependency rules live only in
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
-| #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
+| #183 | SEO Intelligence persistence and scheduling | In progress | Durable stores and refresh jobs for planning packs are underway; SERP Intelligence persistence is the first slice. |
 | #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #183
+Status: Review needed
+Summary:
+- Started SEO Intelligence persistence and scheduling with SERP Intelligence
+  durable persistence.
+- Added bundled migration for SERP snapshots and SERP Packs.
+- Added Knex SERP Intelligence repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/progress.md
+- docs/serp-intelligence-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/019-serp-intelligence-persistence.ts
+- packages/db/src/migrations/019-serp-intelligence-persistence.spec.ts
+- packages/serp-intelligence/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/019-serp-intelligence-persistence.spec.ts packages/serp-intelligence/src/persistence/knex-serp-intelligence.repository.spec.ts packages/serp-intelligence/src/persistence/serp-intelligence.repository.spec.ts packages/serp-intelligence/src/serp-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the SERP Intelligence persistence slice.
 
 Date: 2026-07-26
 Issue: #185
