@@ -58,6 +58,7 @@ Research Engine Scheduling owns:
 - TTL-aware reuse decisions at orchestration level;
 - Research Asset metrics contract;
 - media metadata policy contract;
+- operations health and alert classification contracts;
 - dispatch boundaries into existing subsystems.
 
 Research Engine Scheduling does not own:
@@ -215,6 +216,35 @@ The scheduler should support:
 
 Fairness does not imply equal crawl volume. It means every Active Topic with
 eligible work receives a bounded opportunity to progress over time.
+
+## Operations Health
+
+Production Research Operations needs scheduler health signals before a
+long-running daemon can be trusted.
+
+The foundation health model evaluates externally supplied operational signals:
+
+- whether the scheduler is enabled;
+- active and background-eligible topic counts;
+- active topics without recent background research;
+- expired URL Frontier leases;
+- URL Frontier enqueue failures after durable lease acquisition;
+- eligible URL Frontier backlog count;
+- oldest eligible URL Frontier age.
+
+Health evaluation produces alerts but does not mutate scheduling state. Queue
+depth is not a durable source of truth. URL Frontier remains responsible for
+URL-level leases and recovery; Research Scheduling classifies operational
+signals so operators and future scheduler loops can react safely.
+
+Initial alert classes:
+
+- `scheduler_disabled`;
+- `expired_frontier_leases`;
+- `queue_enqueue_failures`;
+- `frontier_backlog_high`;
+- `background_starvation`;
+- `no_active_topics`.
 
 ## TTL And Incremental Reuse
 
