@@ -402,8 +402,6 @@ template-level change patterns or Topic priority. Advanced trend-aware
 frequency, decay curves, template-aware detection and priority-weighted
 scheduling remain deferred.
 
-Adaptive change-frequency adjustment remains future work.
-
 ### Failed crawl
 
 Transient failures use bounded exponential backoff:

@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are ready; final close-out review remains next. |
+| #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,26 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Done
+Summary:
+- Completed Architecture Steward close-out review for Research Operations
+  scheduler and recrawl hardening.
+- Confirmed durable scheduler persistence, bounded daemon ticks, dispatch
+  execution receipts, operations health telemetry and adaptive recrawl MVP are
+  aligned with accepted architecture.
+- Removed stale URL Frontier wording that incorrectly described all adaptive
+  change-frequency adjustment as future work.
+Changed files:
+- docs/progress.md
+- docs/url-frontier-model.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #180 and continue with the next Phase 9 issue in
+  `docs/implementation-order.md`.
 
 Date: 2026-07-26
 Issue: #180
