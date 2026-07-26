@@ -319,7 +319,9 @@ Implemented foundation package:
   `internal-linking-hint.service.ts` and `generation-constraint.service.ts`
   own focused assembly slices.
 - `packages/seo-pack/src/persistence/seo-pack.repository.ts` defines the
-  repository abstraction; concrete database persistence remains deferred.
+  repository abstraction.
+- `packages/seo-pack/src/persistence/knex-seo-pack.repository.ts` provides
+  durable SEO Pack persistence for production flows.
 
 Recommended services:
 

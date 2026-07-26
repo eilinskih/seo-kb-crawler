@@ -1,0 +1,1 @@
+export const SEO_PACK_REPOSITORY = Symbol('SEO_PACK_REPOSITORY');
