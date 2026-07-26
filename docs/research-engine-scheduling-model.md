@@ -242,12 +242,19 @@ Operations snapshots are built from owned subsystem signals:
 - Topic snapshots provide active/background-eligible topic counts and last
   background research timestamps.
 - URL Frontier telemetry provides expired lease, enqueue failure, eligible
-  backlog and oldest eligible age counts.
+- URL Frontier operations telemetry provides expired lease, eligible backlog
+  and oldest eligible age counts from durable Frontier state.
+- Dispatch or scheduler observability provides enqueue failure counts after a
+  lease is acquired.
 - Scheduler configuration provides whether scheduler execution is enabled.
 
 The snapshot builder does not query queue transport directly, lease Frontier
 work, dispatch jobs or infer Topic lifecycle. It only normalizes telemetry into
 the Research Operations health contract.
+
+URL Frontier telemetry and queue enqueue telemetry are intentionally separate.
+Frontier owns URL-level durable state; Research Operations combines that signal
+with scheduler/transport failures when building a health snapshot.
 
 Initial alert classes:
 

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '@seo-kb/db';
+import { Knex } from 'knex';
 import {
   UrlFrontierCanonicalEvidenceType,
   UrlFrontierCrawlPolicySnapshot,
@@ -11,6 +12,7 @@ import {
   UrlFrontierEntrySeed,
   UrlFrontierLease,
   UrlFrontierLeaseOptions,
+  UrlFrontierOperationsTelemetry,
   UrlFrontierPendingObservation,
   UrlFrontierRecrawlReason,
   UrlFrontierRelevanceDecision,
@@ -187,18 +189,7 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
       const entry = await transaction<UrlFrontierEntryRow>(
         'url_frontier_entries',
       )
-        .where((builder) => {
-          builder
-            .whereIn('crawl_status', ['idle', 'scheduled', 'succeeded'])
-            .orWhere('crawl_status', 'failed_retryable')
-            .orWhere((expiredLease) => {
-              expiredLease
-                .whereIn('crawl_status', ['leased', 'crawling'])
-                .andWhere('lease_expires_at', '<=', options.now);
-            });
-        })
-        .whereIn('relevance_decision', ['accepted', 'insufficient_evidence'])
-        .andWhere('next_crawl_at', '<=', options.now)
+        .modify((query) => applyEligibleFrontierFilter(query, options.now))
         .orderBy('next_crawl_at', 'asc')
         .orderBy('priority_score', 'desc')
         .orderByRaw('last_crawled_at ASC NULLS FIRST')
@@ -330,6 +321,46 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
         consecutiveFailures: row.consecutive_failures,
         updatedAt: toIsoString(row.updated_at),
       })),
+    };
+  }
+
+  async summarizeOperationsTelemetry(
+    now: Date,
+    topicId?: string,
+  ): Promise<UrlFrontierOperationsTelemetry> {
+    const base = this.db.knex<UrlFrontierEntryRow>('url_frontier_entries');
+    const filtered = topicId ? base.clone().where('topic_id', topicId) : base.clone();
+
+    const expiredLeaseRow = await filtered
+      .clone()
+      .whereIn('crawl_status', ['leased', 'crawling'])
+      .andWhere('lease_expires_at', '<=', now)
+      .count({ count: '*' })
+      .first() as { count: string | number } | undefined;
+
+    const eligibleBacklogRow = await applyEligibleFrontierFilter(
+      filtered.clone(),
+      now,
+    )
+      .count({ count: '*' })
+      .first() as { count: string | number } | undefined;
+
+    const oldestEligibleRow = await applyEligibleFrontierFilter(
+      filtered.clone(),
+      now,
+    )
+      .min({ oldest_next_crawl_at: 'next_crawl_at' })
+      .first() as { oldest_next_crawl_at: Date | string | null } | undefined;
+
+    return {
+      topicId: topicId ?? null,
+      expiredLeaseCount: Number(expiredLeaseRow?.count ?? 0),
+      eligibleBacklogCount: Number(eligibleBacklogRow?.count ?? 0),
+      oldestEligibleFrontierAgeMinutes: toAgeMinutes(
+        oldestEligibleRow?.oldest_next_crawl_at ?? null,
+        now,
+      ),
+      observedAt: now.toISOString(),
     };
   }
 
@@ -529,6 +560,37 @@ function commandDeadline(
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function applyEligibleFrontierFilter(
+  query: Knex.QueryBuilder<UrlFrontierEntryRow, UrlFrontierEntryRow[]>,
+  now: Date,
+): Knex.QueryBuilder<UrlFrontierEntryRow, UrlFrontierEntryRow[]> {
+  return query
+    .where((builder) => {
+      builder
+        .whereIn('crawl_status', ['idle', 'scheduled', 'succeeded'])
+        .orWhere('crawl_status', 'failed_retryable')
+        .orWhere((expiredLease) => {
+          expiredLease
+            .whereIn('crawl_status', ['leased', 'crawling'])
+            .andWhere('lease_expires_at', '<=', now);
+        });
+    })
+    .whereIn('relevance_decision', ['accepted', 'insufficient_evidence'])
+    .andWhere('next_crawl_at', '<=', now);
+}
+
+export function toAgeMinutes(
+  value: Date | string | null,
+  now: Date,
+): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const observedAt = value instanceof Date ? value : new Date(value);
+  return Math.max(0, Math.floor((now.getTime() - observedAt.getTime()) / 60_000));
 }
 
 export function normalizeFrontierUrl(value: string): string | null {

@@ -288,6 +288,17 @@ this recovery path. Research Operations health can classify expired leases,
 enqueue failures and backlog age as scheduler alerts, but Redis queue depth is
 not durable frontier state.
 
+URL Frontier exposes operations telemetry for Research Operations using only
+durable Frontier state:
+
+- expired lease count;
+- eligible backlog count;
+- oldest eligible backlog age.
+
+Enqueue failure counts are scheduler or dispatch observability signals, not
+Frontier-derived state. Research Operations combines both sources when building
+health snapshots.
+
 ## Relevance score integration
 
 The Topic relevance profile evaluates candidate evidence available at each
