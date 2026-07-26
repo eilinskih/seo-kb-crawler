@@ -1,0 +1,108 @@
+import { normalizeKeyword } from '../normalize-keyword';
+import {
+  DemandCandidatePageRecord,
+  DemandDiscoveryPersistenceResult,
+  DemandEngineRepository,
+  DemandKeywordCandidateRecord,
+  DemandMetricSnapshotRecord,
+  DemandObservationRecord,
+  SaveDemandDiscoveryResultCommand,
+} from '../persistence/demand-engine.repository';
+
+export class InMemoryDemandEngineRepository implements DemandEngineRepository {
+  private readonly candidates = new Map<string, DemandKeywordCandidateRecord>();
+  private readonly observations: DemandObservationRecord[] = [];
+  private readonly metricSnapshots: DemandMetricSnapshotRecord[] = [];
+  private readonly pages = new Map<string, DemandCandidatePageRecord>();
+
+  async saveDiscoveryResult(
+    command: SaveDemandDiscoveryResultCommand,
+  ): Promise<DemandDiscoveryPersistenceResult> {
+    const keywordCandidates = command.result.keywordCandidates.map((candidate) => {
+      const key = candidateKey(command.topicId, candidate.normalizedKeyword);
+      const existing = this.candidates.get(key);
+      const record: DemandKeywordCandidateRecord = {
+        ...candidate,
+        id: existing?.id ?? `demand-keyword-candidate-${this.candidates.size + 1}`,
+        topicId: command.topicId ?? null,
+        lastObservedAt: command.observedAt,
+        createdAt: existing?.createdAt ?? command.observedAt,
+        updatedAt: command.observedAt,
+      };
+      this.candidates.set(key, record);
+      return record;
+    });
+
+    const candidateByKeyword = new Map(
+      keywordCandidates.map((candidate) => [candidate.normalizedKeyword, candidate]),
+    );
+    const observations = command.result.observations.map((observation) => {
+      const normalizedKeyword = normalizeKeyword(observation.observedText);
+      const candidate = candidateByKeyword.get(normalizedKeyword);
+      const record: DemandObservationRecord = {
+        ...observation,
+        id: `demand-observation-${this.observations.length + 1}`,
+        keywordCandidateId: candidate?.id ?? 'unknown',
+        topicId: command.topicId ?? null,
+        observedAt: command.observedAt,
+        createdAt: command.observedAt,
+      };
+      this.observations.push(record);
+      return record;
+    });
+
+    const metricSnapshots = keywordCandidates.map((candidate) => {
+      const record: DemandMetricSnapshotRecord = {
+        ...candidate.metrics,
+        id: `demand-metric-snapshot-${this.metricSnapshots.length + 1}`,
+        keywordCandidateId: candidate.id,
+        topicId: command.topicId ?? null,
+        metadata: {
+          confidence: candidate.confidence,
+          providers: candidate.providers,
+          sourceTiers: candidate.sourceTiers,
+        },
+        createdAt: command.observedAt,
+      };
+      this.metricSnapshots.push(record);
+      return record;
+    });
+
+    const candidatePages = command.result.candidatePages.map((page) => {
+      const candidate = candidateByKeyword.get(page.primaryKeyword);
+      const key = `${command.topicId ?? 'global'}:${page.slug}`;
+      const existing = this.pages.get(key);
+      const record: DemandCandidatePageRecord = {
+        ...page,
+        id: existing?.id ?? `demand-candidate-page-${this.pages.size + 1}`,
+        keywordCandidateId: candidate?.id ?? 'unknown',
+        topicId: command.topicId ?? null,
+        createdAt: existing?.createdAt ?? command.observedAt,
+        updatedAt: command.observedAt,
+      };
+      this.pages.set(key, record);
+      return record;
+    });
+
+    return {
+      keywordCandidates,
+      observations,
+      metricSnapshots,
+      candidatePages,
+    };
+  }
+
+  async listKeywordCandidates(topicId: string): Promise<DemandKeywordCandidateRecord[]> {
+    return [...this.candidates.values()].filter((candidate) =>
+      candidate.topicId === topicId,
+    );
+  }
+
+  async listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]> {
+    return [...this.pages.values()].filter((page) => page.topicId === topicId);
+  }
+}
+
+function candidateKey(topicId: string | undefined, normalizedKeyword: string): string {
+  return `${topicId ?? 'global'}:${normalizedKeyword}`;
+}

@@ -73,11 +73,36 @@ Roadmap order, phases and dependency rules live only in
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
 | #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
-| #185 | Demand Engine persistence and provider-backed refresh | Not started | Durable demand candidates, metric snapshots and fallback-safe refresh. |
+| #185 | Demand Engine persistence and provider-backed refresh | In progress | Durable demand candidates, metric snapshots and fallback-safe refresh are underway. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #185
+Status: In progress
+Summary:
+- Started Demand Engine production hardening after #180 closed.
+- Added durable persistence foundation for keyword candidates, candidate pages,
+  demand observations and nullable metric snapshots.
+- Added Demand Engine repository contract, in-memory test repository, Knex
+  repository and Nest module wiring.
+- Preserving provider-optional behavior: missing paid provider credentials must
+  not block fallback discovery.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- packages/db/**
+- packages/demand-engine/**
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/demand-engine/src/persistence/demand-engine.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge the Demand Engine
+  persistence foundation.
 
 Date: 2026-07-26
 Issue: #180

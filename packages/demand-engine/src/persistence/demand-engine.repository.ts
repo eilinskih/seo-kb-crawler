@@ -1,0 +1,60 @@
+import {
+  CandidatePage,
+  DemandDiscoveryResult,
+  DemandMetricSnapshot,
+  DemandObservation,
+  KeywordCandidate,
+} from '../domain/demand-engine-types';
+
+export interface SaveDemandDiscoveryResultCommand {
+  result: DemandDiscoveryResult;
+  topicId?: string;
+  observedAt: string;
+}
+
+export interface DemandKeywordCandidateRecord extends KeywordCandidate {
+  id: string;
+  topicId: string | null;
+  lastObservedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DemandObservationRecord extends DemandObservation {
+  id: string;
+  keywordCandidateId: string;
+  topicId: string | null;
+  observedAt: string;
+  createdAt: string;
+}
+
+export interface DemandMetricSnapshotRecord extends DemandMetricSnapshot {
+  id: string;
+  keywordCandidateId: string;
+  topicId: string | null;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface DemandCandidatePageRecord extends CandidatePage {
+  id: string;
+  keywordCandidateId: string;
+  topicId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DemandDiscoveryPersistenceResult {
+  keywordCandidates: DemandKeywordCandidateRecord[];
+  observations: DemandObservationRecord[];
+  metricSnapshots: DemandMetricSnapshotRecord[];
+  candidatePages: DemandCandidatePageRecord[];
+}
+
+export interface DemandEngineRepository {
+  saveDiscoveryResult(
+    command: SaveDemandDiscoveryResultCommand,
+  ): Promise<DemandDiscoveryPersistenceResult>;
+  listKeywordCandidates(topicId: string): Promise<DemandKeywordCandidateRecord[]>;
+  listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]>;
+}

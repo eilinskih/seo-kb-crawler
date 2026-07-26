@@ -85,6 +85,7 @@ export interface DemandDiscoveryResult {
   normalizedTopic: string;
   fallbackMode: boolean;
   warnings: string[];
+  observations: DemandObservation[];
   keywordCandidates: KeywordCandidate[];
   candidatePages: CandidatePage[];
 }
