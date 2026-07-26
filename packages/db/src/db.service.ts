@@ -25,6 +25,7 @@ import { researchSchedulerProductionMigration } from './migrations/017-research-
 import { demandEnginePersistenceMigration } from './migrations/018-demand-engine-persistence';
 import { serpIntelligencePersistenceMigration } from './migrations/019-serp-intelligence-persistence';
 import { serpIntentPersistenceMigration } from './migrations/020-serp-intent-persistence';
+import { topicExpansionPersistenceMigration } from './migrations/021-topic-expansion-persistence';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -83,6 +84,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     demandEnginePersistenceMigration,
     serpIntelligencePersistenceMigration,
     serpIntentPersistenceMigration,
+    topicExpansionPersistenceMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -120,6 +122,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [demandEnginePersistenceMigration, '018-demand-engine-persistence'],
     [serpIntelligencePersistenceMigration, '019-serp-intelligence-persistence'],
     [serpIntentPersistenceMigration, '020-serp-intent-persistence'],
+    [topicExpansionPersistenceMigration, '021-topic-expansion-persistence'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {
