@@ -4,6 +4,7 @@ export * from './freshness-policy.service';
 export * from './media-research-policy.service';
 export * from './persistence/research-scheduling.repository';
 export * from './research-asset-metrics.service';
+export * from './research-dispatch-execution.service';
 export * from './research-dispatch-planner.service';
 export * from './research-job.service';
 export * from './research-operations-frontier-telemetry.service';

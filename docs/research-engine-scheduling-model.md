@@ -275,6 +275,12 @@ background dispatch plans for eligible allocations so downstream workers can
 execute Discovery, SERP and URL Frontier boundaries separately. It does not
 start a timer, poll forever, enqueue queue jobs or bypass subsystem boundaries.
 
+Dispatch plan execution happens through an explicit executor boundary. The
+scheduler may execute persisted dispatch commands through adapters, but failures
+are captured as receipts instead of becoming durable queue state. URL Frontier
+dispatch failures are counted as enqueue failures for Research Operations
+health; URL Frontier still owns lease recovery and eligible backlog state.
+
 Initial alert classes:
 
 - `scheduler_disabled`;
@@ -538,6 +544,9 @@ Implemented foundation package:
 - `packages/research-scheduling/src/research-scheduler-worker-loop.service.ts`
   runs one explicit scheduler iteration and persists planned background
   allocations.
+- `packages/research-scheduling/src/research-dispatch-execution.service.ts`
+  executes dispatch plans through adapter boundaries and records fail-safe
+  receipts.
 - `packages/research-scheduling/src/research-priority.service.ts`,
   `background-budget-allocator.service.ts`, `freshness-policy.service.ts`,
   `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
