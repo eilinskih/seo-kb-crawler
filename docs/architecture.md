@@ -84,11 +84,14 @@ NestJS package boundaries and the planned Knex persistence strategy are defined
 in `docs/decisions/0002-nestjs-monorepo-knex.md`.
 
 The URL Frontier identity, lifecycle, scheduling and integration contracts are
-documented in `docs/url-frontier-model.md`. The initial implementation lives in
-`packages/url-frontier` and covers entry persistence, lease lifecycle, BullMQ
-dispatch, crawl completion feedback, bounded retry backoff and success recrawl
-scheduling. Discovery observation ingestion, canonical relations, configurable
-retry policy, jitter and adaptive recrawl adjustment remain later work.
+documented in `docs/url-frontier-model.md`. The implementation lives in
+`packages/url-frontier` and covers entry persistence, discovery observation
+ingestion, candidate reevaluation, canonical relations, lease lifecycle,
+BullMQ dispatch, crawl completion feedback, durable freshness/recrawl state,
+priority scoring, configurable retry extraction, deterministic jitter and
+success recrawl scheduling. Adaptive change-frequency recrawl adjustment
+remains future hardening. The accepted ownership boundary is recorded in
+`docs/decisions/0004-url-frontier-ownership-and-scheduling-state.md`.
 
 The proposed Discovery Sources run lifecycle, provider adapter, observation and
 safety contracts are documented in `docs/discovery-sources-model.md`. Its
