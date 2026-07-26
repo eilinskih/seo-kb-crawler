@@ -1,5 +1,6 @@
 import { BackgroundBudgetAllocator } from './background-budget-allocator.service';
 import { MediaResearchPolicyService } from './media-research-policy.service';
+import { ResearchDispatchExecutionService } from './research-dispatch-execution.service';
 import { ResearchSchedulingService } from './research-scheduling.service';
 import { ResearchOperationsFrontierTelemetryService } from './research-operations-frontier-telemetry.service';
 import { ResearchOperationsHealthService } from './research-operations-health.service';
@@ -425,5 +426,98 @@ describe('ResearchSchedulingService', () => {
         ]),
       }),
     ]);
+  });
+
+  it('executes dispatch plans through an explicit executor boundary', async () => {
+    const plan = new ResearchSchedulingService().plan({
+      topicId: 'topic-1',
+      mode: 'background',
+      trigger: 'background_growth',
+      objective: { type: 'background_growth' },
+      topicSnapshot: {
+        topicId: 'topic-1',
+        lifecycle: 'active',
+        configurationVersion: 1,
+        researchPolicy: policy,
+      },
+      createdAt: '2026-07-26T00:00:00.000Z',
+      freshnessEvidence: [{
+        assetKey: 'url-frontier:topic-1:stale-pages',
+        lastSerpSnapshotAt: '2026-07-26T00:00:00.000Z',
+        ttlHours: 24,
+        now: '2026-07-26T00:00:00.000Z',
+      }],
+    });
+
+    const report = await new ResearchDispatchExecutionService({
+      execute: jest.fn(async (command, attemptedAt) => ({
+        target: command.target,
+        topicId: command.topicId,
+        objective: command.objective,
+        status: 'dispatched' as const,
+        message: 'dispatched',
+        attemptedAt,
+      })),
+    }).executePlan(plan, '2026-07-26T00:01:00.000Z');
+
+    expect(report).toMatchObject({
+      failedCount: 0,
+      frontierEnqueueFailureCount: 0,
+      attemptedAt: '2026-07-26T00:01:00.000Z',
+    });
+    expect(report.receipts).toEqual(expect.arrayContaining([
+      expect.objectContaining({ target: 'discovery_sources', status: 'dispatched' }),
+      expect.objectContaining({ target: 'url_frontier', status: 'dispatched' }),
+    ]));
+  });
+
+  it('classifies URL Frontier dispatch exceptions as enqueue failures', async () => {
+    const plan = new ResearchSchedulingService().plan({
+      topicId: 'topic-1',
+      mode: 'background',
+      trigger: 'background_growth',
+      objective: { type: 'background_growth' },
+      topicSnapshot: {
+        topicId: 'topic-1',
+        lifecycle: 'active',
+        configurationVersion: 1,
+        researchPolicy: policy,
+      },
+      createdAt: '2026-07-26T00:00:00.000Z',
+      freshnessEvidence: [{
+        assetKey: 'url-frontier:topic-1:stale-pages',
+        lastSerpSnapshotAt: '2026-07-26T00:00:00.000Z',
+        ttlHours: 24,
+        now: '2026-07-26T00:00:00.000Z',
+      }],
+    });
+
+    const report = await new ResearchDispatchExecutionService({
+      execute: jest.fn(async (command) => {
+        if (command.target === 'url_frontier') {
+          throw new Error('Redis enqueue failed');
+        }
+        return {
+          target: command.target,
+          topicId: command.topicId,
+          objective: command.objective,
+          status: 'dispatched' as const,
+          message: 'dispatched',
+          attemptedAt: '2026-07-26T00:01:00.000Z',
+        };
+      }),
+    }).executePlan(plan, '2026-07-26T00:01:00.000Z');
+
+    expect(report).toMatchObject({
+      failedCount: 1,
+      frontierEnqueueFailureCount: 1,
+    });
+    expect(report.receipts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        target: 'url_frontier',
+        status: 'failed',
+        message: 'Redis enqueue failed',
+      }),
+    ]));
   });
 });

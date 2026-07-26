@@ -246,6 +246,24 @@ export interface ResearchDispatchPlan {
   ruleVersion: string;
 }
 
+export type ResearchDispatchExecutionStatus = 'dispatched' | 'failed';
+
+export interface ResearchDispatchExecutionReceipt {
+  target: DispatchTarget;
+  topicId: string;
+  objective: ResearchObjective;
+  status: ResearchDispatchExecutionStatus;
+  message: string;
+  attemptedAt: string;
+}
+
+export interface ResearchDispatchExecutionReport {
+  receipts: ResearchDispatchExecutionReceipt[];
+  frontierEnqueueFailureCount: number;
+  failedCount: number;
+  attemptedAt: string;
+}
+
 export interface ResearchPlanRequest extends ResearchJobRequest {
   topicSnapshot: TopicResearchSnapshot;
   freshnessEvidence?: FreshnessEvidence[];
