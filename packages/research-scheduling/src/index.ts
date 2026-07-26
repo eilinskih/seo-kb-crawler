@@ -10,6 +10,7 @@ export * from './research-operations-frontier-telemetry.service';
 export * from './research-operations-health.service';
 export * from './research-operations-snapshot.service';
 export * from './research-priority.service';
+export * from './research-scheduler-control.service';
 export * from './research-scheduling-defaults';
 export * from './research-scheduling.module';
 export * from './research-scheduling.service';

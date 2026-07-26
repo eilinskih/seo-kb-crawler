@@ -1,6 +1,7 @@
 import {
   BackgroundBudgetAllocation,
   ResearchDispatchPlan,
+  ResearchSchedulerControlState,
 } from '../domain/research-scheduling-types';
 
 export interface SaveResearchDispatchPlanCommand {
@@ -24,6 +25,10 @@ export interface BackgroundBudgetAllocationRecord
   createdAt: string;
 }
 
+export interface SaveResearchSchedulerControlStateCommand {
+  state: ResearchSchedulerControlState;
+}
+
 export interface ResearchSchedulingRepository {
   saveDispatchPlan(
     command: SaveResearchDispatchPlanCommand,
@@ -32,4 +37,8 @@ export interface ResearchSchedulingRepository {
   saveBackgroundBudgetAllocations(
     command: SaveBackgroundBudgetAllocationsCommand,
   ): Promise<BackgroundBudgetAllocationRecord[]>;
+  getSchedulerControlState(): Promise<ResearchSchedulerControlState | null>;
+  saveSchedulerControlState(
+    command: SaveResearchSchedulerControlStateCommand,
+  ): Promise<ResearchSchedulerControlState>;
 }

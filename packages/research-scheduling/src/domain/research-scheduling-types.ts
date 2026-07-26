@@ -94,6 +94,15 @@ export interface TopicResearchSnapshot {
   lastBackgroundResearchAt?: string;
 }
 
+export type ResearchSchedulerState = 'enabled' | 'paused' | 'disabled';
+
+export interface ResearchSchedulerControlState {
+  state: ResearchSchedulerState;
+  reason: string | null;
+  updatedBy: string;
+  updatedAt: string;
+}
+
 export interface ResearchObjective {
   type: ResearchObjectiveType;
   query?: string;

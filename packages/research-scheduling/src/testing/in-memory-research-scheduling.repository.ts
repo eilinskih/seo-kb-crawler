@@ -4,13 +4,16 @@ import {
   ResearchSchedulingRepository,
   SaveBackgroundBudgetAllocationsCommand,
   SaveResearchDispatchPlanCommand,
+  SaveResearchSchedulerControlStateCommand,
 } from '../persistence/research-scheduling.repository';
+import { ResearchSchedulerControlState } from '../domain/research-scheduling-types';
 
 export class InMemoryResearchSchedulingRepository
   implements ResearchSchedulingRepository
 {
   private readonly plans: ResearchDispatchPlanRecord[] = [];
   private readonly allocations: BackgroundBudgetAllocationRecord[] = [];
+  private schedulerControlState: ResearchSchedulerControlState | null = null;
 
   async saveDispatchPlan(
     command: SaveResearchDispatchPlanCommand,
@@ -40,5 +43,16 @@ export class InMemoryResearchSchedulingRepository
     }));
     this.allocations.push(...records);
     return records;
+  }
+
+  async getSchedulerControlState(): Promise<ResearchSchedulerControlState | null> {
+    return this.schedulerControlState;
+  }
+
+  async saveSchedulerControlState(
+    command: SaveResearchSchedulerControlStateCommand,
+  ): Promise<ResearchSchedulerControlState> {
+    this.schedulerControlState = command.state;
+    return command.state;
   }
 }
