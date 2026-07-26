@@ -83,6 +83,32 @@ Date: 2026-07-26
 Issue: #183
 Status: Review needed
 Summary:
+- Added Long-tail Discovery Pack durable persistence as the fourth SEO
+  Intelligence persistence slice.
+- Added bundled migration for Long-tail Discovery Packs with reusable topic,
+  language and geo context keys.
+- Added Knex Long-tail Discovery repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/long-tail-discovery-model.md
+- docs/progress.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/022-long-tail-discovery-persistence.ts
+- packages/db/src/migrations/022-long-tail-discovery-persistence.spec.ts
+- packages/long-tail-discovery/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/022-long-tail-discovery-persistence.spec.ts packages/long-tail-discovery/src/persistence/knex-long-tail-discovery.repository.spec.ts packages/long-tail-discovery/src/persistence/long-tail-discovery.repository.spec.ts packages/long-tail-discovery/src/long-tail-discovery-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the Long-tail Discovery persistence slice.
+
+Date: 2026-07-26
+Issue: #183
+Status: Review needed
+Summary:
 - Added Topic Expansion Pack durable persistence as the third SEO Intelligence
   persistence slice.
 - Added bundled migration for Topic Expansion Packs with reusable topic,
