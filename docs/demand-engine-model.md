@@ -419,6 +419,15 @@ Demand Engine to refresh persisted candidates and metrics through its provider
 and fallback boundaries; it must not cause Research Scheduling to own keyword
 candidates, metric snapshots or provider-specific demand logic.
 
+Operator visibility belongs to Demand Engine read models. Operators need to see
+which persisted candidates still have unknown metrics and which provider-backed
+metrics are stale enough to refresh. Fallback-only candidates are not errors and
+must not block the workflow, but they must be explicit in operator reports so
+Product Owner and SEO Research Architect decisions can distinguish known search
+demand from inferred or unmeasured demand. Freshness thresholds are operational
+policy; Demand Engine exposes the report without fabricating missing volume,
+difficulty, CPC or traffic potential.
+
 ## Review gates
 
 Before Demand Engine runtime implementation begins:

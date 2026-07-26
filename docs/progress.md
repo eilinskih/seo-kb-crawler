@@ -83,6 +83,27 @@ Date: 2026-07-26
 Issue: #185
 Status: Review needed
 Summary:
+- Added Demand Engine operator visibility for unknown and stale demand metrics.
+- The read model reports fallback-only candidates as `unknown_metrics` instead
+  of treating missing provider data as an error.
+- Provider-backed candidates with complete but old metric snapshots are reported
+  as `stale_metrics` refresh candidates.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- packages/demand-engine/**
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/demand-engine/src/demand-metric-visibility.service.spec.ts packages/demand-engine/src/persistence/demand-engine.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the metric visibility slice.
+
+Date: 2026-07-26
+Issue: #185
+Status: Review needed
+Summary:
 - Added Research Scheduling boundary for scheduled Demand Engine refresh.
 - Added `scheduled_demand_refresh` trigger, `refresh_demand_metrics`
   objective and `demand_engine` dispatch target.
