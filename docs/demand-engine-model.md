@@ -412,6 +412,13 @@ Provider-backed refresh begins through an External SEO adapter boundary:
 - empty or misconfigured external providers do not block manual/free fallback
   discovery.
 
+Scheduled refresh orchestration belongs to Research Scheduling. Research
+Scheduling may emit a `demand_engine` dispatch command for
+`scheduled_demand_refresh` / `refresh_demand_metrics` work. That command asks
+Demand Engine to refresh persisted candidates and metrics through its provider
+and fallback boundaries; it must not cause Research Scheduling to own keyword
+candidates, metric snapshots or provider-specific demand logic.
+
 ## Review gates
 
 Before Demand Engine runtime implementation begins:

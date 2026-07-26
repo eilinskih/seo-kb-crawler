@@ -83,6 +83,29 @@ Date: 2026-07-26
 Issue: #185
 Status: Review needed
 Summary:
+- Added Research Scheduling boundary for scheduled Demand Engine refresh.
+- Added `scheduled_demand_refresh` trigger, `refresh_demand_metrics`
+  objective and `demand_engine` dispatch target.
+- Confirmed Research Scheduling can plan Demand refresh without owning keyword
+  candidates, metric snapshots or provider-specific demand logic.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge scheduled Demand refresh
+  orchestration boundary.
+
+Date: 2026-07-26
+Issue: #185
+Status: Review needed
+Summary:
 - Added External SEO Demand provider adapter boundary.
 - The adapter maps External SEO keyword observations and metric snapshots into
   Demand Engine observations with nullable provider-backed metrics.
