@@ -79,6 +79,32 @@ Roadmap order, phases and dependency rules live only in
 
 Add entries here in reverse chronological order.
 
+Date: 2026-07-27
+Issue: #183
+Status: Review needed
+Summary:
+- Added Candidate Scoring Pack durable persistence as the fifth SEO
+  Intelligence persistence slice.
+- Added bundled migration for Candidate Scoring Packs with reusable topic,
+  profile, language and geo context keys.
+- Added Knex SEO Candidate Scoring repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/progress.md
+- docs/seo-page-candidate-scoring-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/023-candidate-scoring-persistence.ts
+- packages/db/src/migrations/023-candidate-scoring-persistence.spec.ts
+- packages/seo-candidate-scoring/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/023-candidate-scoring-persistence.spec.ts packages/seo-candidate-scoring/src/persistence/knex-seo-candidate-scoring.repository.spec.ts packages/seo-candidate-scoring/src/persistence/seo-candidate-scoring.repository.spec.ts packages/seo-candidate-scoring/src/candidate-scoring-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the Candidate Scoring persistence slice.
+
 Date: 2026-07-26
 Issue: #183
 Status: Review needed
