@@ -264,8 +264,9 @@ Implemented foundation package:
 - `packages/seo-candidate-scoring/src/candidate-scoring-pack.service.ts`
   assembles model-agnostic scored candidate output.
 - `packages/seo-candidate-scoring/src/persistence/seo-candidate-scoring.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/seo-candidate-scoring/src/persistence/knex-seo-candidate-scoring.repository.ts`
+  provides durable Candidate Scoring Pack persistence for production flows.
 
 Recommended services:
 
