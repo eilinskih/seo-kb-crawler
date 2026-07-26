@@ -268,18 +268,20 @@ execution produces fair background allocations for active Topics and keeps
 non-active Topics in the plan as ineligible records. The tick planner does not
 lease URLs, enqueue jobs or call provider adapters.
 
-The initial worker-loop foundation supports one explicit scheduler iteration.
-`runOnce` loads scheduler control state, plans the tick and persists background
-budget allocations only when scheduler execution is enabled. It also persists
-background dispatch plans for eligible allocations so downstream workers can
-execute Discovery, SERP and URL Frontier boundaries separately. It does not
-start a timer, poll forever, enqueue queue jobs or bypass subsystem boundaries.
+The scheduler worker supports explicit `runOnce` execution and a bounded daemon
+tick loop. `runOnce` loads scheduler control state, plans the tick and persists
+background budget allocations only when scheduler execution is enabled. It also
+persists background dispatch plans for eligible allocations so downstream
+workers can execute Discovery, SERP and URL Frontier boundaries separately. The
+daemon loop is interval-bounded, prevents overlapping ticks and remains
+fail-safe because absent control state is treated as disabled.
 
 Dispatch plan execution happens through an explicit executor boundary. The
 scheduler may execute persisted dispatch commands through adapters, but failures
-are captured as receipts instead of becoming durable queue state. URL Frontier
-dispatch failures are counted as enqueue failures for Research Operations
-health; URL Frontier still owns lease recovery and eligible backlog state.
+are captured as durable receipts instead of becoming durable queue state. URL
+Frontier dispatch failures are counted as enqueue failures for Research
+Operations health; URL Frontier still owns lease recovery and eligible backlog
+state.
 
 Initial alert classes:
 
@@ -517,8 +519,8 @@ Initial tables may be added later:
 - created timestamp;
 - updated timestamp.
 
-The first runtime PR may start with contracts and repository abstractions if it
-preserves these accepted boundaries.
+The production hardening implementation includes durable scheduler control,
+dispatch plan, background allocation and dispatch execution receipt storage.
 
 ## Service Boundaries
 
@@ -544,6 +546,8 @@ Implemented foundation package:
 - `packages/research-scheduling/src/research-scheduler-worker-loop.service.ts`
   runs one explicit scheduler iteration and persists planned background
   allocations.
+- `packages/research-scheduling/src/research-scheduler-daemon.service.ts`
+  runs bounded non-overlapping scheduler ticks.
 - `packages/research-scheduling/src/research-dispatch-execution.service.ts`
   executes dispatch plans through adapter boundaries and records fail-safe
   receipts.
@@ -552,8 +556,10 @@ Implemented foundation package:
   `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
   and `research-asset-metrics.service.ts` own focused scheduling slices.
 - `packages/research-scheduling/src/persistence/research-scheduling.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/research-scheduling/src/persistence/knex-research-scheduling.repository.ts`
+  persists scheduler control state, dispatch plans, background allocations and
+  dispatch execution receipts.
 
 Recommended services:
 
@@ -564,6 +570,8 @@ Recommended services:
   Topics.
 - `ResearchSchedulerTickPlannerService`: plans one scheduler tick without
   dispatching or leasing work.
+- `ResearchSchedulerDaemonService`: runs bounded non-overlapping ticks from a
+  Topic snapshot provider and dispatch executor.
 - `FreshnessPolicyService`: interprets TTL and reuse decisions from subsystem
   freshness evidence.
 - `ResearchDispatchPlanner`: plans bounded dispatches into Discovery Sources,
@@ -573,9 +581,11 @@ Recommended services:
   media policies.
 - `ResearchSchedulerControlService`: reads and updates operator-safe scheduler
   execution state.
-- `ResearchSchedulingRepository`: persists jobs, budget windows and asset
-  metrics, scheduler control state and operations records when concrete
-  persistence is introduced.
+- `ResearchSchedulingRepository`: defines the persistence boundary for dispatch
+  plans, budget allocations, scheduler control state and execution receipts.
+- `KnexResearchSchedulingRepository`: durable production repository for
+  scheduler control state, dispatch plans, background allocations and execution
+  receipts.
 
 ## Integration Points
 

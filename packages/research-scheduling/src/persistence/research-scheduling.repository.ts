@@ -1,5 +1,6 @@
 import {
   BackgroundBudgetAllocation,
+  ResearchDispatchExecutionReceipt,
   ResearchDispatchPlan,
   ResearchSchedulerControlState,
 } from '../domain/research-scheduling-types';
@@ -29,6 +30,19 @@ export interface SaveResearchSchedulerControlStateCommand {
   state: ResearchSchedulerControlState;
 }
 
+export interface SaveResearchDispatchExecutionReceiptsCommand {
+  dispatchPlanId?: string;
+  receipts: ResearchDispatchExecutionReceipt[];
+  createdAt: string;
+}
+
+export interface ResearchDispatchExecutionReceiptRecord
+  extends ResearchDispatchExecutionReceipt {
+  id: string;
+  dispatchPlanId: string | null;
+  createdAt: string;
+}
+
 export interface ResearchSchedulingRepository {
   saveDispatchPlan(
     command: SaveResearchDispatchPlanCommand,
@@ -41,4 +55,7 @@ export interface ResearchSchedulingRepository {
   saveSchedulerControlState(
     command: SaveResearchSchedulerControlStateCommand,
   ): Promise<ResearchSchedulerControlState>;
+  saveDispatchExecutionReceipts(
+    command: SaveResearchDispatchExecutionReceiptsCommand,
+  ): Promise<ResearchDispatchExecutionReceiptRecord[]>;
 }

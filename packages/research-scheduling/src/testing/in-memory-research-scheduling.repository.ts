@@ -1,8 +1,10 @@
 import {
   BackgroundBudgetAllocationRecord,
+  ResearchDispatchExecutionReceiptRecord,
   ResearchDispatchPlanRecord,
   ResearchSchedulingRepository,
   SaveBackgroundBudgetAllocationsCommand,
+  SaveResearchDispatchExecutionReceiptsCommand,
   SaveResearchDispatchPlanCommand,
   SaveResearchSchedulerControlStateCommand,
 } from '../persistence/research-scheduling.repository';
@@ -13,6 +15,7 @@ export class InMemoryResearchSchedulingRepository
 {
   private readonly plans: ResearchDispatchPlanRecord[] = [];
   private readonly allocations: BackgroundBudgetAllocationRecord[] = [];
+  private readonly receipts: ResearchDispatchExecutionReceiptRecord[] = [];
   private schedulerControlState: ResearchSchedulerControlState | null = null;
 
   async saveDispatchPlan(
@@ -36,9 +39,10 @@ export class InMemoryResearchSchedulingRepository
   async saveBackgroundBudgetAllocations(
     command: SaveBackgroundBudgetAllocationsCommand,
   ): Promise<BackgroundBudgetAllocationRecord[]> {
-    const records = command.allocations.map((allocation) => ({
+    const nextIndex = this.allocations.length + 1;
+    const records = command.allocations.map((allocation, index) => ({
       ...allocation,
-      id: `background-budget-allocation-${this.allocations.length + 1}`,
+      id: `background-budget-allocation-${nextIndex + index}`,
       createdAt: command.createdAt,
     }));
     this.allocations.push(...records);
@@ -54,5 +58,19 @@ export class InMemoryResearchSchedulingRepository
   ): Promise<ResearchSchedulerControlState> {
     this.schedulerControlState = command.state;
     return command.state;
+  }
+
+  async saveDispatchExecutionReceipts(
+    command: SaveResearchDispatchExecutionReceiptsCommand,
+  ): Promise<ResearchDispatchExecutionReceiptRecord[]> {
+    const nextIndex = this.receipts.length + 1;
+    const records = command.receipts.map((receipt, index) => ({
+      ...receipt,
+      id: `research-dispatch-receipt-${nextIndex + index}`,
+      dispatchPlanId: command.dispatchPlanId ?? null,
+      createdAt: command.createdAt,
+    }));
+    this.receipts.push(...records);
+    return records;
   }
 }

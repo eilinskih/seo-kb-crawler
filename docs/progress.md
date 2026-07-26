@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state, tick planning, run-once loop foundation, background dispatch-plan persistence, dispatch execution boundary and adaptive recrawl MVP are ready; close-out review remains next. |
+| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are ready; final close-out review remains next. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,32 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
+- Addressed Architecture Steward close-out blockers for #180.
+- Added durable Research Scheduler production migration for scheduler control
+  state, dispatch plans, background allocations and dispatch execution receipts.
+- Added Knex Research Scheduling repository and module wiring.
+- Added bounded non-overlapping scheduler daemon ticks that remain fail-safe
+  when scheduler control state is absent.
+- Kept Topic snapshot loading and dispatch execution behind explicit adapter
+  boundaries.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/db/**
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts packages/research-scheduling/src/persistence/research-scheduling.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge durable scheduler
+  production hardening, then rerun #180 close-out review.
 
 Date: 2026-07-26
 Issue: #180

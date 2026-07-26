@@ -6,6 +6,7 @@ import { ResearchOperationsFrontierTelemetryService } from './research-operation
 import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
 import { ResearchSchedulerControlService } from './research-scheduler-control.service';
+import { ResearchSchedulerDaemonService } from './research-scheduler-daemon.service';
 import { ResearchSchedulerTickPlannerService } from './research-scheduler-tick-planner.service';
 import { ResearchSchedulerWorkerLoopService } from './research-scheduler-worker-loop.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
@@ -519,5 +520,91 @@ describe('ResearchSchedulingService', () => {
         message: 'Redis enqueue failed',
       }),
     ]));
+  });
+
+  it('runs bounded daemon ticks and persists dispatch execution receipts when enabled', async () => {
+    const repository = new InMemoryResearchSchedulingRepository();
+    await new ResearchSchedulerControlService(repository).setState({
+      state: 'enabled',
+      requestedBy: 'operator-1',
+      requestedAt: '2026-07-26T00:00:00.000Z',
+    });
+
+    const daemon = new ResearchSchedulerDaemonService(
+      repository,
+      {
+        listTopicSnapshots: async () => [{
+          topicId: 'active',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        }],
+      },
+      new ResearchDispatchExecutionService({
+        execute: jest.fn(async (command, attemptedAt) => ({
+          target: command.target,
+          topicId: command.topicId,
+          objective: command.objective,
+          status: 'dispatched' as const,
+          message: 'dispatched',
+          attemptedAt,
+        })),
+      }),
+      {
+        intervalMs: 60_000,
+        now: () => '2026-07-26T00:10:00.000Z',
+      },
+    );
+
+    const result = await daemon.tick();
+
+    expect(result).toMatchObject({
+      skipped: false,
+      dispatchReports: [
+        expect.objectContaining({
+          failedCount: 0,
+        }),
+      ],
+      persistedReceipts: expect.arrayContaining([
+        expect.objectContaining({
+          dispatchPlanId: 'research-dispatch-plan-1',
+          status: 'dispatched',
+          createdAt: '2026-07-26T00:10:00.000Z',
+        }),
+      ]),
+    });
+  });
+
+  it('keeps daemon ticks fail-safe when scheduler control state is absent', async () => {
+    const daemon = new ResearchSchedulerDaemonService(
+      new InMemoryResearchSchedulingRepository(),
+      {
+        listTopicSnapshots: async () => [{
+          topicId: 'active',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        }],
+      },
+      new ResearchDispatchExecutionService({
+        execute: jest.fn(),
+      }),
+      { intervalMs: 60_000 },
+    );
+
+    await expect(daemon.tick()).resolves.toMatchObject({
+      skipped: true,
+      dispatchReports: [],
+      persistedReceipts: [],
+    });
+  });
+
+  it('requires a bounded positive daemon interval', () => {
+    expect(() => new ResearchSchedulerDaemonService(
+      new InMemoryResearchSchedulingRepository(),
+      { listTopicSnapshots: async () => [] },
+      new ResearchDispatchExecutionService({ execute: jest.fn() }),
+      { intervalMs: 0 },
+    )).toThrow('intervalMs must be a positive integer');
   });
 });
