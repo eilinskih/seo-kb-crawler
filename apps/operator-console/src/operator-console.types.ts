@@ -80,6 +80,8 @@ export interface OperatorFrontierRecentEntry {
   crawlStatus: string;
   relevanceDecision: string;
   priorityScore: number;
+  freshnessScore: number;
+  recrawlReason: string;
   nextCrawlAt: string;
   leaseOwner: string | null;
   consecutiveFailures: number;

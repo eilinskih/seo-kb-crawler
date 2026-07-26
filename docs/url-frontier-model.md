@@ -1,6 +1,6 @@
 # URL Frontier Model
 
-- Status: Design approved; initial lifecycle subset implemented
+- Status: Design approved; implementation foundation complete
 - Issue: #3
 - Date: 2026-06-10
 
@@ -10,12 +10,15 @@ The URL Frontier converts discovered URL candidates into deduplicated,
 policy-compliant and prioritized crawl work. It owns URL identity, candidate
 state, scheduling decisions and crawl-result state transitions.
 
-This document is an approved design contract. The current implementation is an
-initial lifecycle subset: frontier entries, lease lifecycle, BullMQ dispatch,
-crawl completion feedback, bounded retry backoff and success recrawl
-scheduling. Discovery observation ingestion, canonical relations, full
-candidate status, freshness scoring, configurable retry policy, jitter and
-adaptive recrawl adjustment remain future URL Frontier work.
+This document is an approved design contract. The current implementation
+includes frontier entries, lease lifecycle, BullMQ dispatch, crawl completion
+feedback, discovery observation ingestion, candidate reevaluation, canonical
+relations, priority scoring, durable freshness/recrawl state, bounded retry
+backoff, deterministic jitter and success recrawl scheduling. Adaptive
+change-frequency recrawl adjustment remains future URL Frontier hardening.
+
+The accepted ownership decision is recorded in
+`docs/decisions/0004-url-frontier-ownership-and-scheduling-state.md`.
 
 ## Boundaries
 
@@ -66,6 +69,7 @@ priority and recrawl requirements are topic-specific.
 | `priority` | integer | Materialized scheduling priority. |
 | `relevanceScore` | decimal or null | Latest normalized score from `0` to `1`. |
 | `freshnessScore` | decimal | Scheduling freshness score from `0` to `1`. |
+| `recrawlReason` | enum | Reason the current crawl schedule exists. |
 | `nextCrawlAt` | UTC timestamp or null | Earliest eligible crawl time. |
 | `lastDiscoveredAt` | UTC timestamp | Latest candidate observation. |
 | `lastCrawledAt` | UTC timestamp or null | Latest completed crawl attempt. |
@@ -338,6 +342,11 @@ freshnessScore =
 
 Never-crawled accepted entries receive freshness score `1`.
 
+The durable `freshnessScore` field records the current scheduling freshness
+used by the frontier. Research Engine Scheduling may use this signal when
+planning work, but it remains responsible for fair topic-level allocation and
+TTL-aware research orchestration.
+
 ## Recrawl scheduling model
 
 The scheduler computes `nextCrawlAt` after every completed attempt and after
@@ -388,6 +397,16 @@ operator-facing retry policy editing remains future work.
 
 Permanent policy rejection, unsupported content and operator suppression do not
 schedule automatic retries.
+
+The durable `recrawlReason` explains why the current schedule exists:
+
+- `initial_discovery`: first accepted crawl opportunity.
+- `retry_backoff`: retryable failure scheduled with bounded backoff.
+- `success_recrawl`: successful crawl scheduled from recrawl policy.
+- `manual_dispatch`: operator-triggered schedule adjustment.
+- `policy_changed`: Topic policy or relevance configuration changed.
+- `rediscovered`: repeated discovery renewed scheduling interest.
+- `canonical_suppression`: canonical consolidation suppressed this entry.
 
 ### Topic changes
 
@@ -544,12 +563,12 @@ ingestion boundary as new observations.
 
 ## Persistence direction
 
-Planned PostgreSQL structures:
+PostgreSQL structures:
 
-- `url_frontier_entries` (initial durable lease lifecycle implemented)
+- `url_frontier_entries`
 - `url_discovery_observations`
 - `url_canonical_relations`
-- `crawl_attempts` (initial durable result sink implemented)
+- `crawl_attempts`
 
 Knex owns migrations and query composition. Raw SQL is expected for atomic
 leasing, conflict handling and priority selection.
@@ -563,7 +582,9 @@ Likely PostgreSQL mechanisms:
 - Explicit UTC timestamps.
 - JSONB only for bounded evidence and explanation payloads.
 
-Exact schema and indexes remain implementation details after design review.
+Exact schema and indexes remain implementation details, but migrations must
+preserve URL Frontier as the durable source of truth for crawl eligibility,
+leases, attempts and scheduling state.
 
 ## Security and performance constraints
 
@@ -592,26 +613,27 @@ Implemented on `main`:
 - Atomic leasing and BullMQ dispatch.
 - Crawl-result completion feedback.
 - Bounded retry backoff and success recrawl scheduling.
+- Append-only discovery observation ingestion and source tracking.
+- Candidate reevaluation from pending observations.
+- Topic-scoped canonical relation evidence and duplicate suppression.
+- Deterministic priority scoring.
+- Configurable retry policy extraction and deterministic retry jitter.
+- Durable `freshnessScore` and `recrawlReason` scheduling state.
 - Operator-safe URL Frontier status read model.
-- Unit and integration tests for the implemented lifecycle subset.
+- ADR 0004 recording URL Frontier ownership and scheduling boundaries.
+- Unit and integration tests for the implemented foundation.
 
-Remaining Issue #3 implementation should proceed in small PRs:
+Deferred future hardening:
 
-1. Discovery observation ingestion and source tracking.
-2. Candidate reevaluation and richer candidate status transitions.
-3. Canonical relation persistence and consolidation.
-4. Freshness and priority signal hardening.
-5. Configurable retry policy, jitter and adaptive recrawl adjustment.
-6. Close-out stabilization, including ADR confirmation.
+- Adaptive change-frequency recrawl adjustment.
+- Production scheduler automation and crawl-budget loops.
+- Operator-facing retry policy editing.
+- Global URL alias registry, if a future issue accepts cross-topic aliases.
 
 No Discovery Sources implementation or crawler request logic belongs to this
 issue.
 
-The ADR requested by the original issue should be introduced during #3
-close-out, unless a remaining implementation slice accepts a durable new
-architecture decision earlier.
-
-## Review questions
+## Deferred questions for future hardening
 
 1. Should `insufficient_evidence` allow one exploratory crawl by default, or
    require explicit Topic configuration?

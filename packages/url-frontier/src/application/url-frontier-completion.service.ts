@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DbService } from '@seo-kb/db';
-import { UrlFrontierCrawlPolicySnapshot } from '../domain/url-frontier-types';
+import {
+  UrlFrontierCrawlPolicySnapshot,
+  UrlFrontierRecrawlReason,
+} from '../domain/url-frontier-types';
 
 export interface UrlFrontierCrawlFailure {
   category: string;
@@ -78,6 +81,8 @@ export interface UrlFrontierCompletionUpdate {
   lease_expires_at: null;
   last_crawled_at?: Date;
   next_crawl_at?: Date;
+  freshness_score?: number;
+  recrawl_reason?: UrlFrontierRecrawlReason;
   consecutive_failures?: number;
   incrementConsecutiveFailures: boolean;
   updated_at: Date;
@@ -221,6 +226,8 @@ export function toFrontierCompletionUpdate(
         completedAt,
         successRecrawlDelayMs(crawlPolicy),
       ),
+      freshness_score: 0,
+      recrawl_reason: 'success_recrawl',
       consecutive_failures: 0,
     };
   }
@@ -243,6 +250,8 @@ export function toFrontierCompletionUpdate(
         completedAt,
         retryDelayMs(currentConsecutiveFailures, retryPolicy),
       ),
+      freshness_score: 0,
+      recrawl_reason: 'retry_backoff',
       incrementConsecutiveFailures: true,
     };
   }

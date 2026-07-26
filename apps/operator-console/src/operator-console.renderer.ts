@@ -273,18 +273,24 @@ function renderFrontierRecentEntries(
   }
   return `<table>
     <thead>
-      <tr><th>URL</th><th>Status</th><th>Relevance</th><th>Next crawl</th><th>Failures</th></tr>
+      <tr><th>URL</th><th>Status</th><th>Relevance</th><th>Freshness</th><th>Reason</th><th>Next crawl</th><th>Failures</th></tr>
     </thead>
     <tbody>
       ${entries.map((entry) => `<tr>
         <td><code>${escapeHtml(entry.normalizedUrl)}</code></td>
         <td>${escapeHtml(entry.crawlStatus)}</td>
         <td>${escapeHtml(entry.relevanceDecision)}</td>
+        <td>${escapeHtml(formatScore(entry.freshnessScore))}</td>
+        <td>${escapeHtml(entry.recrawlReason)}</td>
         <td>${escapeHtml(entry.nextCrawlAt)}</td>
         <td>${escapeHtml(String(entry.consecutiveFailures))}</td>
       </tr>`).join('')}
     </tbody>
   </table>`;
+}
+
+function formatScore(score: number): string {
+  return Number.isFinite(score) ? score.toFixed(2) : 'unknown';
 }
 
 function renderProviderStatus(model: OperatorConsoleViewModel): string {

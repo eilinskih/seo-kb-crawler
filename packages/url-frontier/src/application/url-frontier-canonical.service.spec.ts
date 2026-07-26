@@ -159,6 +159,8 @@ function entryFixture(
     },
     priority_score: 1,
     relevance_score: 1,
+    freshness_score: 1,
+    recrawl_reason: 'initial_discovery',
     relevance_decision: 'accepted',
     relevance_explanation: null,
     relevance_profile_version: 1,

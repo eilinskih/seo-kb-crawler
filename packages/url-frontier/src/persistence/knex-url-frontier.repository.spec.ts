@@ -23,6 +23,8 @@ describe('KnexUrlFrontierRepository mapping', () => {
       crawl_policy_fingerprint: 'policy-fingerprint',
       priority_score: 0.75,
       relevance_score: 0.9,
+      freshness_score: 1,
+      recrawl_reason: 'initial_discovery',
       relevance_decision: 'accepted',
       crawl_status: 'scheduled',
       next_crawl_at: nextCrawlAt,

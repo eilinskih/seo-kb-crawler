@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Retry/recrawl policy PR adds configurable retry extraction and deterministic jitter; close-out review remains next. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Close-out stabilization adds durable freshness/recrawl state and ADR 0004; Architecture Steward close-out review remains next. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -70,6 +70,41 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-23
+Issue: #3
+Status: Review needed
+Summary:
+- Added durable URL Frontier scheduling state for `freshnessScore` and
+  `recrawlReason`.
+- Exposed scheduling state in the URL Frontier status read model and Operator
+  Console frontier table.
+- Added ADR 0004 to record URL Frontier ownership, Research Scheduling
+  boundaries, Discovery Sources observation-only behavior and Crawler Worker
+  execution-only behavior.
+- Synchronized URL Frontier, project map and roadmap documentation with the
+  implemented Issue #3 foundation.
+- Kept adaptive change-frequency recrawl, production scheduler automation,
+  operator-facing retry policy editing and global URL alias registry out of
+  this close-out stabilization.
+Changed files:
+- apps/operator-console/**
+- docs/decisions/0004-url-frontier-ownership-and-scheduling-state.md
+- docs/implementation-order.md
+- docs/project-map.md
+- docs/progress.md
+- docs/url-frontier-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/015-url-frontier-scheduling-state.ts
+- packages/url-frontier/**
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/persistence/knex-url-frontier.repository.spec.ts packages/url-frontier/src/application/url-frontier-completion.service.spec.ts packages/url-frontier/src/application/url-frontier-canonical.service.spec.ts apps/operator-console/src/operator-console.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run validation, merge stabilization and rerun Issue #3 Architecture Steward
+  close-out review.
 
 Date: 2026-07-23
 Issue: #3

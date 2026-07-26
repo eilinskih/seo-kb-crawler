@@ -19,6 +19,7 @@ import { seoConsensusFoundationMigration } from './migrations/011-seo-consensus-
 import { seoConsensusFactMappingsMigration } from './migrations/012-seo-consensus-fact-mappings';
 import { urlFrontierObservationsMigration } from './migrations/013-url-frontier-observations';
 import { urlFrontierCanonicalRelationsMigration } from './migrations/014-url-frontier-canonical-relations';
+import { urlFrontierSchedulingStateMigration } from './migrations/015-url-frontier-scheduling-state';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -71,6 +72,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     seoConsensusFactMappingsMigration,
     urlFrontierObservationsMigration,
     urlFrontierCanonicalRelationsMigration,
+    urlFrontierSchedulingStateMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -96,6 +98,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
       urlFrontierCanonicalRelationsMigration,
       '014-url-frontier-canonical-relations',
     ],
+    [urlFrontierSchedulingStateMigration, '015-url-frontier-scheduling-state'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {

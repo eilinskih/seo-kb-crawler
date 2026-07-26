@@ -25,6 +25,15 @@ export type UrlFrontierCanonicalEvidenceType =
   | 'http_link'
   | 'html_link';
 
+export type UrlFrontierRecrawlReason =
+  | 'initial_discovery'
+  | 'retry_backoff'
+  | 'success_recrawl'
+  | 'manual_dispatch'
+  | 'policy_changed'
+  | 'rediscovered'
+  | 'canonical_suppression';
+
 export interface UrlFrontierCrawlPolicySnapshot {
   userAgent: string;
   respectRobots: boolean;
@@ -86,6 +95,8 @@ export interface UrlFrontierEntrySeed {
   crawlPolicyFingerprint: string;
   crawlPolicy: UrlFrontierCrawlPolicySnapshot;
   priorityScore: number;
+  freshnessScore?: number;
+  recrawlReason?: UrlFrontierRecrawlReason;
   relevanceScore?: number;
   relevanceDecision: UrlFrontierRelevanceDecision;
   relevanceExplanation?: Record<string, unknown>;
@@ -170,6 +181,8 @@ export interface UrlFrontierRecentEntry {
   crawlStatus: UrlFrontierCrawlStatus;
   relevanceDecision: UrlFrontierRelevanceDecision;
   priorityScore: number;
+  freshnessScore: number;
+  recrawlReason: UrlFrontierRecrawlReason;
   nextCrawlAt: string;
   leaseOwner: string | null;
   consecutiveFailures: number;

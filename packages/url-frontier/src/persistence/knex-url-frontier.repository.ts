@@ -12,6 +12,7 @@ import {
   UrlFrontierLease,
   UrlFrontierLeaseOptions,
   UrlFrontierPendingObservation,
+  UrlFrontierRecrawlReason,
   UrlFrontierRelevanceDecision,
   UrlFrontierRepository,
   UrlFrontierStatusSummary,
@@ -26,6 +27,8 @@ export interface UrlFrontierEntryRow {
   crawl_policy_fingerprint: string;
   crawl_policy: UrlFrontierCrawlPolicySnapshot;
   priority_score: number;
+  freshness_score: number;
+  recrawl_reason: UrlFrontierRecrawlReason;
   relevance_score: number | null;
   relevance_decision: UrlFrontierRelevanceDecision;
   relevance_explanation: Record<string, unknown> | null;
@@ -98,6 +101,8 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
         crawl_policy: row.crawl_policy,
         priority_score: row.priority_score,
         relevance_score: row.relevance_score,
+        freshness_score: row.freshness_score,
+        recrawl_reason: row.recrawl_reason,
         relevance_decision: row.relevance_decision,
         relevance_explanation: row.relevance_explanation,
         relevance_profile_version: row.relevance_profile_version,
@@ -318,6 +323,8 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
         crawlStatus: row.crawl_status,
         relevanceDecision: row.relevance_decision,
         priorityScore: row.priority_score,
+        freshnessScore: row.freshness_score,
+        recrawlReason: row.recrawl_reason,
         nextCrawlAt: toIsoString(row.next_crawl_at),
         leaseOwner: row.lease_owner,
         consecutiveFailures: row.consecutive_failures,
@@ -391,6 +398,8 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
           canonicalUrl: targetNormalizedUrl,
         },
         priority_score: 0,
+        freshness_score: 0,
+        recrawl_reason: 'canonical_suppression',
         updated_at: now,
       });
 
@@ -434,6 +443,8 @@ export function toEntryRow(seed: UrlFrontierEntrySeed): UrlFrontierEntryRow {
     crawl_policy_fingerprint: seed.crawlPolicyFingerprint,
     crawl_policy: seed.crawlPolicy,
     priority_score: seed.priorityScore,
+    freshness_score: seed.freshnessScore ?? 1,
+    recrawl_reason: seed.recrawlReason ?? 'initial_discovery',
     relevance_score: seed.relevanceScore ?? null,
     relevance_decision: seed.relevanceDecision,
     relevance_explanation: seed.relevanceExplanation ?? null,

@@ -35,7 +35,7 @@ and merged into `main`.
 |---|---|---|---|
 | 5 | #4 | Discovery Sources design and implementation | Done on `main`; initial package contracts, planner and seed/link adapters only. |
 | 6 | #5 | Crawler Worker controlled crawling pipeline | Done on `main`; lifecycle implementation is ready for downstream issues. |
-| 7 | #3 | URL Frontier implementation | In progress on `main`; next slice is discovery observation ingestion and source tracking. |
+| 7 | #3 | URL Frontier implementation | Review needed on `main`; close-out stabilization records durable scheduling state and ADR 0004. |
 | 8 | #43 | Research Engine Scheduling | Done on `main`; downstream LLM integration may start. |
 
 The Crawler Worker is one worker inside the broader Research Engine. It is not
