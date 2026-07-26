@@ -5,6 +5,7 @@ import { ResearchOperationsFrontierTelemetryService } from './research-operation
 import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
 import { ResearchSchedulerControlService } from './research-scheduler-control.service';
+import { ResearchSchedulerTickPlannerService } from './research-scheduler-tick-planner.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
 import { InMemoryResearchSchedulingRepository } from './testing/in-memory-research-scheduling.repository';
 
@@ -276,5 +277,76 @@ describe('ResearchSchedulingService', () => {
       state: 'disabled',
       reason: 'Maintenance window',
     });
+  });
+
+  it('skips scheduler ticks when scheduler execution is disabled', () => {
+    const plan = new ResearchSchedulerTickPlannerService().plan({
+      observedAt: '2026-07-26T00:00:00.000Z',
+      controlState: {
+        state: 'disabled',
+        reason: 'Maintenance window',
+        updatedBy: 'operator-1',
+        updatedAt: '2026-07-26T00:00:00.000Z',
+      },
+      topicSnapshots: [
+        {
+          topicId: 'active',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        },
+      ],
+    });
+
+    expect(plan).toMatchObject({
+      status: 'skipped',
+      schedulerState: 'disabled',
+      backgroundAllocations: [],
+      skippedReason: 'Maintenance window',
+      degraded: false,
+    });
+  });
+
+  it('plans scheduler ticks through fair background allocations when enabled', () => {
+    const plan = new ResearchSchedulerTickPlannerService().plan({
+      observedAt: '2026-07-26T00:00:00.000Z',
+      controlState: {
+        state: 'enabled',
+        reason: null,
+        updatedBy: 'operator-1',
+        updatedAt: '2026-07-26T00:00:00.000Z',
+      },
+      topicSnapshots: [
+        {
+          topicId: 'active',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        },
+        {
+          topicId: 'paused',
+          lifecycle: 'paused',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        },
+      ],
+    });
+
+    expect(plan).toMatchObject({
+      status: 'planned',
+      schedulerState: 'enabled',
+      skippedReason: null,
+      degraded: false,
+    });
+    expect(plan.backgroundAllocations).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        topicId: 'active',
+        eligible: true,
+      }),
+      expect.objectContaining({
+        topicId: 'paused',
+        eligible: false,
+      }),
+    ]));
   });
 });

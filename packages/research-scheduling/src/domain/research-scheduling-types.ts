@@ -147,6 +147,19 @@ export interface BackgroundBudgetAllocation {
   reason: string;
 }
 
+export type ResearchSchedulerTickStatus = 'planned' | 'skipped';
+
+export interface ResearchSchedulerTickPlan {
+  status: ResearchSchedulerTickStatus;
+  schedulerState: ResearchSchedulerState;
+  backgroundAllocations: BackgroundBudgetAllocation[];
+  skippedReason: string | null;
+  warnings: string[];
+  degraded: boolean;
+  observedAt: string;
+  ruleVersion: string;
+}
+
 export interface FreshnessEvidence {
   assetKey: string;
   lastCrawledAt?: string;
