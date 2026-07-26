@@ -1,9 +1,11 @@
 import { DemandEngineService } from './demand-engine.service';
+import { DemandDiscoveryPersistenceService } from './demand-discovery-persistence.service';
 import {
   DemandProviderAdapter,
   DemandProviderResult,
 } from './domain/demand-engine-types';
 import { ManualFallbackDemandProvider } from './manual-fallback-demand.provider';
+import { InMemoryDemandEngineRepository } from './testing/in-memory-demand-engine.repository';
 
 describe('DemandEngineService', () => {
   it('continues in fallback mode without paid provider data', async () => {
@@ -85,6 +87,35 @@ describe('DemandEngineService', () => {
         metricStatus: 'provider_backed',
       }),
     });
+  });
+
+  it('discovers and persists fallback-safe demand results', async () => {
+    const repository = new InMemoryDemandEngineRepository();
+    const result = await new DemandDiscoveryPersistenceService(
+      repository,
+      [unavailableProvider(), new ManualFallbackDemandProvider()],
+    ).discoverAndPersist({
+      topicId: 'topic-1',
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price'],
+      observedAt: '2026-07-26T00:00:00.000Z',
+    });
+
+    expect(result.discovery).toMatchObject({
+      fallbackMode: true,
+      warnings: ['paid_provider unavailable: missing API key'],
+    });
+    expect(result.persistence.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        topicId: 'topic-1',
+        normalizedKeyword: 'laser hair removal',
+        metrics: expect.objectContaining({
+          searchVolume: null,
+          metricStatus: 'fallback_only',
+        }),
+      }),
+    ]));
+    await expect(repository.listKeywordCandidates('topic-1')).resolves.not.toEqual([]);
   });
 });
 
