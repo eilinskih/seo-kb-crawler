@@ -300,7 +300,9 @@ Implemented foundation package:
 - `packages/serp-intent/src/serp-intent-pack.service.ts` assembles the
   model-agnostic SERP Intent Pack.
 - `packages/serp-intent/src/persistence/serp-intent.repository.ts` defines the
-  repository abstraction; concrete database persistence remains deferred.
+  repository abstraction.
+- `packages/serp-intent/src/persistence/knex-serp-intent.repository.ts`
+  provides durable SERP Intent Pack persistence for production flows.
 
 Recommended services:
 
