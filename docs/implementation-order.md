@@ -105,6 +105,26 @@ The Operator Console is an internal UI for managing topics, crawl operations,
 failures, retries and provider/fallback status. It must use API/service
 contracts rather than bypassing domain modules.
 
+## Phase 9: Production Readiness
+
+The foundation roadmap is complete. Phase 9 converts accepted deferred work
+into production hardening without reopening completed foundation scope.
+
+| Order | Issue | Scope | Dependency |
+|---|---|---|---|
+| 33 | #178 | Production roadmap consolidation | Done on `main`; deferred hardening work is explicit and ordered. |
+| 34 | #180 | Research Operations scheduler and recrawl hardening | Depends on #3, #43 and #86. |
+| 35 | #185 | Demand Engine persistence and provider-backed refresh | Depends on #98, #40 and #43. |
+| 36 | #183 | SEO Intelligence persistence and scheduling | Depends on #18, #30, #19, #134, #20, #21 and #43. |
+| 37 | #184 | SEO Agent Gateway generation runtime | Depends on #42, #14, #18, #21 and #43. |
+| 38 | #179 | External SEO provider adapters and persistence | Depends on #40 and remains optional. |
+| 39 | #181 | External Entity provider execution | Depends on #17 and remains optional. |
+| 40 | #182 | Operator Console production hardening and review workflows | Depends on #86 and #17. |
+
+Phase 9 work must preserve the repository's core fallback rule: external
+providers improve confidence, but missing provider credentials must not block
+research, retrieval, knowledge packs, SEO packs or generation planning.
+
 ## Dependency graph
 
 ```txt
@@ -123,6 +143,12 @@ contracts rather than bypassing domain modules.
 Optional:
 #17 enriches #11/#12/#14/#18.
 #40 enriches #98/#18/#19/#134/#20/#21/#42 and does not block #30.
+
+Production hardening:
+#178 -> #180 -> #185 -> #183 -> #184
+     -> #179
+     -> #181
+     -> #182
 ```
 
 ## Future capability: Demand Engine
