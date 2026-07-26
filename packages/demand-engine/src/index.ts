@@ -2,6 +2,7 @@ export * from './demand-engine.module';
 export * from './demand-discovery-persistence.service';
 export * from './demand-engine.service';
 export * from './demand-engine.tokens';
+export * from './demand-metric-visibility.service';
 export * from './domain/demand-engine-types';
 export * from './external-seo-demand.provider';
 export * from './manual-fallback-demand.provider';

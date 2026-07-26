@@ -3,6 +3,7 @@ import { DbModule } from '@seo-kb/db';
 import { DEMAND_ENGINE_REPOSITORY } from './demand-engine.tokens';
 import { DemandDiscoveryPersistenceService } from './demand-discovery-persistence.service';
 import { DemandEngineService } from './demand-engine.service';
+import { DemandMetricVisibilityService } from './demand-metric-visibility.service';
 import { KnexDemandEngineRepository } from './persistence/knex-demand-engine.repository';
 
 @Module({
@@ -10,6 +11,7 @@ import { KnexDemandEngineRepository } from './persistence/knex-demand-engine.rep
   providers: [
     DemandDiscoveryPersistenceService,
     DemandEngineService,
+    DemandMetricVisibilityService,
     KnexDemandEngineRepository,
     {
       provide: DEMAND_ENGINE_REPOSITORY,
@@ -20,6 +22,7 @@ import { KnexDemandEngineRepository } from './persistence/knex-demand-engine.rep
     DEMAND_ENGINE_REPOSITORY,
     DemandDiscoveryPersistenceService,
     DemandEngineService,
+    DemandMetricVisibilityService,
     KnexDemandEngineRepository,
   ],
 })
