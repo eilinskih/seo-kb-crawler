@@ -83,6 +83,28 @@ Date: 2026-07-26
 Issue: #185
 Status: Review needed
 Summary:
+- Added External SEO Demand provider adapter boundary.
+- The adapter maps External SEO keyword observations and metric snapshots into
+  Demand Engine observations with nullable provider-backed metrics.
+- Preserved fallback behavior when External SEO providers are empty,
+  misconfigured or unavailable.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- packages/demand-engine/**
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge External SEO Demand
+  provider mapping.
+
+Date: 2026-07-26
+Issue: #185
+Status: Review needed
+Summary:
 - Added Demand discovery-and-persist application service.
 - The service runs provider-optional Demand discovery, persists the result and
   returns both discovery and persistence records.

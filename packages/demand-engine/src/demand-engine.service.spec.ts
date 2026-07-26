@@ -4,6 +4,7 @@ import {
   DemandProviderAdapter,
   DemandProviderResult,
 } from './domain/demand-engine-types';
+import { ExternalSeoDemandProvider } from './external-seo-demand.provider';
 import { ManualFallbackDemandProvider } from './manual-fallback-demand.provider';
 import { InMemoryDemandEngineRepository } from './testing/in-memory-demand-engine.repository';
 
@@ -117,6 +118,90 @@ describe('DemandEngineService', () => {
     ]));
     await expect(repository.listKeywordCandidates('topic-1')).resolves.not.toEqual([]);
   });
+
+  it('maps External SEO provider metrics into provider-backed demand observations', async () => {
+    const service = new DemandEngineService([
+      new ExternalSeoDemandProvider({
+        enrich: jest.fn(async () => ({
+          request: { topicSeed: 'laser hair removal' },
+          generatedAt: '2026-07-26T00:00:00.000Z',
+          degraded: false,
+          providerStatuses: [],
+          warnings: [],
+          observations: [{
+            observationType: 'keyword',
+            providerKey: 'test_paid',
+            sourceCapability: 'keyword_intelligence',
+            subject: 'laser hair removal cost',
+            metrics: [
+              metric('search_volume', 1000),
+              metric('keyword_difficulty', 22),
+              metric('cpc', 3.5),
+              metric('traffic_potential', 1200),
+            ],
+            confidence: 'high',
+            observedAt: '2026-07-26T00:00:00.000Z',
+          }],
+          metricSnapshots: [],
+        })),
+      } as never),
+      new ManualFallbackDemandProvider(),
+    ]);
+
+    const result = await service.discover({
+      topicSeed: 'laser hair removal',
+    });
+
+    expect(result.fallbackMode).toBe(false);
+    expect(result.keywordCandidates[0]).toMatchObject({
+      normalizedKeyword: 'laser hair removal cost',
+      confidence: 'high',
+      metrics: expect.objectContaining({
+        searchVolume: 1000,
+        keywordDifficulty: 22,
+        cpc: 3.5,
+        trafficPotential: 1200,
+        metricStatus: 'provider_backed',
+        providerKey: 'test_paid',
+      }),
+    });
+  });
+
+  it('continues with fallback when External SEO provider returns no observations', async () => {
+    const service = new DemandEngineService([
+      new ExternalSeoDemandProvider({
+        enrich: jest.fn(async () => ({
+          request: { topicSeed: 'laser hair removal' },
+          generatedAt: '2026-07-26T00:00:00.000Z',
+          degraded: true,
+          providerStatuses: [],
+          warnings: [{
+            providerKey: 'paid_provider',
+            status: 'misconfigured',
+            code: 'missing_api_key',
+            message: 'missing API key',
+          }],
+          observations: [],
+          metricSnapshots: [],
+        })),
+      } as never),
+      new ManualFallbackDemandProvider(),
+    ]);
+
+    const result = await service.discover({
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price'],
+    });
+
+    expect(result.fallbackMode).toBe(true);
+    expect(result.warnings).toEqual(['paid_provider: missing API key']);
+    expect(result.keywordCandidates[0]).toMatchObject({
+      metrics: expect.objectContaining({
+        searchVolume: null,
+        metricStatus: 'fallback_only',
+      }),
+    });
+  });
 });
 
 function unavailableProvider(): DemandProviderAdapter {
@@ -126,5 +211,17 @@ function unavailableProvider(): DemandProviderAdapter {
     async discover(): Promise<DemandProviderResult> {
       throw new Error('missing API key');
     },
+  };
+}
+
+function metric(metricName: string, value: number | string | null) {
+  return {
+    metricName,
+    value,
+    providerKey: 'test_paid',
+    sourceCapability: 'keyword_intelligence',
+    fetchedAt: '2026-07-26T00:00:00.000Z',
+    confidence: 'high',
+    warningCodes: [],
   };
 }
