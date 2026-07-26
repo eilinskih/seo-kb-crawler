@@ -1,6 +1,7 @@
 export * from './domain/external-entity-enrichment-types';
 export * from './external-entity-enrichment.module';
 export * from './external-entity-enrichment.service';
+export * from './external-entity-execution-policy';
 export * from './external-entity-provider-registry';
 export * from './providers/google-knowledge-graph.provider';
 export * from './providers/local-schema-org-entity.provider';

@@ -11,11 +11,17 @@ import { ExternalEntityProviderRegistry } from './external-entity-provider-regis
 import {
   ExternalEntityEnrichmentRepository,
 } from './persistence/external-entity-enrichment.repository';
+import {
+  cacheExpiry,
+  externalEntityCacheKey,
+  ExternalEntityProviderExecutionPolicy,
+} from './external-entity-execution-policy';
 
 export class ExternalEntityEnrichmentService {
   constructor(
     private readonly registry = new ExternalEntityProviderRegistry(),
     private readonly repository?: ExternalEntityEnrichmentRepository,
+    private readonly executionPolicy: ExternalEntityProviderExecutionPolicy = {},
   ) {}
 
   async enrich(
@@ -42,8 +48,41 @@ export class ExternalEntityEnrichmentService {
         continue;
       }
 
+      const rateLimitDecision = provider.tier === 'local_signal'
+        ? undefined
+        : await this.executionPolicy.rateLimiter?.consume(
+            provider.providerKey,
+            generatedAt,
+          );
+      if (rateLimitDecision && !rateLimitDecision.allowed) {
+        warnings.push({
+          providerKey: provider.providerKey,
+          status: 'rate_limited',
+          code: 'provider_rate_limited',
+          message: rateLimitDecision.resetAt
+            ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
+            : `${provider.providerKey} is rate-limited.`,
+        });
+        continue;
+      }
+
       try {
-        const result = await provider.enrich(request);
+        const cacheKey = externalEntityCacheKey(provider.providerKey, request);
+        const cached = await this.executionPolicy.cache?.get(
+          provider.providerKey,
+          cacheKey,
+          generatedAt,
+        );
+        const result = cached ?? await provider.enrich(request);
+        if (!cached && this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
+          await this.executionPolicy.cache.set({
+            providerKey: provider.providerKey,
+            cacheKey,
+            result,
+            createdAt: generatedAt,
+            expiresAt: cacheExpiry(generatedAt, this.executionPolicy.cacheTtlMs),
+          });
+        }
         candidates.push(...result.candidates);
         warnings.push(...(result.warnings ?? []));
       } catch (error) {

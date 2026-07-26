@@ -75,6 +75,28 @@ Date: 2026-07-26
 Issue: #17
 Status: Review needed
 Summary:
+- Added optional provider execution policy for External Entity Enrichment.
+- Added in-memory normalized-result cache and fixed-window provider rate
+  limiter contracts.
+- Ensured rate-limited public/paid providers fail open while local Schema.org
+  signals remain available.
+- Added tests for cache reuse and rate-limit fallback behavior.
+Changed files:
+- docs/external-entity-enrichment-model.md
+- docs/progress.md
+- packages/external-entity-enrichment/**
+Validation:
+- npm test -- --runTestsByPath packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run full validation, review and merge the provider execution policy slice.
+
+Date: 2026-07-26
+Issue: #17
+Status: Review needed
+Summary:
 - Started External Entity Enrichment Providers after #3 close-out.
 - Confirmed the scope is optional enrichment for Google Knowledge Graph,
   Wikidata and local Schema.org signals.
