@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry boundary and scheduler control state are ready; scheduler daemon and adaptive recrawl remain next. |
+| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state and deterministic tick planning are ready; scheduler daemon and adaptive recrawl remain next. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
+- Added deterministic scheduler tick planning from scheduler control state and
+  Topic snapshots.
+- Ensured disabled or paused scheduler state produces skipped ticks with no
+  background allocations.
+- Ensured enabled scheduler state uses the existing fair background budget
+  allocator without leasing URLs, enqueueing jobs or calling providers.
+- Synchronized the Research Scheduling model with the tick-planning boundary.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge the scheduler tick planner
+  boundary.
 
 Date: 2026-07-26
 Issue: #180

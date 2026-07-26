@@ -261,6 +261,13 @@ configured, the scheduler is treated as disabled. Pausing or disabling scheduler
 execution requires an operator-visible reason. Enabling scheduler execution may
 clear the reason.
 
+Scheduler ticks are planned deterministically before any dispatch work happens.
+A tick planner reads scheduler control state and Topic snapshots. Disabled or
+paused execution produces a skipped tick with no background allocations. Enabled
+execution produces fair background allocations for active Topics and keeps
+non-active Topics in the plan as ineligible records. The tick planner does not
+lease URLs, enqueue jobs or call provider adapters.
+
 Initial alert classes:
 
 - `scheduler_disabled`;
@@ -420,6 +427,7 @@ Background Research:
 
 ```txt
 Active Topics
+  -> scheduler control-state check
   -> fair budget allocation
   -> eligible discovery / SERP / recrawl / expansion work
   -> subsystem dispatch
@@ -518,6 +526,8 @@ Implemented foundation package:
   freshness evidence.
 - `packages/research-scheduling/src/research-scheduler-control.service.ts`
   owns fail-safe scheduler enable, pause and disable control semantics.
+- `packages/research-scheduling/src/research-scheduler-tick-planner.service.ts`
+  plans deterministic scheduler ticks from control state and Topic snapshots.
 - `packages/research-scheduling/src/research-priority.service.ts`,
   `background-budget-allocator.service.ts`, `freshness-policy.service.ts`,
   `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
@@ -533,6 +543,8 @@ Recommended services:
 - `ResearchPriorityService`: maps triggers to priority classes.
 - `BackgroundBudgetAllocator`: distributes background budget across Active
   Topics.
+- `ResearchSchedulerTickPlannerService`: plans one scheduler tick without
+  dispatching or leasing work.
 - `FreshnessPolicyService`: interprets TTL and reuse decisions from subsystem
   freshness evidence.
 - `ResearchDispatchPlanner`: plans bounded dispatches into Discovery Sources,
