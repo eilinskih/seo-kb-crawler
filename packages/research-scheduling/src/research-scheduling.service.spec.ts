@@ -408,5 +408,22 @@ describe('ResearchSchedulingService', () => {
         createdAt: '2026-07-26T00:05:00.000Z',
       }),
     ]);
+    expect(result.persistedDispatchPlans).toEqual([
+      expect.objectContaining({
+        id: 'research-dispatch-plan-1',
+        job: expect.objectContaining({
+          mode: 'background',
+          trigger: 'background_growth',
+          objective: expect.objectContaining({
+            type: 'background_growth',
+          }),
+        }),
+        dispatchCommands: expect.arrayContaining([
+          expect.objectContaining({ target: 'discovery_sources' }),
+          expect.objectContaining({ target: 'serp_intelligence' }),
+          expect.objectContaining({ target: 'url_frontier' }),
+        ]),
+      }),
+    ]);
   });
 });

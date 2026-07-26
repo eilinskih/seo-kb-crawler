@@ -18,7 +18,8 @@ export type ResearchTrigger =
   | 'new_discovery_observation'
   | 'stale_page_recrawl'
   | 'sitemap_refresh'
-  | 'entity_expansion_background';
+  | 'entity_expansion_background'
+  | 'background_growth';
 
 export type TopicResearchLifecycle =
   | 'draft'

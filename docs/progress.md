@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state, tick planning, run-once loop foundation and adaptive recrawl MVP are ready; production dispatch loop remains next. |
+| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state, tick planning, run-once loop foundation, background dispatch-plan persistence and adaptive recrawl MVP are ready; queue execution remains next. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,30 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
+- Extended the run-once Research Scheduler loop to persist background dispatch
+  plans for eligible allocations.
+- Added explicit `background_growth` trigger priority.
+- Preserved subsystem boundaries: the loop persists plans for Discovery, SERP
+  and URL Frontier work but does not enqueue queue jobs or lease URLs directly.
+- Synchronized the Research Scheduling model with background dispatch-plan
+  persistence.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge background dispatch-plan
+  persistence.
 
 Date: 2026-07-26
 Issue: #180

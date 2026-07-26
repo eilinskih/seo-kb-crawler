@@ -25,4 +25,5 @@ export const TRIGGER_PRIORITY: Record<ResearchTrigger, ResearchPriorityClass> = 
   stale_page_recrawl: 'low',
   sitemap_refresh: 'low',
   entity_expansion_background: 'low',
+  background_growth: 'low',
 };
