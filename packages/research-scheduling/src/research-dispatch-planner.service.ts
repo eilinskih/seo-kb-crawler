@@ -17,6 +17,12 @@ export class ResearchDispatchPlanner {
       commands.push(this.command(job, 'discovery_sources', 'Discover bounded research candidates.'));
     }
 
+    if (job.objective.type === 'refresh_demand_metrics') {
+      commands.push(
+        this.command(job, 'demand_engine', 'Refresh Demand Engine metrics and candidate evidence.'),
+      );
+    }
+
     if (freshnessDecisions.some((decision) => decision.shouldRefreshSerp)) {
       commands.push(this.command(job, 'serp_intelligence', 'Refresh stale or missing SERP evidence.'));
     }

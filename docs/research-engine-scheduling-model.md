@@ -194,7 +194,8 @@ Initial priority classes:
 - highest: `generation_request`, `user_waiting_for_generation`;
 - high: `manual_research`, `competitor_refresh_requested`;
 - medium: `scheduled_serp_refresh`, `topic_expansion_candidate`,
-  `recently_discovered_keyword`, `new_discovery_observation`;
+  `recently_discovered_keyword`, `new_discovery_observation`,
+  `scheduled_demand_refresh`;
 - low: `stale_page_recrawl`, `sitemap_refresh`,
   `entity_expansion_background`, `background_growth`;
 - none: paused topics and archived topics for background work.
@@ -575,7 +576,7 @@ Recommended services:
 - `FreshnessPolicyService`: interprets TTL and reuse decisions from subsystem
   freshness evidence.
 - `ResearchDispatchPlanner`: plans bounded dispatches into Discovery Sources,
-  URL Frontier, SERP Intelligence and processing pipelines.
+  URL Frontier, SERP Intelligence, Demand Engine and processing pipelines.
 - `ResearchAssetMetricsService`: records observable Research Asset metrics.
 - `MediaResearchPolicyService`: evaluates metadata-only, selected and archive
   media policies.

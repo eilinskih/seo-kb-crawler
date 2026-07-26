@@ -73,6 +73,35 @@ describe('ResearchSchedulingService', () => {
     expect(plan.ruleVersion).toBe('research-scheduling-v1');
   });
 
+  it('plans scheduled Demand Engine refresh without bypassing subsystem boundaries', () => {
+    const plan = new ResearchSchedulingService().plan({
+      topicId: 'topic-1',
+      mode: 'background',
+      trigger: 'scheduled_demand_refresh',
+      objective: {
+        type: 'refresh_demand_metrics',
+      },
+      topicSnapshot: {
+        topicId: 'topic-1',
+        lifecycle: 'active',
+        configurationVersion: 3,
+        researchPolicy: policy,
+      },
+      createdAt: '2026-07-26T00:00:00.000Z',
+    });
+
+    expect(plan.job).toMatchObject({
+      priorityClass: 'medium',
+      trigger: 'scheduled_demand_refresh',
+    });
+    expect(plan.dispatchCommands).toEqual([
+      expect.objectContaining({
+        target: 'demand_engine',
+        reason: 'Refresh Demand Engine metrics and candidate evidence.',
+      }),
+    ]);
+  });
+
   it('allocates background budget fairly only to active topics', () => {
     const allocations = new BackgroundBudgetAllocator().allocate([
       {

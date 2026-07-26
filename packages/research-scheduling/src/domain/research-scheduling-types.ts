@@ -19,7 +19,8 @@ export type ResearchTrigger =
   | 'stale_page_recrawl'
   | 'sitemap_refresh'
   | 'entity_expansion_background'
-  | 'background_growth';
+  | 'background_growth'
+  | 'scheduled_demand_refresh';
 
 export type TopicResearchLifecycle =
   | 'draft'
@@ -42,7 +43,8 @@ export type ResearchObjectiveType =
   | 'refresh_serp'
   | 'refresh_domain'
   | 'force_bounded_recrawl'
-  | 'background_growth';
+  | 'background_growth'
+  | 'refresh_demand_metrics';
 
 export type DispatchTarget =
   | 'discovery_sources'
@@ -50,7 +52,8 @@ export type DispatchTarget =
   | 'serp_intelligence'
   | 'content_processing'
   | 'knowledge_pipeline'
-  | 'seo_pack';
+  | 'seo_pack'
+  | 'demand_engine';
 
 export type FreshnessDecisionStatus = 'reuse' | 'refresh' | 'force_refresh';
 
