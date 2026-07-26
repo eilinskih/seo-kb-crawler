@@ -287,8 +287,9 @@ Implemented foundation package:
 - `packages/topic-expansion/src/expansion-pack.service.ts` assembles the
   model-agnostic Expansion Pack.
 - `packages/topic-expansion/src/persistence/topic-expansion.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/topic-expansion/src/persistence/knex-topic-expansion.repository.ts`
+  provides durable Topic Expansion Pack persistence for production flows.
 
 Recommended services:
 

@@ -83,6 +83,32 @@ Date: 2026-07-26
 Issue: #183
 Status: Review needed
 Summary:
+- Added Topic Expansion Pack durable persistence as the third SEO Intelligence
+  persistence slice.
+- Added bundled migration for Topic Expansion Packs with reusable topic,
+  language and geo context keys.
+- Added Knex Topic Expansion repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/progress.md
+- docs/topic-expansion-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/021-topic-expansion-persistence.ts
+- packages/db/src/migrations/021-topic-expansion-persistence.spec.ts
+- packages/topic-expansion/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/021-topic-expansion-persistence.spec.ts packages/topic-expansion/src/persistence/knex-topic-expansion.repository.spec.ts packages/topic-expansion/src/persistence/topic-expansion.repository.spec.ts packages/topic-expansion/src/expansion-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the Topic Expansion persistence slice.
+
+Date: 2026-07-26
+Issue: #183
+Status: Review needed
+Summary:
 - Added SERP Intent Pack durable persistence as the second SEO Intelligence
   persistence slice.
 - Added bundled migration for SERP Intent Packs with reusable query/topic
