@@ -241,12 +241,12 @@ Operations snapshots are built from owned subsystem signals:
 
 - Topic snapshots provide active/background-eligible topic counts and last
   background research timestamps.
-- URL Frontier telemetry provides expired lease, enqueue failure, eligible
 - URL Frontier operations telemetry provides expired lease, eligible backlog
   and oldest eligible age counts from durable Frontier state.
 - Dispatch or scheduler observability provides enqueue failure counts after a
   lease is acquired.
-- Scheduler configuration provides whether scheduler execution is enabled.
+- Scheduler control state provides whether scheduler execution is enabled,
+  paused or disabled.
 
 The snapshot builder does not query queue transport directly, lease Frontier
 work, dispatch jobs or infer Topic lifecycle. It only normalizes telemetry into
@@ -255,6 +255,11 @@ the Research Operations health contract.
 URL Frontier telemetry and queue enqueue telemetry are intentionally separate.
 Frontier owns URL-level durable state; Research Operations combines that signal
 with scheduler/transport failures when building a health snapshot.
+
+Scheduler execution is fail-safe. If no scheduler control state has been
+configured, the scheduler is treated as disabled. Pausing or disabling scheduler
+execution requires an operator-visible reason. Enabling scheduler execution may
+clear the reason.
 
 Initial alert classes:
 
@@ -472,6 +477,13 @@ Initial tables may be added later:
 - observed at;
 - metadata payload.
 
+`research_scheduler_control_state`:
+
+- current state: `enabled`, `paused` or `disabled`;
+- reason;
+- updated by;
+- updated timestamp.
+
 `media_assets`:
 
 - topic id;
@@ -504,6 +516,8 @@ Implemented foundation package:
 - `packages/research-scheduling/src/research-scheduling.service.ts` assembles
   deterministic dispatch plans from research requests, Topic snapshots and
   freshness evidence.
+- `packages/research-scheduling/src/research-scheduler-control.service.ts`
+  owns fail-safe scheduler enable, pause and disable control semantics.
 - `packages/research-scheduling/src/research-priority.service.ts`,
   `background-budget-allocator.service.ts`, `freshness-policy.service.ts`,
   `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
@@ -526,8 +540,11 @@ Recommended services:
 - `ResearchAssetMetricsService`: records observable Research Asset metrics.
 - `MediaResearchPolicyService`: evaluates metadata-only, selected and archive
   media policies.
+- `ResearchSchedulerControlService`: reads and updates operator-safe scheduler
+  execution state.
 - `ResearchSchedulingRepository`: persists jobs, budget windows and asset
-  metrics when concrete persistence is introduced.
+  metrics, scheduler control state and operations records when concrete
+  persistence is introduced.
 
 ## Integration Points
 

@@ -4,7 +4,9 @@ import { ResearchSchedulingService } from './research-scheduling.service';
 import { ResearchOperationsFrontierTelemetryService } from './research-operations-frontier-telemetry.service';
 import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
+import { ResearchSchedulerControlService } from './research-scheduler-control.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
+import { InMemoryResearchSchedulingRepository } from './testing/in-memory-research-scheduling.repository';
 
 const policy: TopicResearchPolicy = {
   backgroundIntensity: 'normal',
@@ -230,6 +232,49 @@ describe('ResearchSchedulingService', () => {
       enqueueFailureCount: 1,
       eligibleBacklogCount: 250,
       oldestEligibleFrontierAgeMinutes: 90,
+    });
+  });
+
+  it('keeps scheduler control fail-safe until explicitly enabled', async () => {
+    const service = new ResearchSchedulerControlService(
+      new InMemoryResearchSchedulingRepository(),
+    );
+
+    await expect(service.getState()).resolves.toMatchObject({
+      state: 'disabled',
+      updatedBy: 'system',
+    });
+
+    await expect(service.setState({
+      state: 'enabled',
+      requestedBy: 'operator-1',
+      requestedAt: '2026-07-26T00:00:00.000Z',
+    })).resolves.toMatchObject({
+      state: 'enabled',
+      reason: null,
+      updatedBy: 'operator-1',
+    });
+  });
+
+  it('requires an auditable reason when pausing or disabling scheduler execution', async () => {
+    const service = new ResearchSchedulerControlService(
+      new InMemoryResearchSchedulingRepository(),
+    );
+
+    await expect(service.setState({
+      state: 'paused',
+      requestedBy: 'operator-1',
+      requestedAt: '2026-07-26T00:00:00.000Z',
+    })).rejects.toThrow('reason is required');
+
+    await expect(service.setState({
+      state: 'disabled',
+      reason: 'Maintenance window',
+      requestedBy: 'operator-1',
+      requestedAt: '2026-07-26T00:00:00.000Z',
+    })).resolves.toMatchObject({
+      state: 'disabled',
+      reason: 'Maintenance window',
     });
   });
 });
