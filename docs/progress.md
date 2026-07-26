@@ -53,7 +53,7 @@ Roadmap order, phases and dependency rules live only in
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
 | #16 | SEO Consensus and Conflict Layer | Done | Design, foundation implementation, safe Knowledge Pack consensus consumption and close-out synchronization are complete; roadmap continues with #98. |
-| #17 | External Entity Enrichment Providers | Not started | Optional enrichment; must be non-blocking. |
+| #17 | External Entity Enrichment Providers | Review needed | Provider-optional enrichment foundation is ready; external signals must not replace local entity authority. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
@@ -70,6 +70,37 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #17
+Status: Review needed
+Summary:
+- Started External Entity Enrichment Providers after #3 close-out.
+- Confirmed the scope is optional enrichment for Google Knowledge Graph,
+  Wikidata and local Schema.org signals.
+- Confirmed the architectural rule: external providers enrich; local Entity
+  and Alias Layer plus Ontology remain authoritative.
+- Planned first slice as a provider-optional foundation with contracts,
+  normalized results, provenance, persistence schema and fail-open execution.
+- Added provider-neutral contracts, a fail-open enrichment service, default
+  provider registry, Google Knowledge Graph and Wikidata provider boundaries,
+  local Schema.org signal normalization, storage migration and tests.
+Changed files:
+- docs/external-entity-enrichment-model.md
+- docs/progress.md
+- docs/project-map.md
+- docs/architecture.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/016-external-entity-enrichment-foundation.ts
+- packages/external-entity-enrichment/**
+- tsconfig.json
+Validation:
+- npm test -- --runTestsByPath packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run full validation, review and merge the provider-optional foundation.
 
 Date: 2026-07-26
 Issue: #3

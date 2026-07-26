@@ -175,6 +175,12 @@ in `docs/entity-alias-model.md`. It is a lightweight normalization layer for
 canonical entities, multilingual aliases and chunk mentions. It is not the full
 Knowledge Graph and must not make retrieval dependent on entity data.
 
+The External Entity Enrichment Providers design and foundation implementation
+are documented in `docs/external-entity-enrichment-model.md`. This provider
+layer adds optional Google Knowledge Graph, Wikidata and local Schema.org
+signals for public-entity disambiguation, but the local Entity and Alias Layer
+and Ontology remain authoritative.
+
 The Ontology and Predicate Registry design and foundation implementation are
 documented in `docs/ontology-predicate-model.md`. It prevents future fact
 extraction from turning model-generated predicate strings into canonical

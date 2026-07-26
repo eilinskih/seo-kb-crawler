@@ -41,6 +41,8 @@ specialized documents:
 - `docs/retrieval-model.md` for the Hybrid Retrieval Engine.
 - `docs/context-pack-model.md` for the Context Pack API.
 - `docs/entity-alias-model.md` for the Entity and Alias Layer.
+- `docs/external-entity-enrichment-model.md` for optional external entity
+  enrichment providers.
 - `docs/ontology-predicate-model.md` for the Ontology and Predicate Registry.
 - `docs/topic-classification-model.md` for Topic Classification Strategy.
 - `docs/fact-extraction-worker-model.md` for the Fact Extraction Worker.
@@ -138,6 +140,10 @@ Implemented on `main`:
 - Entity and Alias package boundary, canonical entities, aliases, mention
   contracts, storage migration, alias resolution service and manual API
   endpoints.
+- External Entity Enrichment package boundary, provider/status contracts,
+  Google Knowledge Graph and Wikidata provider boundaries, local Schema.org
+  signal normalization, fail-open enrichment service, repository abstraction
+  and storage migration.
 - Ontology package boundary, predicate alias resolver, seed predicate registry,
   raw/canonical fact contracts and storage migration.
 - Fact Extraction package boundary, extraction provider interface, noop/test
@@ -203,6 +209,8 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
+- Real Google Knowledge Graph, Wikidata or other external entity provider API
+  execution, credentials, rate-limit policy and scheduled enrichment jobs.
 - Demand Engine persistence, scheduling and provider integrations.
 - Concrete Ahrefs, Semrush, SE Ranking or other external SEO provider
   integrations, credentials, scheduled refresh jobs and persistence.
