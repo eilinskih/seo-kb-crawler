@@ -83,6 +83,32 @@ Date: 2026-07-27
 Issue: #183
 Status: Review needed
 Summary:
+- Added SEO Pack durable persistence as the sixth SEO Intelligence persistence
+  slice.
+- Added bundled migration for SEO Packs with reusable topic, candidate, page
+  type, language and geo context keys.
+- Added Knex SEO Pack repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/progress.md
+- docs/seo-pack-generator-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/024-seo-pack-persistence.ts
+- packages/db/src/migrations/024-seo-pack-persistence.spec.ts
+- packages/seo-pack/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/024-seo-pack-persistence.spec.ts packages/seo-pack/src/persistence/knex-seo-pack.repository.spec.ts packages/seo-pack/src/persistence/seo-pack.repository.spec.ts packages/seo-pack/src/seo-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the SEO Pack persistence slice.
+
+Date: 2026-07-27
+Issue: #183
+Status: Review needed
+Summary:
 - Added Candidate Scoring Pack durable persistence as the fifth SEO
   Intelligence persistence slice.
 - Added bundled migration for Candidate Scoring Packs with reusable topic,
