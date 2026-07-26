@@ -37,7 +37,7 @@ Roadmap order, phases and dependency rules live only in
 |---|---|---|---|
 | #1 | Foundation: Monorepo bootstrap and local infrastructure | Done | Human review completed on 2026-06-10. |
 | #2 | Topic Engine: design topic definitions and crawl configuration model | Done | PR #31 merged into `main`; GitHub issue is closed. |
-| #3 | URL Frontier: design discovery queue and crawl scheduling | Review needed | Close-out stabilization adds durable freshness/recrawl state and ADR 0004; Architecture Steward close-out review remains next. |
+| #3 | URL Frontier: design discovery queue and crawl scheduling | Done | Foundation implementation, close-out stabilization and Architecture Steward review are complete; GitHub issue is closed. |
 | #41 | Implementation Order and Roadmap Governance | Done | PR #46 merged documentation governance into `main`. |
 | #4 | Discovery Sources: design URL discovery providers | Done | PR #50 merged initial package contracts, planner and seed/link adapters into `main`. |
 | #5 | Crawler Worker: implement controlled page crawling pipeline | Done | PR #65 merged Architecture Steward cleanup; lifecycle implementation is ready for #6. |
@@ -71,6 +71,27 @@ Roadmap order, phases and dependency rules live only in
 
 Add entries here in reverse chronological order.
 
+Date: 2026-07-26
+Issue: #3
+Status: Done
+Summary:
+- Completed Architecture Steward close-out review after PR #171 merged.
+- Confirmed previous close-out blockers are resolved: durable
+  `freshness_score`, durable `recrawl_reason`, URL Frontier ADR and stale
+  subsystem docs.
+- Synchronized the architecture overview and progress tracker with the final
+  Issue #3 state.
+- Left adaptive change-frequency recrawl, production scheduler automation,
+  operator-facing retry policy editing and cross-topic URL alias registry as
+  non-blocking future hardening.
+Changed files:
+- docs/architecture.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #3 and continue the canonical roadmap.
+
 Date: 2026-07-23
 Issue: #3
 Status: Review needed
@@ -103,8 +124,8 @@ Validation:
 - npm test
 - git diff --check
 Next step:
-- Run validation, merge stabilization and rerun Issue #3 Architecture Steward
-  close-out review.
+- Merged in PR #171; Architecture Steward close-out review completed on
+  2026-07-26.
 
 Date: 2026-07-23
 Issue: #3
