@@ -1,6 +1,7 @@
 import { BackgroundBudgetAllocator } from './background-budget-allocator.service';
 import { MediaResearchPolicyService } from './media-research-policy.service';
 import { ResearchSchedulingService } from './research-scheduling.service';
+import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
 
 const policy: TopicResearchPolicy = {
@@ -131,5 +132,34 @@ describe('ResearchSchedulingService', () => {
       storageStatus: 'selected_for_download',
       shouldDownload: true,
     });
+  });
+
+  it('reports production research operations health without using queue depth as state', () => {
+    const report = new ResearchOperationsHealthService({
+      maxExpiredFrontierLeases: 0,
+      maxFrontierEnqueueFailures: 0,
+      maxEligibleFrontierBacklog: 100,
+      maxOldestEligibleFrontierAgeMinutes: 60,
+      maxTopicsWithoutRecentBackgroundResearch: 0,
+    }).evaluate({
+      schedulerEnabled: true,
+      activeTopicCount: 4,
+      eligibleBackgroundTopicCount: 4,
+      topicsWithoutRecentBackgroundResearch: 1,
+      expiredFrontierLeaseCount: 2,
+      frontierEnqueueFailureCount: 1,
+      eligibleFrontierBacklogCount: 250,
+      oldestEligibleFrontierAgeMinutes: 90,
+      observedAt: '2026-07-26T00:00:00.000Z',
+    });
+
+    expect(report.healthy).toBe(false);
+    expect(report.degraded).toBe(true);
+    expect(report.alerts).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'expired_frontier_leases' }),
+      expect.objectContaining({ code: 'queue_enqueue_failures' }),
+      expect.objectContaining({ code: 'frontier_backlog_high' }),
+      expect.objectContaining({ code: 'background_starvation' }),
+    ]));
   });
 });

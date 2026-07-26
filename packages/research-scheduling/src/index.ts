@@ -6,6 +6,7 @@ export * from './persistence/research-scheduling.repository';
 export * from './research-asset-metrics.service';
 export * from './research-dispatch-planner.service';
 export * from './research-job.service';
+export * from './research-operations-health.service';
 export * from './research-priority.service';
 export * from './research-scheduling-defaults';
 export * from './research-scheduling.module';

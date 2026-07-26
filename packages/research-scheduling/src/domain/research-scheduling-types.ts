@@ -228,3 +228,50 @@ export interface ResearchPlanRequest extends ResearchJobRequest {
   freshnessEvidence?: FreshnessEvidence[];
   existingAssetMetrics?: ResearchAssetMetric[];
 }
+
+export type ResearchOperationsAlertSeverity = 'info' | 'warning' | 'critical';
+
+export type ResearchOperationsAlertCode =
+  | 'scheduler_disabled'
+  | 'expired_frontier_leases'
+  | 'queue_enqueue_failures'
+  | 'frontier_backlog_high'
+  | 'background_starvation'
+  | 'no_active_topics';
+
+export interface ResearchOperationsSnapshot {
+  schedulerEnabled: boolean;
+  activeTopicCount: number;
+  eligibleBackgroundTopicCount: number;
+  topicsWithoutRecentBackgroundResearch: number;
+  expiredFrontierLeaseCount: number;
+  frontierEnqueueFailureCount: number;
+  eligibleFrontierBacklogCount: number;
+  oldestEligibleFrontierAgeMinutes?: number;
+  observedAt: string;
+}
+
+export interface ResearchOperationsThresholds {
+  maxExpiredFrontierLeases: number;
+  maxFrontierEnqueueFailures: number;
+  maxEligibleFrontierBacklog: number;
+  maxOldestEligibleFrontierAgeMinutes: number;
+  maxTopicsWithoutRecentBackgroundResearch: number;
+}
+
+export interface ResearchOperationsAlert {
+  code: ResearchOperationsAlertCode;
+  severity: ResearchOperationsAlertSeverity;
+  message: string;
+  observedValue: number | boolean;
+  threshold?: number;
+}
+
+export interface ResearchOperationsHealthReport {
+  snapshot: ResearchOperationsSnapshot;
+  healthy: boolean;
+  degraded: boolean;
+  alerts: ResearchOperationsAlert[];
+  generatedAt: string;
+  ruleVersion: string;
+}

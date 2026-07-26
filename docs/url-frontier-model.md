@@ -284,7 +284,9 @@ Dispatch leases work in PostgreSQL before publishing the BullMQ job. If Redis
 enqueue fails after the lease is acquired, the entry remains leased until
 `lease_expires_at` and then becomes eligible through the normal expired-lease
 recovery path. Future scheduler automation should add metrics and alerts for
-this recovery path, but Redis queue depth is not durable frontier state.
+this recovery path. Research Operations health can classify expired leases,
+enqueue failures and backlog age as scheduler alerts, but Redis queue depth is
+not durable frontier state.
 
 ## Relevance score integration
 
