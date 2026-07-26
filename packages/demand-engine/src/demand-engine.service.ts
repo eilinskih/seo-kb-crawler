@@ -60,6 +60,7 @@ export class DemandEngineService {
         candidate.sourceTiers.every((tier) => tier === 'fallback'),
       ),
       warnings,
+      observations,
       keywordCandidates,
       candidatePages: buildCandidatePages(keywordCandidates),
     };

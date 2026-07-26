@@ -289,6 +289,29 @@ Fallback evidence ownership:
   Fetch execution may be delegated to provider adapters, Discovery Sources or
   SERP Intelligence depending on the source type.
 
+### Persistence
+
+Issue #185 introduces durable Demand Engine persistence so candidates can be
+reused across runs.
+
+The durable model stores:
+
+- keyword candidates keyed by Topic, normalized keyword, language and geo;
+- append-only demand observations;
+- demand metric snapshots with nullable provider-backed fields;
+- candidate pages derived from persisted keyword candidates.
+
+Metric snapshots preserve attribution:
+
+- `metricStatus`;
+- `providerKey`;
+- `collectedAt`;
+- nullable `searchVolume`, `keywordDifficulty`, `cpc`, `trafficPotential`,
+  `trend` and `seasonality`.
+
+Missing paid provider data remains valid state. Unknown or fallback-only
+metrics must stay `null` rather than being fabricated.
+
 ### SERP Intelligence
 
 SERP Intelligence records what the search results show for a query or topic.
@@ -370,6 +393,14 @@ The initial implementation:
 - marks unknown volume, difficulty, CPC and traffic potential as `null`;
 - promotes fallback candidate pages only when enough fallback evidence exists;
 - exposes fallback mode and provider warnings explicitly.
+
+The production persistence foundation:
+
+- adds durable keyword candidate, demand observation, metric snapshot and
+  candidate page storage;
+- preserves candidate reuse across discovery runs;
+- stores provider-backed metrics as nullable and attributed snapshots;
+- keeps provider execution optional and fallback-safe.
 
 ## Review gates
 
