@@ -83,6 +83,32 @@ Date: 2026-07-26
 Issue: #183
 Status: Review needed
 Summary:
+- Added SERP Intent Pack durable persistence as the second SEO Intelligence
+  persistence slice.
+- Added bundled migration for SERP Intent Packs with reusable query/topic
+  context keys.
+- Added Knex SERP Intent repository boundary and module wiring.
+- Added regression coverage for migration context keys and repository row
+  mapping.
+Changed files:
+- docs/progress.md
+- docs/serp-intent-analyzer-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/020-serp-intent-persistence.ts
+- packages/db/src/migrations/020-serp-intent-persistence.spec.ts
+- packages/serp-intent/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/020-serp-intent-persistence.spec.ts packages/serp-intent/src/persistence/knex-serp-intent.repository.spec.ts packages/serp-intent/src/persistence/serp-intent.repository.spec.ts packages/serp-intent/src/serp-intent-pack.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the SERP Intent persistence slice.
+
+Date: 2026-07-26
+Issue: #183
+Status: Review needed
+Summary:
 - Started SEO Intelligence persistence and scheduling with SERP Intelligence
   durable persistence.
 - Added bundled migration for SERP snapshots and SERP Packs.
