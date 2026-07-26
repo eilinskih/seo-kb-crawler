@@ -400,7 +400,9 @@ The production persistence foundation:
   candidate page storage;
 - preserves candidate reuse across discovery runs;
 - stores provider-backed metrics as nullable and attributed snapshots;
-- keeps provider execution optional and fallback-safe.
+- keeps provider execution optional and fallback-safe;
+- exposes a discovery-and-persist service for production flows that should save
+  Demand Engine output after discovery.
 
 ## Review gates
 

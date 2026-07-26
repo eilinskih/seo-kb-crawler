@@ -81,6 +81,28 @@ Add entries here in reverse chronological order.
 
 Date: 2026-07-26
 Issue: #185
+Status: Review needed
+Summary:
+- Added Demand discovery-and-persist application service.
+- The service runs provider-optional Demand discovery, persists the result and
+  returns both discovery and persistence records.
+- Confirmed fallback mode still succeeds when paid provider credentials are
+  unavailable.
+Changed files:
+- docs/demand-engine-model.md
+- docs/progress.md
+- packages/demand-engine/**
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/demand-engine/src/persistence/demand-engine.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge the Demand discovery
+  persistence entrypoint.
+
+Date: 2026-07-26
+Issue: #185
 Status: In progress
 Summary:
 - Started Demand Engine production hardening after #180 closed.

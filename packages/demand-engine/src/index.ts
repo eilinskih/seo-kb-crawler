@@ -1,4 +1,5 @@
 export * from './demand-engine.module';
+export * from './demand-discovery-persistence.service';
 export * from './demand-engine.service';
 export * from './demand-engine.tokens';
 export * from './domain/demand-engine-types';
