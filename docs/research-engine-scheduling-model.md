@@ -268,6 +268,11 @@ execution produces fair background allocations for active Topics and keeps
 non-active Topics in the plan as ineligible records. The tick planner does not
 lease URLs, enqueue jobs or call provider adapters.
 
+The initial worker-loop foundation supports one explicit scheduler iteration.
+`runOnce` loads scheduler control state, plans the tick and persists background
+budget allocations only when scheduler execution is enabled. It does not start a
+timer, poll forever, dispatch queue jobs or bypass subsystem boundaries.
+
 Initial alert classes:
 
 - `scheduler_disabled`;
@@ -528,6 +533,9 @@ Implemented foundation package:
   owns fail-safe scheduler enable, pause and disable control semantics.
 - `packages/research-scheduling/src/research-scheduler-tick-planner.service.ts`
   plans deterministic scheduler ticks from control state and Topic snapshots.
+- `packages/research-scheduling/src/research-scheduler-worker-loop.service.ts`
+  runs one explicit scheduler iteration and persists planned background
+  allocations.
 - `packages/research-scheduling/src/research-priority.service.ts`,
   `background-budget-allocator.service.ts`, `freshness-policy.service.ts`,
   `research-dispatch-planner.service.ts`, `media-research-policy.service.ts`
