@@ -83,6 +83,30 @@ Date: 2026-07-26
 Issue: #185
 Status: Review needed
 Summary:
+- Addressed Architecture Steward close-out findings for Demand Engine durable
+  persistence.
+- Added missing `topic_key` persistence for demand observations and candidate
+  pages so Knex upserts match the production migration.
+- Added regression coverage for the Demand Engine migration shape and Knex row
+  mapping.
+Changed files:
+- docs/progress.md
+- packages/db/src/migrations/018-demand-engine-persistence.ts
+- packages/db/src/migrations/018-demand-engine-persistence.spec.ts
+- packages/demand-engine/src/persistence/knex-demand-engine.repository.ts
+- packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/018-demand-engine-persistence.spec.ts packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts packages/demand-engine/src/persistence/demand-engine.repository.spec.ts packages/demand-engine/src/demand-metric-visibility.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Re-check #185 close-out readiness after merging this stabilization slice.
+
+Date: 2026-07-26
+Issue: #185
+Status: Review needed
+Summary:
 - Added Demand Engine operator visibility for unknown and stale demand metrics.
 - The read model reports fallback-only candidates as `unknown_metrics` instead
   of treating missing provider data as an error.
