@@ -35,6 +35,7 @@ This subsystem owns:
 - provider confidence metadata;
 - provenance for every external signal;
 - enrichment attempt tracking;
+- provider execution cache and rate-limit contracts;
 - fail-open execution behavior;
 - storage for external source metadata, attempts and external ID observations.
 
@@ -68,6 +69,11 @@ Initial provider classes:
   normalizes Schema.org entity signals extracted from crawled pages.
 
 Provider-specific response shapes must not leak into downstream packages.
+
+Provider execution policy is optional and local to this subsystem. It can
+cache normalized provider results and rate-limit public or paid providers.
+Local signals such as Schema.org extraction are not rate-limited by this
+policy.
 
 ## Data Flow
 
@@ -141,6 +147,8 @@ Provider execution is fail-open:
 
 - disabled and misconfigured providers are skipped with warnings;
 - provider exceptions become warnings;
+- rate-limited providers are skipped with warnings;
+- cached normalized results may be reused within a configured TTL;
 - local Schema.org signals can still produce candidates without external API
   credentials;
 - empty enrichment packs are marked degraded;
