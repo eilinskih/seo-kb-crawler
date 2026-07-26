@@ -108,12 +108,26 @@ export interface UrlFrontierSuccessRecrawlPolicy {
   maxRecrawlIntervalHours: number;
 }
 
+export type UrlFrontierContentChangeSignal =
+  | 'changed'
+  | 'unchanged'
+  | 'unknown';
+
 export const DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY:
   UrlFrontierSuccessRecrawlPolicy = {
     recrawlIntervalHours: 168,
     minRecrawlIntervalHours: 24,
     maxRecrawlIntervalHours: 720,
   };
+
+export const URL_FRONTIER_ADAPTIVE_RECRAWL_MULTIPLIERS: Record<
+  UrlFrontierContentChangeSignal,
+  number
+> = {
+  changed: 0.5,
+  unchanged: 1.5,
+  unknown: 1,
+};
 
 interface FrontierCompletionEntry {
   consecutive_failures: number;
@@ -147,6 +161,19 @@ export class UrlFrontierCompletionService {
         return;
       }
 
+      const previousSuccessfulAttempt = await transaction<CrawlAttemptRow>(
+        'crawl_attempts',
+      )
+        .select('content_hash')
+        .where({
+          frontier_entry_id: result.frontierEntryId,
+          status: 'succeeded',
+        })
+        .whereNot('attempt_id', result.attemptId)
+        .orderBy('recorded_at', 'desc')
+        .orderBy('attempt_id', 'desc')
+        .first();
+
       await transaction('url_frontier_entries')
         .where({
           id: result.frontierEntryId,
@@ -160,6 +187,7 @@ export class UrlFrontierCompletionService {
               frontierEntry.consecutive_failures,
               frontierEntry.crawl_policy,
               retryPolicyFromCrawlPolicy(frontierEntry.crawl_policy),
+              previousSuccessfulAttempt?.content_hash ?? null,
             ),
             transaction,
           ),
@@ -208,6 +236,7 @@ export function toFrontierCompletionUpdate(
   crawlPolicy: Partial<UrlFrontierSuccessRecrawlPolicy> =
     DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
   retryPolicy = DEFAULT_URL_FRONTIER_RETRY_POLICY,
+  previousSuccessfulContentHash: string | null = null,
 ): UrlFrontierCompletionUpdate {
   const base = {
     active_attempt_id: null,
@@ -224,7 +253,10 @@ export function toFrontierCompletionUpdate(
       last_crawled_at: completedAt,
       next_crawl_at: addMilliseconds(
         completedAt,
-        successRecrawlDelayMs(crawlPolicy),
+        successRecrawlDelayMs(
+          crawlPolicy,
+          contentChangeSignal(result.contentHash, previousSuccessfulContentHash),
+        ),
       ),
       freshness_score: 0,
       recrawl_reason: 'success_recrawl',
@@ -321,16 +353,33 @@ export function retryPolicyFromCrawlPolicy(
 export function successRecrawlDelayMs(
   crawlPolicy: Partial<UrlFrontierSuccessRecrawlPolicy> =
     DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
+  contentChange: UrlFrontierContentChangeSignal = 'unknown',
 ): number {
   const policy = {
     ...DEFAULT_URL_FRONTIER_SUCCESS_RECRAWL_POLICY,
     ...crawlPolicy,
   };
+  const adjustedIntervalHours =
+    policy.recrawlIntervalHours *
+    URL_FRONTIER_ADAPTIVE_RECRAWL_MULTIPLIERS[contentChange];
   const boundedHours = Math.min(
     policy.maxRecrawlIntervalHours,
-    Math.max(policy.minRecrawlIntervalHours, policy.recrawlIntervalHours),
+    Math.max(policy.minRecrawlIntervalHours, adjustedIntervalHours),
   );
   return boundedHours * 60 * 60 * 1000;
+}
+
+export function contentChangeSignal(
+  currentContentHash: string | null,
+  previousSuccessfulContentHash: string | null,
+): UrlFrontierContentChangeSignal {
+  if (!currentContentHash || !previousSuccessfulContentHash) {
+    return 'unknown';
+  }
+
+  return currentContentHash === previousSuccessfulContentHash
+    ? 'unchanged'
+    : 'changed';
 }
 
 function addMilliseconds(date: Date, milliseconds: number): Date {

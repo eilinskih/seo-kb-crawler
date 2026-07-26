@@ -1,4 +1,5 @@
 import {
+  contentChangeSignal,
   retryDelayMs,
   retryPolicyFromCrawlPolicy,
   successRecrawlDelayMs,
@@ -42,6 +43,16 @@ describe('UrlFrontierCompletionService', () => {
     const merge = jest.fn();
     const onConflict = jest.fn(() => ({ merge }));
     const insert = jest.fn(() => ({ onConflict }));
+    const previousFirst = jest.fn(async () => ({ content_hash: 'previous-hash' }));
+    const previousOrderByAttempt = jest.fn(() => ({ first: previousFirst }));
+    const previousOrderByRecorded = jest.fn(() => ({
+      orderBy: previousOrderByAttempt,
+    }));
+    const previousWhereNot = jest.fn(() => ({
+      orderBy: previousOrderByRecorded,
+    }));
+    const previousWhere = jest.fn(() => ({ whereNot: previousWhereNot }));
+    const previousSelect = jest.fn(() => ({ where: previousWhere }));
     const update = jest.fn();
     const updateWhere = jest.fn(() => ({ update }));
     const first = jest.fn(async () => ({
@@ -57,7 +68,7 @@ describe('UrlFrontierCompletionService', () => {
     const transactionTable = Object.assign(
       jest.fn((tableName: string) =>
         tableName === 'crawl_attempts'
-          ? { insert }
+          ? { insert, select: previousSelect }
           : { select, where: updateWhere },
       ),
       {
@@ -88,6 +99,12 @@ describe('UrlFrontierCompletionService', () => {
         recorded_at: expect.any(Date),
       }),
     );
+    expect(previousSelect).toHaveBeenCalledWith('content_hash');
+    expect(previousWhere).toHaveBeenCalledWith({
+      frontier_entry_id: 'frontier-1',
+      status: 'succeeded',
+    });
+    expect(previousWhereNot).toHaveBeenCalledWith('attempt_id', 'attempt-1');
     expect(select).toHaveBeenCalledWith('consecutive_failures', 'crawl_policy');
     expect(selectWhere).toHaveBeenCalledWith({
       id: 'frontier-1',
@@ -267,6 +284,25 @@ describe('UrlFrontierCompletionService', () => {
         maxRecrawlIntervalHours: 48,
       }),
     ).toBe(48 * 60 * 60 * 1000);
+  });
+
+  it('adjusts success recrawl delay from content hash change signals within policy bounds', () => {
+    const policy = {
+      recrawlIntervalHours: 48,
+      minRecrawlIntervalHours: 24,
+      maxRecrawlIntervalHours: 96,
+    };
+
+    expect(successRecrawlDelayMs(policy, 'changed')).toBe(24 * 60 * 60 * 1000);
+    expect(successRecrawlDelayMs(policy, 'unchanged')).toBe(72 * 60 * 60 * 1000);
+    expect(successRecrawlDelayMs(policy, 'unknown')).toBe(48 * 60 * 60 * 1000);
+  });
+
+  it('detects content hash change signals conservatively', () => {
+    expect(contentChangeSignal('hash-2', 'hash-1')).toBe('changed');
+    expect(contentChangeSignal('hash-1', 'hash-1')).toBe('unchanged');
+    expect(contentChangeSignal(null, 'hash-1')).toBe('unknown');
+    expect(contentChangeSignal('hash-1', null)).toBe('unknown');
   });
 
   it('maps terminal crawl results to terminal frontier completion', () => {

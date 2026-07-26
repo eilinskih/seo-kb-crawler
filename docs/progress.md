@@ -68,7 +68,7 @@ Roadmap order, phases and dependency rules live only in
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
-| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state, tick planning and run-once loop foundation are ready; production dispatch loop and adaptive recrawl remain next. |
+| #180 | Research Operations scheduler and recrawl hardening | Review needed | Operations health, snapshot builder, URL Frontier telemetry, scheduler control state, tick planning, run-once loop foundation and adaptive recrawl MVP are ready; production dispatch loop remains next. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
@@ -78,6 +78,32 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
+- Added policy-bound adaptive recrawl MVP at the URL Frontier completion
+  boundary.
+- Successful crawls compare current `contentHash` with the most recent previous
+  successful crawl attempt for the same Frontier entry.
+- Changed content shortens the next successful recrawl interval by `0.5x`;
+  unchanged content lengthens it by `1.5x`; missing hash or missing history
+  falls back to the base policy interval.
+- Preserved Topic crawl policy min/max bounds and documented that advanced
+  recrawl prediction remains deferred.
+- Ran Architecture Steward review before implementation.
+Changed files:
+- docs/progress.md
+- docs/url-frontier-model.md
+- packages/url-frontier/**
+Validation:
+- npm test -- --runTestsByPath packages/url-frontier/src/application/url-frontier-completion.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run targeted and full validation, review and merge the adaptive recrawl MVP.
 
 Date: 2026-07-26
 Issue: #180

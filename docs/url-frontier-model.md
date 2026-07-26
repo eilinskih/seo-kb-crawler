@@ -375,15 +375,32 @@ change frequency:
 - `Cache-Control`, `Expires` and sitemap `lastmod` are advisory signals only.
 
 The current implementation schedules successful recrawls from the crawl policy
-snapshot:
+snapshot and a minimal observed content-change signal:
 
 ```txt
+baseInterval = recrawlIntervalHours
+contentChangeMultiplier =
+  changed   -> 0.5
+  unchanged -> 1.5
+  unknown   -> 1.0
+
 nextCrawlAt = completedAt + clamp(
-  recrawlIntervalHours,
+  baseInterval * contentChangeMultiplier,
   minRecrawlIntervalHours,
   maxRecrawlIntervalHours
 )
 ```
+
+The change signal compares the current successful crawl `contentHash` with the
+most recent previous successful crawl attempt for the same Frontier entry.
+Missing content hash or missing successful history falls back to `unknown` and
+uses the base policy interval unchanged.
+
+This is a policy-bound MVP, not a recrawl prediction engine. URL Frontier owns
+next-crawl scheduling, but it does not interpret content quality, SEO value,
+template-level change patterns or Topic priority. Advanced trend-aware
+frequency, decay curves, template-aware detection and priority-weighted
+scheduling remain deferred.
 
 Adaptive change-frequency adjustment remains future work.
 
@@ -626,6 +643,7 @@ Implemented on `main`:
 - Atomic leasing and BullMQ dispatch.
 - Crawl-result completion feedback.
 - Bounded retry backoff and success recrawl scheduling.
+- Policy-bound adaptive recrawl from successful crawl content-hash changes.
 - Append-only discovery observation ingestion and source tracking.
 - Candidate reevaluation from pending observations.
 - Topic-scoped canonical relation evidence and duplicate suppression.
@@ -638,8 +656,8 @@ Implemented on `main`:
 
 Deferred future hardening:
 
-- Adaptive change-frequency recrawl adjustment.
 - Production scheduler automation and crawl-budget loops.
+- Advanced trend-aware recrawl frequency and template-level change detection.
 - Operator-facing retry policy editing.
 - Global URL alias registry, if a future issue accepts cross-topic aliases.
 
