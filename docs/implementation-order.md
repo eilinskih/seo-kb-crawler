@@ -89,7 +89,7 @@ and SEO packs must remain model-agnostic.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 30 | #17 | External Entity Enrichment Providers | In progress; provider-optional foundation is being reviewed. |
+| 30 | #17 | External Entity Enrichment Providers | Done on `main`; concrete provider execution and downstream consumption remain future work. |
 | 31 | #40 | External SEO Data Providers | Done on `main`; concrete provider adapters remain future provider-specific work. |
 
 External providers improve scoring and enrichment. They must never block the

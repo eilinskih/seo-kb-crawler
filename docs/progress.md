@@ -53,7 +53,7 @@ Roadmap order, phases and dependency rules live only in
 | #14 | Knowledge Pack Builder | Done | Design, foundation implementation, safe opt-in Context Pack bridge and close-out synchronization are complete; Issue #15 may start. |
 | #15 | Source Trust and Evidence Scoring | Done | Design, foundation implementation, safe Knowledge Pack score consumption and close-out synchronization are complete; Issue #16 may start. |
 | #16 | SEO Consensus and Conflict Layer | Done | Design, foundation implementation, safe Knowledge Pack consensus consumption and close-out synchronization are complete; roadmap continues with #98. |
-| #17 | External Entity Enrichment Providers | Review needed | Provider-optional enrichment foundation is ready; external signals must not replace local entity authority. |
+| #17 | External Entity Enrichment Providers | Done | Provider-optional foundation, execution policy and Architecture Steward review are complete; GitHub issue is closed. |
 | #72 | Demand Engine Design | Done | Design-only architecture correction merged through PR #73. Runtime implementation is tracked by #98. |
 | #98 | Demand Engine Runtime | Done | Provider-optional runtime foundation, fallback discovery and nullable metrics are complete; Issue #18 may start. |
 | #18 | SERP Intelligence Layer | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #30 may start. |
@@ -70,6 +70,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #17
+Status: Done
+Summary:
+- Completed Architecture Steward close-out review after PR #175 and PR #176
+  merged.
+- Confirmed the provider boundary is coherent and preserves the rule:
+  external providers enrich; local registry decides.
+- Confirmed real Google Knowledge Graph execution, real Wikidata execution,
+  durable repository retrieval, scheduled jobs, operator review UI and
+  downstream consumption are acceptable deferred follow-ups.
+- Synchronized External Entity Enrichment model, canonical roadmap and progress
+  status with the final Issue #17 state.
+Changed files:
+- docs/external-entity-enrichment-model.md
+- docs/implementation-order.md
+- docs/progress.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #17 and continue repository close-out planning.
 
 Date: 2026-07-26
 Issue: #17
@@ -91,7 +113,8 @@ Validation:
 - npm test
 - git diff --check
 Next step:
-- Run full validation, review and merge the provider execution policy slice.
+- Merged in PR #176; Architecture Steward close-out review completed on
+  2026-07-26.
 
 Date: 2026-07-26
 Issue: #17
@@ -122,7 +145,7 @@ Validation:
 - npm test
 - git diff --check
 Next step:
-- Run full validation, review and merge the provider-optional foundation.
+- Merged in PR #175.
 
 Date: 2026-07-26
 Issue: #3
