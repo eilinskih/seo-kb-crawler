@@ -196,7 +196,7 @@ Initial priority classes:
 - medium: `scheduled_serp_refresh`, `topic_expansion_candidate`,
   `recently_discovered_keyword`, `new_discovery_observation`;
 - low: `stale_page_recrawl`, `sitemap_refresh`,
-  `entity_expansion_background`;
+  `entity_expansion_background`, `background_growth`;
 - none: paused topics and archived topics for background work.
 
 Priority classes are scheduling inputs, not quality scores.
@@ -270,8 +270,10 @@ lease URLs, enqueue jobs or call provider adapters.
 
 The initial worker-loop foundation supports one explicit scheduler iteration.
 `runOnce` loads scheduler control state, plans the tick and persists background
-budget allocations only when scheduler execution is enabled. It does not start a
-timer, poll forever, dispatch queue jobs or bypass subsystem boundaries.
+budget allocations only when scheduler execution is enabled. It also persists
+background dispatch plans for eligible allocations so downstream workers can
+execute Discovery, SERP and URL Frontier boundaries separately. It does not
+start a timer, poll forever, enqueue queue jobs or bypass subsystem boundaries.
 
 Initial alert classes:
 
