@@ -205,22 +205,23 @@ Designed but not implemented on `main`:
   classification after Entity and Ontology foundations.
 - URL Frontier adaptive change-frequency recrawl adjustment, production
   scheduler automation, operator-facing retry policy editing and possible
-  cross-topic URL alias registry.
+  cross-topic URL alias registry (#180).
 
 Not implemented:
 
 - Real Google Knowledge Graph, Wikidata or other external entity provider API
-  execution, credentials, rate-limit policy and scheduled enrichment jobs.
-- Demand Engine persistence, scheduling and provider integrations.
+  execution, credentials, rate-limit policy and scheduled enrichment jobs
+  (#181).
+- Demand Engine persistence, scheduling and provider integrations (#185).
 - Concrete Ahrefs, Semrush, SE Ranking or other external SEO provider
-  integrations, credentials, scheduled refresh jobs and persistence.
-- SERP and SERP Intent persistence and live SERP providers.
+  integrations, credentials, scheduled refresh jobs and persistence (#179).
+- SERP and SERP Intent persistence and live SERP providers (#183).
 - Research Scheduling concrete persistence, long-running scheduler daemon,
-  queue workers and media downloader.
+  queue workers and media downloader (#180).
 - SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
-  consumption.
+  consumption (#183).
 - SEO Agent Gateway concrete persistence, prompt rendering, LLM provider calls,
-  final content generation and publishing workflows.
+  final content generation and publishing workflows (#184).
 - Operator Console authenticated access, production UI hardening, richer
   per-domain detail screens, retry-specific forms and full Research Scheduling
-  controls.
+  controls (#182).

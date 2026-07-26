@@ -66,10 +66,39 @@ Roadmap order, phases and dependency rules live only in
 | #43 | Research Engine Scheduling | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; Issue #42 may start. |
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
+| #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
+| #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
+| #180 | Research Operations scheduler and recrawl hardening | Not started | Production scheduler, crawl-budget and adaptive recrawl hardening. |
+| #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
+| #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
+| #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
+| #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
+| #185 | Demand Engine persistence and provider-backed refresh | Not started | Durable demand candidates, metric snapshots and fallback-safe refresh. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #178
+Status: Done
+Summary:
+- Created production readiness backlog after all foundation roadmap issues were
+  closed.
+- Added follow-up issues for Research Operations, SEO Intelligence persistence,
+  Demand Engine persistence, SEO Agent Gateway runtime, External SEO providers,
+  External Entity providers and Operator Console hardening.
+- Started synchronizing Phase 9 into the canonical implementation order while
+  keeping completed foundation issues closed.
+Changed files:
+- docs/implementation-order.md
+- docs/progress.md
+- docs/project-map.md
+Validation:
+- git diff --check
+Next step:
+- Close GitHub Issue #178 and continue with #180, the first Phase 9
+  implementation issue.
 
 Date: 2026-07-26
 Issue: #17
