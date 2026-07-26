@@ -73,11 +73,27 @@ Roadmap order, phases and dependency rules live only in
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Not started | Durable stores and refresh jobs for planning packs. |
 | #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
-| #185 | Demand Engine persistence and provider-backed refresh | In progress | Durable demand candidates, metric snapshots and fallback-safe refresh are underway. |
+| #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-07-26
+Issue: #185
+Status: Done
+Summary:
+- Closed out Demand Engine persistence and provider-backed refresh.
+- Architecture Steward re-review found no blockers and confirmed #185
+  acceptance criteria are satisfied.
+- Confirmed fallback mode remains non-blocking, paid providers remain optional
+  and Topic ownership stays outside Demand Engine.
+Changed files:
+- docs/progress.md
+Validation:
+- Architecture Steward close-out review.
+Next step:
+- Continue roadmap with #183 SEO Intelligence persistence and scheduling.
 
 Date: 2026-07-26
 Issue: #185
