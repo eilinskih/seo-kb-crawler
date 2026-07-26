@@ -83,6 +83,25 @@ Date: 2026-07-26
 Issue: #180
 Status: Review needed
 Summary:
+- Added Research Operations snapshot builder for topic and Frontier telemetry.
+- Preserved subsystem ownership by accepting URL Frontier telemetry as input
+  instead of querying queue transport or mutating Frontier state.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run full validation, review and merge the operations snapshot builder.
+
+Date: 2026-07-26
+Issue: #180
+Status: Review needed
+Summary:
 - Started Research Operations production hardening after Phase 9 roadmap
   consolidation.
 - Added Research Operations health snapshot, thresholds, alerts and health

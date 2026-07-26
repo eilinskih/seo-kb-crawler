@@ -2,6 +2,7 @@ import { BackgroundBudgetAllocator } from './background-budget-allocator.service
 import { MediaResearchPolicyService } from './media-research-policy.service';
 import { ResearchSchedulingService } from './research-scheduling.service';
 import { ResearchOperationsHealthService } from './research-operations-health.service';
+import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
 
 const policy: TopicResearchPolicy = {
@@ -161,5 +162,52 @@ describe('ResearchSchedulingService', () => {
       expect.objectContaining({ code: 'frontier_backlog_high' }),
       expect.objectContaining({ code: 'background_starvation' }),
     ]));
+  });
+
+  it('builds research operations snapshots from topic and frontier telemetry', () => {
+    const snapshot = new ResearchOperationsSnapshotService().build({
+      schedulerEnabled: true,
+      recentBackgroundResearchWindowHours: 24,
+      observedAt: '2026-07-26T00:00:00.000Z',
+      topicSnapshots: [
+        {
+          topicId: 'active-fresh',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+          lastBackgroundResearchAt: '2026-07-25T12:00:00.000Z',
+        },
+        {
+          topicId: 'active-stale',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+          lastBackgroundResearchAt: '2026-07-20T00:00:00.000Z',
+        },
+        {
+          topicId: 'paused',
+          lifecycle: 'paused',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        },
+      ],
+      frontierTelemetry: {
+        expiredLeaseCount: 2,
+        enqueueFailureCount: 1,
+        eligibleBacklogCount: 250,
+        oldestEligibleFrontierAgeMinutes: 90,
+      },
+    });
+
+    expect(snapshot).toMatchObject({
+      schedulerEnabled: true,
+      activeTopicCount: 2,
+      eligibleBackgroundTopicCount: 2,
+      topicsWithoutRecentBackgroundResearch: 1,
+      expiredFrontierLeaseCount: 2,
+      frontierEnqueueFailureCount: 1,
+      eligibleFrontierBacklogCount: 250,
+      oldestEligibleFrontierAgeMinutes: 90,
+    });
   });
 });

@@ -237,6 +237,18 @@ depth is not a durable source of truth. URL Frontier remains responsible for
 URL-level leases and recovery; Research Scheduling classifies operational
 signals so operators and future scheduler loops can react safely.
 
+Operations snapshots are built from owned subsystem signals:
+
+- Topic snapshots provide active/background-eligible topic counts and last
+  background research timestamps.
+- URL Frontier telemetry provides expired lease, enqueue failure, eligible
+  backlog and oldest eligible age counts.
+- Scheduler configuration provides whether scheduler execution is enabled.
+
+The snapshot builder does not query queue transport directly, lease Frontier
+work, dispatch jobs or infer Topic lifecycle. It only normalizes telemetry into
+the Research Operations health contract.
+
 Initial alert classes:
 
 - `scheduler_disabled`;

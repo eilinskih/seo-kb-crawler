@@ -251,6 +251,21 @@ export interface ResearchOperationsSnapshot {
   observedAt: string;
 }
 
+export interface ResearchOperationsFrontierTelemetry {
+  expiredLeaseCount: number;
+  enqueueFailureCount: number;
+  eligibleBacklogCount: number;
+  oldestEligibleFrontierAgeMinutes?: number;
+}
+
+export interface ResearchOperationsSnapshotInput {
+  schedulerEnabled: boolean;
+  topicSnapshots: TopicResearchSnapshot[];
+  frontierTelemetry: ResearchOperationsFrontierTelemetry;
+  recentBackgroundResearchWindowHours: number;
+  observedAt: string;
+}
+
 export interface ResearchOperationsThresholds {
   maxExpiredFrontierLeases: number;
   maxFrontierEnqueueFailures: number;
