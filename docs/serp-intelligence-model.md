@@ -290,8 +290,9 @@ Implemented foundation package:
   `packages/serp-intelligence/src/content-angle.service.ts` provide the first
   depth and angle heuristics.
 - `packages/serp-intelligence/src/persistence/serp-intelligence.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/serp-intelligence/src/persistence/knex-serp-intelligence.repository.ts`
+  provides durable snapshot and SERP Pack persistence for production flows.
 - `packages/serp-intelligence/src/testing/in-memory-serp-intelligence.repository.ts`
   provides deterministic test storage for repository contract consumers.
 

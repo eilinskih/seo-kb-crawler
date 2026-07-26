@@ -23,6 +23,7 @@ import { urlFrontierSchedulingStateMigration } from './migrations/015-url-fronti
 import { externalEntityEnrichmentFoundationMigration } from './migrations/016-external-entity-enrichment-foundation';
 import { researchSchedulerProductionMigration } from './migrations/017-research-scheduler-production';
 import { demandEnginePersistenceMigration } from './migrations/018-demand-engine-persistence';
+import { serpIntelligencePersistenceMigration } from './migrations/019-serp-intelligence-persistence';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -79,6 +80,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     externalEntityEnrichmentFoundationMigration,
     researchSchedulerProductionMigration,
     demandEnginePersistenceMigration,
+    serpIntelligencePersistenceMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -114,6 +116,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
       '017-research-scheduler-production',
     ],
     [demandEnginePersistenceMigration, '018-demand-engine-persistence'],
+    [serpIntelligencePersistenceMigration, '019-serp-intelligence-persistence'],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {
