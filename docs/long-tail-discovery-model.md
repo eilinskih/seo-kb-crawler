@@ -322,8 +322,9 @@ Implemented foundation package:
 - `packages/long-tail-discovery/src/opportunity-tree.service.ts` groups
   candidates into reviewable opportunity trees.
 - `packages/long-tail-discovery/src/persistence/long-tail-discovery.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/long-tail-discovery/src/persistence/knex-long-tail-discovery.repository.ts`
+  provides durable Long-tail Discovery Pack persistence for production flows.
 
 Recommended services:
 
