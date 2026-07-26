@@ -12,6 +12,7 @@ export * from './research-operations-snapshot.service';
 export * from './research-priority.service';
 export * from './research-scheduler-control.service';
 export * from './research-scheduler-tick-planner.service';
+export * from './research-scheduler-worker-loop.service';
 export * from './research-scheduling-defaults';
 export * from './research-scheduling.module';
 export * from './research-scheduling.service';

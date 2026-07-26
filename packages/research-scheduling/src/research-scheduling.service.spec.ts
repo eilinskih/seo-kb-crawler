@@ -6,6 +6,7 @@ import { ResearchOperationsHealthService } from './research-operations-health.se
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
 import { ResearchSchedulerControlService } from './research-scheduler-control.service';
 import { ResearchSchedulerTickPlannerService } from './research-scheduler-tick-planner.service';
+import { ResearchSchedulerWorkerLoopService } from './research-scheduler-worker-loop.service';
 import { TopicResearchPolicy } from './domain/research-scheduling-types';
 import { InMemoryResearchSchedulingRepository } from './testing/in-memory-research-scheduling.repository';
 
@@ -348,5 +349,64 @@ describe('ResearchSchedulingService', () => {
         eligible: false,
       }),
     ]));
+  });
+
+  it('runs one scheduler loop safely without persisting work while disabled', async () => {
+    const result = await new ResearchSchedulerWorkerLoopService(
+      new InMemoryResearchSchedulingRepository(),
+    ).runOnce({
+      observedAt: '2026-07-26T00:00:00.000Z',
+      topicSnapshots: [
+        {
+          topicId: 'active',
+          lifecycle: 'active',
+          configurationVersion: 1,
+          researchPolicy: policy,
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      tickPlan: {
+        status: 'skipped',
+        schedulerState: 'disabled',
+      },
+      persistedBackgroundAllocations: [],
+    });
+  });
+
+  it('runs one scheduler loop and persists planned background allocations when enabled', async () => {
+    const repository = new InMemoryResearchSchedulingRepository();
+    await new ResearchSchedulerControlService(repository).setState({
+      state: 'enabled',
+      requestedBy: 'operator-1',
+      requestedAt: '2026-07-26T00:00:00.000Z',
+    });
+
+    const result = await new ResearchSchedulerWorkerLoopService(repository)
+      .runOnce({
+        observedAt: '2026-07-26T00:05:00.000Z',
+        topicSnapshots: [
+          {
+            topicId: 'active',
+            lifecycle: 'active',
+            configurationVersion: 1,
+            researchPolicy: policy,
+          },
+        ],
+      });
+
+    expect(result.tickPlan).toMatchObject({
+      status: 'planned',
+      schedulerState: 'enabled',
+    });
+    expect(result.persistedBackgroundAllocations).toEqual([
+      expect.objectContaining({
+        id: 'background-budget-allocation-1',
+        topicId: 'active',
+        eligible: true,
+        createdAt: '2026-07-26T00:05:00.000Z',
+      }),
+    ]);
   });
 });
