@@ -83,6 +83,27 @@ Date: 2026-07-27
 Issue: #183
 Status: Review needed
 Summary:
+- Added scheduler-owned planning pack freshness visibility.
+- Added missing/stale/fresh reporting for persisted planning pack summaries
+  without moving pack payload ownership into Research Scheduling.
+- Added scheduled planning pack refresh trigger and dispatch planning through
+  the SEO Pack boundary.
+Changed files:
+- docs/progress.md
+- docs/research-engine-scheduling-model.md
+- packages/research-scheduling/**
+Validation:
+- npm test -- --runTestsByPath packages/research-scheduling/src/planning-pack-freshness.service.spec.ts packages/research-scheduling/src/research-scheduling.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the planning pack freshness slice.
+
+Date: 2026-07-27
+Issue: #183
+Status: Review needed
+Summary:
 - Added SEO Pack durable persistence as the sixth SEO Intelligence persistence
   slice.
 - Added bundled migration for SEO Packs with reusable topic, candidate, page

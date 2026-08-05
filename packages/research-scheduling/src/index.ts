@@ -2,6 +2,7 @@ export * from './background-budget-allocator.service';
 export * from './domain/research-scheduling-types';
 export * from './freshness-policy.service';
 export * from './media-research-policy.service';
+export * from './planning-pack-freshness.service';
 export * from './persistence/knex-research-scheduling.repository';
 export * from './persistence/research-scheduling.repository';
 export * from './research-asset-metrics.service';

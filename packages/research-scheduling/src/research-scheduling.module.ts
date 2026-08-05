@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DbModule } from '@seo-kb/db';
 import { KnexResearchSchedulingRepository } from './persistence/knex-research-scheduling.repository';
+import { PlanningPackFreshnessService } from './planning-pack-freshness.service';
 import { ResearchOperationsFrontierTelemetryService } from './research-operations-frontier-telemetry.service';
 import { ResearchOperationsHealthService } from './research-operations-health.service';
 import { ResearchOperationsSnapshotService } from './research-operations-snapshot.service';
@@ -11,6 +12,7 @@ import { RESEARCH_SCHEDULING_REPOSITORY } from './research-scheduling.tokens';
   imports: [DbModule],
   providers: [
     KnexResearchSchedulingRepository,
+    PlanningPackFreshnessService,
     ResearchOperationsFrontierTelemetryService,
     ResearchOperationsHealthService,
     ResearchOperationsSnapshotService,
@@ -23,6 +25,7 @@ import { RESEARCH_SCHEDULING_REPOSITORY } from './research-scheduling.tokens';
   exports: [
     RESEARCH_SCHEDULING_REPOSITORY,
     KnexResearchSchedulingRepository,
+    PlanningPackFreshnessService,
     ResearchOperationsFrontierTelemetryService,
     ResearchOperationsHealthService,
     ResearchOperationsSnapshotService,

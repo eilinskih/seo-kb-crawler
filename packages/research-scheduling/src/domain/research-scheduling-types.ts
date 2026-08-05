@@ -20,7 +20,8 @@ export type ResearchTrigger =
   | 'sitemap_refresh'
   | 'entity_expansion_background'
   | 'background_growth'
-  | 'scheduled_demand_refresh';
+  | 'scheduled_demand_refresh'
+  | 'scheduled_planning_pack_refresh';
 
 export type TopicResearchLifecycle =
   | 'draft'
@@ -44,7 +45,8 @@ export type ResearchObjectiveType =
   | 'refresh_domain'
   | 'force_bounded_recrawl'
   | 'background_growth'
-  | 'refresh_demand_metrics';
+  | 'refresh_demand_metrics'
+  | 'refresh_planning_packs';
 
 export type DispatchTarget =
   | 'discovery_sources'
@@ -333,4 +335,61 @@ export interface ResearchOperationsHealthReport {
   alerts: ResearchOperationsAlert[];
   generatedAt: string;
   ruleVersion: string;
+}
+
+export type PlanningPackType =
+  | 'serp_pack'
+  | 'serp_intent_pack'
+  | 'topic_expansion_pack'
+  | 'long_tail_discovery_pack'
+  | 'candidate_scoring_pack'
+  | 'seo_pack';
+
+export type PlanningPackFreshnessStatus = 'missing' | 'stale' | 'fresh';
+
+export interface PlanningPackRequirement {
+  packType: PlanningPackType;
+  required: boolean;
+  ttlHours: number;
+}
+
+export interface PlanningPackSnapshot {
+  packType: PlanningPackType;
+  packId: string;
+  createdAt: string;
+  topicId: string;
+  candidateKey?: string;
+  degraded?: boolean;
+  warnings?: string[];
+}
+
+export interface PlanningPackFreshnessItem {
+  packType: PlanningPackType;
+  status: PlanningPackFreshnessStatus;
+  required: boolean;
+  packId: string | null;
+  createdAt: string | null;
+  ageHours: number | null;
+  ttlHours: number;
+  refreshRequired: boolean;
+  reason: string;
+  warnings: string[];
+}
+
+export interface PlanningPackFreshnessRequest {
+  topicId: string;
+  candidateKey?: string;
+  observedAt: string;
+  requirements: PlanningPackRequirement[];
+  existingPacks: PlanningPackSnapshot[];
+}
+
+export interface PlanningPackFreshnessReport {
+  topicId: string;
+  candidateKey: string | null;
+  observedAt: string;
+  refreshRequired: boolean;
+  missingRequiredCount: number;
+  staleCount: number;
+  items: PlanningPackFreshnessItem[];
 }
