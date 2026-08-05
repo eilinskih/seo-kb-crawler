@@ -1,6 +1,7 @@
 # External SEO Data Providers Model
 
-Status: Foundation implementation complete for Issue #40.
+Status: Foundation implementation complete for Issue #40; durable persistence
+in progress for Issue #179.
 
 ## Purpose
 
@@ -33,7 +34,7 @@ This subsystem owns:
 - fail-open aggregation behavior;
 - nullable metric snapshots;
 - warnings that explain missing, stale, rate-limited or disabled providers;
-- repository contracts for future persistence.
+- repository contracts and durable enrichment snapshot persistence.
 
 This subsystem does not own:
 
@@ -172,19 +173,21 @@ Research Assets.
 
 ## Storage Model
 
-Future persistence should store provider outputs as snapshots instead of
+Provider persistence stores provider outputs as snapshots instead of
 overwriting canonical candidate state.
 
-Expected storage areas:
+Implemented storage areas:
 
-- provider runs;
-- provider health/status events;
-- keyword metric snapshots;
-- competitor observations;
-- top-page observations;
-- authority observations;
-- traffic observations;
-- enrichment pack snapshots.
+- enrichment pack snapshots;
+- provider status and warning payloads inside each pack;
+- provider-neutral observations;
+- nullable metric snapshots.
+
+Deferred storage areas:
+
+- scheduled provider refresh jobs;
+- standalone provider health/status event history;
+- provider quota and billing records.
 
 Snapshots should include provider identity, market, language, collection time
 and freshness metadata so historical provider data can be audited or replaced
@@ -200,7 +203,7 @@ The package should expose services similar to:
 - `ExternalSeoNormalizationService` for converting provider responses into
   normalized observations;
 - `ExternalSeoFallbackService` for internal/free-first enrichment behavior;
-- `ExternalSeoDataProviderRepository` for future snapshot persistence.
+- `ExternalSeoDataProviderRepository` for snapshot persistence.
 
 Consumers should request enrichment through the service boundary. They should
 not call provider adapters directly.
@@ -260,9 +263,11 @@ The initial implementation:
 - returns provider warnings instead of throwing when providers are disabled,
   misconfigured or unavailable;
 - defines repository contracts and an in-memory test repository.
+- adds durable enrichment pack, observation and metric snapshot persistence for
+  Issue #179.
 
-Concrete paid provider integrations, credentials management, scheduled refresh
-jobs and durable persistence remain future work.
+Concrete paid provider integrations, credentials management and scheduled
+refresh jobs remain future work.
 
 ## Close-out
 
@@ -285,7 +290,6 @@ Deferred:
 - Google Search Console owned-data adapter;
 - provider credentials management;
 - scheduled refresh jobs;
-- durable provider snapshot persistence;
 - billing, quota and rate-limit operations UI.
 
 Future provider integrations should build on this package instead of adding

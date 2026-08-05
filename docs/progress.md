@@ -67,7 +67,7 @@ Roadmap order, phases and dependency rules live only in
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
-| #179 | External SEO provider adapters and persistence | Not started | Optional provider execution; must preserve fallback mode. |
+| #179 | External SEO provider adapters and persistence | Review needed | Durable External SEO enrichment pack, observation and metric snapshot persistence is ready for review. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
@@ -78,6 +78,33 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #179
+Status: Review needed
+Summary:
+- Added durable persistence for provider-neutral External SEO enrichment packs,
+  observations and metric snapshots.
+- Added bundled migration and Knex repository boundary without concrete paid API
+  adapters.
+- Preserved fallback/no-provider behavior as non-blocking and kept keyword
+  candidate ownership in Demand Engine.
+- Synchronized External SEO Data Providers documentation for Issue #179.
+Changed files:
+- docs/progress.md
+- docs/external-seo-data-providers-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/026-external-seo-provider-persistence.ts
+- packages/db/src/migrations/026-external-seo-provider-persistence.spec.ts
+- packages/external-seo-data-providers/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/026-external-seo-provider-persistence.spec.ts packages/external-seo-data-providers/src/persistence/knex-external-seo-data-provider.repository.spec.ts packages/external-seo-data-providers/src/external-seo-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run full validation, review and merge the persistence slice, then continue
+  Issue #179 with optional provider adapter execution.
 
 Date: 2026-08-05
 Issue: #184
