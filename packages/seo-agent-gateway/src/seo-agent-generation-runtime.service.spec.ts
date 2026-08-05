@@ -225,6 +225,37 @@ describe('SeoAgentGenerationRuntimeService', () => {
       'Generation blocked because structured SEO context is unavailable.',
     );
   });
+
+  it('does not treat pack references or research plans as structured fallback content', async () => {
+    const provider = new StaticSeoAgentProvider('Should not be generated.');
+    const result = await new SeoAgentGenerationRuntimeService(
+      undefined,
+      undefined,
+      [provider],
+    ).generate({
+      request: {
+        topicId: 'topic-1',
+        query: 'laser hair removal warsaw',
+        objective: 'page_generation',
+        sourcePackReferences: [
+          {
+            packType: 'knowledge_pack',
+            packId: 'knowledge-1',
+          },
+        ],
+      },
+      researchDispatchPlan,
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.prompt.blocked).toBe(true);
+    expect(provider.calls).toHaveLength(0);
+    expect(result.gatewayResult.generationContext.retrievalOnlySafeguard).toEqual(
+      expect.objectContaining({
+        status: 'blocked_raw_retrieval_only',
+      }),
+    );
+  });
 });
 
 class StaticSeoAgentProvider implements SeoAgentGenerationProvider {

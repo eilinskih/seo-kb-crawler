@@ -72,12 +72,38 @@ Roadmap order, phases and dependency rules live only in
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
-| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation, response persistence and optional OpenAI provider adapter are ready for review. |
+| #184 | SEO Agent Gateway generation runtime | Review needed | Close-out stabilization is addressing Architecture Steward safeguard/doc-sync findings. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #184
+Status: Review needed
+Summary:
+- Architecture Steward close-out review found one blocker: pack references and
+  Research Scheduling plans must not count as structured fallback content.
+- Tightened SEO Agent Gateway retrieval-only safeguard input so provider calls
+  require actual structured generation context.
+- Added regression coverage ensuring source pack references and research plans
+  alone do not call providers.
+- Synchronized project map and SEO Agent Gateway storage wording with #184
+  implementation state.
+Changed files:
+- docs/progress.md
+- docs/project-map.md
+- docs/seo-agent-gateway-model.md
+- packages/seo-agent-gateway/src/seo-agent-gateway.service.ts
+- packages/seo-agent-gateway/src/seo-agent-generation-runtime.service.spec.ts
+Validation:
+- npm test -- --runTestsByPath packages/seo-agent-gateway/src/seo-agent-gateway.service.spec.ts packages/seo-agent-gateway/src/seo-agent-generation-runtime.service.spec.ts packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate, merge close-out stabilization and close Issue #184 if checks pass.
 
 Date: 2026-08-05
 Issue: #184

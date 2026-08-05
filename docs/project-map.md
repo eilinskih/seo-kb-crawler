@@ -188,7 +188,8 @@ Implemented on `main`:
 - SEO Agent Gateway package boundary, model-agnostic generation request
   contracts, Focused Research requirement representation, structured
   generation context assembly, retrieval-only safeguards, consumer adapter
-  contracts and repository abstraction.
+  contracts, model-agnostic prompt rendering, optional OpenAI provider
+  execution, generation response persistence and repository abstraction.
 - External SEO Data Providers package boundary, provider capability/status
   contracts, provider-neutral observations, nullable metric snapshots,
   fail-open enrichment service, fallback SEO signals provider and repository
@@ -212,16 +213,10 @@ Not implemented:
 - Real Google Knowledge Graph, Wikidata or other external entity provider API
   execution, credentials, rate-limit policy and scheduled enrichment jobs
   (#181).
-- Demand Engine persistence, scheduling and provider integrations (#185).
 - Concrete Ahrefs, Semrush, SE Ranking or other external SEO provider
   integrations, credentials, scheduled refresh jobs and persistence (#179).
-- SERP and SERP Intent persistence and live SERP providers (#183).
-- Research Scheduling concrete persistence, long-running scheduler daemon,
-  queue workers and media downloader (#180).
-- SEO Pack persistence, scheduling, operator UI and SEO Agent Gateway
-  consumption (#183).
-- SEO Agent Gateway concrete persistence, prompt rendering, LLM provider calls,
-  final content generation and publishing workflows (#184).
+- Live SERP providers and paid provider refresh jobs.
+- Publishing workflows for generated content.
 - Operator Console authenticated access, production UI hardening, richer
   per-domain detail screens, retry-specific forms and full Research Scheduling
   controls (#182).
