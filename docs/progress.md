@@ -67,7 +67,7 @@ Roadmap order, phases and dependency rules live only in
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
-| #179 | External SEO provider adapters and persistence | Review needed | Close-out stabilization is addressing Architecture Steward source-tier/doc-sync findings. |
+| #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
@@ -78,6 +78,28 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #179
+Status: Done
+Summary:
+- Closed out External SEO provider adapters and persistence.
+- Architecture Steward blocker was resolved by preserving fallback, owned-data
+  and paid-provider semantics when External SEO observations feed Demand
+  Engine.
+- Confirmed durable provider-neutral snapshots, optional Google Search Console
+  adapter, provider refresh service, fail-open behavior and nullable metrics are
+  complete.
+Changed files:
+- docs/progress.md
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts packages/external-seo-data-providers/src/external-seo-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Close GitHub Issue #179 and continue roadmap with #181 External Entity
+  provider execution.
 
 Date: 2026-08-05
 Issue: #179
