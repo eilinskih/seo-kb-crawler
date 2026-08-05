@@ -167,6 +167,104 @@ describe('DemandEngineService', () => {
     });
   });
 
+  it('maps External SEO fallback observations as fallback-only demand signals', async () => {
+    const service = new DemandEngineService([
+      new ExternalSeoDemandProvider({
+        enrich: jest.fn(async () => ({
+          request: { topicSeed: 'laser hair removal' },
+          generatedAt: '2026-08-05T00:00:00.000Z',
+          degraded: true,
+          providerStatuses: [],
+          warnings: [],
+          observations: [{
+            observationType: 'keyword',
+            providerKey: 'fallback_seo_signals',
+            sourceCapability: 'keyword_intelligence',
+            subject: 'laser hair removal cost',
+            metrics: [
+              metric(
+                'traffic_potential',
+                null,
+                'fallback_seo_signals',
+                'traffic_potential',
+                'unknown',
+              ),
+            ],
+            confidence: 'low',
+            observedAt: '2026-08-05T00:00:00.000Z',
+          }],
+          metricSnapshots: [],
+        })),
+      } as never),
+    ]);
+
+    const result = await service.discover({
+      topicSeed: 'laser hair removal',
+    });
+
+    expect(result.fallbackMode).toBe(true);
+    expect(result.keywordCandidates[0]).toMatchObject({
+      sourceTiers: ['fallback'],
+      metrics: expect.objectContaining({
+        trafficPotential: null,
+        metricStatus: 'fallback_only',
+        providerKey: 'fallback_seo_signals',
+      }),
+    });
+  });
+
+  it('maps Google Search Console observations as owned-data-backed demand signals', async () => {
+    const service = new DemandEngineService([
+      new ExternalSeoDemandProvider({
+        enrich: jest.fn(async () => ({
+          request: { topicSeed: 'laser hair removal' },
+          generatedAt: '2026-08-05T00:00:00.000Z',
+          degraded: false,
+          providerStatuses: [],
+          warnings: [],
+          observations: [{
+            observationType: 'keyword',
+            providerKey: 'google_search_console',
+            sourceCapability: 'owned_performance_data',
+            subject: 'laser hair removal cost',
+            metrics: [
+              metric(
+                'traffic_potential',
+                12,
+                'google_search_console',
+                'owned_performance_data',
+              ),
+              metric(
+                'search_volume',
+                240,
+                'google_search_console',
+                'owned_performance_data',
+              ),
+            ],
+            confidence: 'medium',
+            observedAt: '2026-08-05T00:00:00.000Z',
+          }],
+          metricSnapshots: [],
+        })),
+      } as never),
+    ]);
+
+    const result = await service.discover({
+      topicSeed: 'laser hair removal',
+    });
+
+    expect(result.fallbackMode).toBe(false);
+    expect(result.keywordCandidates[0]).toMatchObject({
+      sourceTiers: ['owned_data'],
+      metrics: expect.objectContaining({
+        searchVolume: 240,
+        trafficPotential: 12,
+        metricStatus: 'owned_data_backed',
+        providerKey: 'google_search_console',
+      }),
+    });
+  });
+
   it('continues with fallback when External SEO provider returns no observations', async () => {
     const service = new DemandEngineService([
       new ExternalSeoDemandProvider({
@@ -214,14 +312,20 @@ function unavailableProvider(): DemandProviderAdapter {
   };
 }
 
-function metric(metricName: string, value: number | string | null) {
+function metric(
+  metricName: string,
+  value: number | string | null,
+  providerKey = 'test_paid',
+  sourceCapability = 'keyword_intelligence',
+  confidence = 'high',
+) {
   return {
     metricName,
     value,
-    providerKey: 'test_paid',
-    sourceCapability: 'keyword_intelligence',
+    providerKey,
+    sourceCapability,
     fetchedAt: '2026-07-26T00:00:00.000Z',
-    confidence: 'high',
+    confidence,
     warningCodes: [],
   };
 }
