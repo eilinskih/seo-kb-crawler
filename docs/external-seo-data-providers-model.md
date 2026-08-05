@@ -201,6 +201,8 @@ The package should expose services similar to:
 - `ExternalSeoProviderRegistry` for enabled providers and capabilities;
 - `ExternalSeoProviderHealthService` for provider status and warnings;
 - `ExternalSeoEnrichmentService` for provider-neutral enrichment requests;
+- `ExternalSeoProviderRefreshService` for scheduled or manual provider refresh
+  commands through the same enrichment boundary;
 - `ExternalSeoNormalizationService` for converting provider responses into
   normalized observations;
 - `ExternalSeoFallbackService` for internal/free-first enrichment behavior;
@@ -266,9 +268,12 @@ The initial implementation:
 - defines repository contracts and an in-memory test repository.
 - adds durable enrichment pack, observation and metric snapshot persistence for
   Issue #179.
+- adds a scheduled/manual provider refresh service that executes provider
+  refresh through `ExternalSeoEnrichmentService` and preserves fail-open
+  behavior.
 
-Concrete paid provider integrations, credentials management and scheduled
-refresh jobs remain future work.
+Concrete paid provider integrations, credentials management and scheduler daemon
+ownership remain future work.
 
 Issue #179 adds `GoogleSearchConsoleProvider` as the first concrete external
 provider adapter. It reads owned performance data when `GSC_ACCESS_TOKEN` and
@@ -295,7 +300,7 @@ Deferred:
 
 - concrete Ahrefs, Semrush, SE Ranking or other paid API adapters;
 - provider credentials management;
-- scheduled refresh jobs;
+- scheduler daemon ownership and queue integration for refresh jobs;
 - billing, quota and rate-limit operations UI.
 
 Future provider integrations should build on this package instead of adding
