@@ -1,7 +1,8 @@
 # SEO Agent Gateway Model
 
-- Status: Foundation complete for Issue #42
-- Issue: #42
+- Status: Foundation complete for Issue #42; generation runtime in progress for
+  Issue #184
+- Issues: #42, #184
 - Date: 2026-07-23
 
 ## Purpose
@@ -39,6 +40,11 @@ usable by Claude, Gemini, GPT, local LLMs and future custom agents.
 The gateway produces structured generation context. It does not render a
 vendor-specific prompt and does not call an LLM in the foundation boundary.
 
+Issue #184 extends the foundation with a production generation runtime. That
+runtime may render model-agnostic prompts and call model-agnostic provider
+adapters, but it must not make one provider's request or response shape part of
+the domain contract.
+
 ## Boundaries
 
 SEO Agent Gateway owns:
@@ -53,7 +59,10 @@ SEO Agent Gateway owns:
 - retrieval-only generation safeguards;
 - consumer adapter contracts;
 - source and uncertainty visibility;
-- repository abstraction.
+- repository abstraction;
+- model-agnostic prompt rendering for generation runtime;
+- provider-optional generation execution;
+- provider failure/degraded-mode audit metadata.
 
 SEO Agent Gateway does not own:
 
@@ -67,9 +76,9 @@ SEO Agent Gateway does not own:
 - SERP Pack assembly;
 - SERP Intent Pack assembly;
 - SEO Pack assembly;
-- prompt rendering;
-- LLM provider calls;
-- final content generation;
+- vendor-specific prompt formats;
+- provider SDK implementation details;
+- publish-ready editorial approval;
 - publish approval;
 - rank tracking;
 - operator UI.
@@ -163,6 +172,38 @@ Initial output should include:
 - rule version.
 
 This output is a structured data contract, not a prompt.
+
+## Production Generation Runtime
+
+Issue #184 introduces the runtime layer that turns structured gateway context
+into a generation attempt.
+
+The runtime owns:
+
+- rendering a model-agnostic prompt from Knowledge Pack, SERP Pack, SERP Intent
+  Pack and SEO Pack-derived context;
+- carrying required pack references into the prompt request;
+- enforcing retrieval-only safeguards before any provider call;
+- selecting an optional generation provider adapter;
+- returning degraded output when no provider is configured;
+- returning degraded output when a provider fails;
+- preserving provider audit metadata, warnings, token usage and finish reason
+  without leaking provider-specific response schemas;
+- returning final generated content only when a provider successfully generates
+  it.
+
+The runtime does not own:
+
+- OpenAI, Claude, Gemini or local-model SDK specifics;
+- publishing workflows;
+- direct retrieval chunk generation;
+- manual editorial approval;
+- provider credential management.
+
+Missing generation providers must not block the rest of the SEO research
+workflow. In no-provider mode the runtime returns the rendered prompt, gateway
+context, warnings and degraded status so operators can inspect readiness without
+pretending that content was generated.
 
 ## Focused Research Enforcement
 
@@ -301,6 +342,11 @@ Recommended services:
 - `ConsumerAdapterRegistry`: exposes consumer adapter capabilities without
   vendor prompt rendering.
 - `SeoAgentGatewayService`: orchestrates the gateway request lifecycle.
+- `SeoAgentPromptRendererService`: renders model-agnostic prompts from
+  structured gateway context.
+- `SeoAgentGenerationRuntimeService`: runs prompt rendering, optional provider
+  execution, degraded fallback and retrieval-only blocking.
+- `SeoAgentGenerationProvider`: adapter contract for concrete LLM providers.
 - `SeoAgentGatewayRepository`: persists request/context records when concrete
   persistence is introduced.
 
@@ -330,9 +376,9 @@ Consumer adapters:
 - consume structured gateway context;
 - may render prompts outside the core gateway package.
 
-## MVP Scope
+## Issue #42 MVP Scope
 
-The first implementation should include:
+The Issue #42 foundation implementation included:
 
 - `packages/seo-agent-gateway`;
 - generation request DTOs;
@@ -350,7 +396,7 @@ The first implementation should include:
   safeguards;
 - documentation and progress synchronization.
 
-The first implementation should not include:
+The Issue #42 foundation implementation did not include:
 
 - prompt rendering;
 - LLM provider calls;

@@ -72,12 +72,34 @@ Roadmap order, phases and dependency rules live only in
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
-| #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
+| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation adds model-agnostic prompt rendering and provider-optional execution from structured packs. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #184
+Status: Review needed
+Summary:
+- Added SEO Agent Gateway generation runtime foundation.
+- Added model-agnostic prompt rendering from structured gateway context.
+- Added provider-optional execution, no-provider degraded fallback, provider
+  failure degraded fallback and retrieval-only blocking before provider calls.
+- Synchronized SEO Agent Gateway architecture documentation for Issue #184.
+Changed files:
+- docs/progress.md
+- docs/seo-agent-gateway-model.md
+- packages/seo-agent-gateway/**
+Validation:
+- npm test -- --runTestsByPath packages/seo-agent-gateway/src/seo-agent-gateway.service.spec.ts packages/seo-agent-gateway/src/seo-agent-generation-runtime.service.spec.ts packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Review and merge the runtime foundation slice, then continue #184 with
+  generation response persistence.
 
 Date: 2026-08-05
 Issue: #183
