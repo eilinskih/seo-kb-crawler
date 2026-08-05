@@ -1,5 +1,6 @@
 import { InMemorySeoAgentGatewayRepository } from '../testing/in-memory-seo-agent-gateway.repository';
 import { SeoAgentGenerationContext } from '../domain/seo-agent-gateway-types';
+import { SeoAgentGenerationRuntimeService } from '../seo-agent-generation-runtime.service';
 
 describe('SeoAgentGatewayRepository', () => {
   it('preserves the latest generation context by topic and query', async () => {
@@ -68,6 +69,36 @@ describe('SeoAgentGatewayRepository', () => {
     ).resolves.toMatchObject({
       id: 'seo-agent-generation-context-2',
       warnings: ['newer'],
+    });
+  });
+
+  it('preserves the latest generation response by topic and query', async () => {
+    const repository = new InMemorySeoAgentGatewayRepository();
+    const result = await new SeoAgentGenerationRuntimeService(
+      undefined,
+      undefined,
+      [],
+      repository,
+    ).generate({
+      request: {
+        topicId: 'topic-1',
+        query: 'query',
+        objective: 'page_generation',
+        createdAt: '2026-08-05T00:00:00.000Z',
+      },
+      contextPackAvailable: true,
+    });
+
+    expect(result.persistedResponseId).toBe('seo-agent-generation-response-1');
+    await expect(
+      repository.findLatestGenerationResponse('topic-1', 'query'),
+    ).resolves.toMatchObject({
+      id: 'seo-agent-generation-response-1',
+      status: 'blocked',
+      finalContent: null,
+      runtimeResult: expect.objectContaining({
+        status: 'blocked',
+      }),
     });
   });
 });

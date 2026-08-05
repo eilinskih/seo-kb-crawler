@@ -72,12 +72,38 @@ Roadmap order, phases and dependency rules live only in
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
-| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation adds model-agnostic prompt rendering and provider-optional execution from structured packs. |
+| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation and generation response persistence are ready for review. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #184
+Status: Review needed
+Summary:
+- Added durable SEO Agent generation context and response persistence.
+- Added bundled migration for generation contexts and generated/degraded/blocked
+  response attempts.
+- Added Knex SEO Agent Gateway repository mapping and Nest module wiring.
+- Runtime now optionally persists generation context and response audit records
+  when a repository is configured.
+Changed files:
+- docs/progress.md
+- docs/seo-agent-gateway-model.md
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/025-seo-agent-generation-persistence.ts
+- packages/db/src/migrations/025-seo-agent-generation-persistence.spec.ts
+- packages/seo-agent-gateway/**
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/025-seo-agent-generation-persistence.spec.ts packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.spec.ts packages/seo-agent-gateway/src/persistence/knex-seo-agent-gateway.repository.spec.ts packages/seo-agent-gateway/src/seo-agent-generation-runtime.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Run full validation, review and merge the generation response persistence
+  slice, then continue #184 with concrete provider adapter execution.
 
 Date: 2026-08-05
 Issue: #184

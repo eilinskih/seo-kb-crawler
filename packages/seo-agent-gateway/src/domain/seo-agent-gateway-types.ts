@@ -149,6 +149,7 @@ export interface SeoAgentGenerationRuntimeResult {
   warnings: string[];
   degraded: boolean;
   generatedAt: string;
+  persistedResponseId: string | null;
 }
 
 export interface GatewayResearchAssetsSummary {

@@ -29,6 +29,7 @@ import { topicExpansionPersistenceMigration } from './migrations/021-topic-expan
 import { longTailDiscoveryPersistenceMigration } from './migrations/022-long-tail-discovery-persistence';
 import { candidateScoringPersistenceMigration } from './migrations/023-candidate-scoring-persistence';
 import { seoPackPersistenceMigration } from './migrations/024-seo-pack-persistence';
+import { seoAgentGenerationPersistenceMigration } from './migrations/025-seo-agent-generation-persistence';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -91,6 +92,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     longTailDiscoveryPersistenceMigration,
     candidateScoringPersistenceMigration,
     seoPackPersistenceMigration,
+    seoAgentGenerationPersistenceMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -132,6 +134,10 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [longTailDiscoveryPersistenceMigration, '022-long-tail-discovery-persistence'],
     [candidateScoringPersistenceMigration, '023-candidate-scoring-persistence'],
     [seoPackPersistenceMigration, '024-seo-pack-persistence'],
+    [
+      seoAgentGenerationPersistenceMigration,
+      '025-seo-agent-generation-persistence',
+    ],
   ]);
 
   getMigrations(): Promise<Knex.Migration[]> {

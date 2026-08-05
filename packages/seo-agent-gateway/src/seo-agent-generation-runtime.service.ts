@@ -4,6 +4,7 @@ import {
   SeoAgentGenerationRuntimeResult,
   SeoAgentProviderResult,
 } from './domain/seo-agent-gateway-types';
+import { SeoAgentGatewayRepository } from './persistence/seo-agent-gateway.repository';
 import { SeoAgentGatewayService } from './seo-agent-gateway.service';
 import { SeoAgentPromptRendererService } from './seo-agent-prompt-renderer.service';
 
@@ -12,6 +13,7 @@ export class SeoAgentGenerationRuntimeService {
     private readonly gateway = new SeoAgentGatewayService(),
     private readonly promptRenderer = new SeoAgentPromptRendererService(),
     private readonly providers: SeoAgentGenerationProvider[] = [],
+    private readonly repository: SeoAgentGatewayRepository | null = null,
   ) {}
 
   async generate(
@@ -22,7 +24,7 @@ export class SeoAgentGenerationRuntimeService {
     const generatedAt = input.request.createdAt ?? new Date().toISOString();
 
     if (prompt.blocked) {
-      return {
+      return this.persistResult({
         gatewayResult,
         prompt,
         providerResult: null,
@@ -34,12 +36,13 @@ export class SeoAgentGenerationRuntimeService {
         ]),
         degraded: true,
         generatedAt,
-      };
+        persistedResponseId: null,
+      }, generatedAt);
     }
 
     const provider = this.resolveProvider(input);
     if (!provider) {
-      return {
+      return this.persistResult({
         gatewayResult,
         prompt,
         providerResult: null,
@@ -51,7 +54,8 @@ export class SeoAgentGenerationRuntimeService {
         ]),
         degraded: true,
         generatedAt,
-      };
+        persistedResponseId: null,
+      }, generatedAt);
     }
 
     try {
@@ -64,14 +68,14 @@ export class SeoAgentGenerationRuntimeService {
         prompt,
       });
 
-      return this.resultFromProvider(
+      return this.persistResult(this.resultFromProvider(
         gatewayResult,
         prompt,
         providerResult,
         generatedAt,
-      );
+      ), generatedAt);
     } catch (error) {
-      return {
+      return this.persistResult({
         gatewayResult,
         prompt,
         providerResult: null,
@@ -83,7 +87,8 @@ export class SeoAgentGenerationRuntimeService {
         ]),
         degraded: true,
         generatedAt,
-      };
+        persistedResponseId: null,
+      }, generatedAt);
     }
   }
 
@@ -121,6 +126,30 @@ export class SeoAgentGenerationRuntimeService {
       warnings: unique([...prompt.warnings, ...providerResult.warnings]),
       degraded,
       generatedAt,
+      persistedResponseId: null,
+    };
+  }
+
+  private async persistResult(
+    result: SeoAgentGenerationRuntimeResult,
+    createdAt: string,
+  ): Promise<SeoAgentGenerationRuntimeResult> {
+    if (!this.repository) {
+      return result;
+    }
+
+    await this.repository.saveGenerationContext({
+      context: result.gatewayResult.generationContext,
+      createdAt,
+    });
+    const record = await this.repository.saveGenerationResponse({
+      result,
+      createdAt,
+    });
+
+    return {
+      ...result,
+      persistedResponseId: record.id,
     };
   }
 }

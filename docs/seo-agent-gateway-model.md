@@ -275,7 +275,7 @@ to enforce stricter gates.
 
 ## Storage Model
 
-Initial tables may be added later:
+Implemented persistence tables:
 
 `seo_agent_gateway_requests`:
 
@@ -290,6 +290,9 @@ Initial tables may be added later:
 - status;
 - created timestamp.
 
+Request table persistence remains deferred until a separate request lifecycle
+needs it. Issue #184 persists generation contexts and generation responses.
+
 `seo_agent_generation_contexts`:
 
 - request id;
@@ -301,8 +304,25 @@ Initial tables may be added later:
 - rule version;
 - created timestamp.
 
-The first runtime PR may start with package contracts and repository
-abstraction if it preserves these accepted contracts.
+`seo_agent_generation_responses`:
+
+- gateway request key;
+- topic id;
+- query;
+- generation objective;
+- provider key when a provider was called;
+- model family when known;
+- runtime status: generated, degraded or blocked;
+- rendered prompt payload;
+- provider result payload when available;
+- final content when generated;
+- warnings;
+- full runtime result payload;
+- created timestamp.
+
+Persisted responses include blocked and degraded attempts. This preserves the
+audit trail for missing provider credentials, provider failures and
+retrieval-only safeguards instead of storing only successful content.
 
 ## Service Boundaries
 
@@ -326,8 +346,11 @@ Implemented foundation package:
   `context-requirement.service.ts`, `consumer-adapter-registry.ts` and
   `seo-generation-request.service.ts` own focused gateway slices.
 - `packages/seo-agent-gateway/src/persistence/seo-agent-gateway.repository.ts`
-  defines the repository abstraction; concrete database persistence remains
-  deferred.
+  defines the repository abstraction.
+- `packages/seo-agent-gateway/src/persistence/knex-seo-agent-gateway.repository.ts`
+  persists generation contexts and generation responses.
+- `packages/db/src/migrations/025-seo-agent-generation-persistence.ts`
+  adds durable SEO Agent generation context and response storage.
 
 Recommended services:
 
