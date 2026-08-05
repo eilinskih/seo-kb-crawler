@@ -1,15 +1,22 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DbModule } from '@seo-kb/db';
 
 import { EXTERNAL_SEO_DATA_PROVIDER_REPOSITORY } from './external-seo-data-providers.tokens';
 import { ExternalSeoEnrichmentService } from './external-seo-enrichment.service';
+import { configuredExternalSeoProviders } from './external-seo-provider.factory';
 import { ExternalSeoProviderRegistry } from './external-seo-provider-registry';
 import { KnexExternalSeoDataProviderRepository } from './persistence/knex-external-seo-data-provider.repository';
 
 @Module({
-  imports: [DbModule],
+  imports: [ConfigModule, DbModule],
   providers: [
-    ExternalSeoProviderRegistry,
+    {
+      provide: ExternalSeoProviderRegistry,
+      useFactory: (config: ConfigService) =>
+        new ExternalSeoProviderRegistry(configuredExternalSeoProviders(config)),
+      inject: [ConfigService],
+    },
     KnexExternalSeoDataProviderRepository,
     {
       provide: EXTERNAL_SEO_DATA_PROVIDER_REPOSITORY,

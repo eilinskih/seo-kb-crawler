@@ -67,7 +67,7 @@ Roadmap order, phases and dependency rules live only in
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
-| #179 | External SEO provider adapters and persistence | Review needed | Durable External SEO enrichment pack, observation and metric snapshot persistence is ready for review. |
+| #179 | External SEO provider adapters and persistence | Review needed | Durable persistence and optional Google Search Console owned-data adapter are ready for review. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
@@ -78,6 +78,29 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #179
+Status: Review needed
+Summary:
+- Added optional Google Search Console owned-data provider adapter.
+- Adapter reports misconfigured status and warnings when credentials are absent
+  instead of blocking fallback enrichment.
+- Adapter normalizes Search Console clicks, impressions and CTR into
+  provider-neutral metric snapshots.
+- Added provider configuration factory and module wiring.
+Changed files:
+- docs/progress.md
+- docs/external-seo-data-providers-model.md
+- packages/external-seo-data-providers/**
+Validation:
+- npm test -- --runTestsByPath packages/external-seo-data-providers/src/google-search-console.provider.spec.ts packages/external-seo-data-providers/src/external-seo-provider.factory.spec.ts packages/external-seo-data-providers/src/external-seo-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the optional owned-data provider adapter slice, then
+  continue Issue #179 with scheduled provider refresh jobs.
 
 Date: 2026-08-05
 Issue: #179
