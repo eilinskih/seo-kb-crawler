@@ -1,4 +1,7 @@
-import { SeoAgentGenerationContext } from '../domain/seo-agent-gateway-types';
+import {
+  SeoAgentGenerationContext,
+  SeoAgentGenerationRuntimeResult,
+} from '../domain/seo-agent-gateway-types';
 
 export interface SaveSeoAgentGenerationContextCommand {
   context: SeoAgentGenerationContext;
@@ -11,6 +14,29 @@ export interface SeoAgentGenerationContextRecord
   createdAt: string;
 }
 
+export interface SaveSeoAgentGenerationResponseCommand {
+  result: SeoAgentGenerationRuntimeResult;
+  createdAt: string;
+}
+
+export interface SeoAgentGenerationResponseRecord {
+  id: string;
+  gatewayRequestKey: string;
+  topicId: string;
+  query: string;
+  objective: string;
+  providerKey: string | null;
+  modelFamily: string | null;
+  status: SeoAgentGenerationRuntimeResult['status'];
+  degraded: boolean;
+  finalContent: string | null;
+  prompt: SeoAgentGenerationRuntimeResult['prompt'];
+  providerResult: SeoAgentGenerationRuntimeResult['providerResult'];
+  warnings: string[];
+  runtimeResult: SeoAgentGenerationRuntimeResult;
+  createdAt: string;
+}
+
 export interface SeoAgentGatewayRepository {
   saveGenerationContext(
     command: SaveSeoAgentGenerationContextCommand,
@@ -19,4 +45,11 @@ export interface SeoAgentGatewayRepository {
     topicId: string,
     query: string,
   ): Promise<SeoAgentGenerationContextRecord | null>;
+  saveGenerationResponse(
+    command: SaveSeoAgentGenerationResponseCommand,
+  ): Promise<SeoAgentGenerationResponseRecord>;
+  findLatestGenerationResponse(
+    topicId: string,
+    query: string,
+  ): Promise<SeoAgentGenerationResponseRecord | null>;
 }
