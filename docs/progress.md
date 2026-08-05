@@ -72,12 +72,36 @@ Roadmap order, phases and dependency rules live only in
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
-| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation and generation response persistence are ready for review. |
+| #184 | SEO Agent Gateway generation runtime | Review needed | Runtime foundation, response persistence and optional OpenAI provider adapter are ready for review. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #184
+Status: Review needed
+Summary:
+- Added optional OpenAI Responses API generation provider behind the
+  model-agnostic SEO Agent provider contract.
+- Added configuration factory that registers no providers when API credentials
+  are absent, preserving degraded fallback mode.
+- Added provider response mapping for content, finish reason, token usage,
+  warnings and audit metadata without leaking provider-native schemas.
+- Documented provider configuration and no-key behavior.
+Changed files:
+- docs/progress.md
+- docs/seo-agent-gateway-model.md
+- packages/seo-agent-gateway/**
+Validation:
+- npm test -- --runTestsByPath packages/seo-agent-gateway/src/providers/openai-responses-generation.provider.spec.ts packages/seo-agent-gateway/src/providers/seo-agent-generation-provider.factory.spec.ts packages/seo-agent-gateway/src/seo-agent-generation-runtime.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate provider adapter and merge if checks pass, then continue #184
+  close-out review.
 
 Date: 2026-08-05
 Issue: #184

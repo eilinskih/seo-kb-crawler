@@ -5,6 +5,8 @@ export * from './focused-research-gate.service';
 export * from './generation-context.service';
 export * from './persistence/knex-seo-agent-gateway.repository';
 export * from './persistence/seo-agent-gateway.repository';
+export * from './providers/openai-responses-generation.provider';
+export * from './providers/seo-agent-generation-provider.factory';
 export * from './retrieval-only-safeguard.service';
 export * from './seo-agent-generation-runtime.service';
 export * from './seo-agent-gateway-defaults';
