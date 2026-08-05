@@ -75,6 +75,82 @@ export interface GatewayContextInput {
   blocked?: boolean;
 }
 
+export type SeoAgentPromptMessageRole = 'system' | 'user' | 'assistant';
+
+export interface SeoAgentPromptMessage {
+  role: SeoAgentPromptMessageRole;
+  content: string;
+}
+
+export interface SeoAgentPrompt {
+  promptKey: string;
+  gatewayRequestKey: string;
+  messages: SeoAgentPromptMessage[];
+  requiredPackReferences: SeoPackInputSourcePackReference[];
+  blocked: boolean;
+  warnings: string[];
+  ruleVersion: string;
+}
+
+export interface SeoAgentGenerationRuntimeInput extends GatewayContextInput {
+  providerKey?: string;
+  modelFamily?: string;
+}
+
+export interface SeoAgentProviderRequest {
+  providerKey: string;
+  modelFamily?: string;
+  request: SeoAgentGatewayRequest;
+  context: SeoAgentGenerationContext;
+  prompt: SeoAgentPrompt;
+}
+
+export type SeoAgentProviderFinishReason =
+  | 'stop'
+  | 'length'
+  | 'content_filter'
+  | 'error'
+  | 'unknown';
+
+export interface SeoAgentProviderUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+}
+
+export interface SeoAgentProviderResult {
+  providerKey: string;
+  modelFamily?: string;
+  content: string | null;
+  finishReason: SeoAgentProviderFinishReason;
+  usage?: SeoAgentProviderUsage;
+  auditMetadata: Record<string, string | number | boolean | null>;
+  warnings: string[];
+  degraded: boolean;
+  generatedAt: string;
+}
+
+export interface SeoAgentGenerationProvider {
+  readonly providerKey: string;
+  generate(request: SeoAgentProviderRequest): Promise<SeoAgentProviderResult>;
+}
+
+export type SeoAgentGenerationRuntimeStatus =
+  | 'generated'
+  | 'degraded'
+  | 'blocked';
+
+export interface SeoAgentGenerationRuntimeResult {
+  gatewayResult: SeoAgentGatewayResult;
+  prompt: SeoAgentPrompt;
+  providerResult: SeoAgentProviderResult | null;
+  finalContent: string | null;
+  status: SeoAgentGenerationRuntimeStatus;
+  warnings: string[];
+  degraded: boolean;
+  generatedAt: string;
+}
+
 export interface GatewayResearchAssetsSummary {
   focusedResearchJobKey: string | null;
   dispatchTargets: string[];
