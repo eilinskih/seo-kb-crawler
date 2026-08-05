@@ -71,13 +71,32 @@ Roadmap order, phases and dependency rules live only in
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
-| #183 | SEO Intelligence persistence and scheduling | In progress | Durable stores and refresh jobs for planning packs are underway; SERP Intelligence persistence is the first slice. |
+| #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Not started | Concrete model calls and generation persistence from structured packs. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #183
+Status: Done
+Summary:
+- Closed out SEO Intelligence persistence and scheduling.
+- Architecture Steward found no blockers and confirmed #183 acceptance
+  criteria are satisfied.
+- Confirmed pack payload persistence remains owned by SERP Intelligence, SERP
+  Intent, Topic Expansion, Long-tail Discovery, Candidate Scoring and SEO Pack
+  packages.
+- Confirmed Research Scheduling owns only freshness visibility and refresh
+  orchestration through the SEO Pack boundary.
+Changed files:
+- docs/progress.md
+Validation:
+- Architecture Steward close-out review.
+Next step:
+- Continue roadmap with #184 SEO Agent Gateway generation runtime.
 
 Date: 2026-07-27
 Issue: #183
@@ -98,7 +117,7 @@ Validation:
 - npm test
 - git diff --check
 Next step:
-- Review and merge the planning pack freshness slice.
+- Merged as PR #213; #183 close-out is complete.
 
 Date: 2026-07-27
 Issue: #183
