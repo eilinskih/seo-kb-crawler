@@ -4,6 +4,7 @@ import { DbModule } from '@seo-kb/db';
 
 import { EXTERNAL_SEO_DATA_PROVIDER_REPOSITORY } from './external-seo-data-providers.tokens';
 import { ExternalSeoEnrichmentService } from './external-seo-enrichment.service';
+import { ExternalSeoProviderRefreshService } from './external-seo-provider-refresh.service';
 import { configuredExternalSeoProviders } from './external-seo-provider.factory';
 import { ExternalSeoProviderRegistry } from './external-seo-provider-registry';
 import { KnexExternalSeoDataProviderRepository } from './persistence/knex-external-seo-data-provider.repository';
@@ -33,12 +34,19 @@ import { KnexExternalSeoDataProviderRepository } from './persistence/knex-extern
         EXTERNAL_SEO_DATA_PROVIDER_REPOSITORY,
       ],
     },
+    {
+      provide: ExternalSeoProviderRefreshService,
+      useFactory: (enrichmentService: ExternalSeoEnrichmentService) =>
+        new ExternalSeoProviderRefreshService(enrichmentService),
+      inject: [ExternalSeoEnrichmentService],
+    },
   ],
   exports: [
     EXTERNAL_SEO_DATA_PROVIDER_REPOSITORY,
     ExternalSeoProviderRegistry,
     KnexExternalSeoDataProviderRepository,
     ExternalSeoEnrichmentService,
+    ExternalSeoProviderRefreshService,
   ],
 })
 export class ExternalSeoDataProvidersModule {}

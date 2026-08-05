@@ -67,7 +67,7 @@ Roadmap order, phases and dependency rules live only in
 | #40 | External SEO Data Providers | Done | Design, foundation implementation, repository abstraction and close-out synchronization are complete; concrete provider integrations remain deferred. |
 | #86 | Operator Console | Done | Internal MVP, accepted scope and close-out synchronization are complete; production hardening and richer detail/retry workflows remain deferred. |
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
-| #179 | External SEO provider adapters and persistence | Review needed | Durable persistence and optional Google Search Console owned-data adapter are ready for review. |
+| #179 | External SEO provider adapters and persistence | Review needed | Durable persistence, optional Google Search Console adapter and provider refresh service are ready for review. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
@@ -78,6 +78,31 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-05
+Issue: #179
+Status: Review needed
+Summary:
+- Added External SEO provider refresh service for scheduled or manual refresh
+  commands.
+- Refresh execution goes through External SEO enrichment and repository
+  persistence instead of bypassing provider-neutral boundaries.
+- Added fail-open refresh coverage for optional provider failures plus fallback
+  observations.
+- Documented that scheduler daemon/queue ownership remains deferred outside
+  the provider package.
+Changed files:
+- docs/progress.md
+- docs/external-seo-data-providers-model.md
+- packages/external-seo-data-providers/**
+Validation:
+- npm test -- --runTestsByPath packages/external-seo-data-providers/src/external-seo-provider-refresh.service.spec.ts packages/external-seo-data-providers/src/external-seo-enrichment.service.spec.ts packages/external-seo-data-providers/src/google-search-console.provider.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the provider refresh service slice, then run #179
+  close-out review.
 
 Date: 2026-08-05
 Issue: #179
