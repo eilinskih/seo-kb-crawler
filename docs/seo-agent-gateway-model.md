@@ -205,6 +205,34 @@ workflow. In no-provider mode the runtime returns the rendered prompt, gateway
 context, warnings and degraded status so operators can inspect readiness without
 pretending that content was generated.
 
+## Generation Providers
+
+Implemented provider adapters:
+
+- `OpenAiResponsesGenerationProvider` calls the OpenAI Responses API through
+  the model-agnostic `SeoAgentGenerationProvider` contract.
+
+Configuration:
+
+- `SEO_AGENT_OPENAI_API_KEY` or `OPENAI_API_KEY` enables the OpenAI provider;
+- `SEO_AGENT_OPENAI_MODEL` or `OPENAI_MODEL` selects the model;
+- default model is `gpt-5`;
+- `SEO_AGENT_OPENAI_ENDPOINT` may override the Responses endpoint;
+- `SEO_AGENT_OPENAI_TIMEOUT_MS` may override provider timeout.
+
+When no API key is configured, no provider is registered. Runtime execution
+continues in degraded no-provider mode and still returns the rendered prompt,
+gateway context, warnings and persistence records when persistence is enabled.
+
+Provider adapters must:
+
+- accept `SeoAgentPrompt`, not raw retrieval chunks;
+- return `SeoAgentProviderResult`;
+- preserve provider audit metadata without exposing provider-native response
+  schemas in domain contracts;
+- throw provider transport errors so the runtime can record a degraded attempt;
+- never publish generated content.
+
 ## Focused Research Enforcement
 
 For SEO generation workflows, the gateway must create or require a Focused
@@ -370,6 +398,8 @@ Recommended services:
 - `SeoAgentGenerationRuntimeService`: runs prompt rendering, optional provider
   execution, degraded fallback and retrieval-only blocking.
 - `SeoAgentGenerationProvider`: adapter contract for concrete LLM providers.
+- `OpenAiResponsesGenerationProvider`: optional OpenAI Responses API adapter
+  enabled by environment configuration.
 - `SeoAgentGatewayRepository`: persists request/context records when concrete
   persistence is introduced.
 
