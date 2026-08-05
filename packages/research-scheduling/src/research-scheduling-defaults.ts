@@ -27,4 +27,5 @@ export const TRIGGER_PRIORITY: Record<ResearchTrigger, ResearchPriorityClass> = 
   entity_expansion_background: 'low',
   background_growth: 'low',
   scheduled_demand_refresh: 'medium',
+  scheduled_planning_pack_refresh: 'medium',
 };

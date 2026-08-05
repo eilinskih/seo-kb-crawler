@@ -102,6 +102,36 @@ describe('ResearchSchedulingService', () => {
     ]);
   });
 
+  it('plans scheduled SEO planning pack refresh through the SEO Pack boundary', () => {
+    const plan = new ResearchSchedulingService().plan({
+      topicId: 'topic-1',
+      mode: 'background',
+      trigger: 'scheduled_planning_pack_refresh',
+      objective: {
+        type: 'refresh_planning_packs',
+        candidateKey: 'candidate-1',
+      },
+      topicSnapshot: {
+        topicId: 'topic-1',
+        lifecycle: 'active',
+        configurationVersion: 3,
+        researchPolicy: policy,
+      },
+      createdAt: '2026-07-27T00:00:00.000Z',
+    });
+
+    expect(plan.job).toMatchObject({
+      priorityClass: 'medium',
+      trigger: 'scheduled_planning_pack_refresh',
+    });
+    expect(plan.dispatchCommands).toEqual([
+      expect.objectContaining({
+        target: 'seo_pack',
+        reason: 'Refresh stale or missing SEO planning packs.',
+      }),
+    ]);
+  });
+
   it('allocates background budget fairly only to active topics', () => {
     const allocations = new BackgroundBudgetAllocator().allocate([
       {

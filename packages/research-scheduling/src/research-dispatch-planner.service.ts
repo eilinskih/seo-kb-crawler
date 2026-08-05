@@ -23,6 +23,13 @@ export class ResearchDispatchPlanner {
       );
     }
 
+    if (
+      job.objective.type === 'refresh_planning_packs' ||
+      job.objective.type === 'refresh_seo_pack'
+    ) {
+      commands.push(this.command(job, 'seo_pack', 'Refresh stale or missing SEO planning packs.'));
+    }
+
     if (freshnessDecisions.some((decision) => decision.shouldRefreshSerp)) {
       commands.push(this.command(job, 'serp_intelligence', 'Refresh stale or missing SERP evidence.'));
     }
@@ -40,7 +47,10 @@ export class ResearchDispatchPlanner {
       );
     }
 
-    if (job.mode === 'focused') {
+    if (
+      job.mode === 'focused' &&
+      !commands.some((command) => command.target === 'seo_pack')
+    ) {
       commands.push(this.command(job, 'seo_pack', 'Refresh SEO Pack before generation.'));
     }
 

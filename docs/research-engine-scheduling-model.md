@@ -105,6 +105,13 @@ Focused Research should:
 - avoid recrawling fresh URLs unless explicitly forced;
 - produce or refresh the inputs needed for SEO Pack generation.
 
+Planning pack freshness is scheduler-owned visibility. Research Scheduling may
+compare pack summaries from SERP Intelligence, SERP Intent, Topic Expansion,
+Long-tail Discovery, Candidate Scoring and SEO Pack repositories against
+configured TTL requirements, report missing or stale packs to operators and
+schedule refresh work through the SEO Pack boundary. Research Scheduling must
+not own the pack payloads or concrete persistence of those subsystem packs.
+
 Focused Research has the highest normal priority because a user or downstream
 generation workflow is waiting.
 
