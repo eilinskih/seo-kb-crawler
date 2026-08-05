@@ -17,7 +17,7 @@ What structured, research-grounded generation context must be prepared before
 an LLM consumer is allowed to generate SEO output?
 ```
 
-It does not answer:
+The Issue #42 foundation did not answer:
 
 ```txt
 What final article text should be written?
@@ -303,7 +303,7 @@ to enforce stricter gates.
 
 ## Storage Model
 
-Implemented persistence tables:
+Deferred request lifecycle table:
 
 `seo_agent_gateway_requests`:
 
@@ -320,6 +320,8 @@ Implemented persistence tables:
 
 Request table persistence remains deferred until a separate request lifecycle
 needs it. Issue #184 persists generation contexts and generation responses.
+
+Implemented persistence tables:
 
 `seo_agent_generation_contexts`:
 

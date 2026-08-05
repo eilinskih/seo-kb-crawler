@@ -25,15 +25,10 @@ export class SeoAgentGatewayService {
       request,
       input.researchDispatchPlan,
     );
-    const structuredFallbackAvailable = Boolean(
-      input.seoPack ||
-        input.request.sourcePackReferences?.length ||
-        input.researchDispatchPlan,
-    );
     const safeguard = this.safeguardService.evaluate({
       seoPack: input.seoPack,
       contextPackAvailable: input.contextPackAvailable,
-      structuredFallbackAvailable,
+      structuredFallbackAvailable: false,
     });
     const adapterAvailable = Boolean(
       new ConsumerAdapterRegistry(input.consumerAdapters).findAdapter(
