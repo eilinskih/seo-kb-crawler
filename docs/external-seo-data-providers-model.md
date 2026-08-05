@@ -59,7 +59,8 @@ The provider abstraction should support multiple provider classes:
 - `SerpSnapshotProvider`: provider-neutral observations derived from stored
   SERP snapshots and SERP Packs.
 - `GoogleSearchConsoleProvider`: future owned-data provider for sites the
-  operator controls.
+  operator controls. Implemented as an optional owned-data adapter in Issue
+  #179.
 - `AhrefsProvider`: optional paid provider for keyword, competitor, traffic and
   authority enrichment.
 - Future optional providers such as Semrush, SE Ranking, Google Ads Keyword
@@ -269,6 +270,12 @@ The initial implementation:
 Concrete paid provider integrations, credentials management and scheduled
 refresh jobs remain future work.
 
+Issue #179 adds `GoogleSearchConsoleProvider` as the first concrete external
+provider adapter. It reads owned performance data when `GSC_ACCESS_TOKEN` and
+`GSC_SITE_URL` are configured. When credentials are missing, the provider
+reports `misconfigured`, returns warnings and does not block fallback
+enrichment.
+
 ## Close-out
 
 Issue #40 is complete for the accepted foundation scope.
@@ -287,7 +294,6 @@ Completed:
 Deferred:
 
 - concrete Ahrefs, Semrush, SE Ranking or other paid API adapters;
-- Google Search Console owned-data adapter;
 - provider credentials management;
 - scheduled refresh jobs;
 - billing, quota and rate-limit operations UI.
