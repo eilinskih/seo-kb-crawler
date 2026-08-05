@@ -1,10 +1,12 @@
 import {
   ExternalSeoEnrichmentService,
   ExternalSeoMetricSnapshot,
+  ExternalSeoObservation,
 } from '@seo-kb/external-seo-data-providers';
 import {
   DemandDiscoveryRequest,
   DemandMetricSnapshot,
+  DemandSourceTier,
   DemandObservation,
   DemandProviderAdapter,
   DemandProviderResult,
@@ -44,14 +46,16 @@ export class ExternalSeoDemandProvider implements DemandProviderAdapter {
         .filter((observation) => observation.observationType === 'keyword')
         .map((observation): DemandObservation => ({
           observedText: observation.subject,
-          sourceTier: observation.providerKey === 'manual_fallback'
-            ? 'fallback'
-            : 'paid_provider',
+          sourceTier: sourceTierFor(observation),
           providerKey: observation.providerKey,
           evidenceType: 'provider_keyword_metric',
           sourceQuery: request.topicSeed,
           evidenceUrl: observation.url ?? null,
-          metrics: toDemandMetrics(observation.metrics, observation.providerKey),
+          metrics: toDemandMetrics(
+            observation.metrics,
+            observation.providerKey,
+            sourceTierFor(observation),
+          ),
         })),
       warnings: pack.warnings.map((warning) =>
         `${warning.providerKey}: ${warning.message}`,
@@ -63,6 +67,7 @@ export class ExternalSeoDemandProvider implements DemandProviderAdapter {
 function toDemandMetrics(
   metrics: ExternalSeoMetricSnapshot[],
   providerKey: string,
+  sourceTier: DemandSourceTier,
 ): Partial<DemandMetricSnapshot> {
   const byName = new Map(metrics.map((metric) => [metric.metricName, metric]));
   const hasProviderMetric = metrics.some((metric) =>
@@ -76,10 +81,33 @@ function toDemandMetrics(
     trafficPotential: numberMetric(byName.get('traffic_potential')),
     trend: numberMetric(byName.get('trend')),
     seasonality: stringMetric(byName.get('seasonality')),
-    metricStatus: hasProviderMetric ? 'provider_backed' : 'unknown',
+    metricStatus: metricStatusFor(sourceTier, hasProviderMetric),
     providerKey,
     collectedAt: metrics.find((metric) => metric.fetchedAt)?.fetchedAt ?? null,
   };
+}
+
+function sourceTierFor(observation: ExternalSeoObservation): DemandSourceTier {
+  if (observation.providerKey === 'fallback_seo_signals') {
+    return 'fallback';
+  }
+
+  if (observation.sourceCapability === 'owned_performance_data') {
+    return 'owned_data';
+  }
+
+  return 'paid_provider';
+}
+
+function metricStatusFor(
+  sourceTier: DemandSourceTier,
+  hasProviderMetric: boolean,
+): DemandMetricSnapshot['metricStatus'] {
+  if (!hasProviderMetric) {
+    return sourceTier === 'fallback' ? 'fallback_only' : 'unknown';
+  }
+
+  return sourceTier === 'owned_data' ? 'owned_data_backed' : 'provider_backed';
 }
 
 function numberMetric(metric: ExternalSeoMetricSnapshot | undefined): number | null {

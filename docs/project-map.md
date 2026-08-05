@@ -192,8 +192,9 @@ Implemented on `main`:
   execution, generation response persistence and repository abstraction.
 - External SEO Data Providers package boundary, provider capability/status
   contracts, provider-neutral observations, nullable metric snapshots,
-  fail-open enrichment service, fallback SEO signals provider and repository
-  abstraction.
+  fail-open enrichment service, fallback SEO signals provider, durable
+  enrichment persistence, optional Google Search Console owned-data adapter and
+  provider refresh service.
 - Operator Console internal MVP with topic create/view/edit/lifecycle
   workflows, seed/crawl configuration editing, URL Frontier status, bounded
   dispatch controls, provider/fallback status, pipeline readiness, failure
@@ -213,8 +214,8 @@ Not implemented:
 - Real Google Knowledge Graph, Wikidata or other external entity provider API
   execution, credentials, rate-limit policy and scheduled enrichment jobs
   (#181).
-- Concrete Ahrefs, Semrush, SE Ranking or other external SEO provider
-  integrations, credentials, scheduled refresh jobs and persistence (#179).
+- Concrete Ahrefs, Semrush, SE Ranking or other paid external SEO provider
+  integrations, provider credentials management and quota operations (#179).
 - Live SERP providers and paid provider refresh jobs.
 - Publishing workflows for generated content.
 - Operator Console authenticated access, production UI hardening, richer
