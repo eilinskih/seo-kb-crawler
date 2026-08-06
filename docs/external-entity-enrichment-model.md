@@ -220,6 +220,12 @@ Foundation migration adds:
 - `entity_enrichment_attempts`;
 - `entity_external_ids`.
 
+`KnexExternalEntityEnrichmentRepository` persists enrichment packs into those
+tables. It stores provider status snapshots, attempt-level warnings and
+normalized candidates in `entity_enrichment_attempts`, refreshes provider
+source metadata in `external_entity_sources`, and upserts external ID
+observations in `entity_external_ids`.
+
 `entity_id` is nullable in enrichment attempts and external ID observations.
 This allows the platform to store external evidence before the local registry
 accepts or links it.
@@ -247,6 +253,5 @@ Provider execution is fail-open:
 - Optional live smoke tests gated by provider credentials.
 - Scheduled enrichment jobs.
 - Operator review UI for accepting external aliases and IDs.
-- Knex repository implementation for persisted pack retrieval.
 - Knowledge Pack and SEO Agent Gateway consumption of accepted external
   signals.

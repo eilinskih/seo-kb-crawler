@@ -1,0 +1,131 @@
+import {
+  __testing,
+  KnexExternalEntityEnrichmentRepository,
+} from './knex-external-entity-enrichment.repository';
+import { ExternalEntityEnrichmentService } from '../external-entity-enrichment.service';
+import { ExternalEntityProviderRegistry } from '../external-entity-provider-registry';
+import { LocalSchemaOrgEntityProvider } from '../providers/local-schema-org-entity.provider';
+
+describe('KnexExternalEntityEnrichmentRepository', () => {
+  const packId = '00000000-0000-4000-8000-000000000001';
+
+  it('can be constructed with the database boundary', () => {
+    const repository = new KnexExternalEntityEnrichmentRepository({} as never);
+
+    expect(repository).toBeInstanceOf(KnexExternalEntityEnrichmentRepository);
+  });
+
+  it('maps enrichment packs into attempt rows', async () => {
+    const pack = await fixturePack();
+
+    expect(
+      __testing.toAttemptRow({
+        pack,
+        createdAt: '2026-08-06T00:00:00.000Z',
+      }, packId),
+    ).toMatchObject({
+      id: packId,
+      entity_id: 'entity-1',
+      entity_name: 'Frogger Jump',
+      entity_type: 'VideoGame',
+      vertical: 'games',
+      language: 'en',
+      geo: { countryCode: 'US' },
+      status: 'completed',
+      degraded: false,
+      request: pack.request,
+      provider_statuses: pack.providerStatuses,
+      warnings: pack.warnings,
+      candidates: pack.candidates,
+      started_at: '2026-08-06T00:00:00.000Z',
+      completed_at: '2026-08-06T00:00:00.000Z',
+      created_at: '2026-08-06T00:00:00.000Z',
+    });
+  });
+
+  it('maps provider statuses and external ID observations with provenance', async () => {
+    const pack = await fixturePack();
+    const providerStatus = pack.providerStatuses[0];
+    const externalId = pack.externalIds[0];
+
+    expect(
+      __testing.toSourceRow(providerStatus, '2026-08-06T00:00:00.000Z'),
+    ).toMatchObject({
+      provider_key: 'local_schema_org',
+      tier: 'local_signal',
+      capabilities: providerStatus.capabilities,
+      status: 'available',
+      metadata: { warningCodes: [] },
+      created_at: '2026-08-06T00:00:00.000Z',
+      updated_at: '2026-08-06T00:00:00.000Z',
+    });
+    expect(
+      __testing.toExternalIdRow(
+        externalId,
+        'entity-1',
+        packId,
+        '2026-08-06T00:00:00.000Z',
+      ),
+    ).toMatchObject({
+      entity_id: 'entity-1',
+      provider_key: 'local_schema_org',
+      external_id: 'https://www.wikidata.org/wiki/Q123',
+      external_id_type: 'same_as_url',
+      confidence: 'medium',
+      source_url: 'https://example.com/frogger-jump',
+      latest_attempt_id: packId,
+      observed_at: '2026-08-06T00:00:00.000Z',
+      created_at: '2026-08-06T00:00:00.000Z',
+      updated_at: '2026-08-06T00:00:00.000Z',
+    });
+  });
+
+  it('reconstructs persisted pack records from attempt and external ID rows', async () => {
+    const pack = await fixturePack();
+    const attemptRow = __testing.toAttemptRow({
+      pack,
+      createdAt: '2026-08-06T00:00:00.000Z',
+    }, packId);
+    const externalIdRow = __testing.toExternalIdRow(
+      pack.externalIds[0],
+      'entity-1',
+      packId,
+      '2026-08-06T00:00:00.000Z',
+    );
+
+    expect(
+      __testing.toPackRecord(attemptRow, [
+        __testing.toExternalIdSignal(externalIdRow),
+      ]),
+    ).toMatchObject({
+      id: packId,
+      createdAt: '2026-08-06T00:00:00.000Z',
+      request: pack.request,
+      candidates: pack.candidates,
+      externalIds: pack.externalIds,
+    });
+  });
+});
+
+async function fixturePack() {
+  return new ExternalEntityEnrichmentService(
+    new ExternalEntityProviderRegistry([new LocalSchemaOrgEntityProvider()]),
+  ).enrich({
+    entityId: 'entity-1',
+    entityName: 'Frogger Jump',
+    entityType: 'VideoGame',
+    vertical: 'games',
+    language: 'en',
+    geo: { countryCode: 'US' },
+    now: '2026-08-06T00:00:00.000Z',
+    schemaOrgSignals: [{
+      sourceDocumentId: 'document-1',
+      sourceUrl: 'https://example.com/frogger-jump',
+      type: 'VideoGame',
+      name: 'Frogger Jump',
+      sameAs: ['https://www.wikidata.org/wiki/Q123'],
+      description: 'Arcade-style crossing game.',
+      language: 'en',
+    }],
+  });
+}
