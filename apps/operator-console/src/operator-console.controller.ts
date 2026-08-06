@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Redirect,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -14,10 +15,12 @@ import {
   OperatorDispatchCommand,
   OperatorUpdateTopicCommand,
 } from './operator-console-api.client';
+import { OperatorConsoleAuthGuard } from './operator-console-auth.guard';
 import { renderOperatorConsoleHtml } from './operator-console.renderer';
 import { OperatorConsoleService } from './operator-console.service';
 import { OperatorConsoleViewModel } from './operator-console.types';
 
+@UseGuards(OperatorConsoleAuthGuard)
 @Controller()
 export class OperatorConsoleController {
   constructor(

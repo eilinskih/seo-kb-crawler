@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-providers';
 
+import { OperatorConsoleAccessControlService } from './operator-console-access-control.service';
 import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
   OperatorConsoleAction,
@@ -13,6 +14,7 @@ export class OperatorConsoleService {
   constructor(
     private readonly apiClient: OperatorConsoleApiClient,
     private readonly externalSeo: ExternalSeoEnrichmentService,
+    private readonly accessControl: OperatorConsoleAccessControlService,
   ) {}
 
   async buildViewModel(
@@ -31,6 +33,7 @@ export class OperatorConsoleService {
       'Internal operator-only UI. Not a public dashboard.',
       'Actions must use API/service contracts and remain bounded.',
       'Content generation and publishing workflows are intentionally absent.',
+      ...this.accessControl.status().warnings,
     ];
     const topics = await this.loadTopics(warnings);
     const providerStatuses = await this.loadProviderStatuses(warnings, now);

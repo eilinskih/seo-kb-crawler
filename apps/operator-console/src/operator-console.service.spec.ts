@@ -5,7 +5,11 @@ import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-provider
 
 describe('OperatorConsoleService', () => {
   it('builds an internal operator-only view model', async () => {
-    const service = new OperatorConsoleService(mockClient(), mockExternalSeo());
+    const service = new OperatorConsoleService(
+      mockClient(),
+      mockExternalSeo(),
+      mockAccessControl(),
+    );
 
     const model = await service.buildViewModel(
       new Date('2026-07-23T00:00:00.000Z'),
@@ -36,7 +40,11 @@ describe('OperatorConsoleService', () => {
   });
 
   it('marks mutating actions as bounded and keeps missing read models planned', async () => {
-    const service = new OperatorConsoleService(mockClient(), mockExternalSeo());
+    const service = new OperatorConsoleService(
+      mockClient(),
+      mockExternalSeo(),
+      mockAccessControl(),
+    );
 
     const model = await service.buildViewModel();
     const actions = model.sections.flatMap((section) =>
@@ -150,6 +158,15 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('local test 1');
   });
 });
+
+function mockAccessControl() {
+  return {
+    status: jest.fn().mockReturnValue({
+      mode: 'enforced',
+      warnings: [],
+    }),
+  } as never;
+}
 
 function mockClient(): OperatorConsoleApiClient {
   return {
