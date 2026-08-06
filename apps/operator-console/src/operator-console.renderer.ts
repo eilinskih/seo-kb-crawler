@@ -79,7 +79,7 @@ function renderReviewQueues(model: OperatorConsoleViewModel): string {
       <h2>Review Queues</h2>
       <p>Suggested aliases, external IDs and enrichment candidates awaiting operator decisions.</p>
     </div>
-    <span class="badge">read-only</span>
+    <span class="badge">review actions</span>
   </div>
   <table>
     <thead>
@@ -94,20 +94,93 @@ function renderReviewQueues(model: OperatorConsoleViewModel): string {
       <tr>
         <td>External entity IDs</td>
         <td>${escapeHtml(String(queues.externalEntityIds.length))}</td>
-        <td>${queues.externalEntityIds.map((item) =>
-          `${escapeHtml(item.entityName)} ${escapeHtml(item.providerKey)} <code>${escapeHtml(item.externalId)}</code> ${escapeHtml(item.confidence)}`,
-        ).join('<br>') || 'No external IDs'}</td>
+        <td>${queues.externalEntityIds.map(renderExternalEntityIdReviewItem).join('') || 'No external IDs'}</td>
       </tr>
       <tr>
         <td>Enrichment candidates</td>
         <td>${escapeHtml(String(queues.enrichmentCandidates.length))}</td>
-        <td>${queues.enrichmentCandidates.map((candidate) =>
-          `${escapeHtml(candidate.entityName)} -> ${escapeHtml(candidate.candidateName)} ${escapeHtml(candidate.providerKey)} ${escapeHtml(candidate.confidence)}`,
-        ).join('<br>') || 'No enrichment candidates'}</td>
+        <td>${queues.enrichmentCandidates.map(renderEnrichmentCandidateReviewItem).join('') || 'No enrichment candidates'}</td>
       </tr>
     </tbody>
   </table>
 </section>`;
+}
+
+function renderExternalEntityIdReviewItem(
+  item: OperatorConsoleViewModel['reviewQueues']['externalEntityIds'][number],
+): string {
+  return `<div class="actions">
+    <span>${escapeHtml(item.entityName)} ${escapeHtml(item.providerKey)} <code>${escapeHtml(item.externalId)}</code> ${escapeHtml(item.confidence)}</span>
+    ${renderExternalEntityReviewForm('accept', {
+      attemptId: item.packId,
+      subjectType: 'external_id',
+      providerKey: item.providerKey,
+      externalId: item.externalId,
+      externalIdType: item.externalIdType,
+      candidateName: null,
+      note: 'Accepted external entity ID from Operator Console review queue.',
+    })}
+    ${renderExternalEntityReviewForm('reject', {
+      attemptId: item.packId,
+      subjectType: 'external_id',
+      providerKey: item.providerKey,
+      externalId: item.externalId,
+      externalIdType: item.externalIdType,
+      candidateName: null,
+      note: 'Rejected external entity ID from Operator Console review queue.',
+    })}
+  </div>`;
+}
+
+function renderEnrichmentCandidateReviewItem(
+  item: OperatorConsoleViewModel['reviewQueues']['enrichmentCandidates'][number],
+): string {
+  return `<div class="actions">
+    <span>${escapeHtml(item.entityName)} -> ${escapeHtml(item.candidateName)} ${escapeHtml(item.providerKey)} ${escapeHtml(item.confidence)}</span>
+    ${renderExternalEntityReviewForm('accept', {
+      attemptId: item.packId,
+      subjectType: 'candidate',
+      providerKey: item.providerKey,
+      externalId: item.externalId,
+      externalIdType: item.externalIdType,
+      candidateName: item.candidateName,
+      note: 'Accepted enrichment candidate from Operator Console review queue.',
+    })}
+    ${renderExternalEntityReviewForm('reject', {
+      attemptId: item.packId,
+      subjectType: 'candidate',
+      providerKey: item.providerKey,
+      externalId: item.externalId,
+      externalIdType: item.externalIdType,
+      candidateName: item.candidateName,
+      note: 'Rejected enrichment candidate from Operator Console review queue.',
+    })}
+  </div>`;
+}
+
+function renderExternalEntityReviewForm(
+  action: 'accept' | 'reject',
+  input: {
+    attemptId: string;
+    subjectType: 'external_id' | 'candidate';
+    providerKey: string;
+    externalId: string | null;
+    externalIdType: string | null;
+    candidateName: string | null;
+    note: string;
+  },
+): string {
+  return `<form method="post" action="/review/external-entities/${action}">
+      <input type="hidden" name="attemptId" value="${escapeHtml(input.attemptId)}">
+      <input type="hidden" name="subjectType" value="${escapeHtml(input.subjectType)}">
+      <input type="hidden" name="providerKey" value="${escapeHtml(input.providerKey)}">
+      <input type="hidden" name="externalId" value="${escapeHtml(input.externalId ?? '')}">
+      <input type="hidden" name="externalIdType" value="${escapeHtml(input.externalIdType ?? '')}">
+      <input type="hidden" name="candidateName" value="${escapeHtml(input.candidateName ?? '')}">
+      <input type="hidden" name="reviewedBy" value="operator-console">
+      <input type="hidden" name="note" value="${escapeHtml(input.note)}">
+      <button type="submit">${action === 'accept' ? 'Accept' : 'Reject'}</button>
+    </form>`;
 }
 
 function renderSuggestedAliasReviewItem(

@@ -130,6 +130,47 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
       ],
     ]));
   });
+
+  it('maps external entity review decisions with audit metadata', () => {
+    const decision = {
+      id: '00000000-0000-4000-8000-000000000004',
+      attemptId: packId,
+      entityName: 'Frogger Jump',
+      subjectType: 'external_id' as const,
+      providerKey: 'google_knowledge_graph',
+      externalId: 'kg:/m/test',
+      externalIdType: 'google_kg_id',
+      candidateName: null,
+      decision: 'accepted' as const,
+      reviewedBy: 'operator',
+      reviewNote: 'Confirmed during review.',
+      provenance: {
+        providerKey: 'google_knowledge_graph',
+        source: 'google_knowledge_graph' as const,
+        sourceUrl: 'https://example.com/entity',
+        sourceDocumentId: null,
+        observedAt: '2026-08-06T00:00:00.000Z',
+      },
+      metadata: {
+        confidence: 'medium',
+      },
+      createdAt: '2026-08-06T00:01:00.000Z',
+    };
+
+    const row = __testing.toReviewDecisionRow(decision);
+
+    expect(row).toMatchObject({
+      attempt_id: packId,
+      subject_type: 'external_id',
+      provider_key: 'google_knowledge_graph',
+      external_id: 'kg:/m/test',
+      decision: 'accepted',
+      reviewed_by: 'operator',
+      review_note: 'Confirmed during review.',
+      created_at: '2026-08-06T00:01:00.000Z',
+    });
+    expect(__testing.toReviewDecisionRecord(row)).toEqual(decision);
+  });
 });
 
 async function fixturePack() {

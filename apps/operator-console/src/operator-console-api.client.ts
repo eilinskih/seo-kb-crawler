@@ -49,6 +49,17 @@ export interface OperatorReviewAliasCommand {
   note: string | null;
 }
 
+export interface OperatorReviewExternalEntityCommand {
+  attemptId: string;
+  subjectType: 'external_id' | 'candidate';
+  providerKey: string;
+  externalId: string | null;
+  externalIdType: string | null;
+  candidateName: string | null;
+  reviewedBy: string;
+  note: string | null;
+}
+
 export interface OperatorFrontierStatusSummary {
   topicId: string | null;
   totalEntries: number;
@@ -253,6 +264,18 @@ export class OperatorConsoleApiClient {
     await this.reviewAlias(aliasId, 'reject', command);
   }
 
+  async acceptExternalEntity(
+    command: OperatorReviewExternalEntityCommand,
+  ): Promise<void> {
+    await this.reviewExternalEntity(command, 'accepted');
+  }
+
+  async rejectExternalEntity(
+    command: OperatorReviewExternalEntityCommand,
+  ): Promise<void> {
+    await this.reviewExternalEntity(command, 'rejected');
+  }
+
   private async postTopicTransition(
     topicId: string,
     transition: 'pause' | 'archive' | 'resume',
@@ -270,6 +293,22 @@ export class OperatorConsoleApiClient {
     await this.request(`/entities/aliases/${encodeURIComponent(aliasId)}/${decision}`, {
       method: 'POST',
       body: JSON.stringify(command),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+
+  private async reviewExternalEntity(
+    command: OperatorReviewExternalEntityCommand,
+    decision: 'accepted' | 'rejected',
+  ): Promise<void> {
+    await this.request('/external-entities/review', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...command,
+        decision,
+      }),
       headers: {
         'content-type': 'application/json',
       },

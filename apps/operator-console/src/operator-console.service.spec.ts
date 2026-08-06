@@ -164,6 +164,7 @@ describe('OperatorConsoleService', () => {
           providerKey: 'google_knowledge_graph',
           candidateName: 'Laser Hair Removal',
           externalId: 'kg:/m/test',
+          externalIdType: 'google_kg_id',
           confidence: 'medium',
           sourceUrl: 'https://example.com/entity',
         }],
@@ -191,6 +192,10 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('action="/review/aliases/alias-1/approve"');
     expect(html).toContain('action="/review/aliases/alias-1/reject"');
     expect(html).toContain('kg:/m/test');
+    expect(html).toContain('action="/review/external-entities/accept"');
+    expect(html).toContain('action="/review/external-entities/reject"');
+    expect(html).toContain('name="subjectType" value="external_id"');
+    expect(html).toContain('name="subjectType" value="candidate"');
     expect(html).toContain('Recent Document');
     expect(html).toContain('Recent chunk text');
     expect(html).toContain('embedding-1');
@@ -258,6 +263,7 @@ function mockExternalEntities() {
         providerKey: 'google_knowledge_graph',
         name: 'Laser Hair Removal',
         externalId: 'kg:/m/test',
+        externalIdType: 'google_kg_id',
         confidence: 'medium',
         provenance: {
           sourceUrl: 'https://example.com/entity',

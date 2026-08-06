@@ -70,7 +70,7 @@ Roadmap order, phases and dependency rules live only in
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Done | Provider validation fixtures, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence, execution policy configuration and close-out synchronization are complete. |
-| #182 | Operator Console production hardening and review workflows | In progress | Token-based internal access control, read-only review queues and suggested-alias review actions are in progress; external entity accept/reject actions and richer controls remain next. |
+| #182 | Operator Console production hardening and review workflows | In progress | Token-based internal access control, review queues, suggested-alias actions and external entity evidence accept/reject actions are in progress; richer detail/retry controls remain next. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
@@ -78,6 +78,51 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #182
+Status: In progress
+Summary:
+- Added provenance-preserving accept/reject actions for external entity IDs and
+  enrichment candidates.
+- External Entity Enrichment now owns review decision validation and audit
+  storage through its service/repository boundary.
+- API exposes a bounded `/external-entities/review` command endpoint.
+- Operator Console renders bounded accept/reject forms for external entity
+  evidence without making provider output canonical knowledge.
+Changed files:
+- docs/progress.md
+- docs/operator-console-model.md
+- apps/api/src/api.module.ts
+- apps/api/src/external-entities/external-entity-review.controller.ts
+- apps/api/src/external-entities/external-entity-review.controller.spec.ts
+- apps/operator-console/src/operator-console-api.client.ts
+- apps/operator-console/src/operator-console.controller.ts
+- apps/operator-console/src/operator-console.controller.spec.ts
+- apps/operator-console/src/operator-console.renderer.ts
+- apps/operator-console/src/operator-console.service.ts
+- apps/operator-console/src/operator-console.service.spec.ts
+- apps/operator-console/src/operator-console.types.ts
+- packages/db/src/db.service.ts
+- packages/db/src/migrations/028-external-entity-review-decisions.ts
+- packages/db/src/migrations/028-external-entity-review-decisions.spec.ts
+- packages/external-entity-enrichment/src/domain/external-entity-enrichment-types.ts
+- packages/external-entity-enrichment/src/external-entity-enrichment.module.ts
+- packages/external-entity-enrichment/src/external-entity-review.service.ts
+- packages/external-entity-enrichment/src/external-entity-review.service.spec.ts
+- packages/external-entity-enrichment/src/index.ts
+- packages/external-entity-enrichment/src/persistence/external-entity-enrichment.repository.ts
+- packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.ts
+- packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.spec.ts
+- packages/external-entity-enrichment/src/testing/in-memory-external-entity-enrichment.repository.ts
+Validation:
+- npm test -- --runTestsByPath packages/db/src/migrations/028-external-entity-review-decisions.spec.ts packages/external-entity-enrichment/src/external-entity-review.service.spec.ts packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.spec.ts apps/api/src/external-entities/external-entity-review.controller.spec.ts apps/operator-console/src/operator-console.controller.spec.ts apps/operator-console/src/operator-console.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the external entity review action slice, then continue
+  #182 with richer detail/retry controls.
 
 Date: 2026-08-06
 Issue: #182

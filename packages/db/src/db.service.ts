@@ -32,6 +32,7 @@ import { seoPackPersistenceMigration } from './migrations/024-seo-pack-persisten
 import { seoAgentGenerationPersistenceMigration } from './migrations/025-seo-agent-generation-persistence';
 import { externalSeoProviderPersistenceMigration } from './migrations/026-external-seo-provider-persistence';
 import { entityAliasReviewAuditMigration } from './migrations/027-entity-alias-review-audit';
+import { externalEntityReviewDecisionsMigration } from './migrations/028-external-entity-review-decisions';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -97,6 +98,7 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     seoAgentGenerationPersistenceMigration,
     externalSeoProviderPersistenceMigration,
     entityAliasReviewAuditMigration,
+    externalEntityReviewDecisionsMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -149,6 +151,10 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [
       entityAliasReviewAuditMigration,
       '027-entity-alias-review-audit',
+    ],
+    [
+      externalEntityReviewDecisionsMigration,
+      '028-external-entity-review-decisions',
     ],
   ]);
 
