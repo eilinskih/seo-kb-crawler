@@ -62,6 +62,27 @@ describe('EntitiesController', () => {
     ).resolves.toBe(response);
   });
 
+  it('approves aliases with operator review metadata', async () => {
+    const response = { id: 'alias-1', reviewStatus: 'approved' };
+    const service = {
+      reviewAlias: jest.fn(async () => response),
+    } as unknown as EntityService;
+    const controller = new EntitiesController(service);
+
+    await expect(
+      controller.approveAlias('00000000-0000-4000-8000-000000000001', {
+        reviewedBy: 'operator',
+        note: 'Confirmed.',
+      }),
+    ).resolves.toBe(response);
+    expect(service.reviewAlias).toHaveBeenCalledWith({
+      aliasId: '00000000-0000-4000-8000-000000000001',
+      decision: 'approve',
+      reviewedBy: 'operator',
+      note: 'Confirmed.',
+    });
+  });
+
   it('maps missing entities to not found', async () => {
     const service = {
       addAlias: jest.fn(async () => {

@@ -44,6 +44,11 @@ export interface OperatorDispatchCommand {
   maxDispatches: number;
 }
 
+export interface OperatorReviewAliasCommand {
+  reviewedBy: string;
+  note: string | null;
+}
+
 export interface OperatorFrontierStatusSummary {
   topicId: string | null;
   totalEntries: number;
@@ -234,12 +239,40 @@ export class OperatorConsoleApiClient {
     });
   }
 
+  async approveAlias(
+    aliasId: string,
+    command: OperatorReviewAliasCommand,
+  ): Promise<void> {
+    await this.reviewAlias(aliasId, 'approve', command);
+  }
+
+  async rejectAlias(
+    aliasId: string,
+    command: OperatorReviewAliasCommand,
+  ): Promise<void> {
+    await this.reviewAlias(aliasId, 'reject', command);
+  }
+
   private async postTopicTransition(
     topicId: string,
     transition: 'pause' | 'archive' | 'resume',
   ): Promise<void> {
     await this.request(`/topics/${encodeURIComponent(topicId)}/${transition}`, {
       method: 'POST',
+    });
+  }
+
+  private async reviewAlias(
+    aliasId: string,
+    decision: 'approve' | 'reject',
+    command: OperatorReviewAliasCommand,
+  ): Promise<void> {
+    await this.request(`/entities/aliases/${encodeURIComponent(aliasId)}/${decision}`, {
+      method: 'POST',
+      body: JSON.stringify(command),
+      headers: {
+        'content-type': 'application/json',
+      },
     });
   }
 

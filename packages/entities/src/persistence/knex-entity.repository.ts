@@ -36,6 +36,9 @@ interface AliasRow {
   confidence: string | number;
   review_status: EntityReviewStatus;
   source: EntityAliasRecord['source'];
+  reviewed_at: Date | null;
+  reviewed_by: string | null;
+  review_note: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -183,6 +186,18 @@ export class KnexEntityRepository implements EntityRepository {
       .limit(input.limit);
     return rows.map(fromAliasRow);
   }
+
+  async updateAliasReview(record: EntityAliasRecord): Promise<void> {
+    await this.knex<AliasRow>('entity_aliases')
+      .where({ id: record.id })
+      .update({
+        review_status: record.reviewStatus,
+        reviewed_at: record.reviewedAt,
+        reviewed_by: record.reviewedBy,
+        review_note: record.reviewNote,
+        updated_at: record.updatedAt,
+      });
+  }
 }
 
 function toEntityRow(record: EntityRecord): EntityRow {
@@ -230,6 +245,9 @@ function toAliasRow(record: EntityAliasRecord): AliasRow {
     confidence: record.confidence,
     review_status: record.reviewStatus,
     source: record.source,
+    reviewed_at: record.reviewedAt,
+    reviewed_by: record.reviewedBy,
+    review_note: record.reviewNote,
     created_at: record.createdAt,
     updated_at: record.updatedAt,
   };
@@ -248,6 +266,9 @@ function fromAliasRow(row: AliasRow): EntityAliasRecord {
     confidence: Number(row.confidence),
     reviewStatus: row.review_status,
     source: row.source,
+    reviewedAt: row.reviewed_at,
+    reviewedBy: row.reviewed_by,
+    reviewNote: row.review_note,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

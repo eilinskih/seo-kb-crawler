@@ -364,8 +364,18 @@ The review queue read model implementation:
 - remains read-only until accept/reject commands are added through the owning
   domain modules.
 
+The suggested alias review action implementation:
+
+- adds approve/reject commands through the Entity service/API boundary;
+- records `reviewed_at`, `reviewed_by` and `review_note` audit metadata on
+  reviewed aliases;
+- preserves original alias source provenance while changing review status;
+- renders bounded approve/reject forms for suggested aliases in the Operator
+  Console.
+
 Richer failure/provider detail screens, frontier retry forms, processing retry
-forms and review accept/reject actions remain future implementation work.
+forms and external entity ID/candidate accept/reject actions remain future
+implementation work.
 
 ## Close-Out Status
 
@@ -385,6 +395,7 @@ Implemented scope:
 - token-based internal access control;
 - read-only review queues for suggested aliases, external entity IDs and
   enrichment candidates;
+- approve/reject actions for suggested aliases with audit metadata;
 - API/service-bound console access without direct UI database reads.
 
 Deferred scope:
@@ -393,8 +404,7 @@ Deferred scope:
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;
-- accept/reject actions for suggested aliases, external entity IDs and
-  enrichment candidates;
+- accept/reject actions for external entity IDs and enrichment candidates;
 - production-grade frontend hardening.
 
 ## Acceptance Criteria

@@ -188,6 +188,8 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Inspection And Health');
     expect(html).toContain('Review Queues');
     expect(html).toContain('laser removal');
+    expect(html).toContain('action="/review/aliases/alias-1/approve"');
+    expect(html).toContain('action="/review/aliases/alias-1/reject"');
     expect(html).toContain('kg:/m/test');
     expect(html).toContain('Recent Document');
     expect(html).toContain('Recent chunk text');
@@ -291,6 +293,8 @@ function mockClient(): OperatorConsoleApiClient {
     reactivateTopic: jest.fn(),
     dispatchUrlFrontier: jest.fn(),
     dispatchContentProcessing: jest.fn(),
+    approveAlias: jest.fn(),
+    rejectAlias: jest.fn(),
   } as unknown as OperatorConsoleApiClient;
 }
 

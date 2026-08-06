@@ -13,6 +13,7 @@ import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
   OperatorDispatchCommand,
+  OperatorReviewAliasCommand,
   OperatorUpdateTopicCommand,
 } from './operator-console-api.client';
 import { OperatorConsoleAuthGuard } from './operator-console-auth.guard';
@@ -90,6 +91,24 @@ export class OperatorConsoleController {
   ): Promise<void> {
     await this.apiClient.dispatchContentProcessing(toDispatchCommand(body));
   }
+
+  @Post('review/aliases/:id/approve')
+  @Redirect('/', 303)
+  async approveAlias(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.approveAlias(id, toReviewAliasCommand(body));
+  }
+
+  @Post('review/aliases/:id/reject')
+  @Redirect('/', 303)
+  async rejectAlias(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.rejectAlias(id, toReviewAliasCommand(body));
+  }
 }
 
 function toCreateTopicCommand(
@@ -160,5 +179,14 @@ function toDispatchCommand(
 ): OperatorDispatchCommand {
   return {
     maxDispatches: Math.min(positiveInteger(body.maxDispatches, 10), 100),
+  };
+}
+
+function toReviewAliasCommand(
+  body: Record<string, unknown>,
+): OperatorReviewAliasCommand {
+  return {
+    reviewedBy: optionalText(body.reviewedBy) ?? 'operator-console',
+    note: optionalText(body.note),
   };
 }
