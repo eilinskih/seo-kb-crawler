@@ -1,8 +1,9 @@
 # Operator Console Model
 
-- Status: Implemented internal MVP for Issue #86
-- Issue: #86
-- Date: 2026-07-23
+- Status: Internal MVP complete for Issue #86; production hardening in progress
+  for Issue #182
+- Issues: #86, #182
+- Date: 2026-08-06
 
 ## Purpose
 
@@ -245,6 +246,24 @@ Issue #86 implementation should not add:
 - provider credentials management;
 - unbounded crawl, processing or research dispatches.
 
+## Production Access Control
+
+Issue #182 adds internal production access control.
+
+The Operator Console uses a single internal shared token, not public SaaS
+authentication:
+
+- `OPERATOR_CONSOLE_ACCESS_TOKEN` enables authenticated access;
+- operators may authenticate with `Authorization: Bearer <token>`;
+- operators may also authenticate with `x-operator-console-token`;
+- when `NODE_ENV=production` and no token is configured, access fails closed;
+- when no token is configured outside production, the console remains available
+  for local development and shows an explicit warning.
+
+The access-control layer protects the console HTTP surface. It does not store
+provider credentials, introduce customer accounts or bypass owning domain
+service/API boundaries.
+
 ## Implementation Plan
 
 1. Add an `apps/operator-console` boundary and routing shell.
@@ -269,6 +288,7 @@ The runtime foundation application is `apps/operator-console`.
 The initial implementation:
 
 - adds a NestJS Operator Console application;
+- adds token-based internal access control for production hardening;
 - serves an internal HTML shell at `/`;
 - exposes the same view model as JSON at `/status`;
 - defines operator sections for topics, URL Frontier, processing, inspection,
@@ -334,8 +354,8 @@ The inspection/health implementation:
 - shows basic document, chunk, embedding, keyword retrieval and vector retrieval health
   signals.
 
-Authenticated access, richer failure/provider detail screens, frontier retry
-forms and processing retry forms remain future implementation work.
+Richer failure/provider detail screens, frontier retry forms, processing retry
+forms and enrichment review queues remain future implementation work.
 
 ## Close-Out Status
 
@@ -356,11 +376,12 @@ Implemented scope:
 
 Deferred scope:
 
-- authenticated access and production access control;
 - richer per-domain failure/provider detail screens;
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;
+- review queues for suggested aliases, external entity IDs and enrichment
+  candidates;
 - production-grade frontend hardening.
 
 ## Acceptance Criteria
