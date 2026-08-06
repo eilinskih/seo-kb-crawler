@@ -23,6 +23,10 @@ export function configuredExternalEntityProviders(
     }),
     new WikidataEntityProvider({
       enabled: booleanConfig(config.get<string>('WIKIDATA_ENABLED')),
+      searchEndpoint: config.get<string>('WIKIDATA_SEARCH_ENDPOINT'),
+      sparqlEndpoint: config.get<string>('WIKIDATA_SPARQL_ENDPOINT'),
+      limit: numberConfig(config.get<string>('WIKIDATA_LIMIT')),
+      timeoutMs: numberConfig(config.get<string>('WIKIDATA_TIMEOUT_MS')),
     }),
     new LocalSchemaOrgEntityProvider(),
   ];

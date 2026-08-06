@@ -66,8 +66,9 @@ Initial provider classes:
   Issue #181 adds live Google Knowledge Graph Search API execution behind
   optional credentials.
 - `WikidataEntityProvider`: optional public provider boundary for QIDs,
-  multilingual aliases and sitelinks. It is disabled by default until scheduled
-  provider execution and rate-limit policy are configured.
+  multilingual aliases, sitelinks and public entity types. It is disabled by
+  default and may be enabled explicitly for Wikidata Search API plus SPARQL
+  type/website enrichment.
 - `LocalSchemaOrgEntityProvider`: local free-first signal provider that
   normalizes Schema.org entity signals extracted from crawled pages.
 
@@ -132,6 +133,34 @@ When no API key is configured, the provider reports `misconfigured` and the
 enrichment service skips it with warnings. Provider errors are converted by the
 service into degraded warnings so local Schema.org fallback can still produce
 candidates.
+
+## Wikidata Execution
+
+Wikidata execution is optional and disabled by default because it depends on a
+public API and SPARQL endpoint with external availability and rate-limit
+constraints.
+
+Configuration:
+
+- `WIKIDATA_ENABLED=true` enables the provider;
+- `WIKIDATA_SEARCH_ENDPOINT` may override the `wbsearchentities` endpoint;
+- `WIKIDATA_SPARQL_ENDPOINT` may override the SPARQL endpoint;
+- `WIKIDATA_LIMIT` may override search result limit;
+- `WIKIDATA_TIMEOUT_MS` may override request timeout.
+
+When enabled, the provider first calls `wbsearchentities` and normalizes QID,
+label, description, aliases and source URLs into provider-neutral candidates.
+It then attempts a bounded SPARQL enrichment pass for candidate entity types
+and official website URLs.
+
+SPARQL enrichment is best-effort. Search candidates remain usable when SPARQL
+fails, and the provider returns an explicit degraded warning. Search API
+transport errors are converted by the enrichment service into fail-open
+provider warnings.
+
+Wikidata candidates are evidence only. QIDs, aliases, URLs and type labels do
+not automatically mutate the local Entity and Alias Layer or the Ontology and
+Predicate Registry.
 
 ## Data Flow
 
@@ -214,7 +243,7 @@ Provider execution is fail-open:
 
 ## Deferred Work
 
-- Real Wikidata API/SPARQL execution and rate-limit policy.
+- Provider-specific rate-limit policy and persistent execution cache.
 - Optional live smoke tests gated by provider credentials.
 - Scheduled enrichment jobs.
 - Operator review UI for accepting external aliases and IDs.

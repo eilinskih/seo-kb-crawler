@@ -31,4 +31,19 @@ describe('configuredExternalEntityProviders', () => {
       status: 'available',
     });
   });
+
+  it('configures Wikidata from env-backed settings', async () => {
+    const providers = configuredExternalEntityProviders({
+      get: (key: string) =>
+        ({
+          WIKIDATA_ENABLED: 'true',
+          WIKIDATA_LIMIT: '2',
+        })[key],
+    });
+
+    await expect(providers[1].getStatus()).resolves.toMatchObject({
+      providerKey: 'wikidata',
+      status: 'available',
+    });
+  });
 });

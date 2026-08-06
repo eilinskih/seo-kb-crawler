@@ -69,7 +69,7 @@ Roadmap order, phases and dependency rules live only in
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
-| #181 | External Entity provider execution | Review needed | Provider fixtures, normalizers and optional Google Knowledge Graph execution are ready for review. |
+| #181 | External Entity provider execution | Review needed | Provider fixtures, normalizers, optional Google Knowledge Graph execution and optional Wikidata Search/SPARQL execution are ready for review. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
@@ -78,6 +78,36 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #181
+Status: Review needed
+Summary:
+- Added optional Wikidata provider execution behind explicit
+  `WIKIDATA_ENABLED` configuration.
+- Provider calls Wikidata Search API for QID candidates and performs best-effort
+  SPARQL enrichment for public entity types and official website URLs.
+- SPARQL failures degrade only that enrichment step; search candidates remain
+  available, and search transport failures remain fail-open at the enrichment
+  service boundary.
+- Added offline tests for disabled provider behavior, successful Search/SPARQL
+  execution, SPARQL degradation and service-level fail-open behavior.
+Changed files:
+- docs/progress.md
+- docs/external-entity-enrichment-model.md
+- packages/external-entity-enrichment/src/external-entity-provider.factory.ts
+- packages/external-entity-enrichment/src/providers/wikidata-entity.provider.ts
+- packages/external-entity-enrichment/src/providers/wikidata-entity.provider.spec.ts
+- packages/external-entity-enrichment/src/providers/wikidata.normalizer.ts
+Validation:
+- npm test -- --runTestsByPath packages/external-entity-enrichment/src/providers/wikidata-entity.provider.spec.ts packages/external-entity-enrichment/src/providers/provider-fixture-normalizers.spec.ts packages/external-entity-enrichment/src/external-entity-provider.factory.spec.ts packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the Wikidata provider execution slice, then continue
+  Issue #181 with provider rate-limit/cache configuration and durable pack
+  persistence.
 
 Date: 2026-08-06
 Issue: #181
