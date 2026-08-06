@@ -79,6 +79,20 @@ cache normalized provider results and rate-limit public or paid providers.
 Local signals such as Schema.org extraction are not rate-limited by this
 policy.
 
+Execution policy configuration is explicit:
+
+- `EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS` enables the in-memory provider result
+  cache for normalized provider results;
+- `GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_MAX` and
+  `GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_WINDOW_MS` configure Google Knowledge
+  Graph request windows;
+- `WIKIDATA_RATE_LIMIT_MAX` and `WIKIDATA_RATE_LIMIT_WINDOW_MS` configure
+  Wikidata request windows.
+
+When no cache or rate-limit environment variables are configured, provider
+execution policy is empty and provider status/configuration still decides
+whether each provider runs.
+
 ## Provider Validation Fixtures
 
 Issue #181 requires a controlled provider validation pass before concrete live
@@ -249,7 +263,7 @@ Provider execution is fail-open:
 
 ## Deferred Work
 
-- Provider-specific rate-limit policy and persistent execution cache.
+- Persistent provider execution cache.
 - Optional live smoke tests gated by provider credentials.
 - Scheduled enrichment jobs.
 - Operator review UI for accepting external aliases and IDs.
