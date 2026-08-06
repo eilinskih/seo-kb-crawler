@@ -119,7 +119,7 @@ into production hardening without reopening completed foundation scope.
 | 37 | #184 | SEO Agent Gateway generation runtime | Depends on #42, #14, #18, #21 and #43. |
 | 38 | #179 | External SEO provider adapters and persistence | Depends on #40 and remains optional. |
 | 39 | #181 | External Entity provider execution | Done on `main`; provider execution remains optional and fail-open. |
-| 40 | #182 | Operator Console production hardening and review workflows | Depends on #86 and #17. |
+| 40 | #182 | Operator Console production hardening and review workflows | Done on `main`; selective retry-by-ID and richer review filters remain future scope. |
 
 Phase 9 work must preserve the repository's core fallback rule: external
 providers improve confidence, but missing provider credentials must not block

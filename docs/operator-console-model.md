@@ -405,6 +405,8 @@ future implementation work.
 ## Close-Out Status
 
 Issue #86 is complete as an internal operator MVP.
+Issue #182 is complete for the accepted production hardening and review
+workflow scope.
 
 Implemented scope:
 
