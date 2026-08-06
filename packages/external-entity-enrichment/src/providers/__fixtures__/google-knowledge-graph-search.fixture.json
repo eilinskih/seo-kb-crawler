@@ -1,0 +1,80 @@
+{
+  "capturedAt": "2026-08-06T00:00:00.000Z",
+  "provider": "google_knowledge_graph",
+  "notes": [
+    "Sanitized fixture captured from Google Knowledge Graph Search API.",
+    "API key and request URL are intentionally omitted.",
+    "Long-tail phrase can produce very weak public-entity candidates."
+  ],
+  "responses": [
+    {
+      "query": "Taylor Swift",
+      "itemListElement": [
+        {
+          "resultScore": 25017.927734375,
+          "result": {
+            "@id": "kg:/m/0dl567",
+            "@type": ["Person", "Thing"],
+            "name": "Taylor Swift",
+            "description": "American singer-songwriter",
+            "url": "http://www.taylorswift.com/",
+            "detailedDescription": {
+              "url": "https://en.wikipedia.org/wiki/Taylor_Swift",
+              "articleBody": "Taylor Alison Swift is an American singer-songwriter.",
+              "license": "https://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_4.0_International_License"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "Frogger Jump",
+      "itemListElement": [
+        {
+          "resultScore": 12,
+          "result": {
+            "@id": "kg:/g/11z8m286ms",
+            "@type": ["VideoGame", "Thing", "SoftwareApplication"],
+            "name": "Mystic Frogger Jump Mania",
+            "description": "Arcade game"
+          }
+        }
+      ]
+    },
+    {
+      "query": "Apple",
+      "itemListElement": [
+        {
+          "resultScore": 9399.4306640625,
+          "result": {
+            "@id": "kg:/m/014j1m",
+            "@type": ["Thing"],
+            "name": "Apple",
+            "description": "Fruit",
+            "detailedDescription": {
+              "url": "https://en.wikipedia.org/wiki/Apple",
+              "articleBody": "An apple is a round, edible fruit produced by an apple tree."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "laser hair removal Poland",
+      "itemListElement": [
+        {
+          "resultScore": 0.00009999999747378752,
+          "result": {
+            "@id": "kg:/g/11h1y656cg",
+            "@type": ["Organization", "Thing"],
+            "name": "Biogene Sp. z o.o"
+          }
+        }
+      ]
+    },
+    {
+      "query": "zzzz long tail no entity phrase qwerty",
+      "itemListElement": []
+    }
+  ]
+}

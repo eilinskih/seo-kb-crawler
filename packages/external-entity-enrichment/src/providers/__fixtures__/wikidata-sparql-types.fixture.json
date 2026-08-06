@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-08-06T00:00:00.000Z",
+  "provider": "wikidata_sparql",
+  "notes": [
+    "Sanitized fixture captured from Wikidata SPARQL query service.",
+    "Rows are flattened bindings for selected entity IDs and selected public fields.",
+    "Some searched IDs may have zero rows for the tested type/website query."
+  ],
+  "responses": [
+    {
+      "id": "Q270",
+      "rowCount": 9,
+      "sample": [
+        {
+          "label": "Warsaw",
+          "typeId": "Q515",
+          "typeLabel": "city",
+          "website": "https://um.warszawa.pl"
+        },
+        {
+          "label": "Warsaw",
+          "typeId": "Q56061",
+          "typeLabel": "administrative territorial entity",
+          "website": "https://um.warszawa.pl"
+        }
+      ]
+    },
+    {
+      "id": "Q524267",
+      "rowCount": 0,
+      "sample": []
+    },
+    {
+      "id": "Q312",
+      "rowCount": 11,
+      "sample": [
+        {
+          "label": "Apple Inc.",
+          "typeId": "Q167037",
+          "typeLabel": "corporation",
+          "website": "https://apple.com.cn/"
+        },
+        {
+          "label": "Apple Inc.",
+          "typeId": "Q891723",
+          "typeLabel": "public company",
+          "website": "https://apple.com.cn/"
+        }
+      ]
+    }
+  ]
+}

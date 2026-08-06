@@ -1,0 +1,66 @@
+{
+  "capturedAt": "2026-08-06T00:00:00.000Z",
+  "provider": "wikidata",
+  "notes": [
+    "Sanitized fixture captured from Wikidata wbsearchentities API.",
+    "Search ordering can be ambiguous: Taylor Swift returned the album before the person.",
+    "Long-tail phrases often produce no candidates."
+  ],
+  "responses": [
+    {
+      "query": "Taylor Swift",
+      "searchinfo": { "search": "Taylor Swift" },
+      "search": [
+        {
+          "id": "Q845783",
+          "title": "Q845783",
+          "label": "Taylor Swift",
+          "description": "2006 studio album by Taylor Swift",
+          "aliases": [],
+          "concepturi": "http://www.wikidata.org/entity/Q845783",
+          "url": "//www.wikidata.org/wiki/Q845783"
+        }
+      ]
+    },
+    {
+      "query": "Warsaw",
+      "searchinfo": { "search": "Warsaw" },
+      "search": [
+        {
+          "id": "Q270",
+          "title": "Q270",
+          "label": "Warsaw",
+          "description": "capital and largest city of Poland",
+          "aliases": [],
+          "concepturi": "http://www.wikidata.org/entity/Q270",
+          "url": "//www.wikidata.org/wiki/Q270"
+        }
+      ]
+    },
+    {
+      "query": "Frogger",
+      "searchinfo": { "search": "Frogger" },
+      "search": [
+        {
+          "id": "Q524267",
+          "title": "Q524267",
+          "label": "Frogger",
+          "description": "1981 video game",
+          "aliases": [],
+          "concepturi": "http://www.wikidata.org/entity/Q524267",
+          "url": "//www.wikidata.org/wiki/Q524267"
+        }
+      ]
+    },
+    {
+      "query": "Frogger Jump",
+      "searchinfo": { "search": "Frogger Jump" },
+      "search": []
+    },
+    {
+      "query": "laser hair removal Poland",
+      "searchinfo": { "search": "laser hair removal Poland" },
+      "search": []
+    }
+  ]
+}
