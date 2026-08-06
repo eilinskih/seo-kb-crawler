@@ -70,7 +70,7 @@ Roadmap order, phases and dependency rules live only in
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Done | Provider validation fixtures, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence, execution policy configuration and close-out synchronization are complete. |
-| #182 | Operator Console production hardening and review workflows | In progress | Token-based internal access control, review queues, suggested-alias actions and external entity evidence accept/reject actions are in progress; richer detail/retry controls remain next. |
+| #182 | Operator Console production hardening and review workflows | In progress | Token-based access control, review queues, review actions and per-topic detail screens are in progress; richer failure/provider detail and retry controls remain next. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
@@ -78,6 +78,34 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #182
+Status: In progress
+Summary:
+- Added read-only Operator Console topic detail pages.
+- Topic detail loads through the existing Topic API and URL Frontier status API.
+- Topic table rows now link to their detail pages.
+- Detail pages show current topic configuration and topic-scoped frontier
+  status while preserving existing bounded configuration/lifecycle forms.
+Changed files:
+- docs/progress.md
+- docs/operator-console-model.md
+- apps/operator-console/src/operator-console-api.client.ts
+- apps/operator-console/src/operator-console.controller.ts
+- apps/operator-console/src/operator-console.controller.spec.ts
+- apps/operator-console/src/operator-console.renderer.ts
+- apps/operator-console/src/operator-console.service.ts
+- apps/operator-console/src/operator-console.service.spec.ts
+- apps/operator-console/src/operator-console.types.ts
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts apps/operator-console/src/operator-console.controller.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the topic detail slice, then continue #182 with richer
+  failure/provider detail and retry controls.
 
 Date: 2026-08-06
 Issue: #182

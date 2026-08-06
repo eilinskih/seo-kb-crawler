@@ -312,6 +312,16 @@ The topic workflow implementation:
 - adds bounded pause, archive and reactivate form actions;
 - keeps all topic lifecycle changes behind Topic API endpoints.
 
+The topic detail implementation:
+
+- adds a read-only topic detail page for each Topic Engine record;
+- loads topic detail through the existing Topic API;
+- loads topic-scoped URL Frontier status through the URL Frontier status API;
+- shows current topic configuration, seed URLs, seed keywords, language, geo
+  and crawl-policy summary;
+- keeps existing bounded configuration and lifecycle forms available from the
+  detail page.
+
 The dispatch workflow implementation:
 
 - adds bounded URL Frontier dispatch form support;
@@ -394,6 +404,7 @@ Issue #86 is complete as an internal operator MVP.
 Implemented scope:
 
 - topic create, view, edit, pause, archive and reactivate workflows;
+- read-only per-topic detail pages with topic-scoped URL Frontier status;
 - seed URL, seed keyword, language, geo and crawl-policy editing;
 - topic-scoped URL Frontier status visibility;
 - bounded URL Frontier and Content Processing dispatch controls;

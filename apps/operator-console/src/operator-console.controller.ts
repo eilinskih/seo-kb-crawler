@@ -18,7 +18,10 @@ import {
   OperatorUpdateTopicCommand,
 } from './operator-console-api.client';
 import { OperatorConsoleAuthGuard } from './operator-console-auth.guard';
-import { renderOperatorConsoleHtml } from './operator-console.renderer';
+import {
+  renderOperatorConsoleHtml,
+  renderOperatorTopicDetailHtml,
+} from './operator-console.renderer';
 import { OperatorConsoleService } from './operator-console.service';
 import { OperatorConsoleViewModel } from './operator-console.types';
 
@@ -39,6 +42,14 @@ export class OperatorConsoleController {
   @Get('status')
   status(): Promise<OperatorConsoleViewModel> {
     return this.consoleService.buildViewModel();
+  }
+
+  @Get('topics/:id')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  async topicDetail(@Param('id') id: string): Promise<string> {
+    return renderOperatorTopicDetailHtml(
+      await this.consoleService.buildTopicDetailViewModel(id),
+    );
   }
 
   @Post('topics')
