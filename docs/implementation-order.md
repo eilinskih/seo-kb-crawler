@@ -89,7 +89,7 @@ and SEO packs must remain model-agnostic.
 
 | Order | Issue | Scope | Dependency |
 |---|---|---|---|
-| 30 | #17 | External Entity Enrichment Providers | Done on `main`; concrete provider execution and downstream consumption remain future work. |
+| 30 | #17 | External Entity Enrichment Providers | Done on `main`; downstream consumption remains future work. |
 | 31 | #40 | External SEO Data Providers | Done on `main`; concrete provider adapters remain future provider-specific work. |
 
 External providers improve scoring and enrichment. They must never block the
@@ -118,7 +118,7 @@ into production hardening without reopening completed foundation scope.
 | 36 | #183 | SEO Intelligence persistence and scheduling | Depends on #18, #30, #19, #134, #20, #21 and #43. |
 | 37 | #184 | SEO Agent Gateway generation runtime | Depends on #42, #14, #18, #21 and #43. |
 | 38 | #179 | External SEO provider adapters and persistence | Depends on #40 and remains optional. |
-| 39 | #181 | External Entity provider execution | Depends on #17 and remains optional. |
+| 39 | #181 | External Entity provider execution | Done on `main`; provider execution remains optional and fail-open. |
 | 40 | #182 | Operator Console production hardening and review workflows | Depends on #86 and #17. |
 
 Phase 9 work must preserve the repository's core fallback rule: external

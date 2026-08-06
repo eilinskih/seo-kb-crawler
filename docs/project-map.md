@@ -141,9 +141,10 @@ Implemented on `main`:
   contracts, storage migration, alias resolution service and manual API
   endpoints.
 - External Entity Enrichment package boundary, provider/status contracts,
-  Google Knowledge Graph and Wikidata provider boundaries, local Schema.org
-  signal normalization, fail-open enrichment service, repository abstraction
-  and storage migration.
+  optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL
+  execution, local Schema.org signal normalization, explicit provider cache and
+  rate-limit policy configuration, fail-open enrichment service, durable
+  repository implementation and storage migration.
 - Ontology package boundary, predicate alias resolver, seed predicate registry,
   raw/canonical fact contracts and storage migration.
 - Fact Extraction package boundary, extraction provider interface, noop/test
@@ -211,9 +212,9 @@ Designed but not implemented on `main`:
 
 Not implemented:
 
-- Real Google Knowledge Graph, Wikidata or other external entity provider API
-  execution, credentials, rate-limit policy and scheduled enrichment jobs
-  (#181).
+- Scheduled External Entity enrichment jobs, persistent provider execution
+  cache, live smoke tests and operator review UI for accepting external aliases
+  or IDs (#181/#182).
 - Concrete Ahrefs, Semrush, SE Ranking or other paid external SEO provider
   integrations, provider credentials management and quota operations (#179).
 - Live SERP providers and paid provider refresh jobs.
