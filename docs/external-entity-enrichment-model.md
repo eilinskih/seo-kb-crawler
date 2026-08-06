@@ -63,6 +63,8 @@ Initial provider classes:
 
 - `GoogleKnowledgeGraphProvider`: optional paid-key provider boundary for
   public entities. Without an API key it reports `misconfigured` and is skipped.
+  Issue #181 adds live Google Knowledge Graph Search API execution behind
+  optional credentials.
 - `WikidataEntityProvider`: optional public provider boundary for QIDs,
   multilingual aliases and sitelinks. It is disabled by default until scheduled
   provider execution and rate-limit policy are configured.
@@ -113,6 +115,23 @@ Sanitized offline fixtures live under
 Ordinary tests must use these fixtures and must not require live provider
 access. Optional live smoke tests may be added later behind explicit env vars
 and API keys.
+
+## Google Knowledge Graph Execution
+
+Google Knowledge Graph execution is optional.
+
+Configuration:
+
+- `GOOGLE_KNOWLEDGE_GRAPH_API_KEY` or `GOOGLE_KG_API_KEY` enables the provider;
+- `GOOGLE_KNOWLEDGE_GRAPH_ENDPOINT` may override the API endpoint;
+- `GOOGLE_KNOWLEDGE_GRAPH_LIMIT` may override result limit;
+- `GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS` may override request timeout;
+- `GOOGLE_KNOWLEDGE_GRAPH_DISABLED` disables the provider explicitly.
+
+When no API key is configured, the provider reports `misconfigured` and the
+enrichment service skips it with warnings. Provider errors are converted by the
+service into degraded warnings so local Schema.org fallback can still produce
+candidates.
 
 ## Data Flow
 
@@ -195,7 +214,6 @@ Provider execution is fail-open:
 
 ## Deferred Work
 
-- Real Google Knowledge Graph fetch execution.
 - Real Wikidata API/SPARQL execution and rate-limit policy.
 - Optional live smoke tests gated by provider credentials.
 - Scheduled enrichment jobs.

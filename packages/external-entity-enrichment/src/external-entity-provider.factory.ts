@@ -1,0 +1,46 @@
+import { ConfigService } from '@nestjs/config';
+import { ExternalEntityProvider } from './domain/external-entity-enrichment-types';
+import { GoogleKnowledgeGraphProvider } from './providers/google-knowledge-graph.provider';
+import { LocalSchemaOrgEntityProvider } from './providers/local-schema-org-entity.provider';
+import { WikidataEntityProvider } from './providers/wikidata-entity.provider';
+
+export function configuredExternalEntityProviders(
+  config: Pick<ConfigService, 'get'>,
+): ExternalEntityProvider[] {
+  return [
+    new GoogleKnowledgeGraphProvider({
+      apiKey:
+        config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_API_KEY') ??
+        config.get<string>('GOOGLE_KG_API_KEY'),
+      disabled: booleanConfig(
+        config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_DISABLED'),
+      ),
+      endpoint: config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_ENDPOINT'),
+      limit: numberConfig(config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_LIMIT')),
+      timeoutMs: numberConfig(
+        config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS'),
+      ),
+    }),
+    new WikidataEntityProvider({
+      enabled: booleanConfig(config.get<string>('WIKIDATA_ENABLED')),
+    }),
+    new LocalSchemaOrgEntityProvider(),
+  ];
+}
+
+function booleanConfig(value: string | undefined): boolean | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return ['1', 'true', 'yes', 'on'].includes(value.toLowerCase());
+}
+
+function numberConfig(value: string | undefined): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
