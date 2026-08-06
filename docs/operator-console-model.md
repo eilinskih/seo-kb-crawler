@@ -328,7 +328,8 @@ The dispatch workflow implementation:
 - adds bounded Content Processing dispatch form support;
 - calls existing API endpoints instead of worker internals;
 - caps operator-submitted dispatch limits before forwarding requests;
-- leaves retry-specific forms until owning modules expose safe retry commands.
+- adds explicit retry/backlog dispatch controls that use the same owning API
+  endpoints and bounded limits.
 
 The provider status implementation:
 
@@ -398,8 +399,8 @@ The external entity review action implementation:
 - renders bounded accept/reject forms for external entity IDs and enrichment
   candidates in the Operator Console.
 
-Frontier retry forms, processing retry forms and richer external entity review
-filters remain future implementation work.
+Selective retry-by-ID forms and richer external entity review filters remain
+future implementation work.
 
 ## Close-Out Status
 
@@ -412,6 +413,8 @@ Implemented scope:
 - seed URL, seed keyword, language, geo and crawl-policy editing;
 - topic-scoped URL Frontier status visibility;
 - bounded URL Frontier and Content Processing dispatch controls;
+- bounded retry/backlog dispatch controls for crawl and content processing
+  work;
 - jobs, failures and readiness visibility for Content Processing, Chunking,
   Embeddings and Retrieval;
 - read-only failure detail pages for Content Processing and Chunking;
@@ -428,8 +431,7 @@ Implemented scope:
 
 Deferred scope:
 
-- URL Frontier retry-specific forms;
-- Content Processing retry-specific forms;
+- selective retry-by-ID forms;
 - full Research Scheduling controls;
 - richer external entity review filters and decision history views;
 - production-grade frontend hardening.

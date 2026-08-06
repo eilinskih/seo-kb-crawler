@@ -250,6 +250,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Content Processing');
     expect(html).toContain('href="/failures/content-processing"');
     expect(html).toContain('keyword: ready');
+    expect(html).toContain('Retry Controls');
+    expect(html).toContain('Dispatch eligible crawl work');
+    expect(html).toContain('Dispatch processing retries/backlog');
     expect(html).toContain('Inspection And Health');
     expect(html).toContain('Review Queues');
     expect(html).toContain('laser removal');
