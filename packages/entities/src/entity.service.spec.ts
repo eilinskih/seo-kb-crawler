@@ -145,6 +145,43 @@ describe('EntityService', () => {
     ]);
   });
 
+  it('reviews suggested aliases with operator audit metadata', async () => {
+    const repository = new InMemoryEntityRepository();
+    const service = new EntityService(repository);
+    const entity = await service.createEntity({
+      canonicalName: 'Laser hair removal',
+      entityType: 'procedure',
+    });
+    const alias = await service.addAlias({
+      entityId: entity.id,
+      aliasText: 'laser removal',
+      aliasType: 'other',
+      reviewStatus: 'suggested',
+      source: {
+        sourceType: 'external_provider',
+        sourceId: 'google_knowledge_graph:kg:/m/test',
+        url: 'https://example.com/entity',
+      },
+    });
+
+    const reviewed = await service.reviewAlias({
+      aliasId: alias.id,
+      decision: 'approve',
+      reviewedBy: 'operator',
+      note: 'Confirmed by operator review.',
+    });
+
+    expect(reviewed).toEqual(expect.objectContaining({
+      id: alias.id,
+      reviewStatus: 'approved',
+      reviewedBy: 'operator',
+      reviewNote: 'Confirmed by operator review.',
+      source: alias.source,
+    }));
+    expect(reviewed.reviewedAt).toBeInstanceOf(Date);
+    await expect(service.listAliasReviewQueue()).resolves.toEqual([]);
+  });
+
   it('finds approved entity aliases mentioned inside chunk text', async () => {
     const repository = new InMemoryEntityRepository();
     const service = new EntityService(repository);

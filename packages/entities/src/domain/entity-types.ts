@@ -66,6 +66,9 @@ export interface EntityAliasRecord {
   confidence: number;
   reviewStatus: EntityReviewStatus;
   source: EntitySourceMetadata;
+  reviewedAt: Date | null;
+  reviewedBy: string | null;
+  reviewNote: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -105,6 +108,13 @@ export interface CreateAliasInput {
   confidence?: number;
   source?: EntitySourceMetadata;
   reviewStatus?: EntityReviewStatus;
+}
+
+export interface ReviewAliasInput {
+  aliasId: string;
+  decision: 'approve' | 'reject';
+  reviewedBy: string;
+  note?: string;
 }
 
 export interface CreateMentionInput {
@@ -204,6 +214,7 @@ export interface EntityRepository {
     statuses: EntityReviewStatus[];
     limit: number;
   }): Promise<EntityAliasRecord[]>;
+  updateAliasReview(record: EntityAliasRecord): Promise<void>;
 }
 
 export class EntityValidationError extends Error {

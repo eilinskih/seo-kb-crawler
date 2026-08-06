@@ -17,6 +17,7 @@ import {
   EntityRecord,
   EntityService,
   EntityValidationError,
+  ReviewAliasInput,
 } from '@seo-kb/entities';
 
 @Controller('entities')
@@ -46,6 +47,34 @@ export class EntitiesController {
     @Body() input: CreateMentionInput,
   ): Promise<EntityMentionRecord> {
     return this.execute(() => this.entities.recordMention(input));
+  }
+
+  @Post('aliases/:id/approve')
+  approveAlias(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) aliasId: string,
+    @Body() input: Omit<ReviewAliasInput, 'aliasId' | 'decision'>,
+  ): Promise<EntityAliasRecord> {
+    return this.execute(() =>
+      this.entities.reviewAlias({
+        ...input,
+        aliasId,
+        decision: 'approve',
+      }),
+    );
+  }
+
+  @Post('aliases/:id/reject')
+  rejectAlias(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) aliasId: string,
+    @Body() input: Omit<ReviewAliasInput, 'aliasId' | 'decision'>,
+  ): Promise<EntityAliasRecord> {
+    return this.execute(() =>
+      this.entities.reviewAlias({
+        ...input,
+        aliasId,
+        decision: 'reject',
+      }),
+    );
   }
 
   private async execute<Result>(

@@ -97,6 +97,10 @@ export class InMemoryEntityRepository implements EntityRepository {
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
       .slice(0, input.limit);
   }
+
+  async updateAliasReview(record: EntityAliasRecord): Promise<void> {
+    this.aliases.set(record.id, record);
+  }
 }
 
 function matchesOptional(

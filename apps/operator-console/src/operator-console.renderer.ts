@@ -89,9 +89,7 @@ function renderReviewQueues(model: OperatorConsoleViewModel): string {
       <tr>
         <td>Suggested aliases</td>
         <td>${escapeHtml(String(queues.suggestedAliases.length))}</td>
-        <td>${queues.suggestedAliases.map((alias) =>
-          `${escapeHtml(alias.aliasText)} <code>${escapeHtml(alias.entityId)}</code> ${escapeHtml(alias.reviewStatus)}`,
-        ).join('<br>') || 'No suggested aliases'}</td>
+        <td>${queues.suggestedAliases.map(renderSuggestedAliasReviewItem).join('') || 'No suggested aliases'}</td>
       </tr>
       <tr>
         <td>External entity IDs</td>
@@ -110,6 +108,24 @@ function renderReviewQueues(model: OperatorConsoleViewModel): string {
     </tbody>
   </table>
 </section>`;
+}
+
+function renderSuggestedAliasReviewItem(
+  alias: OperatorConsoleViewModel['reviewQueues']['suggestedAliases'][number],
+): string {
+  return `<div class="actions">
+    <span>${escapeHtml(alias.aliasText)} <code>${escapeHtml(alias.entityId)}</code> ${escapeHtml(alias.reviewStatus)}</span>
+    <form method="post" action="/review/aliases/${escapeHtml(alias.aliasId)}/approve">
+      <input type="hidden" name="reviewedBy" value="operator-console">
+      <input type="hidden" name="note" value="Approved from Operator Console review queue.">
+      <button type="submit">Approve</button>
+    </form>
+    <form method="post" action="/review/aliases/${escapeHtml(alias.aliasId)}/reject">
+      <input type="hidden" name="reviewedBy" value="operator-console">
+      <input type="hidden" name="note" value="Rejected from Operator Console review queue.">
+      <button type="submit">Reject</button>
+    </form>
+  </div>`;
 }
 
 function renderInspectionHealth(model: OperatorConsoleViewModel): string {

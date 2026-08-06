@@ -25,6 +25,7 @@ import {
   EntityTextMention,
   EntityTextMentionInput,
   EntityValidationError,
+  ReviewAliasInput,
 } from './domain/entity-types';
 import { ENTITY_REPOSITORY } from './entities.tokens';
 
@@ -91,6 +92,9 @@ export class EntityService {
       confidence: normalizeConfidence(input.confidence),
       reviewStatus: input.reviewStatus ?? 'approved',
       source: input.source ?? defaultSource,
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewNote: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -216,6 +220,25 @@ export class EntityService {
       limit: boundedLimit,
     });
     return aliases.map(toAliasReference);
+  }
+
+  async reviewAlias(input: ReviewAliasInput): Promise<EntityAliasRecord> {
+    const alias = await this.repository.findAliasById(input.aliasId);
+    if (!alias) {
+      throw new EntityValidationError(`Alias not found: ${input.aliasId}`);
+    }
+    const now = new Date();
+    const reviewedBy = normalizeEntityText(input.reviewedBy, 'reviewedBy');
+    const reviewed: EntityAliasRecord = {
+      ...alias,
+      reviewStatus: input.decision === 'approve' ? 'approved' : 'rejected',
+      reviewedAt: now,
+      reviewedBy,
+      reviewNote: normalizeOptionalText(input.note),
+      updatedAt: now,
+    };
+    await this.repository.updateAliasReview(reviewed);
+    return reviewed;
   }
 
   private async requireEntity(id: string): Promise<EntityRecord> {
