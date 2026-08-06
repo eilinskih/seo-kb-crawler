@@ -20,9 +20,11 @@ import {
 import { OperatorConsoleAuthGuard } from './operator-console-auth.guard';
 import {
   renderOperatorConsoleHtml,
+  renderOperatorFailureDetailHtml,
   renderOperatorProviderDetailHtml,
   renderOperatorTopicDetailHtml,
 } from './operator-console.renderer';
+import { OperatorFailureStageKey } from './operator-console.types';
 import { OperatorConsoleService } from './operator-console.service';
 import { OperatorConsoleViewModel } from './operator-console.types';
 
@@ -58,6 +60,16 @@ export class OperatorConsoleController {
   async providerDetail(@Param('key') key: string): Promise<string> {
     return renderOperatorProviderDetailHtml(
       await this.consoleService.buildProviderDetailViewModel(key),
+    );
+  }
+
+  @Get('failures/:stage')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  async failureDetail(@Param('stage') stage: string): Promise<string> {
+    return renderOperatorFailureDetailHtml(
+      await this.consoleService.buildFailureDetailViewModel(
+        failureStageKey(stage),
+      ),
     );
   }
 
@@ -252,4 +264,11 @@ function externalEntitySubjectType(value: unknown): 'external_id' | 'candidate' 
     return value;
   }
   throw new Error('subjectType is required');
+}
+
+function failureStageKey(value: string): OperatorFailureStageKey {
+  if (value === 'content-processing' || value === 'chunking') {
+    return value;
+  }
+  throw new Error('Unknown failure stage');
 }

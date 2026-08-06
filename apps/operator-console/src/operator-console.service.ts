@@ -11,6 +11,8 @@ import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
   OperatorConsoleAction,
   OperatorConsoleSection,
+  OperatorFailureDetailViewModel,
+  OperatorFailureStageKey,
   OperatorProviderDetailViewModel,
   OperatorTopicDetailViewModel,
   OperatorConsoleViewModel,
@@ -112,6 +114,29 @@ export class OperatorConsoleService {
       subtitle: 'Internal provider status detail.',
       warnings,
       provider,
+    };
+  }
+
+  async buildFailureDetailViewModel(
+    stageKey: OperatorFailureStageKey,
+    now = new Date(),
+  ): Promise<OperatorFailureDetailViewModel> {
+    const warnings = [
+      'Internal operator-only UI. Not a public dashboard.',
+      'Failure detail data is loaded through operator status read models.',
+      ...this.accessControl.status().warnings,
+    ];
+    const operatorStatus = await this.loadOperatorStatus(warnings);
+    const summary = operatorStatus ? failureStageSummary(operatorStatus, stageKey) : null;
+
+    return {
+      generatedAt: now.toISOString(),
+      title: `${failureStageLabel(stageKey)} Failures`,
+      subtitle: 'Internal retryability and failure detail.',
+      warnings,
+      stageKey,
+      stageLabel: failureStageLabel(stageKey),
+      summary,
     };
   }
 
@@ -314,6 +339,21 @@ function researchSection(): OperatorConsoleSection {
       action('research-dispatch', 'Dispatch bounded research', 'POST', '/operator/research/dispatch', true, false, 'Research Scheduling', 'Dispatch command must remain bounded.'),
     ],
   };
+}
+
+function failureStageSummary(
+  status: NonNullable<OperatorConsoleViewModel['operatorStatus']>,
+  stageKey: OperatorFailureStageKey,
+) {
+  return stageKey === 'content-processing'
+    ? status.contentProcessing
+    : status.chunking;
+}
+
+function failureStageLabel(stageKey: OperatorFailureStageKey): string {
+  return stageKey === 'content-processing'
+    ? 'Content Processing'
+    : 'Chunking';
 }
 
 function action(

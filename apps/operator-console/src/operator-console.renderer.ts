@@ -1,4 +1,5 @@
 import {
+  OperatorFailureDetailViewModel,
   OperatorProviderDetailViewModel,
   OperatorTopicDetailViewModel,
   OperatorConsoleViewModel,
@@ -71,6 +72,78 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+export function renderOperatorFailureDetailHtml(
+  model: OperatorFailureDetailViewModel,
+): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(model.title)}</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #f7f8fa; color: #17202a; }
+    header { padding: 24px 32px 18px; border-bottom: 1px solid #d8dee7; background: #ffffff; }
+    main { padding: 24px 32px 40px; }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
+    h2 { margin: 0; font-size: 16px; }
+    p { margin: 0; color: #526173; }
+    a { color: #1f6feb; }
+    .warnings { display: grid; gap: 8px; margin: 18px 0 24px; }
+    .warning { padding: 10px 12px; border: 1px solid #d8dee7; background: #ffffff; border-left: 4px solid #2f80ed; }
+    section { background: #ffffff; border: 1px solid #d8dee7; border-radius: 8px; overflow: hidden; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; padding: 16px; border-bottom: 1px solid #edf0f4; }
+    .badge { font-size: 12px; text-transform: uppercase; letter-spacing: 0; color: #344054; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #edf0f4; text-align: left; vertical-align: top; }
+    th { color: #526173; font-weight: 600; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    .empty { padding: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>${escapeHtml(model.title)}</h1>
+    <p>${escapeHtml(model.subtitle)} <a href="/">Back to console</a></p>
+    <p>Generated ${escapeHtml(model.generatedAt)}</p>
+  </header>
+  <main>
+    <div class="warnings">
+      ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
+    </div>
+    ${renderFailureDetail(model)}
+  </main>
+</body>
+</html>`;
+}
+
+function renderFailureDetail(model: OperatorFailureDetailViewModel): string {
+  const summary = model.summary;
+  if (!summary) {
+    return '<section><p class="empty">Failure detail is unavailable.</p></section>';
+  }
+
+  return `<section>
+  <div class="section-head">
+    <div>
+      <h2>${escapeHtml(model.stageLabel)}</h2>
+      <p>Recent retryable and terminal failures from the owning read model.</p>
+    </div>
+    <span class="badge">${escapeHtml(model.stageKey)}</span>
+  </div>
+  <table>
+    <tbody>
+      <tr><th>Total runs</th><td>${escapeHtml(String(summary.totalRuns))}</td></tr>
+      <tr><th>Retryable failures</th><td>${escapeHtml(String(summary.retryableFailures))}</td></tr>
+      <tr><th>Terminal failures</th><td>${escapeHtml(String(summary.terminalFailures))}</td></tr>
+      <tr><th>Status counts</th><td>${summary.counts.map((row) => `${escapeHtml(row.status)}: ${escapeHtml(String(row.count))}`).join('<br>') || 'No runs yet'}</td></tr>
+    </tbody>
+  </table>
+  ${renderRecentFailures(summary.recentFailures, model.stageLabel)}
+</section>`;
 }
 
 export function renderOperatorProviderDetailHtml(
@@ -492,8 +565,8 @@ function renderJobsReadiness(model: OperatorConsoleViewModel): string {
       <tr><th>Stage</th><th>Totals</th><th>Failures</th><th>Status</th></tr>
     </thead>
     <tbody>
-      ${renderStageRow('Content Processing', status.contentProcessing)}
-      ${renderStageRow('Chunking', status.chunking, `chunks: ${status.chunking.totalChunks}`)}
+      ${renderStageRow('Content Processing', status.contentProcessing, '', '/failures/content-processing')}
+      ${renderStageRow('Chunking', status.chunking, `chunks: ${status.chunking.totalChunks}`, '/failures/chunking')}
       <tr>
         <td>Embeddings</td>
         <td>embeddings: ${escapeHtml(String(status.embeddings.totalEmbeddings))}</td>
@@ -517,9 +590,13 @@ function renderStageRow(
   label: string,
   stage: OperatorPipelineStageSummary,
   extra = '',
+  failurePath: string | null = null,
 ): string {
+  const labelHtml = failurePath
+    ? `<a href="${escapeHtml(failurePath)}">${escapeHtml(label)}</a>`
+    : escapeHtml(label);
   return `<tr>
-    <td>${escapeHtml(label)}</td>
+    <td>${labelHtml}</td>
     <td>runs: ${escapeHtml(String(stage.totalRuns))}${extra ? `<br>${escapeHtml(extra)}` : ''}</td>
     <td>retryable: ${escapeHtml(String(stage.retryableFailures))}<br>terminal: ${escapeHtml(String(stage.terminalFailures))}</td>
     <td>${stage.counts.map((row) => `${escapeHtml(row.status)}: ${escapeHtml(String(row.count))}`).join('<br>') || 'No runs yet'}</td>

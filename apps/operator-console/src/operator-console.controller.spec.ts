@@ -49,6 +49,31 @@ describe('OperatorConsoleController', () => {
     expect(html).toContain('Provider: fallback_seo_signals');
   });
 
+  it('renders failure detail pages through the console service', async () => {
+    const consoleService = {
+      buildFailureDetailViewModel: jest.fn(async () => ({
+        generatedAt: '2026-07-23T00:00:00.000Z',
+        title: 'Content Processing Failures',
+        subtitle: 'Internal retryability and failure detail.',
+        warnings: [],
+        stageKey: 'content-processing',
+        stageLabel: 'Content Processing',
+        summary: null,
+      })),
+    };
+    const controller = new OperatorConsoleController(
+      consoleService as never,
+      {} as never,
+    );
+
+    const html = await controller.failureDetail('content-processing');
+
+    expect(consoleService.buildFailureDetailViewModel).toHaveBeenCalledWith(
+      'content-processing',
+    );
+    expect(html).toContain('Content Processing Failures');
+  });
+
   it('passes external entity accept decisions to the API client', async () => {
     const apiClient = {
       acceptExternalEntity: jest.fn(),

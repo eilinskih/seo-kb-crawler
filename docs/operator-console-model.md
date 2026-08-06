@@ -355,7 +355,10 @@ The jobs/failures/readiness implementation:
 - adds Retrieval readiness derived from chunks and embedded chunks;
 - exposes a unified `/operator/status` API endpoint;
 - renders pipeline totals, status counts, failure counts, recent failures and
-  retrieval degraded mode in the console.
+  retrieval degraded mode in the console;
+- links Content Processing and Chunking stages to read-only failure detail
+  pages;
+- shows recent retryable and terminal failure details from owning read models.
 
 The inspection/health implementation:
 
@@ -395,9 +398,8 @@ The external entity review action implementation:
 - renders bounded accept/reject forms for external entity IDs and enrichment
   candidates in the Operator Console.
 
-Richer failure/provider detail screens, frontier retry forms, processing retry
-forms and richer external entity review filters remain future implementation
-work.
+Frontier retry forms, processing retry forms and richer external entity review
+filters remain future implementation work.
 
 ## Close-Out Status
 
@@ -412,6 +414,7 @@ Implemented scope:
 - bounded URL Frontier and Content Processing dispatch controls;
 - jobs, failures and readiness visibility for Content Processing, Chunking,
   Embeddings and Retrieval;
+- read-only failure detail pages for Content Processing and Chunking;
 - provider/fallback/degraded status visibility and provider detail pages;
 - recent document, chunk and embedding inspection;
 - retrieval smoke readiness;
@@ -425,7 +428,6 @@ Implemented scope:
 
 Deferred scope:
 
-- richer per-domain failure detail screens;
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;

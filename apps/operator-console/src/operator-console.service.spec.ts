@@ -1,5 +1,6 @@
 import {
   renderOperatorConsoleHtml,
+  renderOperatorFailureDetailHtml,
   renderOperatorProviderDetailHtml,
   renderOperatorTopicDetailHtml,
 } from './operator-console.renderer';
@@ -118,6 +119,21 @@ describe('OperatorConsoleService', () => {
     }));
   });
 
+  it('builds failure detail from operator status read models', async () => {
+    const service = makeService();
+
+    const model = await service.buildFailureDetailViewModel(
+      'content-processing',
+      new Date('2026-07-23T00:00:00.000Z'),
+    );
+
+    expect(model.stageLabel).toBe('Content Processing');
+    expect(model.summary).toEqual(expect.objectContaining({
+      totalRuns: 1,
+      retryableFailures: 1,
+    }));
+  });
+
   it('escapes rendered operator data', () => {
     const html = renderOperatorConsoleHtml({
       generatedAt: '2026-07-23T00:00:00.000Z',
@@ -232,6 +248,7 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('https://example.com/');
     expect(html).toContain('Jobs, Failures And Readiness');
     expect(html).toContain('Content Processing');
+    expect(html).toContain('href="/failures/content-processing"');
     expect(html).toContain('keyword: ready');
     expect(html).toContain('Inspection And Health');
     expect(html).toContain('Review Queues');
@@ -316,6 +333,35 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Back to console');
     expect(html).toContain('keyword_intelligence');
     expect(html).toContain('Only fallback SEO signals are available.');
+  });
+
+  it('renders failure detail pages', () => {
+    const html = renderOperatorFailureDetailHtml({
+      generatedAt: '2026-07-23T00:00:00.000Z',
+      title: 'Content Processing Failures',
+      subtitle: 'Internal retryability and failure detail.',
+      warnings: [],
+      stageKey: 'content-processing',
+      stageLabel: 'Content Processing',
+      summary: {
+        totalRuns: 2,
+        counts: [{ status: 'failed_retryable', count: 1 }],
+        retryableFailures: 1,
+        terminalFailures: 0,
+        recentFailures: [{
+          status: 'failed_retryable',
+          category: 'network',
+          detail: 'Temporary timeout',
+          retryable: true,
+          updatedAt: '2026-07-23T00:00:00.000Z',
+        }],
+      },
+    });
+
+    expect(html).toContain('Content Processing Failures');
+    expect(html).toContain('Retryable failures');
+    expect(html).toContain('Temporary timeout');
+    expect(html).toContain('failed_retryable');
   });
 });
 
@@ -434,9 +480,15 @@ function operatorStatusFixture() {
     contentProcessing: {
       totalRuns: 1,
       counts: [{ status: 'processed', count: 1 }],
-      retryableFailures: 0,
+      retryableFailures: 1,
       terminalFailures: 0,
-      recentFailures: [],
+      recentFailures: [{
+        status: 'failed_retryable',
+        category: 'network',
+        detail: 'Temporary timeout',
+        retryable: true,
+        updatedAt: '2026-07-23T00:00:00.000Z',
+      }],
     },
     chunking: {
       totalRuns: 1,

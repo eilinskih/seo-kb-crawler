@@ -1,5 +1,7 @@
 export type OperatorConsoleActionMethod = 'GET' | 'POST' | 'PUT';
 
+export type OperatorFailureStageKey = 'content-processing' | 'chunking';
+
 export interface OperatorConsoleAction {
   id: string;
   label: string;
@@ -48,6 +50,16 @@ export interface OperatorProviderDetailViewModel {
   subtitle: string;
   warnings: string[];
   provider: OperatorProviderStatusSummary | null;
+}
+
+export interface OperatorFailureDetailViewModel {
+  generatedAt: string;
+  title: string;
+  subtitle: string;
+  warnings: string[];
+  stageKey: OperatorFailureStageKey;
+  stageLabel: string;
+  summary: OperatorPipelineStageSummary | null;
 }
 
 export interface OperatorTopicSummary {
