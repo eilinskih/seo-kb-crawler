@@ -69,7 +69,7 @@ Roadmap order, phases and dependency rules live only in
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
-| #181 | External Entity provider execution | Review needed | Provider fixtures, normalizers, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution and durable pack persistence are ready for review. |
+| #181 | External Entity provider execution | Review needed | Provider fixtures, normalizers, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence and explicit execution policy configuration are ready for review. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
@@ -78,6 +78,35 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #181
+Status: Review needed
+Summary:
+- Added env-backed External Entity execution policy configuration.
+- Provider result cache remains opt-in through
+  `EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS`.
+- Google Knowledge Graph and Wikidata rate limits are configured separately,
+  while unconfigured providers remain unrestricted and local Schema.org signals
+  remain outside rate limiting.
+- Wired configured execution policy into the Nest module without making a
+  durable repository mandatory.
+Changed files:
+- docs/progress.md
+- docs/external-entity-enrichment-model.md
+- packages/external-entity-enrichment/src/external-entity-enrichment.module.ts
+- packages/external-entity-enrichment/src/external-entity-execution-policy.factory.ts
+- packages/external-entity-enrichment/src/external-entity-execution-policy.factory.spec.ts
+- packages/external-entity-enrichment/src/external-entity-execution-policy.ts
+- packages/external-entity-enrichment/src/index.ts
+Validation:
+- npm test -- --runTestsByPath packages/external-entity-enrichment/src/external-entity-execution-policy.factory.spec.ts packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the execution policy configuration slice, then run the
+  Issue #181 close-out review.
 
 Date: 2026-08-06
 Issue: #181

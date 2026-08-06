@@ -40,6 +40,11 @@ export interface ExternalEntityProviderExecutionPolicy {
   rateLimiter?: ExternalEntityProviderRateLimiter;
 }
 
+export interface ExternalEntityProviderRateLimitConfig {
+  maxRequests: number;
+  windowMs: number;
+}
+
 export class InMemoryExternalEntityProviderCache
 implements ExternalEntityProviderCache {
   private readonly records = new Map<string, ExternalEntityProviderCacheEntry>();
@@ -113,6 +118,58 @@ implements ExternalEntityProviderRateLimiter {
   }
 }
 
+export class ConfiguredExternalEntityRateLimiter
+implements ExternalEntityProviderRateLimiter {
+  private readonly windows = new Map<string, { startsAt: number; count: number }>();
+
+  constructor(
+    private readonly providerConfigs: ReadonlyMap<
+      ExternalEntityProviderKey,
+      ExternalEntityProviderRateLimitConfig
+    >,
+  ) {
+    for (const [providerKey, config] of providerConfigs.entries()) {
+      validateRateLimitConfig(providerKey, config);
+    }
+  }
+
+  async consume(
+    providerKey: ExternalEntityProviderKey,
+    now: string,
+  ): Promise<ExternalEntityRateLimitDecision> {
+    const config = this.providerConfigs.get(providerKey);
+    if (!config) {
+      return { allowed: true };
+    }
+
+    const nowMs = Date.parse(now);
+    const window = this.windows.get(providerKey);
+    if (!window || nowMs - window.startsAt >= config.windowMs) {
+      this.windows.set(providerKey, { startsAt: nowMs, count: 1 });
+      return {
+        allowed: true,
+        remaining: config.maxRequests - 1,
+        resetAt: new Date(nowMs + config.windowMs).toISOString(),
+      };
+    }
+
+    if (window.count >= config.maxRequests) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt: new Date(window.startsAt + config.windowMs).toISOString(),
+      };
+    }
+
+    window.count += 1;
+    return {
+      allowed: true,
+      remaining: config.maxRequests - window.count,
+      resetAt: new Date(window.startsAt + config.windowMs).toISOString(),
+    };
+  }
+}
+
 export function externalEntityCacheKey(
   providerKey: ExternalEntityProviderKey,
   request: ExternalEntityEnrichmentRequest,
@@ -139,6 +196,18 @@ function cacheRecordKey(
   cacheKey: string,
 ): string {
   return `${providerKey}:${cacheKey}`;
+}
+
+function validateRateLimitConfig(
+  providerKey: ExternalEntityProviderKey,
+  config: ExternalEntityProviderRateLimitConfig,
+): void {
+  if (!Number.isInteger(config.maxRequests) || config.maxRequests < 1) {
+    throw new Error(`${providerKey} maxRequests must be a positive integer`);
+  }
+  if (!Number.isInteger(config.windowMs) || config.windowMs < 1) {
+    throw new Error(`${providerKey} windowMs must be a positive integer`);
+  }
 }
 
 function stableStringify(value: unknown): string {
