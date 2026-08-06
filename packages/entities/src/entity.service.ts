@@ -205,6 +205,19 @@ export class EntityService {
       );
   }
 
+  async listAliasReviewQueue(
+    limit = 50,
+  ): Promise<AliasReference[]> {
+    const boundedLimit = Number.isInteger(limit) && limit > 0
+      ? Math.min(limit, 200)
+      : 50;
+    const aliases = await this.repository.findAliasesByReviewStatus({
+      statuses: ['suggested'],
+      limit: boundedLimit,
+    });
+    return aliases.map(toAliasReference);
+  }
+
   private async requireEntity(id: string): Promise<EntityRecord> {
     const entity = await this.repository.findEntityById(id);
     if (!entity) {

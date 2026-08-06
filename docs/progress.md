@@ -70,7 +70,7 @@ Roadmap order, phases and dependency rules live only in
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Done | Provider validation fixtures, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence, execution policy configuration and close-out synchronization are complete. |
-| #182 | Operator Console production hardening and review workflows | In progress | Token-based internal access control is in progress; review queues and richer operator controls remain next. |
+| #182 | Operator Console production hardening and review workflows | In progress | Token-based internal access control and read-only review queues are in progress; accept/reject actions and richer controls remain next. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
@@ -78,6 +78,46 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #182
+Status: In progress
+Summary:
+- Added read-only Operator Console review queue summaries.
+- Entity and Alias Layer now exposes a bounded suggested-alias review queue
+  through `EntityService` and repository contracts.
+- External Entity Enrichment repository now exposes recent enrichment packs so
+  operator review can show external IDs and enrichment candidates without
+  querying persistence tables directly.
+- Operator Console renders suggested aliases, external entity IDs and
+  enrichment candidates as evidence-only read models; accept/reject commands
+  remain deferred to owning domain modules.
+Changed files:
+- docs/progress.md
+- docs/operator-console-model.md
+- jest.config.js
+- apps/operator-console/src/operator-console.module.ts
+- apps/operator-console/src/operator-console.renderer.ts
+- apps/operator-console/src/operator-console.service.ts
+- apps/operator-console/src/operator-console.service.spec.ts
+- apps/operator-console/src/operator-console.types.ts
+- packages/entities/src/domain/entity-types.ts
+- packages/entities/src/entity.service.ts
+- packages/entities/src/entity.service.spec.ts
+- packages/entities/src/persistence/knex-entity.repository.ts
+- packages/entities/src/testing/in-memory-entity.repository.ts
+- packages/external-entity-enrichment/src/persistence/external-entity-enrichment.repository.ts
+- packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.ts
+- packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.spec.ts
+- packages/external-entity-enrichment/src/testing/in-memory-external-entity-enrichment.repository.ts
+Validation:
+- npm test -- --runTestsByPath apps/operator-console/src/operator-console.service.spec.ts packages/entities/src/entity.service.spec.ts packages/external-entity-enrichment/src/persistence/knex-external-entity-enrichment.repository.spec.ts packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the read-only review queue slice, then continue #182 with
+  audit-friendly accept/reject command design.
 
 Date: 2026-08-06
 Issue: #182

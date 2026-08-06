@@ -58,6 +58,7 @@ export function renderOperatorConsoleHtml(
     </div>
     ${renderTopicWorkflow(model)}
     ${renderJobsReadiness(model)}
+    ${renderReviewQueues(model)}
     ${renderInspectionHealth(model)}
     ${renderFrontierStatus(model)}
     ${renderDispatchWorkflow()}
@@ -68,6 +69,47 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+function renderReviewQueues(model: OperatorConsoleViewModel): string {
+  const queues = model.reviewQueues;
+  return `<section id="review-queues" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Review Queues</h2>
+      <p>Suggested aliases, external IDs and enrichment candidates awaiting operator decisions.</p>
+    </div>
+    <span class="badge">read-only</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Queue</th><th>Count</th><th>Recent Items</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Suggested aliases</td>
+        <td>${escapeHtml(String(queues.suggestedAliases.length))}</td>
+        <td>${queues.suggestedAliases.map((alias) =>
+          `${escapeHtml(alias.aliasText)} <code>${escapeHtml(alias.entityId)}</code> ${escapeHtml(alias.reviewStatus)}`,
+        ).join('<br>') || 'No suggested aliases'}</td>
+      </tr>
+      <tr>
+        <td>External entity IDs</td>
+        <td>${escapeHtml(String(queues.externalEntityIds.length))}</td>
+        <td>${queues.externalEntityIds.map((item) =>
+          `${escapeHtml(item.entityName)} ${escapeHtml(item.providerKey)} <code>${escapeHtml(item.externalId)}</code> ${escapeHtml(item.confidence)}`,
+        ).join('<br>') || 'No external IDs'}</td>
+      </tr>
+      <tr>
+        <td>Enrichment candidates</td>
+        <td>${escapeHtml(String(queues.enrichmentCandidates.length))}</td>
+        <td>${queues.enrichmentCandidates.map((candidate) =>
+          `${escapeHtml(candidate.entityName)} -> ${escapeHtml(candidate.candidateName)} ${escapeHtml(candidate.providerKey)} ${escapeHtml(candidate.confidence)}`,
+        ).join('<br>') || 'No enrichment candidates'}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>`;
 }
 
 function renderInspectionHealth(model: OperatorConsoleViewModel): string {

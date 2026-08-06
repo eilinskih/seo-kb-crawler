@@ -87,6 +87,10 @@ module.exports = {
       '<rootDir>/packages/external-seo-data-providers/src',
     '^@seo-kb/external-seo-data-providers/(.*)$':
       '<rootDir>/packages/external-seo-data-providers/src/$1',
+    '^@seo-kb/external-entity-enrichment$':
+      '<rootDir>/packages/external-entity-enrichment/src',
+    '^@seo-kb/external-entity-enrichment/(.*)$':
+      '<rootDir>/packages/external-entity-enrichment/src/$1',
     '^@seo-kb/discovery-sources$': '<rootDir>/packages/discovery-sources/src',
     '^@seo-kb/discovery-sources/(.*)$':
       '<rootDir>/packages/discovery-sources/src/$1',

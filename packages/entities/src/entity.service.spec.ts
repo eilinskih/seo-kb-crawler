@@ -106,6 +106,45 @@ describe('EntityService', () => {
     });
   });
 
+  it('lists suggested aliases for operator review without approved aliases', async () => {
+    const repository = new InMemoryEntityRepository();
+    const service = new EntityService(repository);
+    const entity = await service.createEntity({
+      canonicalName: 'Laser hair removal',
+      entityType: 'procedure',
+    });
+    await service.addAlias({
+      entityId: entity.id,
+      aliasText: 'approved alias',
+      aliasType: 'exact',
+      reviewStatus: 'approved',
+    });
+    await service.addAlias({
+      entityId: entity.id,
+      aliasText: 'suggested alias',
+      aliasType: 'other',
+      reviewStatus: 'suggested',
+      source: {
+        sourceType: 'external_provider',
+        sourceId: 'wikidata:Q123',
+      },
+    });
+    await service.addAlias({
+      entityId: entity.id,
+      aliasText: 'rejected alias',
+      aliasType: 'other',
+      reviewStatus: 'rejected',
+    });
+
+    await expect(service.listAliasReviewQueue()).resolves.toEqual([
+      expect.objectContaining({
+        entityId: entity.id,
+        aliasText: 'suggested alias',
+        reviewStatus: 'suggested',
+      }),
+    ]);
+  });
+
   it('finds approved entity aliases mentioned inside chunk text', async () => {
     const repository = new InMemoryEntityRepository();
     const service = new EntityService(repository);

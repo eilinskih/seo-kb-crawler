@@ -27,4 +27,12 @@ implements ExternalEntityEnrichmentRepository {
       .reverse()
       .find((record) => record.request.entityName === entityName) ?? null;
   }
+
+  async listRecentEnrichmentPacks(
+    limit: number,
+  ): Promise<ExternalEntityEnrichmentPackRecord[]> {
+    return [...this.records]
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, limit);
+  }
 }

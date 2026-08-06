@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { EntityService } from '@seo-kb/entities';
+import {
+  EXTERNAL_ENTITY_ENRICHMENT_REPOSITORY,
+  ExternalEntityEnrichmentRepository,
+} from '@seo-kb/external-entity-enrichment';
 import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-providers';
 
 import { OperatorConsoleAccessControlService } from './operator-console-access-control.service';
@@ -15,6 +20,9 @@ export class OperatorConsoleService {
     private readonly apiClient: OperatorConsoleApiClient,
     private readonly externalSeo: ExternalSeoEnrichmentService,
     private readonly accessControl: OperatorConsoleAccessControlService,
+    private readonly entities: EntityService,
+    @Inject(EXTERNAL_ENTITY_ENRICHMENT_REPOSITORY)
+    private readonly externalEntities: ExternalEntityEnrichmentRepository,
   ) {}
 
   async buildViewModel(
@@ -39,6 +47,7 @@ export class OperatorConsoleService {
     const providerStatuses = await this.loadProviderStatuses(warnings, now);
     const frontierStatus = await this.loadFrontierStatus(warnings);
     const operatorStatus = await this.loadOperatorStatus(warnings);
+    const reviewQueues = await this.loadReviewQueues(warnings);
 
     return {
       generatedAt: now.toISOString(),
@@ -50,6 +59,7 @@ export class OperatorConsoleService {
       providerStatuses,
       frontierStatus,
       operatorStatus,
+      reviewQueues,
       flash,
     };
   }
@@ -102,6 +112,59 @@ export class OperatorConsoleService {
     } catch (error) {
       warnings.push(`Operator status unavailable: ${errorMessage(error)}`);
       return null;
+    }
+  }
+
+  private async loadReviewQueues(warnings: string[]) {
+    const empty = {
+      suggestedAliases: [],
+      externalEntityIds: [],
+      enrichmentCandidates: [],
+    };
+
+    try {
+      const [suggestedAliases, packs] = await Promise.all([
+        this.entities.listAliasReviewQueue(50),
+        this.externalEntities.listRecentEnrichmentPacks(25),
+      ]);
+
+      return {
+        suggestedAliases: suggestedAliases.map((alias) => ({
+          aliasId: alias.aliasId,
+          entityId: alias.entityId,
+          aliasText: alias.aliasText,
+          aliasType: alias.aliasType,
+          language: alias.language,
+          confidence: alias.confidence,
+          reviewStatus: alias.reviewStatus,
+        })),
+        externalEntityIds: packs.flatMap((pack) =>
+          pack.externalIds.map((externalId) => ({
+            packId: pack.id,
+            entityName: pack.request.entityName,
+            providerKey: externalId.providerKey,
+            externalId: externalId.externalId,
+            externalIdType: externalId.externalIdType,
+            confidence: externalId.confidence,
+            sourceUrl: externalId.sourceUrl ?? null,
+            observedAt: externalId.observedAt,
+          })),
+        ),
+        enrichmentCandidates: packs.flatMap((pack) =>
+          pack.candidates.map((candidate) => ({
+            packId: pack.id,
+            entityName: pack.request.entityName,
+            providerKey: candidate.providerKey,
+            candidateName: candidate.name,
+            externalId: candidate.externalId,
+            confidence: candidate.confidence,
+            sourceUrl: candidate.provenance.sourceUrl ?? null,
+          })),
+        ),
+      };
+    } catch (error) {
+      warnings.push(`Review queues unavailable: ${errorMessage(error)}`);
+      return empty;
     }
   }
 }
