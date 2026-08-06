@@ -18,4 +18,7 @@ export interface ExternalEntityEnrichmentRepository {
   findLatestEnrichmentPack(
     entityName: string,
   ): Promise<ExternalEntityEnrichmentPackRecord | null>;
+  listRecentEnrichmentPacks(
+    limit: number,
+  ): Promise<ExternalEntityEnrichmentPackRecord[]>;
 }

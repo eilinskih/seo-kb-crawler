@@ -136,6 +136,33 @@ export class KnexExternalEntityEnrichmentRepository
 
     return toPackRecord(row, externalIdRows.map(toExternalIdSignal));
   }
+
+  async listRecentEnrichmentPacks(
+    limit: number,
+  ): Promise<ExternalEntityEnrichmentPackRecord[]> {
+    if (limit < 1) {
+      return [];
+    }
+
+    const rows = await this.db.knex<EntityEnrichmentAttemptRow>(
+      'entity_enrichment_attempts',
+    )
+      .orderBy('created_at', 'desc')
+      .limit(limit);
+
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const externalIdRows = await this.db.knex<EntityExternalIdRow>(
+      'entity_external_ids',
+    ).whereIn('latest_attempt_id', rows.map((row) => row.id));
+    const externalIdsByAttemptId = groupExternalIdsByAttemptId(externalIdRows);
+
+    return rows.map((row) =>
+      toPackRecord(row, externalIdsByAttemptId.get(row.id) ?? []),
+    );
+  }
 }
 
 function toSourceRow(
@@ -231,6 +258,23 @@ function toExternalIdSignal(row: EntityExternalIdRow): EntityExternalIdSignal {
   };
 }
 
+function groupExternalIdsByAttemptId(
+  rows: EntityExternalIdRow[],
+): Map<string, EntityExternalIdSignal[]> {
+  const byAttemptId = new Map<string, EntityExternalIdSignal[]>();
+
+  for (const row of rows) {
+    if (!row.latest_attempt_id) {
+      continue;
+    }
+    const signals = byAttemptId.get(row.latest_attempt_id) ?? [];
+    signals.push(toExternalIdSignal(row));
+    byAttemptId.set(row.latest_attempt_id, signals);
+  }
+
+  return byAttemptId;
+}
+
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
@@ -239,6 +283,7 @@ export const __testing = {
   toAttemptRow,
   toExternalIdRow,
   toExternalIdSignal,
+  groupExternalIdsByAttemptId,
   toPackRecord,
   toSourceRow,
 };

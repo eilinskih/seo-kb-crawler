@@ -87,6 +87,16 @@ export class InMemoryEntityRepository implements EntityRepository {
       )
       .sort((a, b) => a.normalizedAliasText.localeCompare(b.normalizedAliasText));
   }
+
+  async findAliasesByReviewStatus(input: {
+    statuses: EntityReviewStatus[];
+    limit: number;
+  }): Promise<EntityAliasRecord[]> {
+    return [...this.aliases.values()]
+      .filter((alias) => input.statuses.includes(alias.reviewStatus))
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .slice(0, input.limit);
+  }
 }
 
 function matchesOptional(

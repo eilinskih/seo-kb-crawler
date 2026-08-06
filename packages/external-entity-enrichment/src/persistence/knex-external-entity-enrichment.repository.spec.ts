@@ -105,6 +105,31 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
       externalIds: pack.externalIds,
     });
   });
+
+  it('groups persisted external IDs by enrichment attempt for review queues', async () => {
+    const pack = await fixturePack();
+    const first = __testing.toExternalIdRow(
+      pack.externalIds[0],
+      'entity-1',
+      packId,
+      '2026-08-06T00:00:00.000Z',
+    );
+    const second = {
+      ...first,
+      id: '00000000-0000-4000-8000-000000000002',
+      latest_attempt_id: '00000000-0000-4000-8000-000000000003',
+    };
+
+    expect(
+      __testing.groupExternalIdsByAttemptId([first, second]),
+    ).toEqual(new Map([
+      [packId, [__testing.toExternalIdSignal(first)]],
+      [
+        '00000000-0000-4000-8000-000000000003',
+        [__testing.toExternalIdSignal(second)],
+      ],
+    ]));
+  });
 });
 
 async function fixturePack() {

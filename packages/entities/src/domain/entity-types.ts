@@ -200,6 +200,10 @@ export interface EntityRepository {
     statuses: EntityReviewStatus[];
   }): Promise<EntityAliasRecord[]>;
   findApprovedAliasesByEntityIds(entityIds: string[]): Promise<EntityAliasRecord[]>;
+  findAliasesByReviewStatus(input: {
+    statuses: EntityReviewStatus[];
+    limit: number;
+  }): Promise<EntityAliasRecord[]>;
 }
 
 export class EntityValidationError extends Error {

@@ -29,6 +29,7 @@ export interface OperatorConsoleViewModel {
   providerStatuses: OperatorProviderStatusSummary[];
   frontierStatus: OperatorFrontierStatusSummary | null;
   operatorStatus: OperatorStatusSummary | null;
+  reviewQueues: OperatorReviewQueuesSummary;
   flash: string | null;
 }
 
@@ -63,6 +64,43 @@ export interface OperatorProviderStatusSummary {
   tier: string;
   capabilities: string[];
   warnings: string[];
+}
+
+export interface OperatorReviewQueuesSummary {
+  suggestedAliases: OperatorSuggestedAliasReviewItem[];
+  externalEntityIds: OperatorExternalEntityIdReviewItem[];
+  enrichmentCandidates: OperatorEnrichmentCandidateReviewItem[];
+}
+
+export interface OperatorSuggestedAliasReviewItem {
+  aliasId: string;
+  entityId: string;
+  aliasText: string;
+  aliasType: string;
+  language: string | null;
+  confidence: number;
+  reviewStatus: string;
+}
+
+export interface OperatorExternalEntityIdReviewItem {
+  packId: string;
+  entityName: string;
+  providerKey: string;
+  externalId: string;
+  externalIdType: string;
+  confidence: string;
+  sourceUrl: string | null;
+  observedAt: string | null;
+}
+
+export interface OperatorEnrichmentCandidateReviewItem {
+  packId: string;
+  entityName: string;
+  providerKey: string;
+  candidateName: string;
+  externalId: string | null;
+  confidence: string;
+  sourceUrl: string | null;
 }
 
 export interface OperatorFrontierStatusSummary {

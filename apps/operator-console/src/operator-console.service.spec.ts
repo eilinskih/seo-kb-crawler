@@ -5,11 +5,7 @@ import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-provider
 
 describe('OperatorConsoleService', () => {
   it('builds an internal operator-only view model', async () => {
-    const service = new OperatorConsoleService(
-      mockClient(),
-      mockExternalSeo(),
-      mockAccessControl(),
-    );
+    const service = makeService();
 
     const model = await service.buildViewModel(
       new Date('2026-07-23T00:00:00.000Z'),
@@ -37,14 +33,21 @@ describe('OperatorConsoleService', () => {
     expect(model.operatorStatus).toEqual(expect.objectContaining({
       retrieval: expect.objectContaining({ keywordReady: true }),
     }));
+    expect(model.reviewQueues).toEqual(expect.objectContaining({
+      suggestedAliases: [
+        expect.objectContaining({ aliasText: 'laser removal' }),
+      ],
+      externalEntityIds: [
+        expect.objectContaining({ externalId: 'kg:/m/test' }),
+      ],
+      enrichmentCandidates: [
+        expect.objectContaining({ candidateName: 'Laser Hair Removal' }),
+      ],
+    }));
   });
 
   it('marks mutating actions as bounded and keeps missing read models planned', async () => {
-    const service = new OperatorConsoleService(
-      mockClient(),
-      mockExternalSeo(),
-      mockAccessControl(),
-    );
+    const service = makeService();
 
     const model = await service.buildViewModel();
     const actions = model.sections.flatMap((section) =>
@@ -81,6 +84,7 @@ describe('OperatorConsoleService', () => {
       providerStatuses: [],
       frontierStatus: null,
       operatorStatus: null,
+      reviewQueues: emptyReviewQueues(),
       flash: null,
     });
 
@@ -134,6 +138,36 @@ describe('OperatorConsoleService', () => {
         }],
       },
       operatorStatus: operatorStatusFixture(),
+      reviewQueues: {
+        suggestedAliases: [{
+          aliasId: 'alias-1',
+          entityId: 'entity-1',
+          aliasText: 'laser removal',
+          aliasType: 'other',
+          language: 'en',
+          confidence: 0.7,
+          reviewStatus: 'suggested',
+        }],
+        externalEntityIds: [{
+          packId: 'pack-1',
+          entityName: 'Laser Hair Removal',
+          providerKey: 'google_knowledge_graph',
+          externalId: 'kg:/m/test',
+          externalIdType: 'google_kg_id',
+          confidence: 'medium',
+          sourceUrl: 'https://example.com/entity',
+          observedAt: '2026-07-23T00:00:00.000Z',
+        }],
+        enrichmentCandidates: [{
+          packId: 'pack-1',
+          entityName: 'Laser Hair Removal',
+          providerKey: 'google_knowledge_graph',
+          candidateName: 'Laser Hair Removal',
+          externalId: 'kg:/m/test',
+          confidence: 'medium',
+          sourceUrl: 'https://example.com/entity',
+        }],
+      },
     });
 
     expect(html).toContain('action="/topics"');
@@ -152,6 +186,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Content Processing');
     expect(html).toContain('keyword: ready');
     expect(html).toContain('Inspection And Health');
+    expect(html).toContain('Review Queues');
+    expect(html).toContain('laser removal');
+    expect(html).toContain('kg:/m/test');
     expect(html).toContain('Recent Document');
     expect(html).toContain('Recent chunk text');
     expect(html).toContain('embedding-1');
@@ -159,12 +196,72 @@ describe('OperatorConsoleService', () => {
   });
 });
 
+function makeService(): OperatorConsoleService {
+  return new OperatorConsoleService(
+    mockClient(),
+    mockExternalSeo(),
+    mockAccessControl(),
+    mockEntities(),
+    mockExternalEntities(),
+  );
+}
+
+function emptyReviewQueues() {
+  return {
+    suggestedAliases: [],
+    externalEntityIds: [],
+    enrichmentCandidates: [],
+  };
+}
+
 function mockAccessControl() {
   return {
     status: jest.fn().mockReturnValue({
       mode: 'enforced',
       warnings: [],
     }),
+  } as never;
+}
+
+function mockEntities() {
+  return {
+    listAliasReviewQueue: jest.fn().mockResolvedValue([{
+      aliasId: 'alias-1',
+      entityId: 'entity-1',
+      aliasText: 'laser removal',
+      aliasType: 'other',
+      language: 'en',
+      confidence: 0.7,
+      reviewStatus: 'suggested',
+    }]),
+  } as never;
+}
+
+function mockExternalEntities() {
+  return {
+    listRecentEnrichmentPacks: jest.fn().mockResolvedValue([{
+      id: 'pack-1',
+      request: {
+        entityName: 'Laser Hair Removal',
+      },
+      externalIds: [{
+        providerKey: 'google_knowledge_graph',
+        externalId: 'kg:/m/test',
+        externalIdType: 'google_kg_id',
+        confidence: 'medium',
+        sourceUrl: 'https://example.com/entity',
+        observedAt: '2026-07-23T00:00:00.000Z',
+      }],
+      candidates: [{
+        providerKey: 'google_knowledge_graph',
+        name: 'Laser Hair Removal',
+        externalId: 'kg:/m/test',
+        confidence: 'medium',
+        provenance: {
+          sourceUrl: 'https://example.com/entity',
+        },
+      }],
+    }]),
   } as never;
 }
 

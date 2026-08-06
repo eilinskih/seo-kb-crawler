@@ -354,8 +354,18 @@ The inspection/health implementation:
 - shows basic document, chunk, embedding, keyword retrieval and vector retrieval health
   signals.
 
+The review queue read model implementation:
+
+- lists suggested entity aliases awaiting operator review;
+- lists recent external entity ID observations from enrichment packs;
+- lists recent enrichment candidates with provider, confidence and source URL
+  evidence;
+- uses Entity and External Entity Enrichment service/repository boundaries;
+- remains read-only until accept/reject commands are added through the owning
+  domain modules.
+
 Richer failure/provider detail screens, frontier retry forms, processing retry
-forms and enrichment review queues remain future implementation work.
+forms and review accept/reject actions remain future implementation work.
 
 ## Close-Out Status
 
@@ -372,6 +382,9 @@ Implemented scope:
 - provider/fallback/degraded status visibility;
 - recent document, chunk and embedding inspection;
 - retrieval smoke readiness;
+- token-based internal access control;
+- read-only review queues for suggested aliases, external entity IDs and
+  enrichment candidates;
 - API/service-bound console access without direct UI database reads.
 
 Deferred scope:
@@ -380,8 +393,8 @@ Deferred scope:
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;
-- review queues for suggested aliases, external entity IDs and enrichment
-  candidates;
+- accept/reject actions for suggested aliases, external entity IDs and
+  enrichment candidates;
 - production-grade frontend hardening.
 
 ## Acceptance Criteria

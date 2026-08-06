@@ -168,6 +168,21 @@ export class KnexEntityRepository implements EntityRepository {
       .orderBy(['entity_id', 'normalized_alias_text']);
     return rows.map(fromAliasRow);
   }
+
+  async findAliasesByReviewStatus(input: {
+    statuses: EntityReviewStatus[];
+    limit: number;
+  }): Promise<EntityAliasRecord[]> {
+    if (input.statuses.length === 0 || input.limit < 1) {
+      return [];
+    }
+
+    const rows = await this.knex<AliasRow>('entity_aliases')
+      .whereIn('review_status', input.statuses)
+      .orderBy('updated_at', 'desc')
+      .limit(input.limit);
+    return rows.map(fromAliasRow);
+  }
 }
 
 function toEntityRow(record: EntityRecord): EntityRow {
