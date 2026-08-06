@@ -99,6 +99,7 @@ export interface OperatorEnrichmentCandidateReviewItem {
   providerKey: string;
   candidateName: string;
   externalId: string | null;
+  externalIdType: string | null;
   confidence: string;
   sourceUrl: string | null;
 }

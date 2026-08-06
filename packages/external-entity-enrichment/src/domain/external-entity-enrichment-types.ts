@@ -24,6 +24,10 @@ export type ExternalEntityProviderTier =
 
 export type ExternalEntityConfidence = 'unknown' | 'low' | 'medium' | 'high';
 
+export type ExternalEntityReviewSubjectType = 'external_id' | 'candidate';
+
+export type ExternalEntityReviewDecision = 'accepted' | 'rejected';
+
 export type ExternalEntityCandidateSource =
   | 'google_knowledge_graph'
   | 'wikidata'
@@ -123,6 +127,36 @@ export interface ExternalEntityEnrichmentPack {
   warnings: ExternalEntityProviderWarning[];
   candidates: ExternalEntityCandidate[];
   externalIds: EntityExternalIdSignal[];
+}
+
+export interface ExternalEntityReviewDecisionRecord {
+  id: string;
+  attemptId: string;
+  entityName: string;
+  subjectType: ExternalEntityReviewSubjectType;
+  providerKey: ExternalEntityProviderKey;
+  externalId: string | null;
+  externalIdType: string | null;
+  candidateName: string | null;
+  decision: ExternalEntityReviewDecision;
+  reviewedBy: string;
+  reviewNote: string | null;
+  provenance: ExternalEntityProvenance | Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface ReviewExternalEntityInput {
+  attemptId: string;
+  subjectType: ExternalEntityReviewSubjectType;
+  providerKey: ExternalEntityProviderKey;
+  externalId?: string | null;
+  externalIdType?: string | null;
+  candidateName?: string | null;
+  decision: ExternalEntityReviewDecision;
+  reviewedBy: string;
+  note?: string | null;
+  now?: string;
 }
 
 export interface ExternalEntityProvider {

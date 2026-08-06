@@ -1,8 +1,15 @@
-import { ExternalEntityEnrichmentPack } from '../domain/external-entity-enrichment-types';
+import {
+  ExternalEntityEnrichmentPack,
+  ExternalEntityReviewDecisionRecord,
+} from '../domain/external-entity-enrichment-types';
 
 export interface SaveExternalEntityEnrichmentPackCommand {
   pack: ExternalEntityEnrichmentPack;
   createdAt: string;
+}
+
+export interface SaveExternalEntityReviewDecisionCommand {
+  decision: ExternalEntityReviewDecisionRecord;
 }
 
 export interface ExternalEntityEnrichmentPackRecord
@@ -21,4 +28,13 @@ export interface ExternalEntityEnrichmentRepository {
   listRecentEnrichmentPacks(
     limit: number,
   ): Promise<ExternalEntityEnrichmentPackRecord[]>;
+  findEnrichmentPackById(
+    attemptId: string,
+  ): Promise<ExternalEntityEnrichmentPackRecord | null>;
+  saveReviewDecision(
+    command: SaveExternalEntityReviewDecisionCommand,
+  ): Promise<ExternalEntityReviewDecisionRecord>;
+  listRecentReviewDecisions(
+    limit: number,
+  ): Promise<ExternalEntityReviewDecisionRecord[]>;
 }

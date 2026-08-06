@@ -9,6 +9,7 @@ import { configuredExternalEntityProviders } from './external-entity-provider.fa
 import { ExternalEntityProviderRegistry } from './external-entity-provider-registry';
 import { KnexExternalEntityEnrichmentRepository } from './persistence/knex-external-entity-enrichment.repository';
 import type { ExternalEntityEnrichmentRepository } from './persistence/external-entity-enrichment.repository';
+import { ExternalEntityReviewService } from './external-entity-review.service';
 
 @Module({
   imports: [ConfigModule, DbModule],
@@ -44,12 +45,19 @@ import type { ExternalEntityEnrichmentRepository } from './persistence/external-
         ConfigService,
       ],
     },
+    {
+      provide: ExternalEntityReviewService,
+      useFactory: (repository: ExternalEntityEnrichmentRepository) =>
+        new ExternalEntityReviewService(repository),
+      inject: [EXTERNAL_ENTITY_ENRICHMENT_REPOSITORY],
+    },
   ],
   exports: [
     EXTERNAL_ENTITY_ENRICHMENT_REPOSITORY,
     ExternalEntityProviderRegistry,
     KnexExternalEntityEnrichmentRepository,
     ExternalEntityEnrichmentService,
+    ExternalEntityReviewService,
   ],
 })
 export class ExternalEntityEnrichmentModule {}

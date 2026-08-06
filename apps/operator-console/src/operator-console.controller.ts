@@ -13,6 +13,7 @@ import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
   OperatorDispatchCommand,
+  OperatorReviewExternalEntityCommand,
   OperatorReviewAliasCommand,
   OperatorUpdateTopicCommand,
 } from './operator-console-api.client';
@@ -109,6 +110,26 @@ export class OperatorConsoleController {
   ): Promise<void> {
     await this.apiClient.rejectAlias(id, toReviewAliasCommand(body));
   }
+
+  @Post('review/external-entities/accept')
+  @Redirect('/', 303)
+  async acceptExternalEntity(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.acceptExternalEntity(
+      toReviewExternalEntityCommand(body),
+    );
+  }
+
+  @Post('review/external-entities/reject')
+  @Redirect('/', 303)
+  async rejectExternalEntity(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.rejectExternalEntity(
+      toReviewExternalEntityCommand(body),
+    );
+  }
 }
 
 function toCreateTopicCommand(
@@ -189,4 +210,26 @@ function toReviewAliasCommand(
     reviewedBy: optionalText(body.reviewedBy) ?? 'operator-console',
     note: optionalText(body.note),
   };
+}
+
+function toReviewExternalEntityCommand(
+  body: Record<string, unknown>,
+): OperatorReviewExternalEntityCommand {
+  return {
+    attemptId: requiredText(body.attemptId, 'attemptId'),
+    subjectType: externalEntitySubjectType(body.subjectType),
+    providerKey: requiredText(body.providerKey, 'providerKey'),
+    externalId: optionalText(body.externalId),
+    externalIdType: optionalText(body.externalIdType),
+    candidateName: optionalText(body.candidateName),
+    reviewedBy: optionalText(body.reviewedBy) ?? 'operator-console',
+    note: optionalText(body.note),
+  };
+}
+
+function externalEntitySubjectType(value: unknown): 'external_id' | 'candidate' {
+  if (value === 'external_id' || value === 'candidate') {
+    return value;
+  }
+  throw new Error('subjectType is required');
 }

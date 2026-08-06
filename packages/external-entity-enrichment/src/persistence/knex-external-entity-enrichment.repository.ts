@@ -5,11 +5,13 @@ import {
   EntityExternalIdSignal,
   ExternalEntityEnrichmentPack,
   ExternalEntityProviderDescriptor,
+  ExternalEntityReviewDecisionRecord,
 } from '../domain/external-entity-enrichment-types';
 import {
   ExternalEntityEnrichmentPackRecord,
   ExternalEntityEnrichmentRepository,
   SaveExternalEntityEnrichmentPackCommand,
+  SaveExternalEntityReviewDecisionCommand,
 } from './external-entity-enrichment.repository';
 
 interface ExternalEntitySourceRow {
@@ -54,6 +56,23 @@ interface EntityExternalIdRow {
   observed_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
+}
+
+interface ExternalEntityReviewDecisionRow {
+  id: string;
+  attempt_id: string;
+  entity_name: string;
+  subject_type: ExternalEntityReviewDecisionRecord['subjectType'];
+  provider_key: string;
+  external_id: string | null;
+  external_id_type: string | null;
+  candidate_name: string | null;
+  decision: ExternalEntityReviewDecisionRecord['decision'];
+  reviewed_by: string;
+  review_note: string | null;
+  provenance: ExternalEntityReviewDecisionRecord['provenance'];
+  metadata: ExternalEntityReviewDecisionRecord['metadata'];
+  created_at: Date | string;
 }
 
 @Injectable()
@@ -163,6 +182,52 @@ export class KnexExternalEntityEnrichmentRepository
       toPackRecord(row, externalIdsByAttemptId.get(row.id) ?? []),
     );
   }
+
+  async findEnrichmentPackById(
+    attemptId: string,
+  ): Promise<ExternalEntityEnrichmentPackRecord | null> {
+    const row = await this.db.knex<EntityEnrichmentAttemptRow>(
+      'entity_enrichment_attempts',
+    )
+      .where({ id: attemptId })
+      .first();
+
+    if (!row) {
+      return null;
+    }
+
+    const externalIdRows = await this.db.knex<EntityExternalIdRow>(
+      'entity_external_ids',
+    ).where({ latest_attempt_id: row.id });
+
+    return toPackRecord(row, externalIdRows.map(toExternalIdSignal));
+  }
+
+  async saveReviewDecision(
+    command: SaveExternalEntityReviewDecisionCommand,
+  ): Promise<ExternalEntityReviewDecisionRecord> {
+    await this.db.knex<ExternalEntityReviewDecisionRow>(
+      'external_entity_review_decisions',
+    ).insert(toReviewDecisionRow(command.decision));
+
+    return command.decision;
+  }
+
+  async listRecentReviewDecisions(
+    limit: number,
+  ): Promise<ExternalEntityReviewDecisionRecord[]> {
+    if (limit < 1) {
+      return [];
+    }
+
+    const rows = await this.db.knex<ExternalEntityReviewDecisionRow>(
+      'external_entity_review_decisions',
+    )
+      .orderBy('created_at', 'desc')
+      .limit(limit);
+
+    return rows.map(toReviewDecisionRecord);
+  }
 }
 
 function toSourceRow(
@@ -258,6 +323,48 @@ function toExternalIdSignal(row: EntityExternalIdRow): EntityExternalIdSignal {
   };
 }
 
+function toReviewDecisionRow(
+  decision: ExternalEntityReviewDecisionRecord,
+): ExternalEntityReviewDecisionRow {
+  return {
+    id: decision.id,
+    attempt_id: decision.attemptId,
+    entity_name: decision.entityName,
+    subject_type: decision.subjectType,
+    provider_key: decision.providerKey,
+    external_id: decision.externalId,
+    external_id_type: decision.externalIdType,
+    candidate_name: decision.candidateName,
+    decision: decision.decision,
+    reviewed_by: decision.reviewedBy,
+    review_note: decision.reviewNote,
+    provenance: decision.provenance,
+    metadata: decision.metadata,
+    created_at: decision.createdAt,
+  };
+}
+
+function toReviewDecisionRecord(
+  row: ExternalEntityReviewDecisionRow,
+): ExternalEntityReviewDecisionRecord {
+  return {
+    id: row.id,
+    attemptId: row.attempt_id,
+    entityName: row.entity_name,
+    subjectType: row.subject_type,
+    providerKey: row.provider_key,
+    externalId: row.external_id,
+    externalIdType: row.external_id_type,
+    candidateName: row.candidate_name,
+    decision: row.decision,
+    reviewedBy: row.reviewed_by,
+    reviewNote: row.review_note,
+    provenance: row.provenance,
+    metadata: row.metadata,
+    createdAt: toIsoString(row.created_at),
+  };
+}
+
 function groupExternalIdsByAttemptId(
   rows: EntityExternalIdRow[],
 ): Map<string, EntityExternalIdSignal[]> {
@@ -285,5 +392,7 @@ export const __testing = {
   toExternalIdSignal,
   groupExternalIdsByAttemptId,
   toPackRecord,
+  toReviewDecisionRecord,
+  toReviewDecisionRow,
   toSourceRow,
 };

@@ -360,9 +360,7 @@ The review queue read model implementation:
 - lists recent external entity ID observations from enrichment packs;
 - lists recent enrichment candidates with provider, confidence and source URL
   evidence;
-- uses Entity and External Entity Enrichment service/repository boundaries;
-- remains read-only until accept/reject commands are added through the owning
-  domain modules.
+- uses Entity and External Entity Enrichment service/repository boundaries.
 
 The suggested alias review action implementation:
 
@@ -373,9 +371,21 @@ The suggested alias review action implementation:
 - renders bounded approve/reject forms for suggested aliases in the Operator
   Console.
 
+The external entity review action implementation:
+
+- adds accept/reject commands through the External Entity Enrichment service/API
+  boundary;
+- records operator decisions in `external_entity_review_decisions`;
+- preserves source provider, source URL, observed timestamp and candidate
+  metadata as review provenance;
+- treats accepted external provider evidence as reviewed evidence only, not as
+  automatically canonical Entity or Knowledge Base data;
+- renders bounded accept/reject forms for external entity IDs and enrichment
+  candidates in the Operator Console.
+
 Richer failure/provider detail screens, frontier retry forms, processing retry
-forms and external entity ID/candidate accept/reject actions remain future
-implementation work.
+forms and richer external entity review filters remain future implementation
+work.
 
 ## Close-Out Status
 
@@ -396,6 +406,8 @@ Implemented scope:
 - read-only review queues for suggested aliases, external entity IDs and
   enrichment candidates;
 - approve/reject actions for suggested aliases with audit metadata;
+- accept/reject actions for external entity IDs and enrichment candidates with
+  provenance-preserving audit metadata;
 - API/service-bound console access without direct UI database reads.
 
 Deferred scope:
@@ -404,7 +416,7 @@ Deferred scope:
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;
-- accept/reject actions for external entity IDs and enrichment candidates;
+- richer external entity review filters and decision history views;
 - production-grade frontend hardening.
 
 ## Acceptance Criteria

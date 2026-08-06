@@ -157,6 +157,7 @@ export class OperatorConsoleService {
             providerKey: candidate.providerKey,
             candidateName: candidate.name,
             externalId: candidate.externalId,
+            externalIdType: candidate.externalIdType,
             confidence: candidate.confidence,
             sourceUrl: candidate.provenance.sourceUrl ?? null,
           })),
