@@ -78,6 +78,25 @@ export function wikidataUrlsFromSparqlSamples(
   return [...new Set(samples.map((sample) => sample.website).filter(isString))];
 }
 
+export function enrichWikidataCandidateWithSparqlSamples(
+  candidate: ExternalEntityCandidate,
+  samples: WikidataSparqlTypeSample[],
+): ExternalEntityCandidate {
+  const types = wikidataTypesFromSparqlSamples(samples);
+  const urls = wikidataUrlsFromSparqlSamples(samples);
+
+  return {
+    ...candidate,
+    types: types.length > 0 ? types : candidate.types,
+    urls: [...new Set([...candidate.urls, ...urls])],
+    metadata: {
+      ...(candidate.metadata ?? {}),
+      sparqlTypeCount: types.length,
+      sparqlWebsiteCount: urls.length,
+    },
+  };
+}
+
 function wikidataUrl(value: string | undefined): string | null {
   if (!value) {
     return null;
