@@ -213,12 +213,10 @@ Designed but not implemented on `main`:
 Not implemented:
 
 - Scheduled External Entity enrichment jobs, persistent provider execution
-  cache, live smoke tests and operator review UI for accepting external aliases
-  or IDs (#181/#182).
+  cache and live smoke tests (#181).
 - Concrete Ahrefs, Semrush, SE Ranking or other paid external SEO provider
   integrations, provider credentials management and quota operations (#179).
 - Live SERP providers and paid provider refresh jobs.
 - Publishing workflows for generated content.
-- Operator Console authenticated access, production UI hardening, richer
-  per-domain detail screens, retry-specific forms and full Research Scheduling
-  controls (#182).
+- Operator Console selective retry-by-ID forms, richer external entity review
+  filters, decision history views and full Research Scheduling controls (#182).

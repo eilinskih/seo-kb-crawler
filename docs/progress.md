@@ -70,7 +70,7 @@ Roadmap order, phases and dependency rules live only in
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
 | #181 | External Entity provider execution | Done | Provider validation fixtures, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence, execution policy configuration and close-out synchronization are complete. |
-| #182 | Operator Console production hardening and review workflows | In progress | Token-based access control, review queues, review actions, topic/provider/failure detail screens and bounded retry/backlog controls are in progress; selective retry-by-ID remains deferred. |
+| #182 | Operator Console production hardening and review workflows | Done | Token-based access control, review queues, review actions, topic/provider/failure detail screens and bounded retry/backlog controls are complete; selective retry-by-ID remains deferred. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
@@ -78,6 +78,29 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #182
+Status: Done
+Summary:
+- Closed out Operator Console production hardening and review workflows.
+- Marked #182 Done in progress and canonical implementation order.
+- Synchronized project map and Operator Console model to remove stale
+  statements that review UI and production hardening are unimplemented.
+- Deferred selective retry-by-ID, richer external entity review filters,
+  decision history views and full Research Scheduling controls explicitly.
+Changed files:
+- docs/progress.md
+- docs/operator-console-model.md
+- docs/project-map.md
+- docs/implementation-order.md
+Validation:
+- Architecture Steward close-out review: approved with no blockers.
+- npm test
+- git diff --check
+Next step:
+- Merge close-out PR, close GitHub Issue #182, then continue the canonical
+  roadmap.
 
 Date: 2026-08-06
 Issue: #182
