@@ -11,6 +11,7 @@ import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
   OperatorConsoleAction,
   OperatorConsoleSection,
+  OperatorProviderDetailViewModel,
   OperatorTopicDetailViewModel,
   OperatorConsoleViewModel,
 } from './operator-console.types';
@@ -84,6 +85,33 @@ export class OperatorConsoleService {
       warnings,
       topic,
       frontierStatus,
+    };
+  }
+
+  async buildProviderDetailViewModel(
+    providerKey: string,
+    now = new Date(),
+  ): Promise<OperatorProviderDetailViewModel> {
+    const warnings = [
+      'Internal operator-only UI. Not a public dashboard.',
+      'Provider detail data is loaded through provider service boundaries.',
+      ...this.accessControl.status().warnings,
+    ];
+    const providerStatuses = await this.loadProviderStatuses(warnings, now);
+    const provider = providerStatuses.find((status) =>
+      status.providerKey === providerKey,
+    ) ?? null;
+
+    if (!provider) {
+      warnings.push(`Provider ${providerKey} was not reported by configured adapters.`);
+    }
+
+    return {
+      generatedAt: now.toISOString(),
+      title: provider ? `Provider: ${provider.providerKey}` : 'Provider Detail',
+      subtitle: 'Internal provider status detail.',
+      warnings,
+      provider,
     };
   }
 

@@ -334,6 +334,8 @@ The provider status implementation:
 
 - shows provider-neutral External SEO Data Provider status;
 - surfaces fallback/degraded provider warnings in the console;
+- links each reported provider to a read-only provider detail page;
+- shows provider status, tier, capabilities and warnings on the detail page;
 - uses the External SEO Data Providers service boundary;
 - avoids paid-provider SDK calls and credentials management.
 
@@ -410,7 +412,7 @@ Implemented scope:
 - bounded URL Frontier and Content Processing dispatch controls;
 - jobs, failures and readiness visibility for Content Processing, Chunking,
   Embeddings and Retrieval;
-- provider/fallback/degraded status visibility;
+- provider/fallback/degraded status visibility and provider detail pages;
 - recent document, chunk and embedding inspection;
 - retrieval smoke readiness;
 - token-based internal access control;
@@ -423,7 +425,7 @@ Implemented scope:
 
 Deferred scope:
 
-- richer per-domain failure/provider detail screens;
+- richer per-domain failure detail screens;
 - URL Frontier retry-specific forms;
 - Content Processing retry-specific forms;
 - full Research Scheduling controls;

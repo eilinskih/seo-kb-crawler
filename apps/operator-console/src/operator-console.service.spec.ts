@@ -1,5 +1,6 @@
 import {
   renderOperatorConsoleHtml,
+  renderOperatorProviderDetailHtml,
   renderOperatorTopicDetailHtml,
 } from './operator-console.renderer';
 import { OperatorConsoleApiClient } from './operator-console-api.client';
@@ -99,6 +100,21 @@ describe('OperatorConsoleService', () => {
     }));
     expect(model.frontierStatus).toEqual(expect.objectContaining({
       topicId: null,
+    }));
+  });
+
+  it('builds provider detail from provider service status', async () => {
+    const service = makeService();
+
+    const model = await service.buildProviderDetailViewModel(
+      'fallback_seo_signals',
+      new Date('2026-07-23T00:00:00.000Z'),
+    );
+
+    expect(model.provider).toEqual(expect.objectContaining({
+      providerKey: 'fallback_seo_signals',
+      status: 'available',
+      warnings: ['Only fallback SEO signals are available.'],
     }));
   });
 
@@ -210,6 +226,7 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('action="/url-frontier/dispatch"');
     expect(html).toContain('action="/content-processing/dispatch"');
     expect(html).toContain('fallback_seo_signals');
+    expect(html).toContain('href="/providers/fallback_seo_signals"');
     expect(html).toContain('Only fallback SEO signals are available.');
     expect(html).toContain('URL Frontier Status');
     expect(html).toContain('https://example.com/');
@@ -278,6 +295,27 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('https://example.com/');
     expect(html).toContain('URL Frontier Status');
     expect(html).toContain('action="/topics/topic-1/configuration"');
+  });
+
+  it('renders provider detail pages', () => {
+    const html = renderOperatorProviderDetailHtml({
+      generatedAt: '2026-07-23T00:00:00.000Z',
+      title: 'Provider: fallback_seo_signals',
+      subtitle: 'Internal provider status detail.',
+      warnings: [],
+      provider: {
+        providerKey: 'fallback_seo_signals',
+        status: 'available',
+        tier: 'fallback',
+        capabilities: ['keyword_intelligence'],
+        warnings: ['Only fallback SEO signals are available.'],
+      },
+    });
+
+    expect(html).toContain('Provider: fallback_seo_signals');
+    expect(html).toContain('Back to console');
+    expect(html).toContain('keyword_intelligence');
+    expect(html).toContain('Only fallback SEO signals are available.');
   });
 });
 
