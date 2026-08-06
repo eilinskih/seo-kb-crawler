@@ -26,6 +26,29 @@ describe('OperatorConsoleController', () => {
     expect(html).toContain('Topic: Laser Hair Removal');
   });
 
+  it('renders provider detail pages through the console service', async () => {
+    const consoleService = {
+      buildProviderDetailViewModel: jest.fn(async () => ({
+        generatedAt: '2026-07-23T00:00:00.000Z',
+        title: 'Provider: fallback_seo_signals',
+        subtitle: 'Internal provider status detail.',
+        warnings: [],
+        provider: null,
+      })),
+    };
+    const controller = new OperatorConsoleController(
+      consoleService as never,
+      {} as never,
+    );
+
+    const html = await controller.providerDetail('fallback_seo_signals');
+
+    expect(consoleService.buildProviderDetailViewModel).toHaveBeenCalledWith(
+      'fallback_seo_signals',
+    );
+    expect(html).toContain('Provider: fallback_seo_signals');
+  });
+
   it('passes external entity accept decisions to the API client', async () => {
     const apiClient = {
       acceptExternalEntity: jest.fn(),

@@ -20,6 +20,7 @@ import {
 import { OperatorConsoleAuthGuard } from './operator-console-auth.guard';
 import {
   renderOperatorConsoleHtml,
+  renderOperatorProviderDetailHtml,
   renderOperatorTopicDetailHtml,
 } from './operator-console.renderer';
 import { OperatorConsoleService } from './operator-console.service';
@@ -49,6 +50,14 @@ export class OperatorConsoleController {
   async topicDetail(@Param('id') id: string): Promise<string> {
     return renderOperatorTopicDetailHtml(
       await this.consoleService.buildTopicDetailViewModel(id),
+    );
+  }
+
+  @Get('providers/:key')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  async providerDetail(@Param('key') key: string): Promise<string> {
+    return renderOperatorProviderDetailHtml(
+      await this.consoleService.buildProviderDetailViewModel(key),
     );
   }
 

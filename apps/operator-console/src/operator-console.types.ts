@@ -42,6 +42,14 @@ export interface OperatorTopicDetailViewModel {
   frontierStatus: OperatorFrontierStatusSummary | null;
 }
 
+export interface OperatorProviderDetailViewModel {
+  generatedAt: string;
+  title: string;
+  subtitle: string;
+  warnings: string[];
+  provider: OperatorProviderStatusSummary | null;
+}
+
 export interface OperatorTopicSummary {
   id: string;
   slug: string;
