@@ -1,9 +1,9 @@
 # External Entity Enrichment Providers Model
 
-- Status: Foundation implementation complete for Issue #17; provider execution
-  validation in progress for Issue #181
+- Status: Foundation implementation complete for Issue #17; optional provider
+  execution complete for Issue #181
 - Issues: #17, #181
-- Date: 2026-07-26
+- Date: 2026-08-06
 
 ## Purpose
 
@@ -59,11 +59,11 @@ accepted entity types and predicates.
 
 ## Providers
 
-Initial provider classes:
+Provider classes:
 
 - `GoogleKnowledgeGraphProvider`: optional paid-key provider boundary for
   public entities. Without an API key it reports `misconfigured` and is skipped.
-  Issue #181 adds live Google Knowledge Graph Search API execution behind
+  Issue #181 added live Google Knowledge Graph Search API execution behind
   optional credentials.
 - `WikidataEntityProvider`: optional public provider boundary for QIDs,
   multilingual aliases, sitelinks and public entity types. It is disabled by

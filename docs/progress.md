@@ -69,7 +69,7 @@ Roadmap order, phases and dependency rules live only in
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
-| #181 | External Entity provider execution | Review needed | Provider fixtures, normalizers, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence and explicit execution policy configuration are ready for review. |
+| #181 | External Entity provider execution | Done | Provider validation fixtures, optional Google Knowledge Graph execution, optional Wikidata Search/SPARQL execution, durable pack persistence, execution policy configuration and close-out synchronization are complete. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
@@ -78,6 +78,43 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #181
+Status: Done
+Summary:
+- Closed out External Entity provider execution after the provider validation,
+  Google Knowledge Graph, Wikidata, persistence and execution policy slices
+  were merged.
+- Synchronized the External Entity model, project map and canonical
+  implementation order so they no longer describe Google/Wikidata execution as
+  missing.
+- Resolved the Architecture Steward blocker by wiring
+  `KnexExternalEntityEnrichmentRepository` into
+  `ExternalEntityEnrichmentModule` through `DbModule` and a repository token.
+- Confirmed provider execution remains optional and fail-open: missing
+  credentials, disabled providers, provider errors and rate limits do not block
+  local Schema.org fallback or downstream packs.
+- Confirmed external candidates remain evidence only and do not automatically
+  approve aliases, canonical entities or ontology types.
+Changed files:
+- docs/progress.md
+- docs/external-entity-enrichment-model.md
+- docs/project-map.md
+- docs/implementation-order.md
+- packages/external-entity-enrichment/src/external-entity-enrichment.module.ts
+- packages/external-entity-enrichment/src/external-entity-enrichment.tokens.ts
+- packages/external-entity-enrichment/src/index.ts
+Validation:
+- Local close-out architecture audit
+- Architecture Steward close-out review
+- rg -n "Real Google Knowledge Graph|Wikidata.*not implemented|provider execution.*future|validation in progress|concrete provider execution" docs/external-entity-enrichment-model.md docs/implementation-order.md docs/project-map.md
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Close GitHub Issue #181 after PR merge, then continue roadmap with #182
+  Operator Console production hardening and review workflows.
 
 Date: 2026-08-06
 Issue: #181
