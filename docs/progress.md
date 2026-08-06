@@ -69,7 +69,7 @@ Roadmap order, phases and dependency rules live only in
 | #178 | Production Roadmap Consolidation | Done | Phase 9 production hardening backlog is synchronized from deferred scope. |
 | #179 | External SEO provider adapters and persistence | Done | Durable persistence, optional Google Search Console adapter, provider refresh service and source-tier stabilization are complete. |
 | #180 | Research Operations scheduler and recrawl hardening | Done | Operations health, durable scheduler persistence, bounded daemon loop, dispatch execution boundary and adaptive recrawl MVP are complete; GitHub issue is ready to close. |
-| #181 | External Entity provider execution | Not started | Optional Google KG/Wikidata execution after #17 foundation. |
+| #181 | External Entity provider execution | Review needed | Provider validation fixtures and offline normalizers are ready for review before concrete live adapters. |
 | #182 | Operator Console production hardening and review workflows | Not started | Auth, review queues and richer operator controls. |
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
@@ -78,6 +78,36 @@ Roadmap order, phases and dependency rules live only in
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-06
+Issue: #181
+Status: Review needed
+Summary:
+- Added the first External Entity provider execution validation slice.
+- Followed the issue comment validation plan: probed providers, documented
+  observed response behavior and added sanitized offline fixtures before
+  concrete live adapters.
+- Live probes confirmed Google Knowledge Graph and Wikidata have different
+  ambiguity behavior, and long-tail phrases can produce weak or no public
+  entity candidates.
+- Added reusable Google Knowledge Graph and Wikidata normalizers covered by
+  offline fixture contract tests.
+Changed files:
+- docs/progress.md
+- docs/external-entity-enrichment-model.md
+- packages/external-entity-enrichment/src/index.ts
+- packages/external-entity-enrichment/src/providers/__fixtures__/**
+- packages/external-entity-enrichment/src/providers/google-knowledge-graph.normalizer.ts
+- packages/external-entity-enrichment/src/providers/provider-fixture-normalizers.spec.ts
+- packages/external-entity-enrichment/src/providers/wikidata.normalizer.ts
+Validation:
+- npm test -- --runTestsByPath packages/external-entity-enrichment/src/providers/provider-fixture-normalizers.spec.ts packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+- npm run build
+- npm test
+- git diff --check
+Next step:
+- Validate and merge the fixture/normalizer slice, then continue Issue #181
+  with optional Google Knowledge Graph live execution.
 
 Date: 2026-08-05
 Issue: #179

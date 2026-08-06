@@ -1,7 +1,8 @@
 # External Entity Enrichment Providers Model
 
-- Status: Foundation implementation complete for Issue #17
-- Issue: #17
+- Status: Foundation implementation complete for Issue #17; provider execution
+  validation in progress for Issue #181
+- Issues: #17, #181
 - Date: 2026-07-26
 
 ## Purpose
@@ -74,6 +75,44 @@ Provider execution policy is optional and local to this subsystem. It can
 cache normalized provider results and rate-limit public or paid providers.
 Local signals such as Schema.org extraction are not rate-limited by this
 policy.
+
+## Provider Validation Fixtures
+
+Issue #181 requires a controlled provider validation pass before concrete live
+adapter execution.
+
+Live probes were run with a fixed query set:
+
+- clear public entities: Taylor Swift, Warsaw;
+- product/media/game entities: Frogger, Frogger Jump;
+- ambiguous entity: Apple;
+- local/business-like long-tail phrase: laser hair removal Poland;
+- expected missing entity: zzzz long tail no entity phrase qwerty.
+
+Observed Google Knowledge Graph behavior:
+
+- clear public entities return scored candidates with `@id`, `@type`, `name`,
+  `description`, optional `url` and optional `detailedDescription`;
+- long-tail phrases can return very weak candidates with extremely low scores;
+- missing entities can return an empty `itemListElement`;
+- provider score must influence confidence, and weak candidates must remain
+  review evidence rather than accepted entities.
+
+Observed Wikidata behavior:
+
+- `wbsearchentities` returns QID, label, description, aliases, concept URI and
+  relative wiki URL;
+- search ordering can be ambiguous, for example Taylor Swift returned an album
+  before the person;
+- long-tail phrases can return no candidates;
+- SPARQL type/website enrichment can return multiple rows per entity or no rows
+  for selected claims.
+
+Sanitized offline fixtures live under
+`packages/external-entity-enrichment/src/providers/__fixtures__/`.
+Ordinary tests must use these fixtures and must not require live provider
+access. Optional live smoke tests may be added later behind explicit env vars
+and API keys.
 
 ## Data Flow
 
@@ -158,6 +197,7 @@ Provider execution is fail-open:
 
 - Real Google Knowledge Graph fetch execution.
 - Real Wikidata API/SPARQL execution and rate-limit policy.
+- Optional live smoke tests gated by provider credentials.
 - Scheduled enrichment jobs.
 - Operator review UI for accepting external aliases and IDs.
 - Knex repository implementation for persisted pack retrieval.
