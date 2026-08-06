@@ -10,4 +10,5 @@ export * from './providers/local-schema-org-entity.provider';
 export * from './providers/wikidata.normalizer';
 export * from './providers/wikidata-entity.provider';
 export * from './persistence/external-entity-enrichment.repository';
+export * from './persistence/knex-external-entity-enrichment.repository';
 export * from './testing/in-memory-external-entity-enrichment.repository';
