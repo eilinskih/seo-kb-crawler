@@ -61,6 +61,7 @@ export function renderOperatorConsoleHtml(
     </div>
     ${renderTopicWorkflow(model)}
     ${renderJobsReadiness(model)}
+    ${renderRetryControls(model)}
     ${renderReviewQueues(model)}
     ${renderInspectionHealth(model)}
     ${renderFrontierStatus(model)}
@@ -584,6 +585,36 @@ function renderJobsReadiness(model: OperatorConsoleViewModel): string {
   ${renderRecentFailures(status.contentProcessing.recentFailures, 'Content Processing')}
   ${renderRecentFailures(status.chunking.recentFailures, 'Chunking')}` : '<p class="empty">Operator status is unavailable.</p>'}
 </section>`;
+}
+
+function renderRetryControls(model: OperatorConsoleViewModel): string {
+  const frontierRetryable = model.frontierStatus?.retryableCount ?? 0;
+  const processingRetryable =
+    model.operatorStatus?.contentProcessing.retryableFailures ?? 0;
+
+  return `<section id="retry-controls" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Retry Controls</h2>
+      <p>Bounded retry/backlog dispatches through existing owner APIs.</p>
+    </div>
+    <span class="badge">available</span>
+  </div>
+  <div class="topic-form">
+    <form method="post" action="/url-frontier/dispatch">
+      <label>URL Frontier retry/backlog entries<input name="maxDispatches" type="number" min="1" max="100" value="${escapeHtml(String(defaultRetryLimit(frontierRetryable)))}" required></label>
+      <button type="submit">Dispatch eligible crawl work</button>
+    </form>
+    <form method="post" action="/content-processing/dispatch">
+      <label>Content Processing retryable failures<input name="maxDispatches" type="number" min="1" max="100" value="${escapeHtml(String(defaultRetryLimit(processingRetryable)))}" required></label>
+      <button type="submit">Dispatch processing retries/backlog</button>
+    </form>
+  </div>
+</section>`;
+}
+
+function defaultRetryLimit(retryableCount: number): number {
+  return Math.min(Math.max(retryableCount, 1), 10);
 }
 
 function renderStageRow(
