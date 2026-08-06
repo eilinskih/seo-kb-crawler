@@ -1,4 +1,5 @@
 import {
+  OperatorTopicDetailViewModel,
   OperatorConsoleViewModel,
   OperatorFrontierRecentEntry,
   OperatorPipelineStageSummary,
@@ -69,6 +70,116 @@ export function renderOperatorConsoleHtml(
   </main>
 </body>
 </html>`;
+}
+
+export function renderOperatorTopicDetailHtml(
+  model: OperatorTopicDetailViewModel,
+): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(model.title)}</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #f7f8fa; color: #17202a; }
+    header { padding: 24px 32px 18px; border-bottom: 1px solid #d8dee7; background: #ffffff; }
+    main { padding: 24px 32px 40px; }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
+    h2 { margin: 0; font-size: 16px; }
+    p { margin: 0; color: #526173; }
+    a { color: #1f6feb; }
+    .warnings { display: grid; gap: 8px; margin: 18px 0 24px; }
+    .warning { padding: 10px 12px; border: 1px solid #d8dee7; background: #ffffff; border-left: 4px solid #2f80ed; }
+    .wide { margin-bottom: 16px; }
+    section { background: #ffffff; border: 1px solid #d8dee7; border-radius: 8px; overflow: hidden; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; padding: 16px; border-bottom: 1px solid #edf0f4; }
+    .badge { font-size: 12px; text-transform: uppercase; letter-spacing: 0; color: #344054; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #edf0f4; text-align: left; vertical-align: top; }
+    th { color: #526173; font-weight: 600; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cbd3df; border-radius: 6px; padding: 8px 10px; font: inherit; color: #17202a; }
+    textarea { resize: vertical; }
+    label { display: grid; gap: 6px; color: #526173; font-size: 12px; font-weight: 600; }
+    button { border: 1px solid #1f6feb; background: #1f6feb; color: #ffffff; border-radius: 6px; padding: 8px 10px; font: inherit; font-weight: 600; cursor: pointer; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .actions form { margin: 0; }
+    .inline-config { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; min-width: 420px; padding: 16px; }
+    .empty { padding: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>${escapeHtml(model.title)}</h1>
+    <p>${escapeHtml(model.subtitle)} <a href="/">Back to console</a></p>
+    <p>Generated ${escapeHtml(model.generatedAt)}</p>
+  </header>
+  <main>
+    <div class="warnings">
+      ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
+    </div>
+    ${model.topic ? renderTopicDetail(model.topic) : '<section class="wide"><p class="empty">Topic detail is unavailable.</p></section>'}
+    ${renderTopicFrontierStatus(model)}
+  </main>
+</body>
+</html>`;
+}
+
+function renderTopicDetail(
+  topic: OperatorTopicDetailViewModel['topic'],
+): string {
+  if (!topic) {
+    return '';
+  }
+
+  return `<section class="wide">
+  <div class="section-head">
+    <div>
+      <h2>${escapeHtml(topic.name)}</h2>
+      <p><code>${escapeHtml(topic.slug)}</code></p>
+    </div>
+    <span class="badge">${escapeHtml(topic.status)}</span>
+  </div>
+  <table>
+    <tbody>
+      <tr><th>ID</th><td><code>${escapeHtml(topic.id)}</code></td></tr>
+      <tr><th>Description</th><td>${escapeHtml(topic.description ?? '')}</td></tr>
+      <tr><th>Configuration version</th><td>${escapeHtml(String(topic.configurationVersion))}</td></tr>
+      <tr><th>Language</th><td>${escapeHtml(topicLanguage(topic))}</td></tr>
+      <tr><th>Country</th><td>${escapeHtml(topicCountry(topic))}</td></tr>
+      <tr><th>Max pages</th><td>${escapeHtml(String(topicMaxPages(topic)))}</td></tr>
+      <tr><th>Seed URLs</th><td>${topicSeedUrls(topic).map((url) => `<code>${escapeHtml(url)}</code>`).join('<br>') || 'None'}</td></tr>
+      <tr><th>Seed keywords</th><td>${topicSeedKeywords(topic).map(escapeHtml).join('<br>') || 'None'}</td></tr>
+      <tr><th>Updated</th><td>${escapeHtml(topic.updatedAt)}</td></tr>
+    </tbody>
+  </table>
+  ${renderTopicEditForm(topic)}
+  <div class="inline-config actions">${renderTopicActions(topic.id, topic.status)}</div>
+</section>`;
+}
+
+function renderTopicFrontierStatus(
+  model: OperatorTopicDetailViewModel,
+): string {
+  return renderFrontierStatus({
+    generatedAt: model.generatedAt,
+    title: model.title,
+    subtitle: model.subtitle,
+    sections: [],
+    warnings: [],
+    topics: [],
+    providerStatuses: [],
+    operatorStatus: null,
+    reviewQueues: {
+      suggestedAliases: [],
+      externalEntityIds: [],
+      enrichmentCandidates: [],
+    },
+    flash: null,
+    frontierStatus: model.frontierStatus,
+  });
 }
 
 function renderReviewQueues(model: OperatorConsoleViewModel): string {
@@ -506,7 +617,7 @@ function renderTopicTable(model: OperatorConsoleViewModel): string {
     </thead>
     <tbody>
       ${model.topics.map((topic) => `<tr>
-        <td><strong>${escapeHtml(topic.name)}</strong><br><code>${escapeHtml(topic.slug)}</code><br><small>${escapeHtml(topic.description ?? '')}</small></td>
+        <td><strong><a href="/topics/${escapeHtml(encodeURIComponent(topic.id))}">${escapeHtml(topic.name)}</a></strong><br><code>${escapeHtml(topic.slug)}</code><br><small>${escapeHtml(topic.description ?? '')}</small></td>
         <td>${escapeHtml(topic.status)}</td>
         <td>${escapeHtml(String(topic.configurationVersion))}</td>
         <td>${escapeHtml(topic.updatedAt)}</td>
@@ -537,6 +648,7 @@ function renderTopicEditForm(
 function renderTopicActions(topicId: string, status: string): string {
   const encoded = encodeURIComponent(topicId);
   const actions = [
+    `<a href="/topics/${encoded}">Open detail</a>`,
     status === 'active'
       ? formButton(`/topics/${encoded}/pause`, 'Pause')
       : '',

@@ -33,6 +33,15 @@ export interface OperatorConsoleViewModel {
   flash: string | null;
 }
 
+export interface OperatorTopicDetailViewModel {
+  generatedAt: string;
+  title: string;
+  subtitle: string;
+  warnings: string[];
+  topic: OperatorTopicSummary | null;
+  frontierStatus: OperatorFrontierStatusSummary | null;
+}
+
 export interface OperatorTopicSummary {
   id: string;
   slug: string;

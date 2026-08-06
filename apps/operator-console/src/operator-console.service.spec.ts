@@ -1,4 +1,7 @@
-import { renderOperatorConsoleHtml } from './operator-console.renderer';
+import {
+  renderOperatorConsoleHtml,
+  renderOperatorTopicDetailHtml,
+} from './operator-console.renderer';
 import { OperatorConsoleApiClient } from './operator-console-api.client';
 import { OperatorConsoleService } from './operator-console.service';
 import { ExternalSeoEnrichmentService } from '@seo-kb/external-seo-data-providers';
@@ -71,6 +74,32 @@ describe('OperatorConsoleService', () => {
         owner: 'External SEO Data Providers',
       }),
     ]));
+  });
+
+  it('builds topic detail from API read models', async () => {
+    const client = mockClient();
+    const service = new OperatorConsoleService(
+      client,
+      mockExternalSeo(),
+      mockAccessControl(),
+      mockEntities(),
+      mockExternalEntities(),
+    );
+
+    const model = await service.buildTopicDetailViewModel(
+      'topic-1',
+      new Date('2026-07-23T00:00:00.000Z'),
+    );
+
+    expect(client.getTopic).toHaveBeenCalledWith('topic-1');
+    expect(client.getFrontierStatus).toHaveBeenCalledWith('topic-1');
+    expect(model.topic).toEqual(expect.objectContaining({
+      id: 'topic-1',
+      name: 'Laser Hair Removal',
+    }));
+    expect(model.frontierStatus).toEqual(expect.objectContaining({
+      topicId: null,
+    }));
   });
 
   it('escapes rendered operator data', () => {
@@ -174,6 +203,7 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('action="/topics"');
     expect(html).toContain('Seed keywords');
     expect(html).toContain('Laser Hair Removal');
+    expect(html).toContain('href="/topics/topic-1"');
     expect(html).toContain('action="/topics/topic-1/pause"');
     expect(html).toContain('action="/topics/topic-1/configuration"');
     expect(html).toContain('Save config');
@@ -200,6 +230,54 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('Recent chunk text');
     expect(html).toContain('embedding-1');
     expect(html).toContain('local test 1');
+  });
+
+  it('renders a topic detail page with scoped frontier status', () => {
+    const html = renderOperatorTopicDetailHtml({
+      generatedAt: '2026-07-23T00:00:00.000Z',
+      title: 'Topic: Laser Hair Removal',
+      subtitle: 'Internal topic operations detail.',
+      warnings: [],
+      topic: {
+        id: 'topic-1',
+        slug: 'laser-hair-removal',
+        name: 'Laser Hair Removal',
+        description: 'Research topic',
+        status: 'active',
+        configurationVersion: 2,
+        updatedAt: '2026-07-23T00:00:00.000Z',
+        discovery: {
+          search: {
+            queries: [{ text: 'laser hair removal', language: 'en' }],
+          },
+          seeds: {
+            urls: ['https://example.com/'],
+          },
+        },
+        languageGeo: {
+          languages: [{ tag: 'en' }],
+          geoTargets: [{ countryCode: 'US' }],
+        },
+        crawlPolicy: {
+          maxPages: 100,
+        },
+      },
+      frontierStatus: {
+        topicId: 'topic-1',
+        totalEntries: 1,
+        counts: [{ status: 'scheduled', count: 1 }],
+        retryableCount: 0,
+        recentEntries: [],
+      },
+    });
+
+    expect(html).toContain('Topic: Laser Hair Removal');
+    expect(html).toContain('Back to console');
+    expect(html).toContain('Research topic');
+    expect(html).toContain('laser hair removal');
+    expect(html).toContain('https://example.com/');
+    expect(html).toContain('URL Frontier Status');
+    expect(html).toContain('action="/topics/topic-1/configuration"');
   });
 });
 
@@ -284,6 +362,15 @@ function mockClient(): OperatorConsoleApiClient {
       configurationVersion: 1,
       updatedAt: '2026-07-23T00:00:00.000Z',
     }]),
+    getTopic: jest.fn().mockResolvedValue({
+      id: 'topic-1',
+      slug: 'laser-hair-removal',
+      name: 'Laser Hair Removal',
+      description: null,
+      status: 'active',
+      configurationVersion: 1,
+      updatedAt: '2026-07-23T00:00:00.000Z',
+    }),
     getFrontierStatus: jest.fn().mockResolvedValue({
       topicId: null,
       totalEntries: 0,

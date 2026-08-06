@@ -11,6 +11,7 @@ import { OperatorConsoleApiClient } from './operator-console-api.client';
 import {
   OperatorConsoleAction,
   OperatorConsoleSection,
+  OperatorTopicDetailViewModel,
   OperatorConsoleViewModel,
 } from './operator-console.types';
 
@@ -64,12 +65,43 @@ export class OperatorConsoleService {
     };
   }
 
+  async buildTopicDetailViewModel(
+    topicId: string,
+    now = new Date(),
+  ): Promise<OperatorTopicDetailViewModel> {
+    const warnings = [
+      'Internal operator-only UI. Not a public dashboard.',
+      'Topic detail data is loaded through API/service contracts.',
+      ...this.accessControl.status().warnings,
+    ];
+    const topic = await this.loadTopic(topicId, warnings);
+    const frontierStatus = await this.loadFrontierStatus(warnings, topicId);
+
+    return {
+      generatedAt: now.toISOString(),
+      title: topic ? `Topic: ${topic.name}` : 'Topic Detail',
+      subtitle: 'Internal topic operations detail.',
+      warnings,
+      topic,
+      frontierStatus,
+    };
+  }
+
   private async loadTopics(warnings: string[]) {
     try {
       return await this.apiClient.listTopics();
     } catch (error) {
       warnings.push(`Topic API unavailable: ${errorMessage(error)}`);
       return [];
+    }
+  }
+
+  private async loadTopic(topicId: string, warnings: string[]) {
+    try {
+      return await this.apiClient.getTopic(topicId);
+    } catch (error) {
+      warnings.push(`Topic detail unavailable: ${errorMessage(error)}`);
+      return null;
     }
   }
 
@@ -97,9 +129,9 @@ export class OperatorConsoleService {
     }
   }
 
-  private async loadFrontierStatus(warnings: string[]) {
+  private async loadFrontierStatus(warnings: string[], topicId?: string) {
     try {
-      return await this.apiClient.getFrontierStatus();
+      return await this.apiClient.getFrontierStatus(topicId);
     } catch (error) {
       warnings.push(`URL Frontier status unavailable: ${errorMessage(error)}`);
       return null;

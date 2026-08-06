@@ -2,6 +2,30 @@ import { OperatorConsoleApiClient } from './operator-console-api.client';
 import { OperatorConsoleController } from './operator-console.controller';
 
 describe('OperatorConsoleController', () => {
+  it('renders topic detail pages through the console service', async () => {
+    const consoleService = {
+      buildTopicDetailViewModel: jest.fn(async () => ({
+        generatedAt: '2026-07-23T00:00:00.000Z',
+        title: 'Topic: Laser Hair Removal',
+        subtitle: 'Internal topic operations detail.',
+        warnings: [],
+        topic: null,
+        frontierStatus: null,
+      })),
+    };
+    const controller = new OperatorConsoleController(
+      consoleService as never,
+      {} as never,
+    );
+
+    const html = await controller.topicDetail('topic-1');
+
+    expect(consoleService.buildTopicDetailViewModel).toHaveBeenCalledWith(
+      'topic-1',
+    );
+    expect(html).toContain('Topic: Laser Hair Removal');
+  });
+
   it('passes external entity accept decisions to the API client', async () => {
     const apiClient = {
       acceptExternalEntity: jest.fn(),

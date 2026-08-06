@@ -171,8 +171,20 @@ export class OperatorConsoleApiClient {
     });
   }
 
-  async getFrontierStatus(): Promise<OperatorFrontierStatusSummary> {
-    return this.request<OperatorFrontierStatusSummary>('/url-frontier/status', {
+  async getTopic(topicId: string): Promise<OperatorTopicRecord> {
+    return this.request<OperatorTopicRecord>(
+      `/topics/${encodeURIComponent(topicId)}`,
+      {
+        method: 'GET',
+      },
+    );
+  }
+
+  async getFrontierStatus(
+    topicId?: string,
+  ): Promise<OperatorFrontierStatusSummary> {
+    const query = topicId ? `?topicId=${encodeURIComponent(topicId)}` : '';
+    return this.request<OperatorFrontierStatusSummary>(`/url-frontier/status${query}`, {
       method: 'GET',
     });
   }
