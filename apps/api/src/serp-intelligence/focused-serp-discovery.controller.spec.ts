@@ -9,6 +9,7 @@ describe('FocusedSerpDiscoveryController', () => {
         observations: { submitted: 1, receipts: [] },
         frontier: { examined: 1 },
       })),
+      runFromTopic: jest.fn(),
     } as unknown as FocusedSerpDiscoveryApiService;
     const controller = new FocusedSerpDiscoveryController(service);
 
@@ -41,6 +42,38 @@ describe('FocusedSerpDiscoveryController', () => {
     });
     expect(result).toEqual(expect.objectContaining({
       snapshot: { id: 'snapshot-1' },
+    }));
+  });
+
+  it('passes automatic topic SERP discovery requests to the service', async () => {
+    const service = {
+      run: jest.fn(),
+      runFromTopic: jest.fn(async () => ({
+        status: 'recorded',
+        providerKey: 'fallback_test',
+        warnings: [],
+        snapshot: { id: 'snapshot-1' },
+        observations: { submitted: 1, receipts: [] },
+        frontier: { examined: 1 },
+      })),
+    } as unknown as FocusedSerpDiscoveryApiService;
+    const controller = new FocusedSerpDiscoveryController(service);
+
+    const result = await controller.runFocusedDiscoveryFromTopic({
+      topicId: 'topic-1',
+      query: ' depilacja laserowa jasło ',
+      language: 'pl',
+      geo: { countryCode: 'PL' },
+    });
+
+    expect(service.runFromTopic).toHaveBeenCalledWith({
+      topicId: 'topic-1',
+      query: 'depilacja laserowa jasło',
+      language: 'pl',
+      geo: { countryCode: 'PL', regionCode: undefined, city: undefined },
+    });
+    expect(result).toEqual(expect.objectContaining({
+      status: 'recorded',
     }));
   });
 });

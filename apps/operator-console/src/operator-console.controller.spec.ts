@@ -151,4 +151,24 @@ describe('OperatorConsoleController', () => {
       resultUrls: ['https://example.com/a', 'https://example.com/b'],
     });
   });
+
+  it('passes automatic topic SERP discovery requests to the API client', async () => {
+    const apiClient = {
+      runFocusedSerpDiscoveryForTopic: jest.fn(async () => ({
+        status: 'recorded',
+        providerKey: 'fallback_test',
+        warnings: [],
+        snapshot: { id: 'snapshot-1', results: [] },
+        observations: { submitted: 2 },
+        frontier: { upsertedEntries: 2 },
+      })),
+    } as unknown as OperatorConsoleApiClient;
+    const controller = new OperatorConsoleController({} as never, apiClient);
+
+    await controller.discoverTopicSerp('topic-1');
+
+    expect(apiClient.runFocusedSerpDiscoveryForTopic).toHaveBeenCalledWith(
+      'topic-1',
+    );
+  });
 });

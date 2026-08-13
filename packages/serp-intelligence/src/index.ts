@@ -1,6 +1,7 @@
 export * from './content-angle.service';
 export * from './content-depth.service';
 export * from './domain/serp-intelligence-types';
+export * from './duckduckgo-html-serp-search.provider';
 export * from './entity-pattern.service';
 export * from './faq-pattern.service';
 export * from './focused-serp-discovery.service';
@@ -8,6 +9,7 @@ export * from './heading-pattern.service';
 export * from './normalize-serp-text';
 export * from './persistence/knex-serp-intelligence.repository';
 export * from './persistence/serp-intelligence.repository';
+export * from './serp-search.provider';
 export * from './serp-intelligence.module';
 export * from './serp-intelligence.service';
 export * from './serp-intelligence.tokens';

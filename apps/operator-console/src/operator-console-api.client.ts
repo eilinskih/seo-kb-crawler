@@ -53,6 +53,15 @@ export interface OperatorFocusedSerpDiscoveryCommand {
   resultUrls: string[];
 }
 
+export interface OperatorAutomaticSerpDiscoveryResult {
+  status: 'recorded' | 'degraded_no_results';
+  providerKey: string;
+  warnings: string[];
+  snapshot: { id: string; results: unknown[] } | null;
+  observations: { submitted: number };
+  frontier: { upsertedEntries?: number } | null;
+}
+
 export interface OperatorReviewAliasCommand {
   reviewedBy: string;
   note: string | null;
@@ -294,6 +303,21 @@ export class OperatorConsoleApiClient {
         'content-type': 'application/json',
       },
     });
+  }
+
+  async runFocusedSerpDiscoveryForTopic(
+    topicId: string,
+  ): Promise<OperatorAutomaticSerpDiscoveryResult> {
+    return this.request<OperatorAutomaticSerpDiscoveryResult>(
+      '/serp-intelligence/focused-discovery/run-topic',
+      {
+        method: 'POST',
+        body: JSON.stringify({ topicId }),
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    );
   }
 
   async approveAlias(

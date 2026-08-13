@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { SerpGeoTarget } from '@seo-kb/serp-intelligence';
 import {
+  AutomaticFocusedSerpDiscoveryApiResult,
   FocusedSerpDiscoveryApiResult,
   FocusedSerpDiscoveryApiService,
 } from './focused-serp-discovery.service';
@@ -32,6 +33,19 @@ export class FocusedSerpDiscoveryController {
       geo: geoTarget(requestBody.geo),
       providerKey: optionalText(requestBody.providerKey) ?? undefined,
       results: serpResults(requestBody.results),
+    });
+  }
+
+  @Post('focused-discovery/run-topic')
+  async runFocusedDiscoveryFromTopic(
+    @Body() body: FocusedSerpDiscoveryBody,
+  ): Promise<AutomaticFocusedSerpDiscoveryApiResult> {
+    const requestBody = body ?? {};
+    return this.service.runFromTopic({
+      topicId: requiredText(requestBody.topicId, 'topicId'),
+      query: optionalText(requestBody.query) ?? undefined,
+      language: optionalText(requestBody.language) ?? undefined,
+      geo: geoTarget(requestBody.geo),
     });
   }
 }

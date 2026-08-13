@@ -306,7 +306,7 @@ function renderTopicDetail(
     </tbody>
   </table>
   ${renderTopicEditForm(topic)}
-  <div class="inline-config actions">${renderTopicActions(topic.id, topic.status)}</div>
+  <div class="inline-config actions">${renderTopicActions(topic)}</div>
 </section>`;
 }
 
@@ -921,7 +921,7 @@ function renderTopicTable(model: OperatorConsoleViewModel): string {
         <td>${escapeHtml(String(topic.configurationVersion))}</td>
         <td>${escapeHtml(topic.updatedAt)}</td>
         <td>${renderTopicEditForm(topic)}</td>
-        <td class="actions">${renderTopicActions(topic.id, topic.status)}</td>
+        <td class="actions">${renderTopicActions(topic)}</td>
       </tr>`).join('')}
     </tbody>
   </table>`;
@@ -944,10 +944,17 @@ function renderTopicEditForm(
   </form>`;
 }
 
-function renderTopicActions(topicId: string, status: string): string {
+function renderTopicActions(
+  topic: OperatorConsoleViewModel['topics'][number],
+): string {
+  const topicId = topic.id;
+  const status = topic.status;
   const encoded = encodeURIComponent(topicId);
   const actions = [
     `<a href="/topics/${encoded}">Open detail</a>`,
+    topicSeedKeywords(topic).length > 0
+      ? formButton(`/topics/${encoded}/discover-serp`, 'Discover SERP')
+      : '<span class="disabled">No seed keyword</span>',
     status === 'active'
       ? formButton(`/topics/${encoded}/pause`, 'Pause')
       : '',

@@ -14,7 +14,10 @@ import { EmbeddingModule } from '@seo-kb/embeddings';
 import { EntitiesModule } from '@seo-kb/entities';
 import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichment';
 import { RetrievalModule } from '@seo-kb/retrieval';
-import { SerpIntelligenceModule } from '@seo-kb/serp-intelligence';
+import {
+  DuckDuckGoHtmlSerpSearchProvider,
+  SerpIntelligenceModule,
+} from '@seo-kb/serp-intelligence';
 import { TopicEngineModule } from '@seo-kb/topic-engine';
 import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { ContentProcessingController } from './content-processing/content-processing.controller';
@@ -68,6 +71,10 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     UrlFrontierDispatchController,
     UrlFrontierStatusController,
   ],
-  providers: [InfrastructureHealthService, FocusedSerpDiscoveryApiService],
+  providers: [
+    DuckDuckGoHtmlSerpSearchProvider,
+    InfrastructureHealthService,
+    FocusedSerpDiscoveryApiService,
+  ],
 })
 export class ApiModule {}
