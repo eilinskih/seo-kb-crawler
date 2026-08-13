@@ -120,6 +120,10 @@ async function addStatusCheck(
   await knex.raw(`
     ALTER TABLE ${tableName}
     ADD CONSTRAINT ${tableName}_status_check
-    CHECK (status IN (${statuses.map(() => '?').join(', ')}))
-  `, statuses);
+    CHECK (status IN (${statuses.map(quoteSqlLiteral).join(', ')}))
+  `);
+}
+
+function quoteSqlLiteral(value: string): string {
+  return `'${value.replace(/'/gu, "''")}'`;
 }

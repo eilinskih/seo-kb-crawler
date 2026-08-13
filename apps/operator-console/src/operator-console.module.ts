@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import {
+  appConfig,
+  validateEnvironment,
+} from '@seo-kb/common';
 import { EntitiesModule } from '@seo-kb/entities';
 import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichment';
 import { ExternalSeoDataProvidersModule } from '@seo-kb/external-seo-data-providers';
@@ -12,7 +16,12 @@ import { OperatorConsoleService } from './operator-console.service';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      load: [appConfig],
+      validate: validateEnvironment,
+    }),
     EntitiesModule,
     ExternalEntityEnrichmentModule,
     ExternalSeoDataProvidersModule,
@@ -21,7 +30,10 @@ import { OperatorConsoleService } from './operator-console.service';
   providers: [
     OperatorConsoleAccessControlService,
     OperatorConsoleAuthGuard,
-    OperatorConsoleApiClient,
+    {
+      provide: OperatorConsoleApiClient,
+      useFactory: () => new OperatorConsoleApiClient(),
+    },
     OperatorConsoleService,
   ],
 })

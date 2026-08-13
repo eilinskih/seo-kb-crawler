@@ -427,11 +427,11 @@ function toTopicConfigurationInput(
         weight: 1,
       })),
       fieldWeights: {
-        url: 1,
-        title: 3,
-        headings: 2,
-        body: 1,
-        anchorText: 1,
+        url: 0.125,
+        title: 0.375,
+        headings: 0.25,
+        body: 0.125,
+        anchorText: 0.125,
       },
       hostAdjustments: [],
     },
@@ -448,3 +448,8 @@ function hostnames(urls: string[]): string[] {
     }
   }).filter((hostname): hostname is string => Boolean(hostname)))];
 }
+
+export const __testing = {
+  toCreateTopicInput,
+  toTopicConfigurationInput,
+};

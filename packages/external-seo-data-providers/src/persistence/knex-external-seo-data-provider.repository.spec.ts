@@ -15,26 +15,30 @@ describe('KnexExternalSeoDataProviderRepository', () => {
 
   it('maps enrichment packs into provider-neutral snapshot rows', async () => {
     const pack = await fixturePack();
+    const row = __testing.toPackRow({
+      pack,
+      createdAt: '2026-08-05T00:00:00.000Z',
+    }, packId);
 
-    expect(
-      __testing.toPackRow({
-        pack,
-        createdAt: '2026-08-05T00:00:00.000Z',
-      }, packId),
-    ).toMatchObject({
+    expect(row).toMatchObject({
       id: packId,
       topic_id: 'topic-1',
       query: 'laser hair removal',
       topic_seed: 'laser hair removal',
       language: 'en',
-      market: { countryCode: 'PL' },
-      provider_statuses: pack.providerStatuses,
-      warnings: pack.warnings,
-      pack,
+      market: JSON.stringify({ countryCode: 'PL' }),
+      provider_statuses: JSON.stringify(pack.providerStatuses),
+      warnings: JSON.stringify(pack.warnings),
+      pack: JSON.stringify(pack),
       degraded: true,
       generated_at: '2026-08-05T00:00:00.000Z',
       created_at: '2026-08-05T00:00:00.000Z',
     });
+    expect(__testing.toPackRecord(row)).toEqual(expect.objectContaining({
+      id: packId,
+      request: pack.request,
+      warnings: pack.warnings,
+    }));
   });
 
   it('maps observations and nullable metric snapshots with provider attribution', async () => {
@@ -54,7 +58,7 @@ describe('KnexExternalSeoDataProviderRepository', () => {
       observation_type: observation.observationType,
       source_capability: observation.sourceCapability,
       subject: observation.subject,
-      observation,
+      observation: JSON.stringify(observation),
       created_at: '2026-08-05T00:00:00.000Z',
     });
     expect(
@@ -68,8 +72,8 @@ describe('KnexExternalSeoDataProviderRepository', () => {
       provider_key: 'fallback_seo_signals',
       metric_name: snapshot.metricName,
       source_capability: snapshot.sourceCapability,
-      value: null,
-      snapshot,
+      value: JSON.stringify(null),
+      snapshot: JSON.stringify(snapshot),
       created_at: '2026-08-05T00:00:00.000Z',
     });
   });

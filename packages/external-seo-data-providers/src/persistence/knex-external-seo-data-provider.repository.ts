@@ -19,10 +19,10 @@ interface ExternalSeoEnrichmentPackRow {
   query: string | null;
   topic_seed: string | null;
   language: string | null;
-  market: ExternalSeoMarket | null;
-  provider_statuses: ExternalSeoEnrichmentPack['providerStatuses'];
-  warnings: ExternalSeoEnrichmentPack['warnings'];
-  pack: ExternalSeoEnrichmentPack;
+  market: JsonColumn<ExternalSeoMarket> | null;
+  provider_statuses: JsonColumn<ExternalSeoEnrichmentPack['providerStatuses']>;
+  warnings: JsonColumn<ExternalSeoEnrichmentPack['warnings']>;
+  pack: JsonColumn<ExternalSeoEnrichmentPack>;
   degraded: boolean;
   generated_at: Date | string;
   created_at: Date | string;
@@ -37,10 +37,10 @@ interface ExternalSeoObservationRow {
   subject: string;
   url: string | null;
   language: string | null;
-  market: ExternalSeoMarket | null;
+  market: JsonColumn<ExternalSeoMarket> | null;
   confidence: ExternalSeoObservation['confidence'];
-  metadata: ExternalSeoObservation['metadata'] | null;
-  observation: ExternalSeoObservation;
+  metadata: JsonColumn<ExternalSeoObservation['metadata']> | null;
+  observation: JsonColumn<ExternalSeoObservation>;
   observed_at: Date | string | null;
   created_at: Date | string;
 }
@@ -51,15 +51,17 @@ interface ExternalSeoMetricSnapshotRow {
   provider_key: string;
   metric_name: ExternalSeoMetricSnapshot['metricName'];
   source_capability: ExternalSeoMetricSnapshot['sourceCapability'];
-  value: ExternalSeoMetricSnapshot['value'];
+  value: JsonColumn<ExternalSeoMetricSnapshot['value']>;
   language: string | null;
-  market: ExternalSeoMarket | null;
+  market: JsonColumn<ExternalSeoMarket> | null;
   confidence: ExternalSeoMetricSnapshot['confidence'];
-  warning_codes: string[];
-  snapshot: ExternalSeoMetricSnapshot;
+  warning_codes: JsonColumn<string[]>;
+  snapshot: JsonColumn<ExternalSeoMetricSnapshot>;
   fetched_at: Date | string | null;
   created_at: Date | string;
 }
+
+type JsonColumn<Value> = Value | string;
 
 @Injectable()
 export class KnexExternalSeoDataProviderRepository
@@ -128,10 +130,10 @@ function toPackRow(
     query: command.pack.request.query ?? null,
     topic_seed: command.pack.request.topicSeed ?? null,
     language: command.pack.request.language ?? null,
-    market: command.pack.request.market ?? null,
-    provider_statuses: command.pack.providerStatuses,
-    warnings: command.pack.warnings,
-    pack: command.pack,
+    market: jsonOrNull(command.pack.request.market),
+    provider_statuses: json(command.pack.providerStatuses),
+    warnings: json(command.pack.warnings),
+    pack: json(command.pack),
     degraded: command.pack.degraded,
     generated_at: command.pack.generatedAt,
     created_at: command.createdAt,
@@ -152,10 +154,10 @@ function toObservationRow(
     subject: observation.subject,
     url: observation.url ?? null,
     language: observation.language ?? null,
-    market: observation.market ?? null,
+    market: jsonOrNull(observation.market),
     confidence: observation.confidence,
-    metadata: observation.metadata ?? null,
-    observation,
+    metadata: jsonOrNull(observation.metadata),
+    observation: json(observation),
     observed_at: observation.observedAt,
     created_at: createdAt,
   };
@@ -172,12 +174,12 @@ function toMetricSnapshotRow(
     provider_key: snapshot.providerKey,
     metric_name: snapshot.metricName,
     source_capability: snapshot.sourceCapability,
-    value: snapshot.value,
+    value: json(snapshot.value),
     language: snapshot.language ?? null,
-    market: snapshot.market ?? null,
+    market: jsonOrNull(snapshot.market),
     confidence: snapshot.confidence,
-    warning_codes: snapshot.warningCodes,
-    snapshot,
+    warning_codes: json(snapshot.warningCodes),
+    snapshot: json(snapshot),
     fetched_at: snapshot.fetchedAt,
     created_at: createdAt,
   };
@@ -187,10 +189,22 @@ function toPackRecord(
   row: ExternalSeoEnrichmentPackRow,
 ): ExternalSeoEnrichmentPackRecord {
   return {
-    ...row.pack,
+    ...parseJson(row.pack),
     id: row.id,
     createdAt: toIsoString(row.created_at),
   };
+}
+
+function json<Value>(value: Value): string {
+  return JSON.stringify(value);
+}
+
+function jsonOrNull<Value>(value: Value | null | undefined): string | null {
+  return value === null || value === undefined ? null : json(value);
+}
+
+function parseJson<Value>(value: JsonColumn<Value>): Value {
+  return typeof value === 'string' ? JSON.parse(value) as Value : value;
 }
 
 function toIsoString(value: Date | string): string {
@@ -199,6 +213,7 @@ function toIsoString(value: Date | string): string {
 
 export const __testing = {
   toPackRow,
+  toPackRecord,
   toObservationRow,
   toMetricSnapshotRow,
 };
