@@ -118,6 +118,41 @@ export function parseBingHtmlResults(html: string): Array<{
   return results;
 }
 
+export function parseGoogleHtmlResults(html: string): Array<{
+  url: string;
+  title: string | null;
+  snippet: string | null;
+  position: number;
+}> {
+  const results: Array<{
+    url: string;
+    title: string | null;
+    snippet: string | null;
+    position: number;
+  }> = [];
+  const seen = new Set<string>();
+  const anchors = html.matchAll(
+    /<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/giu,
+  );
+
+  for (const match of anchors) {
+    const url = normalizeGoogleResultUrl(decodeHtml(match[1]));
+    const title = stripHtml(match[2]);
+    if (!url || !title || seen.has(url) || isGoogleInternalUrl(url)) {
+      continue;
+    }
+    seen.add(url);
+    results.push({
+      url,
+      title,
+      snippet: null,
+      position: results.length + 1,
+    });
+  }
+
+  return results;
+}
+
 export function parseDuckDuckGoHtmlResults(html: string): Array<{
   url: string;
   title: string | null;
@@ -160,10 +195,10 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
 }> {
   return [
     {
-      label: 'DuckDuckGo HTML fallback',
-      url: duckDuckGoSearchUrl(request),
-      challengePattern: /anomaly-modal|Unfortunately,\s*bots\s*use\s*DuckDuckGo\s*too/iu,
-      parse: parseDuckDuckGoHtmlResults,
+      label: 'Google HTML fallback',
+      url: googleSearchUrl(request),
+      challengePattern: /\/sorry\/index|Our systems have detected unusual traffic|recaptcha|g-recaptcha|\/httpservice\/retry\/enablejs|emsg=SG_REL/iu,
+      parse: parseGoogleHtmlResults,
     },
     {
       label: 'Bing HTML fallback',
@@ -171,7 +206,27 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
       challengePattern: /captcha|verify\s+you\s+are\s+a\s+human/iu,
       parse: parseBingHtmlResults,
     },
+    {
+      label: 'DuckDuckGo HTML fallback',
+      url: duckDuckGoSearchUrl(request),
+      challengePattern: /anomaly-modal|Unfortunately,\s*bots\s*use\s*DuckDuckGo\s*too/iu,
+      parse: parseDuckDuckGoHtmlResults,
+    },
   ];
+}
+
+function googleSearchUrl(request: SerpSearchProviderRequest): string {
+  const url = new URL('https://www.google.com/search');
+  url.searchParams.set('q', request.query);
+  url.searchParams.set('num', String(Math.max(1, Math.min(request.limit, 10))));
+  url.searchParams.set('pws', '0');
+  if (request.language) {
+    url.searchParams.set('hl', request.language);
+  }
+  if (request.geo?.countryCode) {
+    url.searchParams.set('gl', request.geo.countryCode.toLowerCase());
+  }
+  return url.toString();
 }
 
 function duckDuckGoSearchUrl(request: SerpSearchProviderRequest): string {
@@ -224,6 +279,24 @@ function normalizeResultUrl(value: string): string | null {
   }
 }
 
+function normalizeGoogleResultUrl(value: string): string | null {
+  try {
+    const url = value.startsWith('/')
+      ? new URL(value, 'https://www.google.com')
+      : new URL(value);
+    const target = url.pathname === '/url' && url.searchParams.get('q')
+      ? new URL(url.searchParams.get('q') as string)
+      : url;
+    if (!['http:', 'https:'].includes(target.protocol)) {
+      return null;
+    }
+    target.hash = '';
+    return target.toString();
+  } catch {
+    return null;
+  }
+}
+
 function decodeBingRedirectTarget(value: string | null): string | null {
   if (!value?.startsWith('a1')) {
     return null;
@@ -233,6 +306,18 @@ function decodeBingRedirectTarget(value: string | null): string | null {
     return Buffer.from(encoded, 'base64').toString('utf8');
   } catch {
     return null;
+  }
+}
+
+function isGoogleInternalUrl(value: string): boolean {
+  try {
+    const host = new URL(value).hostname.replace(/^www\./u, '');
+    return host === 'google.com' ||
+      host.endsWith('.google.com') ||
+      host === 'gstatic.com' ||
+      host.endsWith('.gstatic.com');
+  } catch {
+    return true;
   }
 }
 

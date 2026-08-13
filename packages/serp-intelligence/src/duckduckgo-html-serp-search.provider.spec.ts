@@ -1,7 +1,71 @@
 import {
+  DuckDuckGoHtmlSerpSearchProvider,
   parseBingHtmlResults,
   parseDuckDuckGoHtmlResults,
+  parseGoogleHtmlResults,
 } from './duckduckgo-html-serp-search.provider';
+
+describe('DuckDuckGoHtmlSerpSearchProvider', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('tries Google before secondary fallback sources', async () => {
+    const fetchMock = jest.fn(async (_url: string) => ({
+      ok: true,
+      text: async () => `
+        <a href="/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja">Depilacja laserowa Jasło</a>
+      `,
+    }));
+    global.fetch = fetchMock as never;
+
+    const provider = new DuckDuckGoHtmlSerpSearchProvider();
+    const result = await provider.search({
+      query: 'depilacja laserowa jasło',
+      language: 'pl',
+      geo: { countryCode: 'PL' },
+      limit: 10,
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0][0])).toContain('google.com/search');
+    expect(result.results).toEqual([
+      {
+        url: 'https://clinic.example/depilacja',
+        title: 'Depilacja laserowa Jasło',
+        snippet: null,
+        position: 1,
+      },
+    ]);
+  });
+});
+
+describe('parseGoogleHtmlResults', () => {
+  it('extracts organic result URLs from Google HTML fallback output', () => {
+    const results = parseGoogleHtmlResults(`
+      <a href="/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja%23hero&sa=U">Depilacja laserowa Jasło</a>
+      <a href="https://example.org/laser">Laser Jasło</a>
+      <a href="/search?q=depilacja+laserowa+jaslo">Ignored Google search link</a>
+    `);
+
+    expect(results).toEqual([
+      {
+        url: 'https://clinic.example/depilacja',
+        title: 'Depilacja laserowa Jasło',
+        snippet: null,
+        position: 1,
+      },
+      {
+        url: 'https://example.org/laser',
+        title: 'Laser Jasło',
+        snippet: null,
+        position: 2,
+      },
+    ]);
+  });
+});
 
 describe('parseDuckDuckGoHtmlResults', () => {
   it('extracts organic result URLs from DuckDuckGo HTML fallback output', () => {
