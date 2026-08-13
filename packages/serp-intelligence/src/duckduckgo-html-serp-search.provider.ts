@@ -1,9 +1,23 @@
+import { execFile } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { Injectable } from '@nestjs/common';
 import {
   SerpSearchProvider,
   SerpSearchProviderRequest,
   SerpSearchProviderResult,
 } from './serp-search.provider';
+
+const execFileAsync = promisify(execFile);
+const googleHeadlessTimeoutMs = 15_000;
+const googleHeadlessChromeCandidates = [
+  process.env.GOOGLE_SERP_CHROME_PATH,
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+].filter((candidate): candidate is string => Boolean(candidate));
 
 @Injectable()
 export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
@@ -38,6 +52,10 @@ export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
         const html = await response.text();
         if (source.challengePattern.test(html)) {
           warnings.push(`${source.label} returned an anti-bot challenge`);
+          const recovered = await tryHeadlessSource(source, request, warnings);
+          if (recovered) {
+            return recovered;
+          }
           continue;
         }
 
@@ -51,6 +69,10 @@ export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
 
         if (results.length === 0) {
           warnings.push(`${source.label} returned no relevant organic result URLs`);
+          const recovered = await tryHeadlessSource(source, request, warnings);
+          if (recovered) {
+            return recovered;
+          }
           continue;
         }
 
@@ -192,13 +214,15 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
   url: string;
   challengePattern: RegExp;
   parse: (html: string) => ReturnType<typeof parseDuckDuckGoHtmlResults>;
+  headless?: boolean;
 }> {
   return [
     {
       label: 'Google HTML fallback',
       url: googleSearchUrl(request),
-      challengePattern: /\/sorry\/index|Our systems have detected unusual traffic|recaptcha|g-recaptcha|\/httpservice\/retry\/enablejs|emsg=SG_REL/iu,
+      challengePattern: /\/sorry\/index|Our systems have detected unusual traffic|nietypowy ruch|recaptcha|g-recaptcha|\/httpservice\/retry\/enablejs|emsg=SG_REL/iu,
       parse: parseGoogleHtmlResults,
+      headless: true,
     },
     {
       label: 'Bing HTML fallback',
@@ -213,6 +237,103 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
       parse: parseDuckDuckGoHtmlResults,
     },
   ];
+}
+
+async function tryHeadlessSource(
+  source: ReturnType<typeof searchSources>[number],
+  request: SerpSearchProviderRequest,
+  warnings: string[],
+): Promise<SerpSearchProviderResult | null> {
+  if (!source.headless) {
+    return null;
+  }
+
+  const headless = await googleHeadlessSearch(source.url);
+  warnings.push(...headless.warnings);
+  if (headless.html && source.challengePattern.test(headless.html)) {
+    warnings.push(`${source.label} headless fallback returned an anti-bot challenge`);
+    return null;
+  }
+  const results = headless.html
+    ? source.parse(headless.html)
+      .filter((result) => isRelevantResult(result, request.query))
+      .slice(0, Math.max(1, Math.min(request.limit, 10)))
+      .map((result, index) => ({
+        ...result,
+        position: index + 1,
+      }))
+    : [];
+
+  if (results.length === 0) {
+    warnings.push(`${source.label} headless fallback returned no relevant organic result URLs`);
+    return null;
+  }
+
+  return {
+    providerKey: 'free_html_serp_fallback',
+    providerMode: 'fallback',
+    degraded: warnings.length > 0,
+    warnings,
+    results,
+  };
+}
+
+interface GoogleHeadlessResult {
+  html: string | null;
+  warnings: string[];
+}
+
+let googleHeadlessSearch = defaultGoogleHeadlessSearch;
+
+async function defaultGoogleHeadlessSearch(url: string): Promise<GoogleHeadlessResult> {
+  const chromePath = googleHeadlessChromeCandidates[0];
+  if (!chromePath) {
+    return {
+      html: null,
+      warnings: ['Google HTML fallback headless mode has no Chrome executable configured.'],
+    };
+  }
+
+  const profileDir = await mkdtemp(join(tmpdir(), 'seo-kb-google-serp-'));
+  try {
+    const { stdout } = await execFileAsync(chromePath, [
+      '--headless=new',
+      '--disable-gpu',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-background-networking',
+      '--disable-component-update',
+      '--disable-sync',
+      '--disable-extensions',
+      '--disable-dev-shm-usage',
+      '--disable-features=OptimizationHints,MediaRouter',
+      `--user-data-dir=${profileDir}`,
+      '--dump-dom',
+      url,
+    ], {
+      timeout: googleHeadlessTimeoutMs,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+
+    if (!stdout.trim()) {
+      return {
+        html: null,
+        warnings: ['Google HTML fallback headless mode returned empty DOM.'],
+      };
+    }
+
+    return {
+      html: stdout,
+      warnings: ['Google HTML fallback used bounded local headless Chrome.'],
+    };
+  } catch (error) {
+    return {
+      html: null,
+      warnings: [`Google HTML fallback headless mode failed: ${errorMessage(error)}`],
+    };
+  } finally {
+    await rm(profileDir, { recursive: true, force: true });
+  }
 }
 
 function googleSearchUrl(request: SerpSearchProviderRequest): string {
@@ -361,3 +482,14 @@ function decodeHtml(value: string): string {
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
+
+export const __duckDuckGoHtmlSerpSearchProviderTesting = {
+  setGoogleHeadlessSearch(
+    implementation: typeof googleHeadlessSearch,
+  ): void {
+    googleHeadlessSearch = implementation;
+  },
+  resetGoogleHeadlessSearch(): void {
+    googleHeadlessSearch = defaultGoogleHeadlessSearch;
+  },
+};

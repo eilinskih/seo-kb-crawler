@@ -92,6 +92,9 @@ Summary:
   reading in-process loop/last-run status.
 - Added free HTML SERP fallback behavior that degrades honestly instead of
   fabricating URLs when sources are blocked or irrelevant.
+- Promoted Google to the first free SERP fallback and added bounded local
+  headless Chrome recovery for JS/interstitial Google SERP responses before
+  Bing and DuckDuckGo fallback attempts.
 Changed files:
 - docs/topic-work-run-model.md
 - docs/project-map.md
@@ -101,11 +104,15 @@ Changed files:
 - packages/chunking/src/chunking-dispatch.service.ts
 - packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.ts
 Validation:
+- npm test -- --runTestsByPath packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
 - npm test -- --runTestsByPath apps/api/src/topic-work/topic-work-run.service.spec.ts apps/api/src/topic-work/topic-work-run.controller.spec.ts packages/chunking/src/chunking-dispatch.service.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
 - npm test
 - npm run build
 - Local smoke checked `GET /topic-work-runs/status` and forced
   `POST /topic-work-runs` for the focused SERP smoke topic.
+- Local smoke confirmed Google fallback is attempted before Bing/DuckDuckGo;
+  the current network returns Google anti-bot/unusual-traffic pages, so the
+  run degrades without fabricating URLs.
 Next step:
 - Review and merge the focused SERP discovery workflow PR.
 
