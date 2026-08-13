@@ -39,7 +39,7 @@ export function renderOperatorConsoleHtml(
     .enabled { color: #126b42; font-weight: 600; }
     .topic-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 16px; border-bottom: 1px solid #edf0f4; }
     label { display: grid; gap: 6px; color: #526173; font-size: 12px; font-weight: 600; }
-    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cbd3df; border-radius: 6px; padding: 8px 10px; font: inherit; color: #17202a; }
+    input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #cbd3df; border-radius: 6px; padding: 8px 10px; font: inherit; color: #17202a; background: #ffffff; }
     textarea { resize: vertical; }
     button { border: 1px solid #1f6feb; background: #1f6feb; color: #ffffff; border-radius: 6px; padding: 8px 10px; font: inherit; font-weight: 600; cursor: pointer; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -60,6 +60,7 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderFocusedSerpDiscovery(model)}
     ${renderJobsReadiness(model)}
     ${renderRetryControls(model)}
     ${renderReviewQueues(model)}
@@ -786,6 +787,27 @@ function renderTopicWorkflow(model: OperatorConsoleViewModel): string {
     <button type="submit">Create topic</button>
   </form>
   ${renderTopicTable(model)}
+</section>`;
+}
+
+function renderFocusedSerpDiscovery(model: OperatorConsoleViewModel): string {
+  return `<section id="focused-serp-discovery" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Focused SERP Discovery</h2>
+      <p>Record a bounded TOP-10 SERP snapshot and enqueue organic result URLs.</p>
+    </div>
+    <span class="badge">manual import</span>
+  </div>
+  ${model.topics.length === 0 ? '<p class="empty">Create a topic before SERP discovery.</p>' : `<form method="post" action="/serp-intelligence/focused-discovery" class="topic-form">
+    <label>Topic<select name="topicId" required>${model.topics.map((topic) => `<option value="${escapeHtml(topic.id)}">${escapeHtml(topic.name)} (${escapeHtml(topic.slug)})</option>`).join('')}</select></label>
+    <label>Query<input name="query" required placeholder="depilacja laserowa jasło"></label>
+    <label>Language<input name="language" value="${escapeHtml(topicLanguage(model.topics[0]))}" required></label>
+    <label>Country<input name="countryCode" value="${escapeHtml(topicCountry(model.topics[0]))}" required></label>
+    <label>City<input name="city" placeholder="Jasło"></label>
+    <label>TOP-10 URLs<textarea name="resultUrls" rows="5" required placeholder="https://competitor.example/page&#10;https://example.com/offer"></textarea></label>
+    <button type="submit">Import SERP TOP-10</button>
+  </form>`}
 </section>`;
 }
 

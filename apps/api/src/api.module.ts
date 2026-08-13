@@ -14,6 +14,7 @@ import { EmbeddingModule } from '@seo-kb/embeddings';
 import { EntitiesModule } from '@seo-kb/entities';
 import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichment';
 import { RetrievalModule } from '@seo-kb/retrieval';
+import { SerpIntelligenceModule } from '@seo-kb/serp-intelligence';
 import { TopicEngineModule } from '@seo-kb/topic-engine';
 import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { ContentProcessingController } from './content-processing/content-processing.controller';
@@ -23,6 +24,8 @@ import { ExternalEntityReviewController } from './external-entities/external-ent
 import { HealthController } from './health/health.controller';
 import { InfrastructureHealthService } from './health/infrastructure-health.service';
 import { OperatorStatusController } from './operator/operator-status.controller';
+import { FocusedSerpDiscoveryController } from './serp-intelligence/focused-serp-discovery.controller';
+import { FocusedSerpDiscoveryApiService } from './serp-intelligence/focused-serp-discovery.service';
 import { TopicsController } from './topics/topics.controller';
 import { UrlFrontierDispatchController } from './url-frontier/url-frontier-dispatch.controller';
 import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.controller';
@@ -48,6 +51,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     ChunkingModule,
     EmbeddingModule,
     RetrievalModule,
+    SerpIntelligenceModule,
     ContextPackModule,
     EntitiesModule,
     ExternalEntityEnrichmentModule,
@@ -58,11 +62,12 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     EntitiesController,
     ExternalEntityReviewController,
     HealthController,
+    FocusedSerpDiscoveryController,
     OperatorStatusController,
     TopicsController,
     UrlFrontierDispatchController,
     UrlFrontierStatusController,
   ],
-  providers: [InfrastructureHealthService],
+  providers: [InfrastructureHealthService, FocusedSerpDiscoveryApiService],
 })
 export class ApiModule {}

@@ -44,6 +44,15 @@ export interface OperatorDispatchCommand {
   maxDispatches: number;
 }
 
+export interface OperatorFocusedSerpDiscoveryCommand {
+  topicId: string;
+  query: string;
+  language: string;
+  countryCode: string;
+  city: string | null;
+  resultUrls: string[];
+}
+
 export interface OperatorReviewAliasCommand {
   reviewedBy: string;
   note: string | null;
@@ -255,6 +264,31 @@ export class OperatorConsoleApiClient {
       method: 'POST',
       body: JSON.stringify({
         maxDispatches: command.maxDispatches,
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+
+  async runFocusedSerpDiscovery(
+    command: OperatorFocusedSerpDiscoveryCommand,
+  ): Promise<void> {
+    await this.request('/serp-intelligence/focused-discovery', {
+      method: 'POST',
+      body: JSON.stringify({
+        topicId: command.topicId,
+        query: command.query,
+        language: command.language,
+        geo: {
+          countryCode: command.countryCode,
+          city: command.city,
+        },
+        providerKey: 'operator_console_manual_serp',
+        results: command.resultUrls.map((url, index) => ({
+          url,
+          position: index + 1,
+        })),
       }),
       headers: {
         'content-type': 'application/json',

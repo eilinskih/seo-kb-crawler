@@ -233,6 +233,9 @@ describe('OperatorConsoleService', () => {
     });
 
     expect(html).toContain('action="/topics"');
+    expect(html).toContain('Focused SERP Discovery');
+    expect(html).toContain('action="/serp-intelligence/focused-discovery"');
+    expect(html).toContain('Import SERP TOP-10');
     expect(html).toContain('Seed keywords');
     expect(html).toContain('Laser Hair Removal');
     expect(html).toContain('href="/topics/topic-1"');

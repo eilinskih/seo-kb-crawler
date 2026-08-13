@@ -61,6 +61,31 @@ describe('UrlFrontierReevaluationService', () => {
     });
   });
 
+  it('allows search-discovered hosts when a topic has no explicit allowlist', () => {
+    const snapshot = snapshotFixture();
+    snapshot.discovery.seeds = { enabled: false, urls: [] };
+    snapshot.crawlPolicy.allowedHosts = [];
+
+    const evaluation = evaluatePreCrawlObservation(
+      observationFixture({
+        sourceType: 'search',
+        sourceKey: 'serp:technical-seo',
+        discoveredUrl: 'https://competitor.example/guides/technical-seo',
+        normalizedUrl: 'https://competitor.example/guides/technical-seo',
+        title: 'Technical SEO crawler guide',
+        snippet: 'A crawler checklist for search engine optimization.',
+      }),
+      snapshot,
+    );
+
+    expect(evaluation).toMatchObject({
+      relevanceDecision: 'accepted',
+      relevanceExplanation: {
+        reason: 'pre_crawl_evidence_matched',
+      },
+    });
+  });
+
   it('keeps exploratory candidates as insufficient evidence when allowed', () => {
     const evaluation = evaluatePreCrawlObservation(
       observationFixture({

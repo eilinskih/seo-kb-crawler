@@ -3,6 +3,7 @@ export * from './content-depth.service';
 export * from './domain/serp-intelligence-types';
 export * from './entity-pattern.service';
 export * from './faq-pattern.service';
+export * from './focused-serp-discovery.service';
 export * from './heading-pattern.service';
 export * from './normalize-serp-text';
 export * from './persistence/knex-serp-intelligence.repository';

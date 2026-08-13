@@ -29,7 +29,9 @@ describe('KnexSerpIntelligenceRepository', () => {
         regionCode: null,
         city: 'Warsaw',
       }),
-      snapshot,
+      geo: JSON.stringify({ countryCode: 'PL', city: 'Warsaw' }),
+      results: JSON.stringify(snapshot.results),
+      snapshot: JSON.stringify(snapshot),
     });
     expect(
       __testing.toPackRow({
@@ -46,8 +48,9 @@ describe('KnexSerpIntelligenceRepository', () => {
         regionCode: null,
         city: 'Warsaw',
       }),
-      snapshot_ids: ['snapshot-1'],
-      pack,
+      geo: JSON.stringify({ countryCode: 'PL', city: 'Warsaw' }),
+      snapshot_ids: JSON.stringify(['snapshot-1']),
+      pack: JSON.stringify(pack),
       created_at: '2026-07-26T00:00:00.000Z',
     });
   });

@@ -13,6 +13,7 @@ import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
   OperatorDispatchCommand,
+  OperatorFocusedSerpDiscoveryCommand,
   OperatorReviewExternalEntityCommand,
   OperatorReviewAliasCommand,
   OperatorUpdateTopicCommand,
@@ -125,6 +126,16 @@ export class OperatorConsoleController {
     await this.apiClient.dispatchContentProcessing(toDispatchCommand(body));
   }
 
+  @Post('serp-intelligence/focused-discovery')
+  @Redirect('/', 303)
+  async focusedSerpDiscovery(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.runFocusedSerpDiscovery(
+      toFocusedSerpDiscoveryCommand(body),
+    );
+  }
+
   @Post('review/aliases/:id/approve')
   @Redirect('/', 303)
   async approveAlias(
@@ -232,6 +243,23 @@ function toDispatchCommand(
 ): OperatorDispatchCommand {
   return {
     maxDispatches: Math.min(positiveInteger(body.maxDispatches, 10), 100),
+  };
+}
+
+function toFocusedSerpDiscoveryCommand(
+  body: Record<string, unknown>,
+): OperatorFocusedSerpDiscoveryCommand {
+  const resultUrls = lines(body.resultUrls).slice(0, 10);
+  if (resultUrls.length === 0) {
+    throw new Error('resultUrls is required');
+  }
+  return {
+    topicId: requiredText(body.topicId, 'topicId'),
+    query: requiredText(body.query, 'query'),
+    language: optionalText(body.language) ?? 'pl',
+    countryCode: optionalText(body.countryCode) ?? 'PL',
+    city: optionalText(body.city),
+    resultUrls,
   };
 }
 

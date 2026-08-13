@@ -197,7 +197,7 @@ function evaluateCrawlPolicy(
   if (policy.deniedHosts.includes(host)) {
     return rejected(0, 'denied_host', { host });
   }
-  if (!policy.allowedHosts.includes(host)) {
+  if (policy.allowedHosts.length > 0 && !policy.allowedHosts.includes(host)) {
     return rejected(0, 'host_not_allowed', { host });
   }
   if (
