@@ -141,12 +141,9 @@ export const embeddingFoundationMigration: Knex.Migration = {
         )
       )
     `);
-    await knex.raw(`
-      CREATE INDEX chunk_embeddings_vector_cosine_idx
-      ON chunk_embeddings
-      USING hnsw (vector vector_cosine_ops)
-      WHERE vector IS NOT NULL
-    `);
+    // A pgvector ANN index requires fixed vector dimensions. The current
+    // foundation stores provider/model dimensions in embedding_models, so the
+    // ANN index is deferred until the storage strategy is fixed per model.
   },
 
   async down(knex: Knex): Promise<void> {

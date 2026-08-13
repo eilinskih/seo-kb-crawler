@@ -220,9 +220,13 @@ Suggested constraints and indexes:
 - unique `chunk_embeddings.chunk_id + embedding_model_id +
   chunk_content_hash`;
 - index `chunk_embeddings.topic_id + language + chunk_type`;
-- pgvector index on `chunk_embeddings.vector`;
 - status checks for model, embedding and run lifecycle;
 - foreign keys to chunks and chunking runs.
+
+The foundation schema stores vectors in a dimensionless pgvector column because
+provider/model dimensions are part of `embedding_models`. ANN indexes such as
+HNSW require fixed dimensions and are deferred until the storage strategy is
+fixed per embedding model.
 
 Old vectors must not be deleted until replacement vectors are ready.
 

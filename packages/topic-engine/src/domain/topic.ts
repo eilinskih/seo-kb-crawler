@@ -160,10 +160,14 @@ export class Topic {
 function normalizeAndValidateConfiguration(
   input: TopicConfiguration,
 ): TopicConfiguration {
+  const discovery = normalizeDiscovery(input.discovery);
   return {
-    discovery: normalizeDiscovery(input.discovery),
+    discovery,
     languageGeo: normalizeLanguageGeo(input.languageGeo),
-    crawlPolicy: normalizeCrawlPolicy(input.crawlPolicy),
+    crawlPolicy: normalizeCrawlPolicy(
+      input.crawlPolicy,
+      discovery.seeds.enabled || discovery.sitemaps.enabled,
+    ),
     relevanceProfile: normalizeRelevanceProfile(input.relevanceProfile),
     intentProfile: normalizeIntentProfile(input.intentProfile),
   };
@@ -278,7 +282,10 @@ function normalizeLanguageGeo(input: LanguageGeoModel): LanguageGeoModel {
   return { languages, geoTargets, geoMode: input.geoMode };
 }
 
-function normalizeCrawlPolicy(input: CrawlPolicy): CrawlPolicy {
+function normalizeCrawlPolicy(
+  input: CrawlPolicy,
+  requiresAllowedHosts: boolean,
+): CrawlPolicy {
   if (
     !input ||
     !Array.isArray(input.allowedHosts) ||
@@ -291,7 +298,12 @@ function normalizeCrawlPolicy(input: CrawlPolicy): CrawlPolicy {
     throw new TopicValidationError('crawlPolicy is incomplete');
   }
 
-  const allowedHosts = normalizeHosts(input.allowedHosts, 'allowedHosts', 1, 500);
+  const allowedHosts = normalizeHosts(
+    input.allowedHosts,
+    'allowedHosts',
+    requiresAllowedHosts ? 1 : 0,
+    500,
+  );
   const deniedHosts = normalizeHosts(input.deniedHosts, 'deniedHosts', 0, 500);
   const ignoredQueryParameters = uniqueStrings(
     input.ignoredQueryParameters,

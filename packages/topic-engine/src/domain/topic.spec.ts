@@ -28,6 +28,27 @@ describe('Topic', () => {
     expect(() => topic.activate()).toThrow(TopicStateError);
   });
 
+  it('allows search-only topics to start without crawl allowed hosts', () => {
+    const input = validTopicInput();
+    input.discovery.seeds = { enabled: false, urls: [] };
+    input.crawlPolicy.allowedHosts = [];
+
+    const topic = Topic.create(input);
+
+    expect(topic.toRecord().crawlPolicy.allowedHosts).toEqual([]);
+  });
+
+  it('requires allowed hosts for enabled seed URL discovery', () => {
+    const input = validTopicInput();
+    input.discovery.seeds = {
+      enabled: true,
+      urls: ['https://example.com/'],
+    };
+    input.crawlPolicy.allowedHosts = [];
+
+    expect(() => Topic.create(input)).toThrow(TopicValidationError);
+  });
+
   it('increments configuration version and changes policy fingerprint', () => {
     const input = validTopicInput();
     const topic = Topic.create(input);
