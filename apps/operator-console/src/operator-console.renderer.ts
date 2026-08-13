@@ -60,6 +60,7 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderTopicWorkStatus(model)}
     ${renderFocusedSerpDiscovery(model)}
     ${renderJobsReadiness(model)}
     ${renderRetryControls(model)}
@@ -686,22 +687,24 @@ function renderFrontierStatus(model: OperatorConsoleViewModel): string {
       </tr>
     </tbody>
   </table>
-  ${renderFrontierRecentEntries(status.recentEntries)}` : '<p class="empty">Frontier status is unavailable.</p>'}
+  ${renderFrontierRecentEntries(status.recentEntries, model)}` : '<p class="empty">Frontier status is unavailable.</p>'}
 </section>`;
 }
 
 function renderFrontierRecentEntries(
   entries: OperatorFrontierRecentEntry[],
+  model: OperatorConsoleViewModel,
 ): string {
   if (entries.length === 0) {
     return '<p class="empty">No recent frontier entries.</p>';
   }
   return `<table>
     <thead>
-      <tr><th>URL</th><th>Status</th><th>Relevance</th><th>Freshness</th><th>Reason</th><th>Next crawl</th><th>Failures</th></tr>
+      <tr><th>Topic</th><th>URL</th><th>Status</th><th>Relevance</th><th>Freshness</th><th>Reason</th><th>Next crawl</th><th>Failures</th></tr>
     </thead>
     <tbody>
       ${entries.map((entry) => `<tr>
+        <td>${renderFrontierTopicLabel(model, entry.topicId)}</td>
         <td><code>${escapeHtml(entry.normalizedUrl)}</code></td>
         <td>${escapeHtml(entry.crawlStatus)}</td>
         <td>${escapeHtml(entry.relevanceDecision)}</td>
@@ -712,6 +715,98 @@ function renderFrontierRecentEntries(
       </tr>`).join('')}
     </tbody>
   </table>`;
+}
+
+function renderTopicWorkStatus(model: OperatorConsoleViewModel): string {
+  const status = model.frontierStatus;
+  if (model.topics.length === 0) {
+    return `<section id="topic-work-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Topic Work Status</h2>
+      <p>Topic-level visibility for recent discovery and crawler work.</p>
+    </div>
+    <span class="badge">empty</span>
+  </div>
+  <p class="empty">No topics loaded from the Topic API.</p>
+</section>`;
+  }
+
+  const recentEntries = status?.recentEntries ?? [];
+  return `<section id="topic-work-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Topic Work Status</h2>
+      <p>Topic-level visibility for recent discovery and crawler work.</p>
+    </div>
+    <span class="badge">${status ? 'available' : 'planned'}</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Topic</th><th>Lifecycle</th><th>Recent frontier work</th><th>Status counts</th><th>Next operator action</th></tr>
+    </thead>
+    <tbody>
+      ${model.topics.map((topic) => {
+        const entries = recentEntries.filter((entry) => entry.topicId === topic.id);
+        return `<tr>
+          <td><strong><a href="/topics/${escapeHtml(encodeURIComponent(topic.id))}">${escapeHtml(topic.name)}</a></strong><br><code>${escapeHtml(topic.slug)}</code></td>
+          <td>${escapeHtml(topic.status)}</td>
+          <td>${escapeHtml(String(entries.length))}${renderLatestFrontierEntry(entries)}</td>
+          <td>${renderTopicFrontierCounts(entries)}</td>
+          <td>${escapeHtml(topicFrontierNextAction(entries))}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+</section>`;
+}
+
+function renderLatestFrontierEntry(entries: OperatorFrontierRecentEntry[]): string {
+  const latestEntry = entries[0];
+  if (!latestEntry) {
+    return '';
+  }
+  return `<br><code>${escapeHtml(latestEntry.normalizedUrl)}</code>`;
+}
+
+function renderTopicFrontierCounts(entries: OperatorFrontierRecentEntry[]): string {
+  if (entries.length === 0) {
+    return '<span class="disabled">No recent frontier entries</span>';
+  }
+  const counts = new Map<string, number>();
+  for (const entry of entries) {
+    counts.set(entry.crawlStatus, (counts.get(entry.crawlStatus) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .map(([crawlStatus, count]) => `${escapeHtml(crawlStatus)}: ${escapeHtml(String(count))}`)
+    .join('<br>');
+}
+
+function topicFrontierNextAction(entries: OperatorFrontierRecentEntry[]): string {
+  if (entries.length === 0) {
+    return 'Import SERP TOP-10 or add seed URLs.';
+  }
+  if (entries.some((entry) => entry.crawlStatus === 'scheduled')) {
+    return 'Dispatch crawl batch.';
+  }
+  if (entries.some((entry) => entry.crawlStatus === 'leased' || entry.crawlStatus === 'crawling')) {
+    return 'Crawler work is in progress.';
+  }
+  if (entries.some((entry) => entry.crawlStatus.includes('failed'))) {
+    return 'Review failures or dispatch retryable work.';
+  }
+  return 'Review processed content and downstream readiness.';
+}
+
+function renderFrontierTopicLabel(
+  model: OperatorConsoleViewModel,
+  topicId: string,
+): string {
+  const topic = model.topics.find((candidate) => candidate.id === topicId);
+  if (!topic) {
+    return `<code>${escapeHtml(topicId)}</code>`;
+  }
+  return `<strong>${escapeHtml(topic.name)}</strong><br><code>${escapeHtml(topic.slug)}</code>`;
 }
 
 function formatScore(score: number): string {

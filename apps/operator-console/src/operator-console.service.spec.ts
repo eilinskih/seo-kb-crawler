@@ -247,6 +247,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('fallback_seo_signals');
     expect(html).toContain('href="/providers/fallback_seo_signals"');
     expect(html).toContain('Only fallback SEO signals are available.');
+    expect(html).toContain('Topic Work Status');
+    expect(html).toContain('Recent frontier work');
+    expect(html).toContain('Dispatch crawl batch.');
     expect(html).toContain('URL Frontier Status');
     expect(html).toContain('https://example.com/');
     expect(html).toContain('Jobs, Failures And Readiness');
