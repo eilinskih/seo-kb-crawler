@@ -54,7 +54,7 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
         html: `
           <a href="/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja">Depilacja laserowa Jasło</a>
         `,
-        warnings: ['Google HTML fallback used bounded local headless Chrome.'],
+        warnings: ['Google HTML fallback used bounded local Playwright Chrome.'],
       }),
     );
 
@@ -72,7 +72,7 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
       'Google HTML fallback returned an anti-bot challenge',
     );
     expect(result.warnings).toContain(
-      'Google HTML fallback used bounded local headless Chrome.',
+      'Google HTML fallback used bounded local Playwright Chrome.',
     );
     expect(result.results).toEqual([
       {

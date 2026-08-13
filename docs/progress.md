@@ -93,7 +93,7 @@ Summary:
 - Added free HTML SERP fallback behavior that degrades honestly instead of
   fabricating URLs when sources are blocked or irrelevant.
 - Promoted Google to the first free SERP fallback and added bounded local
-  headless Chrome recovery for JS/interstitial Google SERP responses before
+  Playwright Chrome recovery for JS/interstitial Google SERP responses before
   Bing and DuckDuckGo fallback attempts.
 Changed files:
 - docs/topic-work-run-model.md

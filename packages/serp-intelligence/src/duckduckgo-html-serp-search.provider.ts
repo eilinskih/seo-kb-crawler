@@ -1,16 +1,14 @@
-import { execFile } from 'node:child_process';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
 import { Injectable } from '@nestjs/common';
+import { chromium } from 'playwright-core';
 import {
   SerpSearchProvider,
   SerpSearchProviderRequest,
   SerpSearchProviderResult,
 } from './serp-search.provider';
 
-const execFileAsync = promisify(execFile);
 const googleHeadlessTimeoutMs = 15_000;
 const googleHeadlessChromeCandidates = [
   process.env.GOOGLE_SERP_CHROME_PATH,
@@ -290,49 +288,72 @@ async function defaultGoogleHeadlessSearch(url: string): Promise<GoogleHeadlessR
   if (!chromePath) {
     return {
       html: null,
-      warnings: ['Google HTML fallback headless mode has no Chrome executable configured.'],
+      warnings: ['Google HTML fallback Playwright mode has no Chrome executable configured.'],
     };
   }
 
   const profileDir = await mkdtemp(join(tmpdir(), 'seo-kb-google-serp-'));
+  let context: Awaited<ReturnType<typeof chromium.launchPersistentContext>> | null = null;
   try {
-    const { stdout } = await execFileAsync(chromePath, [
-      '--headless=new',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-default-browser-check',
-      '--disable-background-networking',
-      '--disable-component-update',
-      '--disable-sync',
-      '--disable-extensions',
-      '--disable-dev-shm-usage',
-      '--disable-features=OptimizationHints,MediaRouter',
-      `--user-data-dir=${profileDir}`,
-      '--dump-dom',
-      url,
-    ], {
+    context = await chromium.launchPersistentContext(profileDir, {
+      executablePath: chromePath,
+      headless: true,
       timeout: googleHeadlessTimeoutMs,
-      maxBuffer: 10 * 1024 * 1024,
+      viewport: { width: 1365, height: 1800 },
+      locale: googleLocaleFromUrl(url),
+      args: [
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-background-networking',
+        '--disable-component-update',
+        '--disable-sync',
+        '--disable-extensions',
+        '--disable-dev-shm-usage',
+        '--disable-features=OptimizationHints,MediaRouter',
+      ],
     });
+    const page = context.pages()[0] ?? await context.newPage();
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: googleHeadlessTimeoutMs,
+    });
+    await page.waitForTimeout(2_000);
+    const html = await page.content();
 
-    if (!stdout.trim()) {
+    if (!html.trim()) {
       return {
         html: null,
-        warnings: ['Google HTML fallback headless mode returned empty DOM.'],
+        warnings: ['Google HTML fallback Playwright mode returned empty DOM.'],
       };
     }
 
     return {
-      html: stdout,
-      warnings: ['Google HTML fallback used bounded local headless Chrome.'],
+      html,
+      warnings: ['Google HTML fallback used bounded local Playwright Chrome.'],
     };
   } catch (error) {
     return {
       html: null,
-      warnings: [`Google HTML fallback headless mode failed: ${errorMessage(error)}`],
+      warnings: [`Google HTML fallback Playwright mode failed: ${errorMessage(error)}`],
     };
   } finally {
+    await context?.close().catch(() => undefined);
     await rm(profileDir, { recursive: true, force: true });
+  }
+}
+
+function googleLocaleFromUrl(value: string): string | undefined {
+  try {
+    const url = new URL(value);
+    const language = url.searchParams.get('hl');
+    const country = url.searchParams.get('gl')?.toUpperCase();
+    if (language && country) {
+      return `${language}-${country}`;
+    }
+    return language ?? undefined;
+  } catch {
+    return undefined;
   }
 }
 
