@@ -1,4 +1,5 @@
 export * from './chunking.module';
+export * from './chunking-dispatch.service';
 export * from './chunking.service';
 export * from './chunking.tokens';
 export * from './domain/chunk-hashing';

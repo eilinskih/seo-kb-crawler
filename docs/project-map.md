@@ -34,6 +34,8 @@ specialized documents:
 - `docs/discovery-sources-model.md` for Discovery Sources.
 - `docs/research-engine-scheduling-model.md` for Focused Research,
   Background Research and Research Engine Scheduling.
+- `docs/topic-work-run-model.md` for Codex-first topic workflow
+  orchestration and continuous background passes.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
 - `docs/chunking-model.md` for the Chunking Engine.
@@ -186,6 +188,10 @@ Implemented on `main`:
   priority mapping, fair background budget allocation, TTL-aware freshness
   decisions, dispatch planning, media policy decisions and repository
   abstraction.
+- Topic Work Run API orchestration for Codex-first topic starts, draft topic
+  activation, automatic focused SERP discovery, URL Frontier dispatch,
+  Content Processing dispatch, Chunking dispatch, Embedding dispatch and Fact
+  Extraction dispatch through existing service boundaries.
 - SEO Agent Gateway package boundary, model-agnostic generation request
   contracts, Focused Research requirement representation, structured
   generation context assembly, retrieval-only safeguards, consumer adapter
@@ -216,7 +222,9 @@ Not implemented:
   cache and live smoke tests (#181).
 - Concrete Ahrefs, Semrush, SE Ranking or other paid external SEO provider
   integrations, provider credentials management and quota operations (#179).
-- Live SERP providers and paid provider refresh jobs.
+- Paid SERP providers and paid provider refresh jobs.
+- Durable Topic Work Run persistence and automated SEO Intelligence pack
+  refresh from Topic Work Run.
 - Publishing workflows for generated content.
 - Operator Console selective retry-by-ID forms, richer external entity review
   filters, decision history views and full Research Scheduling controls (#182).

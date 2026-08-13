@@ -94,6 +94,26 @@ export class KnexChunkingRepository implements ChunkingRepository {
     return row ? toDocumentVersion(row) : null;
   }
 
+  async findUnchunkedDocumentVersionIds(
+    options: { limit: number },
+  ): Promise<string[]> {
+    if (!Number.isInteger(options.limit) || options.limit < 1) {
+      throw new Error('limit must be a positive integer');
+    }
+
+    const rows = await this.db.knex<DocumentVersionRow>('document_versions')
+      .leftJoin('chunking_runs', function joinChunkingRuns() {
+        this.on('chunking_runs.document_version_id', '=', 'document_versions.id')
+          .andOnVal('chunking_runs.status', '=', 'chunked');
+      })
+      .whereNull('chunking_runs.id')
+      .orderBy('document_versions.created_at', 'asc')
+      .limit(options.limit)
+      .select('document_versions.id');
+
+    return rows.map((row) => row.id);
+  }
+
   async findRun(identity: ChunkingRunIdentity): Promise<ChunkingRunRecord | null> {
     const row = await this.db.knex<ChunkingRunRow>('chunking_runs')
       .where({

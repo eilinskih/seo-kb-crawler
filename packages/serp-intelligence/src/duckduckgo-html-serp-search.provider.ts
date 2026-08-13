@@ -254,7 +254,7 @@ function isRelevantResult(
   const normalizedHaystack = haystack
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
-  return terms.some((term) => normalizedHaystack.includes(term));
+  return terms.every((term) => normalizedHaystack.includes(term));
 }
 
 function stripHtml(value: string): string | null {

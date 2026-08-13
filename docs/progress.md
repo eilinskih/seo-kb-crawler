@@ -79,6 +79,36 @@ Roadmap order, phases and dependency rules live only in
 
 Add entries here in reverse chronological order.
 
+Date: 2026-08-13
+Issue: Current focused SERP discovery workflow PR
+Status: In progress
+Summary:
+- Added Topic Work Run as the Codex-first orchestration layer for starting and
+  continuing work from a topic.
+- Added bounded automatic passes for topic activation, focused SERP discovery,
+  URL Frontier dispatch, Content Processing dispatch, Chunking dispatch,
+  Embedding dispatch and Fact Extraction dispatch.
+- Added API endpoints for starting a topic work run, triggering a loop tick and
+  reading in-process loop/last-run status.
+- Added free HTML SERP fallback behavior that degrades honestly instead of
+  fabricating URLs when sources are blocked or irrelevant.
+Changed files:
+- docs/topic-work-run-model.md
+- docs/project-map.md
+- docs/progress.md
+- apps/api/src/topic-work/*
+- apps/api/src/api.module.ts
+- packages/chunking/src/chunking-dispatch.service.ts
+- packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.ts
+Validation:
+- npm test -- --runTestsByPath apps/api/src/topic-work/topic-work-run.service.spec.ts apps/api/src/topic-work/topic-work-run.controller.spec.ts packages/chunking/src/chunking-dispatch.service.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
+- npm test
+- npm run build
+- Local smoke checked `GET /topic-work-runs/status` and forced
+  `POST /topic-work-runs` for the focused SERP smoke topic.
+Next step:
+- Review and merge the focused SERP discovery workflow PR.
+
 Date: 2026-08-06
 Issue: #182
 Status: Done

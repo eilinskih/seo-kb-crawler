@@ -18,6 +18,7 @@ import {
   DuckDuckGoHtmlSerpSearchProvider,
   SerpIntelligenceModule,
 } from '@seo-kb/serp-intelligence';
+import { FactExtractionModule } from '@seo-kb/fact-extraction';
 import { TopicEngineModule } from '@seo-kb/topic-engine';
 import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { ContentProcessingController } from './content-processing/content-processing.controller';
@@ -29,6 +30,8 @@ import { InfrastructureHealthService } from './health/infrastructure-health.serv
 import { OperatorStatusController } from './operator/operator-status.controller';
 import { FocusedSerpDiscoveryController } from './serp-intelligence/focused-serp-discovery.controller';
 import { FocusedSerpDiscoveryApiService } from './serp-intelligence/focused-serp-discovery.service';
+import { TopicWorkRunController } from './topic-work/topic-work-run.controller';
+import { TopicWorkRunService } from './topic-work/topic-work-run.service';
 import { TopicsController } from './topics/topics.controller';
 import { UrlFrontierDispatchController } from './url-frontier/url-frontier-dispatch.controller';
 import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.controller';
@@ -53,6 +56,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     ContentProcessingModule,
     ChunkingModule,
     EmbeddingModule,
+    FactExtractionModule,
     RetrievalModule,
     SerpIntelligenceModule,
     ContextPackModule,
@@ -67,6 +71,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     HealthController,
     FocusedSerpDiscoveryController,
     OperatorStatusController,
+    TopicWorkRunController,
     TopicsController,
     UrlFrontierDispatchController,
     UrlFrontierStatusController,
@@ -75,6 +80,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     DuckDuckGoHtmlSerpSearchProvider,
     InfrastructureHealthService,
     FocusedSerpDiscoveryApiService,
+    TopicWorkRunService,
   ],
 })
 export class ApiModule {}
