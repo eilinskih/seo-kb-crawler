@@ -75,10 +75,32 @@ Roadmap order, phases and dependency rules live only in
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
 | #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run now expands one topic seed through Demand discovery, validates generated queries with SERP and propagates SERP evidence to Demand candidate pages. |
+| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API so site workspaces can use the service without custom endpoint instructions. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-14
+Issue: #187
+Status: Review needed
+Summary:
+- Started SEO KB MCP Server after #186 exposed automatic page-candidate
+  workflow through the API.
+- Added a dependency-free stdio MCP app that bridges Codex/agent tools to the
+  existing API instead of duplicating SEO business logic.
+- Added tools for health, topics, Topic Work Run, Demand maps, page candidates,
+  Context Pack and SEO Pack calls.
+- Added a simplified topic creation wrapper that builds a complete Topic
+  Engine payload from one seed plus optional language/geo hints.
+- Added Docker target and Compose `mcp` profile for command-based MCP clients.
+Validation:
+- npm test -- --runTestsByPath apps/mcp-server/src/topic-input.spec.ts apps/mcp-server/src/mcp-server.spec.ts
+- npm run build
+- MCP stdio smoke verified `initialize`, `tools/list` and `seo_kb_health`
+  through the running local API.
+- npm test
+- docker compose build mcp-server
 
 Date: 2026-08-14
 Issue: #186

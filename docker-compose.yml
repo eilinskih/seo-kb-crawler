@@ -185,5 +185,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mcp-server:
+    profiles: ["mcp"]
+    build:
+      context: .
+      target: mcp-server
+    environment:
+      NODE_ENV: production
+      SEO_KB_API_BASE_URL: http://api:3000
+      SEO_KB_MCP_TIMEOUT_MS: ${SEO_KB_MCP_TIMEOUT_MS:-30000}
+    depends_on:
+      api:
+        condition: service_healthy
+    stdin_open: true
+    tty: false
+
 volumes:
   postgres_data:

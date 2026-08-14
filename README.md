@@ -56,6 +56,9 @@ Implemented on `main`:
 /apps/api
 /apps/crawler-worker
 /apps/embedding-worker
+/apps/fact-extraction-worker
+/apps/operator-console
+/apps/mcp-server
 /packages/topic-engine
 ```
 
@@ -122,6 +125,7 @@ Planned domain packages:
   Console.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
   and candidate-page discovery.
+- `docs/mcp-server-model.md` documents the Codex-facing MCP server.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## Engineering Documentation
@@ -130,6 +134,7 @@ For contributors and AI-assisted development see:
 
 - `docs/AI_COLLABORATION.md`
 - `docs/architecture.md`
+- `docs/mcp-server-model.md`
 - `docs/progress.md`
 - `docs/implementation-order.md`
 
@@ -201,6 +206,19 @@ OpenSERP sidecar: http://localhost:17700
 OpenSERP health: http://localhost:17700/health
 PostgreSQL: localhost:15432
 Redis: localhost:16379
+```
+
+MCP server for Codex and agent workspaces:
+
+```bash
+npm run build:mcp-server
+SEO_KB_API_BASE_URL=http://127.0.0.1:3000 npm run start:mcp-server
+```
+
+Docker-based MCP command:
+
+```bash
+docker compose --profile mcp run --rm mcp-server
 ```
 
 For a quick smoke check:

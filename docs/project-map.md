@@ -58,6 +58,7 @@ specialized documents:
 - `docs/seo-page-candidate-scoring-model.md` for SEO Page Candidate Scoring.
 - `docs/seo-pack-generator-model.md` for SEO Pack Generator.
 - `docs/seo-agent-gateway-model.md` for SEO Agent Gateway.
+- `docs/mcp-server-model.md` for the Codex-facing MCP server.
 - `docs/external-seo-data-providers-model.md` for optional external SEO data
   provider enrichment.
 - `docs/operator-console-model.md` for the internal Operator Console.
@@ -198,6 +199,9 @@ Implemented on `main`:
   generation context assembly, retrieval-only safeguards, consumer adapter
   contracts, model-agnostic prompt rendering, optional OpenAI provider
   execution, generation response persistence and repository abstraction.
+- SEO KB MCP Server stdio app for Codex and agent workspaces. It exposes
+  topic creation, Topic Work Run, Demand map, page candidates, Context Pack and
+  SEO Pack operations through the existing API.
 - External SEO Data Providers package boundary, provider capability/status
   contracts, provider-neutral observations, nullable metric snapshots,
   fail-open enrichment service, fallback SEO signals provider, durable

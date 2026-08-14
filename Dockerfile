@@ -60,3 +60,13 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/fact-extraction-worker ./dist/apps/fact-extraction-worker
 
 CMD ["node", "dist/apps/fact-extraction-worker/main.js"]
+
+FROM node:24.16.0-alpine AS mcp-server
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist/apps/mcp-server ./dist/apps/mcp-server
+
+CMD ["node", "dist/apps/mcp-server/main.js"]
