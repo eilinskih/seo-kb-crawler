@@ -103,6 +103,26 @@ Validation:
 - docker compose build mcp-server
 
 Date: 2026-08-14
+Issue: #186 follow-up
+Status: Review needed
+Summary:
+- Investigated a real laser workspace report where Demand API showed 0 ready
+  candidate pages after a repeated run.
+- Fixed Demand candidate page persistence so later fallback refreshes preserve
+  previously collected SERP evidence URLs, `serp_snippet` evidence type and
+  higher readiness instead of downgrading pages.
+- Included the seed query in Topic Universe SERP Validation so the primary
+  money page can receive SERP evidence, not only generated long-tail pages.
+- Added Docker Compose passthrough configuration for optional Google Knowledge
+  Graph credentials without committing real API keys.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/persistence/demand-engine.repository.spec.ts packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Rebuilt API container and forced the laser topic work run.
+- Local Demand API smoke now reports 13 candidate pages: 9 ready with SERP
+  evidence URLs and 4 not_ready pending later validation/metrics.
+
+Date: 2026-08-14
 Issue: #186
 Status: Review needed
 Summary:

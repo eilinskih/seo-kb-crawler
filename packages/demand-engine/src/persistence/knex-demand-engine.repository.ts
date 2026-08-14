@@ -509,6 +509,20 @@ function toCandidatePageRow(
   observedAt: string,
   existing?: DemandCandidatePageRow,
 ): DemandCandidatePageRow {
+  const existingRecord = existing ? toCandidatePageRecord(existing) : null;
+  const evidenceTypes = unique([
+    ...(existingRecord?.evidenceTypes ?? []),
+    ...page.evidenceTypes,
+  ]);
+  const evidenceUrls = unique([
+    ...(existingRecord?.evidenceUrls ?? []),
+    ...(page.evidenceUrls ?? []),
+  ]);
+  const missingResearchGaps = unresolvedResearchGaps(
+    page.missingResearchGaps ?? existingRecord?.missingResearchGaps ?? [],
+    evidenceTypes,
+  );
+
   return {
     id: existing?.id ?? randomUUID(),
     keyword_candidate_id: keywordCandidateId,
@@ -519,15 +533,18 @@ function toCandidatePageRow(
     supporting_keywords: json(page.supportingKeywords),
     proposed_page_type: page.proposedPageType,
     confidence: page.confidence,
-    readiness: page.readiness ?? readinessFromConfidence(page.confidence),
+    readiness: highestReadiness([
+      existingRecord?.readiness,
+      page.readiness ?? readinessFromConfidence(page.confidence),
+    ]),
     primary_intent: page.primaryIntent ?? null,
     cluster_key: page.clusterKey ?? null,
     cluster_label: page.clusterLabel ?? null,
-    evidence_types: json(page.evidenceTypes),
-    evidence_urls: json(page.evidenceUrls ?? []),
+    evidence_types: json(evidenceTypes),
+    evidence_urls: json(evidenceUrls),
     metrics: json(page.metrics),
     missing_metrics: json(page.missingMetrics),
-    missing_research_gaps: json(page.missingResearchGaps ?? []),
+    missing_research_gaps: json(missingResearchGaps),
     page_action: page.pageAction,
     created_at: existing?.created_at ?? observedAt,
     updated_at: observedAt,
@@ -607,6 +624,34 @@ function pageMatchesQuery(page: DemandCandidatePageRecord, query: string): boole
 
 function unique<Value>(values: Value[]): Value[] {
   return [...new Set(values)];
+}
+
+function unresolvedResearchGaps(
+  gaps: string[],
+  evidenceTypes: CandidatePage['evidenceTypes'],
+): string[] {
+  return gaps.filter((gap) =>
+    gap !== 'SERP validation evidence' ||
+    !evidenceTypes.includes('serp_snippet'),
+  );
+}
+
+function highestReadiness(
+  values: Array<CandidatePage['readiness'] | undefined>,
+): NonNullable<CandidatePage['readiness']> {
+  return values
+    .filter((value): value is NonNullable<CandidatePage['readiness']> =>
+      value !== undefined,
+    )
+    .sort((a, b) => readinessRank(b) - readinessRank(a))[0] ?? 'not_ready';
+}
+
+function readinessRank(value: NonNullable<CandidatePage['readiness']>): number {
+  return {
+    not_ready: 0,
+    partial: 1,
+    ready: 2,
+  }[value];
 }
 
 export const __testing = {

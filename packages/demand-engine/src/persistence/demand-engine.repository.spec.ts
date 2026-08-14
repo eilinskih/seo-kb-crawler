@@ -52,4 +52,49 @@ describe('DemandEngineRepository', () => {
       ]),
     );
   });
+
+  it('keeps SERP evidence when later fallback refreshes recalculate pages', async () => {
+    const repository = new InMemoryDemandEngineRepository();
+    const service = new DemandEngineService([new ManualFallbackDemandProvider()]);
+    const result = await service.discover({
+      topicId: 'topic-1',
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price'],
+      language: 'en',
+      geo: { countryCode: 'PL' },
+    });
+
+    await repository.saveDiscoveryResult({
+      result,
+      topicId: 'topic-1',
+      observedAt: '2026-07-26T00:00:00.000Z',
+    });
+    await repository.markCandidatePagesSerpValidated({
+      topicId: 'topic-1',
+      validatedAt: '2026-07-26T00:05:00.000Z',
+      validations: [{
+        query: 'laser hair removal',
+        evidenceUrls: ['https://clinic.example/laser'],
+      }],
+    });
+    await repository.saveDiscoveryResult({
+      result,
+      topicId: 'topic-1',
+      observedAt: '2026-07-26T01:00:00.000Z',
+    });
+
+    await expect(repository.listCandidatePages('topic-1')).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          primaryKeyword: 'laser hair removal',
+          readiness: 'ready',
+          evidenceTypes: expect.arrayContaining(['serp_snippet']),
+          evidenceUrls: ['https://clinic.example/laser'],
+          missingResearchGaps: expect.not.arrayContaining([
+            'SERP validation evidence',
+          ]),
+        }),
+      ]),
+    );
+  });
 });

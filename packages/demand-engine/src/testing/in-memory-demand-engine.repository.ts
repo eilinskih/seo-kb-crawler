@@ -73,11 +73,25 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
       const candidate = candidateByKeyword.get(page.primaryKeyword);
       const key = `${command.topicId ?? 'global'}:${page.slug}`;
       const existing = this.pages.get(key);
+      const evidenceTypes = unique([
+        ...(existing?.evidenceTypes ?? []),
+        ...page.evidenceTypes,
+      ]);
       const record: DemandCandidatePageRecord = {
         ...page,
-        readiness: page.readiness ?? readinessFromConfidence(page.confidence),
-        evidenceUrls: page.evidenceUrls ?? [],
-        missingResearchGaps: page.missingResearchGaps ?? [],
+        readiness: highestReadiness([
+          existing?.readiness,
+          page.readiness ?? readinessFromConfidence(page.confidence),
+        ]),
+        evidenceTypes,
+        evidenceUrls: unique([
+          ...(existing?.evidenceUrls ?? []),
+          ...(page.evidenceUrls ?? []),
+        ]),
+        missingResearchGaps: unresolvedResearchGaps(
+          page.missingResearchGaps ?? existing?.missingResearchGaps ?? [],
+          evidenceTypes,
+        ),
         id: existing?.id ?? `demand-candidate-page-${this.pages.size + 1}`,
         keywordCandidateId: candidate?.id ?? 'unknown',
         topicId: command.topicId ?? null,
@@ -174,4 +188,34 @@ function pageMatchesQuery(page: DemandCandidatePageRecord, query: string): boole
 
 function unique<Value>(values: Value[]): Value[] {
   return [...new Set(values)];
+}
+
+function unresolvedResearchGaps(
+  gaps: string[],
+  evidenceTypes: DemandCandidatePageRecord['evidenceTypes'],
+): string[] {
+  return gaps.filter((gap) =>
+    gap !== 'SERP validation evidence' ||
+    !evidenceTypes.includes('serp_snippet'),
+  );
+}
+
+function highestReadiness(
+  values: Array<DemandCandidatePageRecord['readiness'] | undefined>,
+): NonNullable<DemandCandidatePageRecord['readiness']> {
+  return values
+    .filter((value): value is NonNullable<DemandCandidatePageRecord['readiness']> =>
+      value !== undefined,
+    )
+    .sort((a, b) => readinessRank(b) - readinessRank(a))[0] ?? 'not_ready';
+}
+
+function readinessRank(
+  value: NonNullable<DemandCandidatePageRecord['readiness']>,
+): number {
+  return {
+    not_ready: 0,
+    partial: 1,
+    ready: 2,
+  }[value];
 }

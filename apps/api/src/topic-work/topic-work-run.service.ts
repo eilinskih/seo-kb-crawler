@@ -313,7 +313,6 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       const seedQuery = firstSeedKeyword(topic);
       const queries = (await this.demandRepository.listKeywordCandidates(topic.id))
         .map((candidate) => candidate.normalizedKeyword)
-        .filter((query) => query !== seedQuery)
         .slice(0, topicUniverseSerpProbeLimit);
       const results: AutomaticFocusedSerpDiscoveryApiResult[] = [];
       for (const query of queries) {
