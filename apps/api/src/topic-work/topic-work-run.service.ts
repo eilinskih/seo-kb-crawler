@@ -80,8 +80,8 @@ const embeddingCandidateLimit = 100;
 const embeddingBatchSize = 20;
 const factCandidateLimit = 100;
 const factBatchSize = 20;
-const demandDiscoveryLimit = 80;
-const topicUniverseSerpProbeLimit = 12;
+const demandDiscoveryLimit = 300;
+const topicUniverseSerpProbeLimit = 25;
 
 @Injectable()
 export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
@@ -310,9 +310,13 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         };
       }
       this.lastSerpAttemptAt.set(universeRefreshKey, Date.now());
-      const seedQuery = firstSeedKeyword(topic);
-      const queries = (await this.demandRepository.listKeywordCandidates(topic.id))
-        .map((candidate) => candidate.normalizedKeyword)
+      const queries = (await this.demandRepository.listCandidatePages(topic.id))
+        .flatMap((page) => [
+          page.primaryKeyword,
+          ...page.supportingKeywords,
+        ])
+        .filter((query) => query.length > 0)
+        .filter((query, index, all) => all.indexOf(query) === index)
         .slice(0, topicUniverseSerpProbeLimit);
       const results: AutomaticFocusedSerpDiscoveryApiResult[] = [];
       for (const query of queries) {

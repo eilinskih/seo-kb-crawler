@@ -81,6 +81,34 @@ Roadmap order, phases and dependency rules live only in
 
 Add entries here in reverse chronological order.
 
+Date: 2026-08-15
+Issue: #186 coverage follow-up
+Status: Review needed
+Summary:
+- Expanded Topic Universe generation from a narrow smoke-pass into broad
+  coverage from a single topic seed.
+- Added generic language-aware dimension families for price, commercial,
+  local, informational, preparation, aftercare, safety, comparison, audience,
+  proof and FAQ expansion.
+- Added multi-dimension candidate clustering so combinations become distinct
+  page opportunities instead of collapsing into one generic price or question
+  page.
+- Increased automated Demand discovery to generate up to 300 current
+  candidates while keeping SERP validation bounded to 25 queries per run.
+- Changed Topic Universe SERP Validation to use current candidate pages rather
+  than historical keyword rows, so stale generated phrases do not drive new
+  validation batches.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Rebuilt API container and forced the laser topic work run.
+- Local smoke now reports 290 current demand candidates and 225 current
+  candidate pages; Topic Universe SERP Validation recorded 25/25 generated
+  queries and submitted 230 URL observations.
+- Local Demand API smoke reports 225 candidate pages: 19 ready with SERP
+  evidence, 2 partial and 204 not_ready awaiting later validation/metrics.
+- npm test
+
 Date: 2026-08-14
 Issue: #187
 Status: Review needed

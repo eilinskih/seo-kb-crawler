@@ -11,6 +11,18 @@ interface QueryPattern {
   build(seed: string): string[];
 }
 
+interface LanguageExpansionSet {
+  patterns: QueryPattern[];
+  modifiers: Record<string, string[]>;
+  prepositions: {
+    in: string;
+    near: string;
+    for: string;
+    with: string;
+    without: string;
+  };
+}
+
 const POLISH_PATTERNS: QueryPattern[] = [
   {
     evidenceType: 'autocomplete',
@@ -92,6 +104,203 @@ const ENGLISH_PATTERNS: QueryPattern[] = [
   },
 ];
 
+const POLISH_EXPANSION: LanguageExpansionSet = {
+  patterns: POLISH_PATTERNS,
+  prepositions: {
+    in: 'w',
+    near: 'okolice',
+    for: 'dla',
+    with: 'z',
+    without: 'bez',
+  },
+  modifiers: {
+    price: [
+      'cena',
+      'cennik',
+      'koszt',
+      'ile kosztuje',
+      'promocja',
+      'pakiet',
+      'tanie',
+    ],
+    commercial: [
+      'salon',
+      'gabinet',
+      'klinika',
+      'najlepszy',
+      'opinie',
+      'ranking',
+      'rezerwacja',
+      'konsultacja',
+      'termin',
+    ],
+    local: [
+      'blisko mnie',
+      'centrum',
+      'okolice',
+      'podkarpackie',
+    ],
+    informational: [
+      'efekty',
+      'czy warto',
+      'jak wygląda',
+      'ile trwa',
+      'ile zabiegów',
+      'jak działa',
+      'kiedy efekty',
+      'trwałość efektów',
+    ],
+    preparation: [
+      'przygotowanie',
+      'jak przygotować się',
+      'przed zabiegiem',
+      'czego nie robić przed',
+    ],
+    aftercare: [
+      'zalecenia po',
+      'po zabiegu',
+      'pielęgnacja po',
+      'czego nie robić po',
+    ],
+    safety: [
+      'czy boli',
+      'czy bezpieczne',
+      'przeciwwskazania',
+      'skutki uboczne',
+      'ciąża',
+      'karmienie piersią',
+      'wrażliwa skóra',
+    ],
+    comparison: [
+      'vs',
+      'czy lepsze',
+      'różnice',
+      'porównanie',
+      'alternatywy',
+      'zamiast',
+    ],
+    audience: [
+      'dla kobiet',
+      'dla mężczyzn',
+      'dla nastolatków',
+      'dla skóry wrażliwej',
+      'dla ciemnych włosów',
+      'dla jasnych włosów',
+    ],
+    proof: [
+      'przed i po',
+      'opinie klientów',
+      'zdjęcia',
+      'metamorfozy',
+      'certyfikat',
+      'urządzenie',
+    ],
+    faq: [
+      'najczęstsze pytania',
+      'pytania i odpowiedzi',
+      'faq',
+    ],
+  },
+};
+
+const ENGLISH_EXPANSION: LanguageExpansionSet = {
+  patterns: ENGLISH_PATTERNS,
+  prepositions: {
+    in: 'in',
+    near: 'near',
+    for: 'for',
+    with: 'with',
+    without: 'without',
+  },
+  modifiers: {
+    price: [
+      'price',
+      'cost',
+      'pricing',
+      'how much does it cost',
+      'offers',
+      'package',
+      'cheap',
+    ],
+    commercial: [
+      'clinic',
+      'salon',
+      'provider',
+      'best',
+      'reviews',
+      'ranking',
+      'booking',
+      'consultation',
+      'appointment',
+    ],
+    local: [
+      'near me',
+      'city centre',
+      'nearby',
+      'local',
+    ],
+    informational: [
+      'results',
+      'is it worth it',
+      'how it works',
+      'how long does it take',
+      'how many sessions',
+      'when results',
+      'how long results last',
+    ],
+    preparation: [
+      'preparation',
+      'how to prepare',
+      'before treatment',
+      'what to avoid before',
+    ],
+    aftercare: [
+      'aftercare',
+      'after treatment',
+      'care after',
+      'what to avoid after',
+    ],
+    safety: [
+      'does it hurt',
+      'is it safe',
+      'contraindications',
+      'side effects',
+      'pregnancy',
+      'breastfeeding',
+      'sensitive skin',
+    ],
+    comparison: [
+      'vs',
+      'better than',
+      'differences',
+      'comparison',
+      'alternatives',
+      'instead of',
+    ],
+    audience: [
+      'for women',
+      'for men',
+      'for teenagers',
+      'for sensitive skin',
+      'for dark hair',
+      'for light hair',
+    ],
+    proof: [
+      'before and after',
+      'customer reviews',
+      'photos',
+      'case studies',
+      'certificate',
+      'device',
+    ],
+    faq: [
+      'frequently asked questions',
+      'questions and answers',
+      'faq',
+    ],
+  },
+};
+
 export class TopicUniverseDemandProvider implements DemandProviderAdapter {
   readonly providerKey = 'topic_universe';
   readonly sourceTier = 'fallback';
@@ -102,12 +311,18 @@ export class TopicUniverseDemandProvider implements DemandProviderAdapter {
       return { observations: [] };
     }
 
-    const patterns = patternsFor(request.language);
+    const expansion = expansionFor(request.language);
+    const patterns = expansion.patterns;
+    const vocabulary = (request.manualSeeds ?? [])
+      .map((value) => normalizeKeyword(value))
+      .filter((value) => value.length > 0 && value !== seed);
     const queries = unique([
       seed,
       ...patterns.flatMap((pattern) => pattern.build(seed)),
       ...geoQueries(seed, request.geo?.city),
-      ...vocabularyQueries(seed, request.manualSeeds ?? []),
+      ...modifierQueries(seed, expansion),
+      ...combinationQueries(seed, expansion),
+      ...vocabularyQueries(seed, vocabulary, expansion),
     ])
       .filter((query) => query.length <= 180)
       .slice(0, request.limit ?? 100);
@@ -124,13 +339,52 @@ export class TopicUniverseDemandProvider implements DemandProviderAdapter {
   }
 }
 
-function vocabularyQueries(seed: string, vocabulary: string[]): string[] {
+function modifierQueries(seed: string, expansion: LanguageExpansionSet): string[] {
+  return Object.values(expansion.modifiers).flatMap((modifiers) =>
+    modifiers.map((modifier) => `${seed} ${modifier}`),
+  );
+}
+
+function combinationQueries(seed: string, expansion: LanguageExpansionSet): string[] {
+  const modifiers = expansion.modifiers;
+  return [
+    ...cross(seed, modifiers.price, modifiers.commercial),
+    ...cross(seed, modifiers.price, modifiers.audience),
+    ...cross(seed, modifiers.price, modifiers.proof),
+    ...cross(seed, modifiers.commercial, modifiers.proof),
+    ...cross(seed, modifiers.safety, modifiers.audience),
+    ...cross(seed, modifiers.informational, modifiers.proof),
+    ...cross(seed, modifiers.comparison, modifiers.commercial),
+    ...cross(seed, modifiers.preparation, modifiers.safety),
+    ...cross(seed, modifiers.aftercare, modifiers.safety),
+  ];
+}
+
+function cross(seed: string, left: string[], right: string[]): string[] {
+  return left.slice(0, 5).flatMap((leftModifier) =>
+    right.slice(0, 5).map((rightModifier) =>
+      `${seed} ${leftModifier} ${rightModifier}`,
+    ),
+  );
+}
+
+function vocabularyQueries(
+  seed: string,
+  vocabulary: string[],
+  expansion: LanguageExpansionSet,
+): string[] {
   return unique(vocabulary
-    .map((value) => normalizeKeyword(value))
-    .filter((value) => value.length > 0 && value !== seed)
     .flatMap((value) => [
       `${seed} ${value}`,
       `${value} ${seed}`,
+      `${seed} ${expansion.prepositions.with} ${value}`,
+      `${seed} ${expansion.prepositions.for} ${value}`,
+      ...expansion.modifiers.price.slice(0, 3).map((modifier) =>
+        `${seed} ${value} ${modifier}`,
+      ),
+      ...expansion.modifiers.commercial.slice(0, 3).map((modifier) =>
+        `${seed} ${value} ${modifier}`,
+      ),
     ]));
 }
 
@@ -173,10 +427,10 @@ function evidenceTypeFor(
   return 'autocomplete';
 }
 
-function patternsFor(language: string | undefined): QueryPattern[] {
+function expansionFor(language: string | undefined): LanguageExpansionSet {
   return language?.toLowerCase().startsWith('pl')
-    ? POLISH_PATTERNS
-    : ENGLISH_PATTERNS;
+    ? POLISH_EXPANSION
+    : ENGLISH_EXPANSION;
 }
 
 function unique(values: string[]): string[] {

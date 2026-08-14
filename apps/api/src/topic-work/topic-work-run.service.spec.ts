@@ -145,6 +145,12 @@ function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunServi
       listKeywordCandidates: jest.fn(async () => [
         { normalizedKeyword: 'test topic cost' },
       ]),
+      listCandidatePages: jest.fn(async () => [
+        {
+          primaryKeyword: 'test topic cost',
+          supportingKeywords: [],
+        },
+      ]),
       markCandidatePagesSerpValidated: jest.fn(async () => [
         { slug: '/commercial-price/' },
       ]),

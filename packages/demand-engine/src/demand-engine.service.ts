@@ -159,6 +159,16 @@ function classifyCandidate(keyword: string): {
   pageType: CandidatePage['proposedPageType'];
   slug: string;
 } {
+  const categories = categoryKeys(keyword);
+  if (categories.length >= 2) {
+    return {
+      key: `topic:${categories.join('-')}:${slugify(keyword)}`,
+      label: titleCase(keyword),
+      intent: categories.join('_'),
+      pageType: categories.includes('comparison') ? 'comparison' : 'landing_page',
+      slug: slugify(keyword),
+    };
+  }
   if (/\b(cena|cennik|koszt|ile kosztuje|price|cost|pricing)\b/u.test(keyword)) {
     return cluster('commercial_price', 'Commercial price', 'price', 'landing_page');
   }
@@ -190,6 +200,25 @@ function classifyCandidate(keyword: string): {
     pageType: 'landing_page',
     slug: slugify(keyword),
   };
+}
+
+function categoryKeys(keyword: string): string[] {
+  const categories: Array<[string, RegExp]> = [
+    ['price', /\b(cena|cennik|koszt|ile kosztuje|price|cost|pricing|promocj|pakiet|offers?)\b/u],
+    ['commercial', /\b(salon|gabinet|klinika|clinic|provider|booking|rezerwacj|konsultacj|termin|appointment)\b/u],
+    ['research', /\b(opinie|ranking|reviews|best|najlepsz|czy warto|worth)\b/u],
+    ['comparison', /\b(vs|czy lepsze|różnice|porównanie|alternatyw|comparison|better|instead)\b/u],
+    ['safety', /(przeciwwskazania|skutki uboczne|bezpiecz|ciąża|karmienie|wrażliwa skóra|contraindications|side effects|safe|pregnancy|breastfeeding|sensitive skin)/u],
+    ['preparation', /(jak przygotowa[ćc]|przygotowanie|przed zabiegiem|before treatment|prepare|preparation)/u],
+    ['aftercare', /(zalecenia po|aftercare|po zabiegu|pielęgnacja po|after treatment|care after)/u],
+    ['audience', /(dla kobiet|dla mężczyzn|dla nastolatków|dla skóry|dla ciemnych|dla jasnych|for women|for men|for teenagers|for sensitive|for dark|for light)/u],
+    ['proof', /(przed i po|opinie klientów|zdjęcia|metamorfozy|certyfikat|urządzenie|before and after|customer reviews|photos|case studies|certificate|device)/u],
+    ['faq', /\b(faq|najczęstsze pytania|pytania i odpowiedzi|frequently asked questions|questions and answers)\b/u],
+  ];
+
+  return categories
+    .filter(([, pattern]) => pattern.test(keyword))
+    .map(([category]) => category);
 }
 
 function cluster(

@@ -390,7 +390,10 @@ The initial implementation:
 - defines provider adapter contracts across provider tiers;
 - includes a manual/free fallback provider;
 - includes a generic Topic Universe fallback provider that expands one topic
-  seed into demand candidates without niche-specific hardcoding;
+  seed into a broad demand universe without niche-specific hardcoding;
+- uses generic dimension families such as price, commercial, local,
+  informational, preparation, aftercare, safety, comparison, audience, proof
+  and FAQ to generate both simple and multi-dimension page opportunities;
 - keeps missing paid provider data non-blocking;
 - marks unknown volume, difficulty, CPC and traffic potential as `null`;
 - promotes fallback candidate pages only when enough fallback evidence exists;
@@ -431,12 +434,13 @@ policy; Demand Engine exposes the report without fabricating missing volume,
 difficulty, CPC or traffic potential.
 
 Topic Work Run now invokes Demand discovery automatically after focused seed
-SERP discovery. It then asks SERP Intelligence to validate a bounded set of
-generated demand queries. Recorded SERP snapshots submit result URLs into URL
-Frontier and update matched Demand candidate pages with `serp_snippet` evidence
-and source URLs. This keeps the product workflow topic-first: after a topic is
-created, the system should expand it into a page-candidate universe and keep
-collecting evidence through background runs.
+SERP discovery. It asks Demand Engine for a broad candidate universe, then asks
+SERP Intelligence to validate a bounded set of generated demand queries.
+Recorded SERP snapshots submit result URLs into URL Frontier and update matched
+Demand candidate pages with `serp_snippet` evidence and source URLs. This keeps
+the product workflow topic-first: after a topic is created, the system should
+expand it into a wide page-candidate universe and keep collecting evidence
+through background runs.
 
 ## Review gates
 

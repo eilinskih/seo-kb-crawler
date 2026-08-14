@@ -55,10 +55,11 @@ describe('DemandEngineService', () => {
       language: 'pl',
       geo: { countryCode: 'PL', city: 'Jasło' },
       manualSeeds: ['laser hair removal', 'hair removal'],
-      limit: 40,
+      limit: 300,
     });
 
-    expect(result.keywordCandidates.length).toBeGreaterThan(10);
+    expect(result.keywordCandidates.length).toBeGreaterThan(80);
+    expect(result.candidatePages.length).toBeGreaterThan(40);
     expect(result.keywordCandidates.map((candidate) =>
       candidate.normalizedKeyword,
     )).toEqual(expect.arrayContaining([
@@ -66,6 +67,8 @@ describe('DemandEngineService', () => {
       'czy depilacja laserowa boli',
       'jak przygotować się do depilacja laserowa',
       'depilacja laserowa jasło',
+      'depilacja laserowa cena salon',
+      'depilacja laserowa przeciwwskazania dla mężczyzn',
     ]));
     expect(result.candidatePages).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -76,6 +79,10 @@ describe('DemandEngineService', () => {
       expect.objectContaining({
         clusterKey: 'process_preparation',
         primaryIntent: 'informational_how_to',
+      }),
+      expect.objectContaining({
+        clusterKey: expect.stringContaining('price-commercial'),
+        primaryKeyword: 'depilacja laserowa cena salon',
       }),
     ]));
   });
