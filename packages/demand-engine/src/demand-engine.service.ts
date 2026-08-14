@@ -10,6 +10,7 @@ import {
 } from './domain/demand-engine-types';
 import { ManualFallbackDemandProvider } from './manual-fallback-demand.provider';
 import { normalizeKeyword } from './normalize-keyword';
+import { TopicUniverseDemandProvider } from './topic-universe-demand.provider';
 
 const UNKNOWN_METRICS: DemandMetricSnapshot = {
   searchVolume: null,
@@ -26,6 +27,7 @@ const UNKNOWN_METRICS: DemandMetricSnapshot = {
 export class DemandEngineService {
   constructor(
     private readonly providers: DemandProviderAdapter[] = [
+      new TopicUniverseDemandProvider(),
       new ManualFallbackDemandProvider(),
     ],
   ) {}
@@ -103,24 +105,160 @@ function buildKeywordCandidates(
 }
 
 function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
+  const clusters = new Map<string, KeywordCandidate[]>();
+  for (const candidate of candidates) {
+    const cluster = classifyCandidate(candidate.normalizedKeyword);
+    clusters.set(cluster.key, [...(clusters.get(cluster.key) ?? []), candidate]);
+  }
+
+  return [...clusters.entries()]
+    .map(([clusterKey, grouped]) => {
+      const cluster = classifyCandidate(grouped[0].normalizedKeyword);
+      const primary = grouped
+        .sort((a, b) =>
+          confidenceRank(b.confidence) - confidenceRank(a.confidence) ||
+          b.evidenceTypes.length - a.evidenceTypes.length ||
+          a.normalizedKeyword.length - b.normalizedKeyword.length,
+        )[0];
+      const evidenceTypes = unique(grouped.flatMap((candidate) =>
+        candidate.evidenceTypes,
+      ));
+      const confidenceValue = highestConfidence(grouped);
+      return {
+        slug: `/${cluster.slug}/`,
+        primaryKeyword: primary.normalizedKeyword,
+        supportingKeywords: grouped
+          .map((candidate) => candidate.normalizedKeyword)
+          .filter((keyword) => keyword !== primary.normalizedKeyword)
+          .slice(0, 12),
+        proposedPageType: cluster.pageType,
+        confidence: confidenceValue,
+        readiness: readiness(grouped, evidenceTypes),
+        primaryIntent: cluster.intent,
+        clusterKey,
+        clusterLabel: cluster.label,
+        evidenceTypes,
+        evidenceUrls: [],
+        metrics: primary.metrics,
+        missingMetrics: missingMetrics(primary.metrics),
+        missingResearchGaps: missingResearchGaps(grouped, evidenceTypes),
+        pageAction: 'new' as const,
+      };
+    })
+    .sort((a, b) =>
+      readinessRank(b.readiness) - readinessRank(a.readiness) ||
+      confidenceRank(b.confidence) - confidenceRank(a.confidence) ||
+      a.slug.localeCompare(b.slug),
+    );
+}
+
+function classifyCandidate(keyword: string): {
+  key: string;
+  label: string;
+  intent: string;
+  pageType: CandidatePage['proposedPageType'];
+  slug: string;
+} {
+  if (/\b(cena|cennik|koszt|ile kosztuje|price|cost|pricing)\b/u.test(keyword)) {
+    return cluster('commercial_price', 'Commercial price', 'price', 'landing_page');
+  }
+  if (/\b(vs|czy lepsze|różnice|alternatyw|alternative|comparison|better)\b/u.test(keyword)) {
+    return cluster('comparison', 'Comparison', 'comparison', 'comparison');
+  }
+  if (/(przeciwwskazania|skutki uboczne|bezpiecz|contraindications|side effects|safe)/u.test(keyword)) {
+    return cluster('safety', 'Safety', 'safety', 'guide');
+  }
+  if (/(jak przygotowa[ćc]|przygotowanie|before|prepare)/u.test(keyword)) {
+    return cluster('process_preparation', 'Preparation', 'informational_how_to', 'guide');
+  }
+  if (/(zalecenia po|aftercare|po zabiegu|after)/u.test(keyword)) {
+    return cluster('process_aftercare', 'Aftercare', 'informational_how_to', 'guide');
+  }
+  if (/\b(czy|jak|ile|kiedy|dlaczego|does|is|how|when|why)\b/u.test(keyword)) {
+    return cluster('informational_question', 'Question', 'informational_question', 'faq');
+  }
+  if (/\b(opinie|reviews|najlepsz|best|czy warto|worth)\b/u.test(keyword)) {
+    return cluster('commercial_research', 'Commercial research', 'commercial_service', 'landing_page');
+  }
+  if (/\b(dla mężczyzn|mężczyzn|men|male)\b/u.test(keyword)) {
+    return cluster('audience_men', 'Audience: men', 'audience', 'landing_page');
+  }
+  return {
+    key: `topic:${slugify(keyword)}`,
+    label: titleCase(keyword),
+    intent: 'commercial_service',
+    pageType: 'landing_page',
+    slug: slugify(keyword),
+  };
+}
+
+function cluster(
+  key: string,
+  label: string,
+  intent: string,
+  pageType: CandidatePage['proposedPageType'],
+) {
+  return {
+    key,
+    label,
+    intent,
+    pageType,
+    slug: key.replace(/_/gu, '-'),
+  };
+}
+
+function highestConfidence(candidates: KeywordCandidate[]): DemandConfidence {
   return candidates
-    .filter((candidate) =>
-      candidate.metrics.metricStatus !== 'fallback_only' ||
-      candidate.evidenceTypes.length >= 2,
-    )
-    .map((candidate) => ({
-      slug: `/${candidate.normalizedKeyword.replace(/\s+/gu, '-')}/`,
-      primaryKeyword: candidate.normalizedKeyword,
-      supportingKeywords: [],
-      proposedPageType: candidate.normalizedKeyword.includes(' vs ')
-        ? 'comparison'
-        : 'guide',
-      confidence: candidate.confidence,
-      evidenceTypes: candidate.evidenceTypes,
-      metrics: candidate.metrics,
-      missingMetrics: missingMetrics(candidate.metrics),
-      pageAction: 'new',
-    }));
+    .map((candidate) => candidate.confidence)
+    .sort((a, b) => confidenceRank(b) - confidenceRank(a))[0] ?? 'unknown';
+}
+
+function readiness(
+  candidates: KeywordCandidate[],
+  evidenceTypes: KeywordCandidate['evidenceTypes'],
+): NonNullable<CandidatePage['readiness']> {
+  const hasProviderOrOwnedEvidence = candidates.some((candidate) =>
+    candidate.metrics.metricStatus === 'provider_backed' ||
+    candidate.metrics.metricStatus === 'owned_data_backed',
+  );
+  const hasSerpEvidence = evidenceTypes.some((type) =>
+    ['serp_snippet', 'competitor_heading', 'faq_block'].includes(type),
+  );
+  if (hasProviderOrOwnedEvidence || hasSerpEvidence) {
+    return 'ready';
+  }
+  if (candidates.length >= 2 || evidenceTypes.length >= 2) {
+    return 'partial';
+  }
+  return 'not_ready';
+}
+
+function missingResearchGaps(
+  candidates: KeywordCandidate[],
+  evidenceTypes: KeywordCandidate['evidenceTypes'],
+): string[] {
+  const gaps: string[] = [];
+  if (!evidenceTypes.includes('serp_snippet')) {
+    gaps.push('SERP validation evidence');
+  }
+  if (!evidenceTypes.includes('faq_block') && !evidenceTypes.includes('people_also_ask')) {
+    gaps.push('FAQ or People Also Ask evidence');
+  }
+  if (!candidates.some((candidate) =>
+    candidate.metrics.metricStatus === 'provider_backed' ||
+    candidate.metrics.metricStatus === 'owned_data_backed',
+  )) {
+    gaps.push('Provider-backed demand metrics');
+  }
+  return gaps;
+}
+
+function readinessRank(value: CandidatePage['readiness']): number {
+  return {
+    not_ready: 0,
+    partial: 1,
+    ready: 2,
+  }[value ?? 'not_ready'];
 }
 
 function mergeMetrics(observations: DemandObservation[]): DemandMetricSnapshot {
@@ -184,6 +322,23 @@ function confidenceRank(confidence: DemandConfidence): number {
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)];
+}
+
+function slugify(value: string): string {
+  return normalizeKeyword(value)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .replace(/ł/gu, 'l')
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-+|-+$/gu, '') || 'topic';
+}
+
+function titleCase(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/u)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 function errorMessage(error: unknown): string {

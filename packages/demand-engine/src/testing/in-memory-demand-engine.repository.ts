@@ -6,6 +6,7 @@ import {
   DemandKeywordCandidateRecord,
   DemandMetricSnapshotRecord,
   DemandObservationRecord,
+  MarkCandidatePagesSerpValidatedCommand,
   SaveDemandDiscoveryResultCommand,
 } from '../persistence/demand-engine.repository';
 
@@ -74,6 +75,9 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
       const existing = this.pages.get(key);
       const record: DemandCandidatePageRecord = {
         ...page,
+        readiness: page.readiness ?? readinessFromConfidence(page.confidence),
+        evidenceUrls: page.evidenceUrls ?? [],
+        missingResearchGaps: page.missingResearchGaps ?? [],
         id: existing?.id ?? `demand-candidate-page-${this.pages.size + 1}`,
         keywordCandidateId: candidate?.id ?? 'unknown',
         topicId: command.topicId ?? null,
@@ -83,6 +87,17 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
       this.pages.set(key, record);
       return record;
     });
+    const currentPageKeys = new Set(
+      command.result.candidatePages.map((page) =>
+        `${command.topicId ?? 'global'}:${page.slug}`,
+      ),
+    );
+    for (const key of this.pages.keys()) {
+      if (key.startsWith(`${command.topicId ?? 'global'}:`) &&
+        !currentPageKeys.has(key)) {
+        this.pages.delete(key);
+      }
+    }
 
     return {
       keywordCandidates,
@@ -98,6 +113,38 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
     );
   }
 
+  async markCandidatePagesSerpValidated(
+    command: MarkCandidatePagesSerpValidatedCommand,
+  ): Promise<DemandCandidatePageRecord[]> {
+    const updated: DemandCandidatePageRecord[] = [];
+    for (const [key, page] of this.pages.entries()) {
+      if (page.topicId !== command.topicId) {
+        continue;
+      }
+      const matches = command.validations.filter((validation) =>
+        pageMatchesQuery(page, validation.query),
+      );
+      if (matches.length === 0) {
+        continue;
+      }
+      const record: DemandCandidatePageRecord = {
+        ...page,
+        readiness: 'ready',
+        evidenceTypes: unique([...page.evidenceTypes, 'serp_snippet']),
+        evidenceUrls: unique([
+          ...(page.evidenceUrls ?? []),
+          ...matches.flatMap((validation) => validation.evidenceUrls),
+        ]),
+        missingResearchGaps: (page.missingResearchGaps ?? [])
+          .filter((gap) => gap !== 'SERP validation evidence'),
+        updatedAt: command.validatedAt,
+      };
+      this.pages.set(key, record);
+      updated.push(record);
+    }
+    return updated;
+  }
+
   async listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]> {
     return [...this.pages.values()].filter((page) => page.topicId === topicId);
   }
@@ -105,4 +152,26 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
 
 function candidateKey(topicId: string | undefined, normalizedKeyword: string): string {
   return `${topicId ?? 'global'}:${normalizedKeyword}`;
+}
+
+function readinessFromConfidence(
+  confidence: DemandCandidatePageRecord['confidence'],
+): NonNullable<DemandCandidatePageRecord['readiness']> {
+  if (confidence === 'high') {
+    return 'ready';
+  }
+  if (confidence === 'medium') {
+    return 'partial';
+  }
+  return 'not_ready';
+}
+
+function pageMatchesQuery(page: DemandCandidatePageRecord, query: string): boolean {
+  const normalizedQuery = normalizeKeyword(query);
+  return page.primaryKeyword === normalizedQuery ||
+    page.supportingKeywords.includes(normalizedQuery);
+}
+
+function unique<Value>(values: Value[]): Value[] {
+  return [...new Set(values)];
 }

@@ -74,10 +74,44 @@ Roadmap order, phases and dependency rules live only in
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
+| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run now expands one topic seed through Demand discovery, validates generated queries with SERP and propagates SERP evidence to Demand candidate pages. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-14
+Issue: #186
+Status: Review needed
+Summary:
+- Started automatic topic universe to page candidates.
+- Added a generic Topic Universe Demand provider that expands one topic seed
+  into candidate keyword patterns without niche-specific hardcoding.
+- Added candidate page readiness, intent, cluster metadata, SERP evidence URLs
+  and missing research gaps to Demand persistence.
+- Extended Topic Work Run with automatic Demand discovery and bounded SERP
+  validation for generated demand queries before URL Frontier and downstream
+  dispatch.
+- Added Demand API read output for topic keyword candidates, candidate pages
+  and readiness summary.
+- Fixed JSONB persistence for Demand and External Entity enrichment runtime
+  repositories so Docker/PostgreSQL smoke runs can persist structured provider
+  data.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/persistence/demand-engine.repository.spec.ts packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Docker Compose rebuild for API and Operator Console completed successfully.
+- Local smoke forced a Topic Work Run for the laser-depilation Jasło topic:
+  focused SERP discovery recorded 10 real result URLs, Demand discovery
+  persisted 23 demand candidates and 13 candidate pages, Topic Universe SERP
+  Validation recorded 12/12 generated queries and submitted 112 URL
+  observations, then crawl/content/chunk/embedding/fact stages advanced.
+- Local Demand API smoke reports 13 candidate pages: 9 ready with SERP evidence
+  URLs, 1 partial and 3 not_ready pending additional validation/metrics.
+Notes:
+- Run status remains degraded when OpenSERP reports Google engine circuit-open
+  and falls back through other engines, or when optional Google Knowledge Graph
+  credentials are unavailable in the runtime environment.
 
 Date: 2026-08-14
 Issue: Current focused SERP discovery workflow PR

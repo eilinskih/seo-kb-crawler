@@ -189,9 +189,10 @@ Implemented on `main`:
   decisions, dispatch planning, media policy decisions and repository
   abstraction.
 - Topic Work Run API orchestration for Codex-first topic starts, draft topic
-  activation, automatic focused SERP discovery, URL Frontier dispatch,
-  Content Processing dispatch, Chunking dispatch, Embedding dispatch and Fact
-  Extraction dispatch through existing service boundaries.
+  activation, automatic focused SERP discovery, Demand Engine topic-universe
+  expansion, bounded SERP validation for generated demand queries, URL
+  Frontier dispatch, Content Processing dispatch, Chunking dispatch, Embedding
+  dispatch and Fact Extraction dispatch through existing service boundaries.
 - SEO Agent Gateway package boundary, model-agnostic generation request
   contracts, Focused Research requirement representation, structured
   generation context assembly, retrieval-only safeguards, consumer adapter

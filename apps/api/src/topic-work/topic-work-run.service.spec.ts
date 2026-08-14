@@ -16,6 +16,8 @@ describe('TopicWorkRunService', () => {
     expect(result.stages.map((stage) => stage.name)).toEqual([
       'topic_activation',
       'focused_serp_discovery',
+      'demand_discovery',
+      'topic_universe_serp_validation',
       'url_frontier_dispatch',
       'content_processing_dispatch',
       'chunking_dispatch',
@@ -121,6 +123,37 @@ function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunServi
         snapshot: { id: 'snapshot-1', results: [] },
         observations: { submitted: 1, receipts: [] },
         frontier: { upsertedEntries: 1 },
+      })),
+    }) as never,
+    (overrides.demandDiscovery ?? {
+      discoverAndPersist: jest.fn(async () => ({
+        discovery: {
+          fallbackMode: true,
+          warnings: [],
+        },
+        persistence: {
+          keywordCandidates: [
+            { normalizedKeyword: 'test topic cost' },
+          ],
+          candidatePages: [
+            { slug: '/commercial-price/' },
+          ],
+        },
+      })),
+    }) as never,
+    (overrides.demandRepository ?? {
+      listKeywordCandidates: jest.fn(async () => [
+        { normalizedKeyword: 'test topic cost' },
+      ]),
+      markCandidatePagesSerpValidated: jest.fn(async () => [
+        { slug: '/commercial-price/' },
+      ]),
+    }) as never,
+    (overrides.entityEnrichment ?? {
+      enrich: jest.fn(async () => ({
+        canonicalEntity: null,
+        candidates: [],
+        warnings: [],
       })),
     }) as never,
     {

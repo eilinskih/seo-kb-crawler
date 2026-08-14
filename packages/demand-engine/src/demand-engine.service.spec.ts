@@ -47,6 +47,39 @@ describe('DemandEngineService', () => {
     });
   });
 
+  it('expands a single topic seed into generic query clusters and candidate pages', async () => {
+    const service = new DemandEngineService();
+
+    const result = await service.discover({
+      topicSeed: 'depilacja laserowa',
+      language: 'pl',
+      geo: { countryCode: 'PL', city: 'Jasło' },
+      manualSeeds: ['laser hair removal', 'hair removal'],
+      limit: 40,
+    });
+
+    expect(result.keywordCandidates.length).toBeGreaterThan(10);
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).toEqual(expect.arrayContaining([
+      'depilacja laserowa cena',
+      'czy depilacja laserowa boli',
+      'jak przygotować się do depilacja laserowa',
+      'depilacja laserowa jasło',
+    ]));
+    expect(result.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        clusterKey: 'commercial_price',
+        primaryIntent: 'price',
+        readiness: expect.stringMatching(/partial|not_ready/),
+      }),
+      expect.objectContaining({
+        clusterKey: 'process_preparation',
+        primaryIntent: 'informational_how_to',
+      }),
+    ]));
+  });
+
   it('uses provider-backed metrics when available without requiring them', async () => {
     const service = new DemandEngineService([
       {

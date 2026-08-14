@@ -12,6 +12,15 @@ export interface SaveDemandDiscoveryResultCommand {
   observedAt: string;
 }
 
+export interface MarkCandidatePagesSerpValidatedCommand {
+  topicId: string;
+  validations: Array<{
+    query: string;
+    evidenceUrls: string[];
+  }>;
+  validatedAt: string;
+}
+
 export interface DemandKeywordCandidateRecord extends KeywordCandidate {
   id: string;
   topicId: string | null;
@@ -55,6 +64,9 @@ export interface DemandEngineRepository {
   saveDiscoveryResult(
     command: SaveDemandDiscoveryResultCommand,
   ): Promise<DemandDiscoveryPersistenceResult>;
+  markCandidatePagesSerpValidated(
+    command: MarkCandidatePagesSerpValidatedCommand,
+  ): Promise<DemandCandidatePageRecord[]>;
   listKeywordCandidates(topicId: string): Promise<DemandKeywordCandidateRecord[]>;
   listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]>;
 }

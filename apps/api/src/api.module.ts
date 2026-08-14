@@ -10,6 +10,7 @@ import {
 import { ContextPackModule } from '@seo-kb/context-pack';
 import { ContentProcessingModule } from '@seo-kb/content-processing';
 import { DbModule } from '@seo-kb/db';
+import { DemandEngineModule } from '@seo-kb/demand-engine';
 import { EmbeddingModule } from '@seo-kb/embeddings';
 import { EntitiesModule } from '@seo-kb/entities';
 import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichment';
@@ -26,6 +27,7 @@ import { TopicEngineModule } from '@seo-kb/topic-engine';
 import { UrlFrontierModule } from '@seo-kb/url-frontier';
 import { ContentProcessingController } from './content-processing/content-processing.controller';
 import { ContextPackController } from './context-pack/context-pack.controller';
+import { DemandController } from './demand/demand.controller';
 import { EntitiesController } from './entities/entities.controller';
 import { ExternalEntityReviewController } from './external-entities/external-entity-review.controller';
 import { HealthController } from './health/health.controller';
@@ -49,6 +51,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
       validate: validateEnvironment,
     }),
     DbModule,
+    DemandEngineModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -71,6 +74,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
   controllers: [
     ContentProcessingController,
     ContextPackController,
+    DemandController,
     EntitiesController,
     ExternalEntityReviewController,
     HealthController,

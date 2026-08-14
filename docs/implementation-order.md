@@ -120,10 +120,24 @@ into production hardening without reopening completed foundation scope.
 | 38 | #179 | External SEO provider adapters and persistence | Depends on #40 and remains optional. |
 | 39 | #181 | External Entity provider execution | Done on `main`; provider execution remains optional and fail-open. |
 | 40 | #182 | Operator Console production hardening and review workflows | Done on `main`; selective retry-by-ID and richer review filters remain future scope. |
+| 41 | #186 | Automatic topic universe to page candidates | Depends on #185, #181, #18 and Topic Work Run. |
 
 Phase 9 work must preserve the repository's core fallback rule: external
 providers improve confidence, but missing provider credentials must not block
 research, retrieval, knowledge packs, SEO packs or generation planning.
+
+Issue #186 closes the gap between a manually supplied topic and usable SEO page
+candidates. The expected product flow is topic-first: a Product Owner or Codex
+workspace provides a topic seed, then Topic Work Run automatically performs
+focused SERP discovery, Demand Engine topic-universe expansion, bounded SERP
+validation for generated queries, URL Frontier submission and downstream
+research dispatch. No manual keyword spreadsheet or manual SERP import should
+be required for the normal workflow.
+
+The #186 implementation must stay provider-optional. Paid keyword providers
+may improve metrics later, but fallback mode must still produce explicit
+candidate pages with nullable metrics, readiness, missing research gaps and
+SERP evidence when OpenSERP/free sources are available.
 
 ## Dependency graph
 
@@ -149,6 +163,7 @@ Production hardening:
      -> #179
      -> #181
      -> #182
+     -> #186
 ```
 
 ## Future capability: Demand Engine

@@ -67,9 +67,15 @@ export interface CandidatePage {
   supportingKeywords: string[];
   proposedPageType: 'landing_page' | 'guide' | 'faq' | 'comparison' | 'local_page';
   confidence: DemandConfidence;
+  readiness?: 'ready' | 'partial' | 'not_ready';
+  primaryIntent?: string;
+  clusterKey?: string;
+  clusterLabel?: string;
   evidenceTypes: DemandEvidenceType[];
+  evidenceUrls?: string[];
   metrics: DemandMetricSnapshot;
   missingMetrics: string[];
+  missingResearchGaps?: string[];
   pageAction: 'new' | 'update' | 'merge' | 'split' | 'reject';
 }
 

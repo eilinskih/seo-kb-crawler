@@ -66,6 +66,8 @@ provided by the background loop, not by an unbounded request.
 Topic Work Run
   -> topic activation
   -> Focused SERP Discovery from topic seed keyword
+  -> Demand Discovery from the topic seed and entity vocabulary
+  -> Topic Universe SERP Validation for generated demand queries
   -> URL Frontier dispatch
   -> Content Processing dispatch
   -> Chunking dispatch
@@ -75,6 +77,17 @@ Topic Work Run
 
 Downstream workers may complete asynchronously. Later ticks continue the
 pipeline from the newest durable state.
+
+Demand Discovery expands the first topic seed into a bounded topic universe
+using provider-optional demand sources. In fallback mode this includes generic
+query patterns, entity vocabulary and other free signals without requiring
+Ahrefs, Semrush, SE Ranking or Google Ads credentials.
+
+Topic Universe SERP Validation probes generated demand queries through SERP
+Intelligence, submits discovered result URLs to URL Frontier and marks matched
+Demand candidate pages with SERP evidence URLs. This is the runtime bridge that
+turns "what might be worth writing" into page candidates with verifiable search
+evidence.
 
 ## Provider Fallback
 
@@ -158,6 +171,9 @@ TOPIC_WORK_RUN_SERP_REFRESH_INTERVAL_MS=86400000
   invoked by Topic Work Run.
 - OpenSERP and free SERP fallback quality are intentionally best-effort and may
   degrade when upstream search engines block automation.
+- Topic Universe SERP Validation is bounded per run. Candidate pages not
+  covered by the first validation batch remain `partial` or `not_ready` until
+  later ticks or provider refreshes collect enough evidence.
 
 ## Next Hardening
 

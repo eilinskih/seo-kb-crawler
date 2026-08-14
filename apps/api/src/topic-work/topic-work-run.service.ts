@@ -8,8 +8,15 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ChunkingDispatchService } from '@seo-kb/chunking';
 import { ContentProcessingDispatchService } from '@seo-kb/content-processing';
+import {
+  DemandDiscoveryPersistenceService,
+  DemandEngineRepository,
+  DEMAND_ENGINE_REPOSITORY,
+} from '@seo-kb/demand-engine';
 import { EmbeddingDispatchService } from '@seo-kb/embeddings';
+import { ExternalEntityEnrichmentService } from '@seo-kb/external-entity-enrichment';
 import { FactExtractionDispatchService } from '@seo-kb/fact-extraction';
+import { SerpGeoTarget } from '@seo-kb/serp-intelligence';
 import {
   SeoPackGeneratorService,
   SeoPackRepository,
@@ -28,6 +35,8 @@ export interface TopicWorkRunStage {
   name:
     | 'topic_activation'
     | 'focused_serp_discovery'
+    | 'demand_discovery'
+    | 'topic_universe_serp_validation'
     | 'url_frontier_dispatch'
     | 'content_processing_dispatch'
     | 'chunking_dispatch'
@@ -71,6 +80,8 @@ const embeddingCandidateLimit = 100;
 const embeddingBatchSize = 20;
 const factCandidateLimit = 100;
 const factBatchSize = 20;
+const demandDiscoveryLimit = 80;
+const topicUniverseSerpProbeLimit = 12;
 
 @Injectable()
 export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
@@ -88,6 +99,10 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly topics: TopicService,
     private readonly serpDiscovery: FocusedSerpDiscoveryApiService,
+    private readonly demandDiscovery: DemandDiscoveryPersistenceService,
+    @Inject(DEMAND_ENGINE_REPOSITORY)
+    private readonly demandRepository: DemandEngineRepository,
+    private readonly entityEnrichment: ExternalEntityEnrichmentService,
     private readonly urlFrontierDispatch: UrlFrontierDispatchService,
     private readonly contentProcessingDispatch: ContentProcessingDispatchService,
     private readonly chunkingDispatch: ChunkingDispatchService,
@@ -244,6 +259,104 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         status: result.status === 'recorded' ? 'completed' as const : 'skipped' as const,
         message,
         result,
+      };
+    }, warnings));
+
+    stages.push(await this.runStage('demand_discovery', async () => {
+      const seedQuery = firstSeedKeyword(topic);
+      if (!seedQuery) {
+        return {
+          status: 'skipped' as const,
+          message: 'Topic has no seed keyword for Demand discovery.',
+        };
+      }
+      const language = topicLanguage(topic);
+      const geo = {
+        ...topicGeo(topic),
+        city: inferCity(seedQuery),
+      };
+      const entityVocabulary = await this.entityVocabulary({
+        seedQuery,
+        language,
+        geo,
+        warnings,
+      });
+      const result = await this.demandDiscovery.discoverAndPersist({
+        topicId: topic.id,
+        topicSeed: seedQuery,
+        language,
+        geo,
+        manualSeeds: entityVocabulary,
+        limit: demandDiscoveryLimit,
+      });
+      return {
+        status: 'completed' as const,
+        message: `Discovered ${result.persistence.keywordCandidates.length} demand candidates and ${result.persistence.candidatePages.length} candidate pages.`,
+        result: {
+          keywordCandidates: result.persistence.keywordCandidates.length,
+          candidatePages: result.persistence.candidatePages.length,
+          fallbackMode: result.discovery.fallbackMode,
+          warnings: result.discovery.warnings,
+        },
+      };
+    }, warnings));
+
+    stages.push(await this.runStage('topic_universe_serp_validation', async () => {
+      const universeRefreshKey = `${topic.id}:universe`;
+      if (!this.shouldRefreshSerp(universeRefreshKey, options.force)) {
+        return {
+          status: 'skipped' as const,
+          message: 'Topic universe SERP refresh interval has not elapsed.',
+        };
+      }
+      this.lastSerpAttemptAt.set(universeRefreshKey, Date.now());
+      const seedQuery = firstSeedKeyword(topic);
+      const queries = (await this.demandRepository.listKeywordCandidates(topic.id))
+        .map((candidate) => candidate.normalizedKeyword)
+        .filter((query) => query !== seedQuery)
+        .slice(0, topicUniverseSerpProbeLimit);
+      const results: AutomaticFocusedSerpDiscoveryApiResult[] = [];
+      for (const query of queries) {
+        const result = await this.serpDiscovery.runFromTopic({
+          topicId: topic.id,
+          query,
+          language: topicLanguage(topic),
+          geo: topicGeo(topic),
+        });
+        results.push(result);
+        warnings.push(...result.warnings.map((warning) =>
+          `topic_universe_serp_validation:${query}: ${warning}`,
+        ));
+      }
+      const recorded = results.filter((result) => result.status === 'recorded');
+      const validatedPages = await this.demandRepository.markCandidatePagesSerpValidated({
+        topicId: topic.id,
+        validatedAt: new Date().toISOString(),
+        validations: recorded.flatMap((result) =>
+          result.snapshot
+            ? [{
+                query: result.snapshot.normalizedQuery,
+                evidenceUrls: result.snapshot.results
+                  .map((serpResult) => serpResult.url)
+                  .filter(Boolean)
+                  .slice(0, 10),
+              }]
+            : [],
+        ),
+      });
+      return {
+        status: queries.length > 0 ? 'completed' as const : 'skipped' as const,
+        message: `Validated ${recorded.length}/${queries.length} generated demand queries with SERP.`,
+        result: {
+          attempted: queries.length,
+          recorded: recorded.length,
+          candidatePagesUpdated: validatedPages.length,
+          submittedUrls: recorded.reduce(
+            (total, result) => total + result.observations.submitted,
+            0,
+          ),
+          queries,
+        },
       };
     }, warnings));
 
@@ -448,6 +561,42 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       message: 'Generated baseline SEO Pack for the topic seed query.',
     };
   }
+
+  private async entityVocabulary(options: {
+    seedQuery: string;
+    language: string | undefined;
+    geo: SerpGeoTarget & { city?: string };
+    warnings: string[];
+  }): Promise<string[]> {
+    try {
+      const pack = await this.entityEnrichment.enrich({
+        entityName: options.seedQuery,
+        language: options.language,
+        geo: options.geo,
+        requestedCapabilities: [
+          'entity_lookup',
+          'aliases',
+          'multilingual_aliases',
+          'entity_types',
+        ],
+      });
+      options.warnings.push(...pack.warnings.map((warning) =>
+        `entity_enrichment:${warning.providerKey}: ${warning.message}`,
+      ));
+      return unique(pack.candidates.flatMap((candidate) => [
+        candidate.name,
+        ...candidate.aliases,
+        ...candidate.types,
+      ]))
+        .filter((value) => value.length > 2)
+        .slice(0, 20);
+    } catch (error) {
+      options.warnings.push(
+        `entity_enrichment unavailable: ${errorMessage(error)}`,
+      );
+      return [];
+    }
+  }
 }
 
 function isWorkEligibleTopic(topic: TopicRecord): boolean {
@@ -470,6 +619,35 @@ function positiveInteger(value: string | undefined, fallback: number): number {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+type TopicRecordLike = TopicRecord;
+
+function firstSeedKeyword(topic: TopicRecordLike): string | null {
+  return topic.discovery.search.queries[0]?.text?.trim() || null;
+}
+
+function topicLanguage(topic: TopicRecordLike): string | undefined {
+  return topic.languageGeo.languages[0]?.tag ??
+    topic.discovery.search.queries[0]?.language;
+}
+
+function topicGeo(topic: TopicRecordLike): SerpGeoTarget | undefined {
+  const queryGeo = topic.discovery.search.queries[0]?.geo;
+  const targetGeo = topic.languageGeo.geoTargets[0];
+  const countryCode = queryGeo?.countryCode ?? targetGeo?.countryCode;
+  const regionCode = queryGeo?.regionCode ?? targetGeo?.regionCode;
+  return countryCode || regionCode ? { countryCode, regionCode } : undefined;
+}
+
+function inferCity(seedQuery: string): string | undefined {
+  const words = seedQuery.trim().split(/\s+/u);
+  const last = words.at(-1);
+  return last && words.length > 2 ? last : undefined;
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
 function slugify(value: string): string {

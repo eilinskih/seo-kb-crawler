@@ -16,6 +16,7 @@ import {
   DemandKeywordCandidateRecord,
   DemandMetricSnapshotRecord,
   DemandObservationRecord,
+  MarkCandidatePagesSerpValidatedCommand,
   SaveDemandDiscoveryResultCommand,
 } from './demand-engine.repository';
 
@@ -26,14 +27,14 @@ interface DemandKeywordCandidateRow {
   normalized_keyword: string;
   language: string | null;
   language_key: string;
-  geo: DemandGeoTarget;
+  geo: JsonColumn<DemandGeoTarget>;
   geo_key: string;
-  observed_texts: string[];
-  source_tiers: KeywordCandidate['sourceTiers'];
-  providers: string[];
-  evidence_types: KeywordCandidate['evidenceTypes'];
+  observed_texts: JsonColumn<string[]>;
+  source_tiers: JsonColumn<KeywordCandidate['sourceTiers']>;
+  providers: JsonColumn<string[]>;
+  evidence_types: JsonColumn<KeywordCandidate['evidenceTypes']>;
   confidence: KeywordCandidate['confidence'];
-  metrics: DemandMetricSnapshot;
+  metrics: JsonColumn<DemandMetricSnapshot>;
   last_observed_at: Date | string;
   created_at: Date | string;
   updated_at: Date | string;
@@ -50,7 +51,7 @@ interface DemandObservationRow {
   evidence_type: DemandObservation['evidenceType'];
   source_query: string;
   evidence_url: string | null;
-  metrics: Partial<DemandMetricSnapshot>;
+  metrics: JsonColumn<Partial<DemandMetricSnapshot>>;
   observed_at: Date | string;
   created_at: Date | string;
 }
@@ -68,7 +69,7 @@ interface DemandMetricSnapshotRow {
   metric_status: DemandMetricSnapshot['metricStatus'];
   provider_key: string | null;
   collected_at: Date | string | null;
-  metadata: Record<string, unknown>;
+  metadata: JsonColumn<Record<string, unknown>>;
   created_at: Date | string;
 }
 
@@ -79,16 +80,24 @@ interface DemandCandidatePageRow {
   topic_key: string;
   slug: string;
   primary_keyword: string;
-  supporting_keywords: string[];
+  supporting_keywords: JsonColumn<string[]>;
   proposed_page_type: CandidatePage['proposedPageType'];
   confidence: CandidatePage['confidence'];
-  evidence_types: CandidatePage['evidenceTypes'];
-  metrics: DemandMetricSnapshot;
-  missing_metrics: string[];
+  readiness: NonNullable<CandidatePage['readiness']>;
+  primary_intent: string | null;
+  cluster_key: string | null;
+  cluster_label: string | null;
+  evidence_types: JsonColumn<CandidatePage['evidenceTypes']>;
+  evidence_urls: JsonColumn<string[]>;
+  metrics: JsonColumn<DemandMetricSnapshot>;
+  missing_metrics: JsonColumn<string[]>;
+  missing_research_gaps: JsonColumn<string[]>;
   page_action: CandidatePage['pageAction'];
   created_at: Date | string;
   updated_at: Date | string;
 }
+
+type JsonColumn<Value> = Value | string;
 
 @Injectable()
 export class KnexDemandEngineRepository implements DemandEngineRepository {
@@ -145,6 +154,61 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
       .orderBy('normalized_keyword', 'asc');
 
     return rows.map(toKeywordCandidateRecord);
+  }
+
+  async markCandidatePagesSerpValidated(
+    command: MarkCandidatePagesSerpValidatedCommand,
+  ): Promise<DemandCandidatePageRecord[]> {
+    if (command.validations.length === 0) {
+      return [];
+    }
+
+    const rows = await this.db.knex<DemandCandidatePageRow>(
+      'demand_candidate_pages',
+    )
+      .where('topic_id', command.topicId)
+      .orderBy('slug', 'asc');
+    const updated: DemandCandidatePageRecord[] = [];
+
+    for (const row of rows) {
+      const record = toCandidatePageRecord(row);
+      const matches = command.validations.filter((validation) =>
+        pageMatchesQuery(record, validation.query),
+      );
+      if (matches.length === 0) {
+        continue;
+      }
+
+      const evidenceTypes = unique([
+        ...record.evidenceTypes,
+        'serp_snippet' as const,
+      ]);
+      const evidenceUrls = unique([
+        ...(record.evidenceUrls ?? []),
+        ...matches.flatMap((validation) => validation.evidenceUrls),
+      ]);
+      const missingResearchGaps = (record.missingResearchGaps ?? [])
+        .filter((gap) => gap !== 'SERP validation evidence');
+
+      const patch = {
+        evidence_types: json(evidenceTypes),
+        evidence_urls: json(evidenceUrls),
+        missing_research_gaps: json(missingResearchGaps),
+        readiness: 'ready' as const,
+        updated_at: command.validatedAt,
+      };
+
+      await this.db.knex<DemandCandidatePageRow>('demand_candidate_pages')
+        .where({ id: row.id })
+        .update(patch);
+
+      updated.push(toCandidatePageRecord({
+        ...row,
+        ...patch,
+      }));
+    }
+
+    return updated;
   }
 
   async listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]> {
@@ -266,16 +330,39 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
           supporting_keywords: row.supporting_keywords,
           proposed_page_type: row.proposed_page_type,
           confidence: row.confidence,
+          readiness: row.readiness,
+          primary_intent: row.primary_intent,
+          cluster_key: row.cluster_key,
+          cluster_label: row.cluster_label,
           evidence_types: row.evidence_types,
+          evidence_urls: row.evidence_urls,
           metrics: row.metrics,
           missing_metrics: row.missing_metrics,
+          missing_research_gaps: row.missing_research_gaps,
           page_action: row.page_action,
           updated_at: row.updated_at,
         });
       records.push(toCandidatePageRecord(row));
     }
 
+    await this.deleteStaleCandidatePages(
+      topicId,
+      pages.map((page) => page.slug),
+    );
+
     return records;
+  }
+
+  private async deleteStaleCandidatePages(
+    topicId: string | undefined,
+    currentSlugs: string[],
+  ): Promise<void> {
+    const query = this.db.knex<DemandCandidatePageRow>('demand_candidate_pages')
+      .where({ topic_key: topicKey(topicId) });
+    if (currentSlugs.length > 0) {
+      query.whereNotIn('slug', currentSlugs);
+    }
+    await query.delete();
   }
 }
 
@@ -292,14 +379,14 @@ function toKeywordCandidateRow(
     normalized_keyword: candidate.normalizedKeyword,
     language: candidate.language ?? null,
     language_key: languageKey(candidate.language),
-    geo: candidate.geo ?? {},
+    geo: json(candidate.geo ?? {}),
     geo_key: geoKey(candidate.geo),
-    observed_texts: candidate.observedTexts,
-    source_tiers: candidate.sourceTiers,
-    providers: candidate.providers,
-    evidence_types: candidate.evidenceTypes,
+    observed_texts: json(candidate.observedTexts),
+    source_tiers: json(candidate.sourceTiers),
+    providers: json(candidate.providers),
+    evidence_types: json(candidate.evidenceTypes),
     confidence: candidate.confidence,
-    metrics: candidate.metrics,
+    metrics: json(candidate.metrics),
     last_observed_at: observedAt,
     created_at: existing?.created_at ?? observedAt,
     updated_at: observedAt,
@@ -313,14 +400,14 @@ function toKeywordCandidateRecord(
     id: row.id,
     topicId: row.topic_id,
     normalizedKeyword: row.normalized_keyword,
-    observedTexts: row.observed_texts,
+    observedTexts: parseJson(row.observed_texts),
     language: row.language ?? undefined,
-    geo: row.geo,
-    sourceTiers: row.source_tiers,
-    providers: row.providers,
-    evidenceTypes: row.evidence_types,
+    geo: parseJson(row.geo),
+    sourceTiers: parseJson(row.source_tiers),
+    providers: parseJson(row.providers),
+    evidenceTypes: parseJson(row.evidence_types),
     confidence: row.confidence,
-    metrics: row.metrics,
+    metrics: parseJson(row.metrics),
     lastObservedAt: toIsoString(row.last_observed_at),
     createdAt: toIsoString(row.created_at),
     updatedAt: toIsoString(row.updated_at),
@@ -344,7 +431,7 @@ function toObservationRow(
     evidence_type: observation.evidenceType,
     source_query: observation.sourceQuery,
     evidence_url: observation.evidenceUrl ?? null,
-    metrics: observation.metrics ?? {},
+    metrics: json(observation.metrics ?? {}),
     observed_at: observedAt,
     created_at: observedAt,
   };
@@ -361,7 +448,7 @@ function toObservationRecord(row: DemandObservationRow): DemandObservationRecord
     evidenceType: row.evidence_type,
     sourceQuery: row.source_query,
     evidenceUrl: row.evidence_url,
-    metrics: row.metrics,
+    metrics: parseJson(row.metrics),
     observedAt: toIsoString(row.observed_at),
     createdAt: toIsoString(row.created_at),
   };
@@ -385,11 +472,11 @@ function toMetricSnapshotRow(
     metric_status: candidate.metrics.metricStatus,
     provider_key: candidate.metrics.providerKey,
     collected_at: candidate.metrics.collectedAt,
-    metadata: {
+    metadata: json({
       confidence: candidate.confidence,
       providers: candidate.providers,
       sourceTiers: candidate.sourceTiers,
-    },
+    }),
     created_at: observedAt,
   };
 }
@@ -410,7 +497,7 @@ function toMetricSnapshotRecord(
     metricStatus: row.metric_status,
     providerKey: row.provider_key,
     collectedAt: row.collected_at ? toIsoString(row.collected_at) : null,
-    metadata: row.metadata,
+    metadata: parseJson(row.metadata),
     createdAt: toIsoString(row.created_at),
   };
 }
@@ -429,12 +516,18 @@ function toCandidatePageRow(
     topic_key: topicKey(topicId),
     slug: page.slug,
     primary_keyword: page.primaryKeyword,
-    supporting_keywords: page.supportingKeywords,
+    supporting_keywords: json(page.supportingKeywords),
     proposed_page_type: page.proposedPageType,
     confidence: page.confidence,
-    evidence_types: page.evidenceTypes,
-    metrics: page.metrics,
-    missing_metrics: page.missingMetrics,
+    readiness: page.readiness ?? readinessFromConfidence(page.confidence),
+    primary_intent: page.primaryIntent ?? null,
+    cluster_key: page.clusterKey ?? null,
+    cluster_label: page.clusterLabel ?? null,
+    evidence_types: json(page.evidenceTypes),
+    evidence_urls: json(page.evidenceUrls ?? []),
+    metrics: json(page.metrics),
+    missing_metrics: json(page.missingMetrics),
+    missing_research_gaps: json(page.missingResearchGaps ?? []),
     page_action: page.pageAction,
     created_at: existing?.created_at ?? observedAt,
     updated_at: observedAt,
@@ -448,12 +541,18 @@ function toCandidatePageRecord(row: DemandCandidatePageRow): DemandCandidatePage
     topicId: row.topic_id,
     slug: row.slug,
     primaryKeyword: row.primary_keyword,
-    supportingKeywords: row.supporting_keywords,
+    supportingKeywords: parseJson(row.supporting_keywords),
     proposedPageType: row.proposed_page_type,
     confidence: row.confidence,
-    evidenceTypes: row.evidence_types,
-    metrics: row.metrics,
-    missingMetrics: row.missing_metrics,
+    readiness: row.readiness,
+    primaryIntent: row.primary_intent ?? undefined,
+    clusterKey: row.cluster_key ?? undefined,
+    clusterLabel: row.cluster_label ?? undefined,
+    evidenceTypes: parseJson(row.evidence_types),
+    evidenceUrls: parseJson(row.evidence_urls),
+    metrics: parseJson(row.metrics),
+    missingMetrics: parseJson(row.missing_metrics),
+    missingResearchGaps: parseJson(row.missing_research_gaps),
     pageAction: row.page_action,
     createdAt: toIsoString(row.created_at),
     updatedAt: toIsoString(row.updated_at),
@@ -478,6 +577,36 @@ function languageKey(language: string | undefined): string {
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function json<Value>(value: Value): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<Value>(value: JsonColumn<Value>): Value {
+  return typeof value === 'string' ? JSON.parse(value) as Value : value;
+}
+
+function readinessFromConfidence(
+  confidence: CandidatePage['confidence'],
+): NonNullable<CandidatePage['readiness']> {
+  if (confidence === 'high') {
+    return 'ready';
+  }
+  if (confidence === 'medium') {
+    return 'partial';
+  }
+  return 'not_ready';
+}
+
+function pageMatchesQuery(page: DemandCandidatePageRecord, query: string): boolean {
+  const normalizedQuery = normalizeKeyword(query);
+  return page.primaryKeyword === normalizedQuery ||
+    page.supportingKeywords.includes(normalizedQuery);
+}
+
+function unique<Value>(values: Value[]): Value[] {
+  return [...new Set(values)];
 }
 
 export const __testing = {
