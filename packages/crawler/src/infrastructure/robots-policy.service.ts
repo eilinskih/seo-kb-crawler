@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   RobotsDecision,
   RobotsPolicyOptions,
   SafeNetworkGateway,
 } from '../domain/crawler-types';
+import { SafeNetworkGatewayService } from './safe-network-gateway.service';
 
 interface CachedRobotsRules {
   expiresAt: number;
@@ -29,7 +30,10 @@ interface RobotsPathRule {
 export class RobotsPolicyService {
   private readonly cache = new Map<string, CachedRobotsRules>();
 
-  constructor(private readonly safeNetworkGateway: SafeNetworkGateway) {}
+  constructor(
+    @Inject(SafeNetworkGatewayService)
+    private readonly safeNetworkGateway: SafeNetworkGateway,
+  ) {}
 
   async evaluate(
     targetUrl: string,

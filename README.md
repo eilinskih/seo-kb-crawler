@@ -176,7 +176,41 @@ cp .env.example .env
 docker compose up --build
 ```
 
-The API readiness endpoint is available at `http://localhost:3000/health`.
+The compose stack starts PostgreSQL, Redis, OpenSERP, API, Operator Console,
+Crawler Worker, Embedding Worker and Fact Extraction Worker.
+
+Default local endpoints:
+
+```txt
+API: http://localhost:3000
+API health: http://localhost:3000/health
+Operator Console: http://localhost:4010
+OpenSERP sidecar: http://localhost:17700
+OpenSERP health: http://localhost:17700/health
+PostgreSQL: localhost:15432
+Redis: localhost:16379
+```
+
+For a quick smoke check:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:${OPENSERP_PORT:-17700}/ready
+curl -H "x-operator-console-token: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}" \
+  -I http://localhost:${OPERATOR_CONSOLE_PORT:-4010}/
+```
+
+Inside Docker, the API uses `OPENSERP_BASE_URL=http://openserp:7000`. On the
+host, `.env.example` exposes PostgreSQL, Redis and OpenSERP on non-default
+ports (`15432`, `16379`, `17700`) to avoid collisions with other local services.
+If you already have a local `.env`, make sure its host ports do not collide
+with other Docker stacks before running Compose.
+
+Stop the complete stack:
+
+```bash
+docker compose down
+```
 
 Issue #2 adds the Topic Engine API:
 

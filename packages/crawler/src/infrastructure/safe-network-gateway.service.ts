@@ -1,6 +1,6 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SafeNetworkError } from '../domain/crawler-errors';
 import {
   RedirectEvidence,
@@ -19,6 +19,9 @@ export type FetchLike = (
   init: RequestInit,
 ) => Promise<Response>;
 
+export const SAFE_NETWORK_FETCH = Symbol('SAFE_NETWORK_FETCH');
+export const SAFE_NETWORK_DNS_LOOKUP = Symbol('SAFE_NETWORK_DNS_LOOKUP');
+
 const forbiddenRequestHeaders = new Set([
   'authorization',
   'cookie',
@@ -28,9 +31,11 @@ const forbiddenRequestHeaders = new Set([
 @Injectable()
 export class SafeNetworkGatewayService implements SafeNetworkGateway {
   constructor(
+    @Inject(SAFE_NETWORK_FETCH)
     private readonly fetchImplementation: FetchLike = globalThis.fetch.bind(
       globalThis,
     ),
+    @Inject(SAFE_NETWORK_DNS_LOOKUP)
     private readonly dnsLookup: DnsLookup = defaultDnsLookup,
   ) {}
 

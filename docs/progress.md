@@ -120,6 +120,11 @@ Validation:
 - Local smoke ran OpenSERP Docker sidecar on host port `7700`, confirmed
   `/health`, `/ready` and `/mega/search`, then recorded 10 real SERP result URLs
   through Topic Work Run.
+- Added complete Docker Compose orchestration for API, Operator Console,
+  crawler-worker, embedding-worker, fact-extraction-worker, PostgreSQL, Redis
+  and OpenSERP. Local compose smoke on safe host ports confirmed API health,
+  OpenSERP readiness, token-protected Operator Console access and a Topic Work
+  Run recording 10 OpenSERP-derived URL observations.
 - Local smoke confirmed Google fallback degrades without fabricating URLs when
   the current network returns anti-bot/unusual-traffic pages.
 Next step:

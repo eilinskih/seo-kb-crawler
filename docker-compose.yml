@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-seo_kb}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-seo_kb}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-15432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/docker/postgres/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
@@ -24,11 +24,31 @@ services:
   redis:
     image: redis:8-alpine
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-16379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  openserp:
+    image: karust/openserp:latest
+    command: ["serve", "-a", "0.0.0.0", "-p", "7000"]
+    ports:
+      - "${OPENSERP_PORT:-17700}:7000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:7000/ready",
+        ]
+      interval: 10s
+      timeout: 5s
       retries: 10
     restart: unless-stopped
 
@@ -41,12 +61,17 @@ services:
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
       REDIS_URL: redis://redis:6379
+      OPENSERP_BASE_URL: http://openserp:7000
+      OPENSERP_ENGINES: ${OPENSERP_ENGINES:-google,bing}
+      OPENSERP_TIMEOUT_MS: ${OPENSERP_TIMEOUT_MS:-20000}
     ports:
       - "${API_PORT:-3000}:3000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      openserp:
         condition: service_healthy
     healthcheck:
       test:
@@ -63,10 +88,76 @@ services:
       retries: 10
     restart: unless-stopped
 
+  operator-console:
+    build:
+      context: .
+      target: operator-console
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      OPERATOR_CONSOLE_PORT: 4010
+      OPERATOR_CONSOLE_API_BASE_URL: http://api:3000
+      OPERATOR_CONSOLE_ACCESS_TOKEN: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "${OPERATOR_CONSOLE_PORT:-4010}:4010"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--header",
+          "x-operator-console-token: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}",
+          "--spider",
+          "http://127.0.0.1:4010/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   crawler-worker:
     build:
       context: .
       target: crawler-worker
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  embedding-worker:
+    build:
+      context: .
+      target: embedding-worker
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  fact-extraction-worker:
+    build:
+      context: .
+      target: fact-extraction-worker
     environment:
       NODE_ENV: production
       API_PORT: 3000
