@@ -117,6 +117,9 @@ Validation:
 - npm test -- --runTestsByPath packages/serp-intelligence/src/openserp-search.provider.spec.ts packages/serp-intelligence/src/routed-serp-search.provider.spec.ts packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
 - Local smoke checked `GET /topic-work-runs/status` and forced
   `POST /topic-work-runs` for the focused SERP smoke topic.
+- Local smoke ran OpenSERP Docker sidecar on host port `7700`, confirmed
+  `/health`, `/ready` and `/mega/search`, then recorded 10 real SERP result URLs
+  through Topic Work Run.
 - Local smoke confirmed Google fallback degrades without fabricating URLs when
   the current network returns anti-bot/unusual-traffic pages.
 Next step:
