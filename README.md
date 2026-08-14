@@ -160,6 +160,7 @@ Requirements:
 - Node.js 24.16.0 LTS (use `nvm use`)
 - npm
 - Docker with Compose
+- Ollama for local embeddings
 
 Install and validate the workspace:
 
@@ -167,6 +168,13 @@ Install and validate the workspace:
 npm install
 npm test
 npm run build
+```
+
+Set up the local embedding model:
+
+```bash
+ollama pull bge-m3
+ollama list
 ```
 
 Run the complete local stack:
@@ -178,6 +186,10 @@ docker compose up --build
 
 The compose stack starts PostgreSQL, Redis, OpenSERP, API, Operator Console,
 Crawler Worker, Embedding Worker and Fact Extraction Worker.
+
+By default Docker Compose uses `EMBEDDING_PROVIDER=ollama` with `bge-m3`
+through `http://host.docker.internal:11434`. If Ollama is unavailable,
+embedding jobs remain retryable and the rest of the pipeline continues.
 
 Default local endpoints:
 

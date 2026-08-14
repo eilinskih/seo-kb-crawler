@@ -82,6 +82,10 @@ families to evaluate:
 - Multilingual E5 for broad multilingual retrieval compatibility.
 - Qwen embedding family for future local/provider-backed experiments.
 
+The current local-first runtime provider is Ollama with `bge-m3`, recorded as
+`providerKey=ollama`, `modelKey=bge-m3`, `modelVersion=local` and
+`dimensions=1024`.
+
 External providers may be added later as adapters, but the platform must not
 depend on a paid API key to continue operating.
 

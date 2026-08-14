@@ -64,6 +64,11 @@ services:
       OPENSERP_BASE_URL: http://openserp:7000
       OPENSERP_ENGINES: ${OPENSERP_ENGINES:-google,bing}
       OPENSERP_TIMEOUT_MS: ${OPENSERP_TIMEOUT_MS:-20000}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      OLLAMA_EMBEDDING_MODEL_VERSION: ${OLLAMA_EMBEDDING_MODEL_VERSION:-local}
+      OLLAMA_EMBEDDING_DIMENSIONS: ${OLLAMA_EMBEDDING_DIMENSIONS:-1024}
     ports:
       - "${API_PORT:-3000}:3000"
     depends_on:
@@ -147,6 +152,11 @@ services:
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
       REDIS_URL: redis://redis:6379
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      OLLAMA_EMBEDDING_MODEL_VERSION: ${OLLAMA_EMBEDDING_MODEL_VERSION:-local}
+      OLLAMA_EMBEDDING_DIMENSIONS: ${OLLAMA_EMBEDDING_DIMENSIONS:-1024}
     depends_on:
       postgres:
         condition: service_healthy

@@ -79,6 +79,17 @@ Roadmap order, phases and dependency rules live only in
 
 Add entries here in reverse chronological order.
 
+Date: 2026-08-14
+Issue: Current focused SERP discovery workflow PR
+Status: In progress
+Summary:
+- Added a local Ollama embedding provider backed by `bge-m3`.
+- Configured Docker Compose and `.env.example` to use
+  `EMBEDDING_PROVIDER=ollama` with `OLLAMA_EMBEDDING_DIMENSIONS=1024`.
+- Verified real Ollama embeddings locally and through the Docker workflow:
+  `chunk_embeddings` now records `ollama/bge-m3/local` rows with
+  `status=embedded`, and retrieval reports `vectorReady=true`.
+
 Date: 2026-08-13
 Issue: Current focused SERP discovery workflow PR
 Status: In progress
