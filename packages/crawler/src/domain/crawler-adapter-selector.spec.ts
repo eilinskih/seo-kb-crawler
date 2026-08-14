@@ -2,6 +2,7 @@ import { createCrawlCommand } from './crawl-command';
 import { CrawlerAdapterSelectionError } from './crawler-errors';
 import { CrawlerAdapterSelector } from './crawler-adapter-selector';
 import { CrawlerAdapter } from './crawler-types';
+import { HttpFetchAdapter } from '../infrastructure/http-fetch-adapter';
 
 const httpAdapter: CrawlerAdapter = {
   key: 'http-fetch',
@@ -58,6 +59,18 @@ describe('CrawlerAdapterSelector', () => {
     expect(() =>
       new CrawlerAdapterSelector().select(command, [httpAdapter]),
     ).toThrow(CrawlerAdapterSelectionError);
+  });
+
+  it('selects the HTTP fetch adapter for the default 10 MiB topic response limit', () => {
+    const command = createCommand({
+      maxBodyBytes: 10 * 1024 * 1024,
+    });
+
+    const selected = new CrawlerAdapterSelector().select(command, [
+      new HttpFetchAdapter(),
+    ]);
+
+    expect(selected.key).toBe('http-fetch');
   });
 });
 

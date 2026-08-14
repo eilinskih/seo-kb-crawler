@@ -19,13 +19,13 @@ interface SeoPackRow {
   page_type: SeoPack['pageType'];
   language: string | null;
   language_key: string;
-  geo: SeoPackGeoTarget;
+  geo: SeoPackGeoTarget | string;
   geo_key: string;
-  source_pack_references: SeoPack['sourcePackReferences'];
-  uncertainty: SeoPack['uncertainty'];
-  pack: SeoPack;
+  source_pack_references: SeoPack['sourcePackReferences'] | string;
+  uncertainty: SeoPack['uncertainty'] | string;
+  pack: SeoPack | string;
   degraded: boolean;
-  warnings: string[];
+  warnings: string[] | string;
   rule_version: string;
   created_at: Date | string;
 }
@@ -66,13 +66,13 @@ function toPackRow(command: SaveSeoPackCommand): SeoPackRow {
     page_type: command.pack.pageType,
     language: command.pack.language ?? null,
     language_key: languageKey(command.pack.language),
-    geo: command.pack.geo ?? {},
+    geo: serializeJson(command.pack.geo ?? {}),
     geo_key: geoKey(command.pack.geo),
-    source_pack_references: command.pack.sourcePackReferences,
-    uncertainty: command.pack.uncertainty,
-    pack: command.pack,
+    source_pack_references: serializeJson(command.pack.sourcePackReferences),
+    uncertainty: serializeJson(command.pack.uncertainty),
+    pack: serializeJson(command.pack),
     degraded: command.pack.degraded,
-    warnings: command.pack.warnings,
+    warnings: serializeJson(command.pack.warnings),
     rule_version: command.pack.ruleVersion,
     created_at: command.createdAt,
   };
@@ -80,7 +80,7 @@ function toPackRow(command: SaveSeoPackCommand): SeoPackRow {
 
 function toPackRecord(row: SeoPackRow): SeoPackRecord {
   return {
-    ...row.pack,
+    ...parseJson(row.pack),
     id: row.id,
     createdAt: toIsoString(row.created_at),
   };
@@ -100,6 +100,14 @@ function languageKey(language: string | undefined): string {
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<T>(value: T | string): T {
+  return typeof value === 'string' ? JSON.parse(value) as T : value;
 }
 
 export const __testing = {

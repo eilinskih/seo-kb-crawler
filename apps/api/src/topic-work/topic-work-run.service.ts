@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   Logger,
   OnModuleDestroy,
@@ -9,6 +10,11 @@ import { ChunkingDispatchService } from '@seo-kb/chunking';
 import { ContentProcessingDispatchService } from '@seo-kb/content-processing';
 import { EmbeddingDispatchService } from '@seo-kb/embeddings';
 import { FactExtractionDispatchService } from '@seo-kb/fact-extraction';
+import {
+  SeoPackGeneratorService,
+  SeoPackRepository,
+  SEO_PACK_REPOSITORY,
+} from '@seo-kb/seo-pack';
 import { TopicRecord, TopicService } from '@seo-kb/topic-engine';
 import { UrlFrontierDispatchService } from '@seo-kb/url-frontier';
 import {
@@ -26,7 +32,8 @@ export interface TopicWorkRunStage {
     | 'content_processing_dispatch'
     | 'chunking_dispatch'
     | 'embedding_dispatch'
-    | 'fact_extraction_dispatch';
+    | 'fact_extraction_dispatch'
+    | 'seo_pack_generation';
   status: TopicWorkRunStageStatus;
   message: string;
   result?: unknown;
@@ -86,6 +93,9 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     private readonly chunkingDispatch: ChunkingDispatchService,
     private readonly embeddingDispatch: EmbeddingDispatchService,
     private readonly factExtractionDispatch: FactExtractionDispatchService,
+    private readonly seoPackGenerator: SeoPackGeneratorService,
+    @Inject(SEO_PACK_REPOSITORY)
+    private readonly seoPacks: SeoPackRepository,
   ) {
     this.intervalMs = positiveInteger(
       this.config.get<string>('TOPIC_WORK_RUN_INTERVAL_MS'),
@@ -296,6 +306,14 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       })),
     warnings));
 
+    stages.push(await this.runStage('seo_pack_generation', () =>
+      this.generateSeedSeoPack(topic).then((result) => ({
+        status: result.generated ? 'completed' as const : 'skipped' as const,
+        message: result.message,
+        result,
+      })),
+    warnings));
+
     const failed = stages.some((stage) => stage.status === 'failed');
     const result: TopicWorkRunResult = {
       runId,
@@ -337,6 +355,99 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     return lastAttemptAt === undefined ||
       Date.now() - lastAttemptAt >= this.serpRefreshIntervalMs;
   }
+
+  private async generateSeedSeoPack(topic: TopicRecord): Promise<{
+    generated: boolean;
+    candidateKey?: string;
+    seoPackId?: string;
+    message: string;
+  }> {
+    const seedQuery = topic.discovery.search.queries[0];
+    if (!seedQuery) {
+      return {
+        generated: false,
+        message: 'Topic has no search seed query for SEO Pack generation.',
+      };
+    }
+    const candidateKey = `candidate:${slugify(seedQuery.text)}`;
+    const existing = await this.seoPacks.findLatestSeoPack(
+      topic.id,
+      candidateKey,
+    );
+    if (existing) {
+      return {
+        generated: false,
+        candidateKey,
+        seoPackId: existing.id,
+        message: 'Seed SEO Pack already exists.',
+      };
+    }
+    const primaryGeo = seedQuery.geo ?? topic.languageGeo.geoTargets[0];
+    const pack = this.seoPackGenerator.generate({
+      topicId: topic.id,
+      candidateKey,
+      language: seedQuery.language ?? topic.languageGeo.languages[0]?.tag,
+      geo: primaryGeo ? {
+        country: primaryGeo.countryCode,
+        region: primaryGeo.regionCode,
+      } : undefined,
+      profile: 'local_page',
+      demandPack: {
+        primaryKeyword: seedQuery.text,
+        candidateLabel: titleCase(seedQuery.text),
+        demandSummary: 'Seed keyword from the topic configuration. Paid demand metrics may be unavailable in fallback mode.',
+        nullableMetricsWarning: 'Paid keyword metrics are unavailable in the current free-provider workflow.',
+        degraded: true,
+      },
+      serpPack: {
+        summary: 'SERP and competitor evidence is collected by focused discovery, URL Frontier, crawling and retrieval stages.',
+        contentDepthExpectation: 'Cover the primary local intent, service details, pricing signals, safety, trust and booking path.',
+        warnings: [
+          'Baseline SEO Pack generated automatically from topic seed data; enrich with Demand, SERP Intent and Knowledge packs when available.',
+        ],
+        degraded: true,
+      },
+      serpIntentPack: {
+        intents: [
+          {
+            intentId: 'intent:local-commercial',
+            label: `Find and compare ${seedQuery.text}`,
+            priority: 'mandatory',
+            confidence: 'medium',
+          },
+        ],
+      },
+      candidateScoringPack: {
+        scoredCandidates: [{
+          candidateKey,
+          label: titleCase(seedQuery.text),
+          recommendedPageType: 'local_page',
+          confidence: 'medium',
+          rationale: [
+            'Generated from the first configured topic search query.',
+            'Use as the initial page brief while richer demand and knowledge packs are unavailable.',
+          ],
+          degraded: true,
+        }],
+        degraded: true,
+      },
+      warnings: [
+        'Automatically generated baseline SEO Pack; verify against richer provider data before production content decisions.',
+      ],
+      degraded: true,
+    });
+    const saved = await this.seoPacks.saveSeoPack({
+      pack,
+      createdAt: new Date().toISOString(),
+    });
+
+    return {
+      generated: true,
+      candidateKey,
+      seoPackId: saved.id,
+      message: 'Generated baseline SEO Pack for the topic seed query.',
+    };
+  }
 }
 
 function isWorkEligibleTopic(topic: TopicRecord): boolean {
@@ -359,4 +470,24 @@ function positiveInteger(value: string | undefined, fallback: number): number {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function slugify(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/ł/gu, 'l')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-+|-+$/gu, '') || 'seed';
+}
+
+function titleCase(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/gu, ' ')
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }

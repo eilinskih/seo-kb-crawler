@@ -138,6 +138,31 @@ describe('CrawlResultNormalizer', () => {
     ).toThrow(CrawlerValidationError);
   });
 
+  it('truncates oversized content artifacts and link text instead of rejecting the crawl', () => {
+    const result = new CrawlResultNormalizer().normalize(
+      command,
+      { key: 'http-fetch', version: '1.0.0' },
+      {
+        status: 'succeeded',
+        rawHtml: `<html>${'x'.repeat(600_000)}</html>`,
+        outgoingLinks: [
+          {
+            href: '/a',
+            resolvedUrl: 'https://example.com/a',
+            anchorText: 'x'.repeat(2_000),
+          },
+        ],
+        timing: { totalMs: 42 },
+      },
+    );
+
+    expect(result.status).toBe('succeeded');
+    expect(result.rawHtml).toHaveLength(500_000);
+    expect(result.outgoingLinks).toHaveLength(1);
+    expect(result.outgoingLinks?.[0]?.anchorText).toHaveLength(1_000);
+    expect(result.contentHash).toHaveLength(64);
+  });
+
   it('rejects unsafe normalized result URLs', () => {
     expect(() =>
       new CrawlResultNormalizer().normalize(

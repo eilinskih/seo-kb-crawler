@@ -21,6 +21,7 @@ describe('TopicWorkRunService', () => {
       'chunking_dispatch',
       'embedding_dispatch',
       'fact_extraction_dispatch',
+      'seo_pack_generation',
     ]);
   });
 
@@ -158,12 +159,42 @@ function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunServi
         enqueuedJobCount: 1,
       })),
     } as never,
+    (overrides.seoPackGenerator ?? {
+      generate: jest.fn(() => ({
+        topicId: 'topic-1',
+        candidateKey: 'candidate:test-topic',
+        packKey: 'topic-1:candidate:test-topic:local_page',
+        pageType: 'local_page',
+        warnings: [],
+        degraded: true,
+      })),
+    }) as never,
+    (overrides.seoPacks ?? {
+      findLatestSeoPack: jest.fn(async () => null),
+      saveSeoPack: jest.fn(async () => ({
+        id: 'seo-pack-1',
+      })),
+    }) as never,
   );
 }
 
 function topic(status: string, id = 'topic-1') {
   return {
     id,
+    name: 'Test Topic',
     status,
+    discovery: {
+      search: {
+        queries: [{
+          text: 'test topic',
+          language: 'en',
+          geo: { countryCode: 'PL' },
+        }],
+      },
+    },
+    languageGeo: {
+      languages: [{ tag: 'en' }],
+      geoTargets: [{ countryCode: 'PL' }],
+    },
   };
 }

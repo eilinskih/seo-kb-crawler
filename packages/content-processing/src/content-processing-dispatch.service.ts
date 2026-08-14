@@ -54,6 +54,10 @@ export class ContentProcessingDispatchService {
         extractorVersion,
         now: new Date(),
       });
+      await removeTerminalQueueJob(
+        this.contentProcessingQueue,
+        attempt.attemptId,
+      );
       await this.contentProcessingQueue.add(
         CONTENT_PROCESSING_QUEUE_NAME,
         payload,
@@ -72,6 +76,20 @@ export class ContentProcessingDispatchService {
       jobIds,
       exhausted: jobIds.length < options.maxDispatches,
     };
+  }
+}
+
+async function removeTerminalQueueJob(
+  queue: Queue,
+  jobId: string,
+): Promise<void> {
+  const existingJob = await queue.getJob(jobId);
+  if (!existingJob) {
+    return;
+  }
+  const state = await existingJob.getState();
+  if (state === 'completed' || state === 'failed') {
+    await existingJob.remove();
   }
 }
 

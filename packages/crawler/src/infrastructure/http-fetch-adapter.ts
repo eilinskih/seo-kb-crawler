@@ -11,7 +11,7 @@ import {
   TopicCrawlPolicySnapshot,
 } from '../domain/crawler-types';
 
-const maxSupportedBodyBytes = 5_000_000;
+const maxSupportedBodyBytes = 50 * 1024 * 1024;
 const maxSupportedExecutionMs = 60_000;
 
 @Injectable()

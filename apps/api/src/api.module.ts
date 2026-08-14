@@ -14,6 +14,7 @@ import { EmbeddingModule } from '@seo-kb/embeddings';
 import { EntitiesModule } from '@seo-kb/entities';
 import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichment';
 import { RetrievalModule } from '@seo-kb/retrieval';
+import { SeoPackModule } from '@seo-kb/seo-pack';
 import {
   DuckDuckGoHtmlSerpSearchProvider,
   OpenSerpSearchProvider,
@@ -30,6 +31,7 @@ import { ExternalEntityReviewController } from './external-entities/external-ent
 import { HealthController } from './health/health.controller';
 import { InfrastructureHealthService } from './health/infrastructure-health.service';
 import { OperatorStatusController } from './operator/operator-status.controller';
+import { SeoPackController } from './seo-pack/seo-pack.controller';
 import { FocusedSerpDiscoveryController } from './serp-intelligence/focused-serp-discovery.controller';
 import { FocusedSerpDiscoveryApiService } from './serp-intelligence/focused-serp-discovery.service';
 import { TopicWorkRunController } from './topic-work/topic-work-run.controller';
@@ -60,6 +62,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     EmbeddingModule,
     FactExtractionModule,
     RetrievalModule,
+    SeoPackModule,
     SerpIntelligenceModule,
     ContextPackModule,
     EntitiesModule,
@@ -73,6 +76,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     HealthController,
     FocusedSerpDiscoveryController,
     OperatorStatusController,
+    SeoPackController,
     TopicWorkRunController,
     TopicsController,
     UrlFrontierDispatchController,
