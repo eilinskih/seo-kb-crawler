@@ -1,21 +1,9 @@
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { Injectable } from '@nestjs/common';
-import { chromium } from 'playwright-core';
 import {
   SerpSearchProvider,
   SerpSearchProviderRequest,
   SerpSearchProviderResult,
 } from './serp-search.provider';
-
-const googleHeadlessTimeoutMs = 15_000;
-const googleHeadlessChromeCandidates = [
-  process.env.GOOGLE_SERP_CHROME_PATH,
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/Applications/Chromium.app/Contents/MacOS/Chromium',
-  '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-].filter((candidate): candidate is string => Boolean(candidate));
 
 @Injectable()
 export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
@@ -50,10 +38,6 @@ export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
         const html = await response.text();
         if (source.challengePattern.test(html)) {
           warnings.push(`${source.label} returned an anti-bot challenge`);
-          const recovered = await tryHeadlessSource(source, request, warnings);
-          if (recovered) {
-            return recovered;
-          }
           continue;
         }
 
@@ -67,10 +51,6 @@ export class DuckDuckGoHtmlSerpSearchProvider implements SerpSearchProvider {
 
         if (results.length === 0) {
           warnings.push(`${source.label} returned no relevant organic result URLs`);
-          const recovered = await tryHeadlessSource(source, request, warnings);
-          if (recovered) {
-            return recovered;
-          }
           continue;
         }
 
@@ -212,7 +192,6 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
   url: string;
   challengePattern: RegExp;
   parse: (html: string) => ReturnType<typeof parseDuckDuckGoHtmlResults>;
-  headless?: boolean;
 }> {
   return [
     {
@@ -220,7 +199,6 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
       url: googleSearchUrl(request),
       challengePattern: /\/sorry\/index|Our systems have detected unusual traffic|nietypowy ruch|recaptcha|g-recaptcha|\/httpservice\/retry\/enablejs|emsg=SG_REL/iu,
       parse: parseGoogleHtmlResults,
-      headless: true,
     },
     {
       label: 'Bing HTML fallback',
@@ -235,126 +213,6 @@ function searchSources(request: SerpSearchProviderRequest): Array<{
       parse: parseDuckDuckGoHtmlResults,
     },
   ];
-}
-
-async function tryHeadlessSource(
-  source: ReturnType<typeof searchSources>[number],
-  request: SerpSearchProviderRequest,
-  warnings: string[],
-): Promise<SerpSearchProviderResult | null> {
-  if (!source.headless) {
-    return null;
-  }
-
-  const headless = await googleHeadlessSearch(source.url);
-  warnings.push(...headless.warnings);
-  if (headless.html && source.challengePattern.test(headless.html)) {
-    warnings.push(`${source.label} headless fallback returned an anti-bot challenge`);
-    return null;
-  }
-  const results = headless.html
-    ? source.parse(headless.html)
-      .filter((result) => isRelevantResult(result, request.query))
-      .slice(0, Math.max(1, Math.min(request.limit, 10)))
-      .map((result, index) => ({
-        ...result,
-        position: index + 1,
-      }))
-    : [];
-
-  if (results.length === 0) {
-    warnings.push(`${source.label} headless fallback returned no relevant organic result URLs`);
-    return null;
-  }
-
-  return {
-    providerKey: 'free_html_serp_fallback',
-    providerMode: 'fallback',
-    degraded: warnings.length > 0,
-    warnings,
-    results,
-  };
-}
-
-interface GoogleHeadlessResult {
-  html: string | null;
-  warnings: string[];
-}
-
-let googleHeadlessSearch = defaultGoogleHeadlessSearch;
-
-async function defaultGoogleHeadlessSearch(url: string): Promise<GoogleHeadlessResult> {
-  const chromePath = googleHeadlessChromeCandidates[0];
-  if (!chromePath) {
-    return {
-      html: null,
-      warnings: ['Google HTML fallback Playwright mode has no Chrome executable configured.'],
-    };
-  }
-
-  const profileDir = await mkdtemp(join(tmpdir(), 'seo-kb-google-serp-'));
-  let context: Awaited<ReturnType<typeof chromium.launchPersistentContext>> | null = null;
-  try {
-    context = await chromium.launchPersistentContext(profileDir, {
-      executablePath: chromePath,
-      headless: true,
-      timeout: googleHeadlessTimeoutMs,
-      viewport: { width: 1365, height: 1800 },
-      locale: googleLocaleFromUrl(url),
-      args: [
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--disable-background-networking',
-        '--disable-component-update',
-        '--disable-sync',
-        '--disable-extensions',
-        '--disable-dev-shm-usage',
-        '--disable-features=OptimizationHints,MediaRouter',
-      ],
-    });
-    const page = context.pages()[0] ?? await context.newPage();
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: googleHeadlessTimeoutMs,
-    });
-    await page.waitForTimeout(2_000);
-    const html = await page.content();
-
-    if (!html.trim()) {
-      return {
-        html: null,
-        warnings: ['Google HTML fallback Playwright mode returned empty DOM.'],
-      };
-    }
-
-    return {
-      html,
-      warnings: ['Google HTML fallback used bounded local Playwright Chrome.'],
-    };
-  } catch (error) {
-    return {
-      html: null,
-      warnings: [`Google HTML fallback Playwright mode failed: ${errorMessage(error)}`],
-    };
-  } finally {
-    await context?.close().catch(() => undefined);
-    await rm(profileDir, { recursive: true, force: true });
-  }
-}
-
-function googleLocaleFromUrl(value: string): string | undefined {
-  try {
-    const url = new URL(value);
-    const language = url.searchParams.get('hl');
-    const country = url.searchParams.get('gl')?.toUpperCase();
-    if (language && country) {
-      return `${language}-${country}`;
-    }
-    return language ?? undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 function googleSearchUrl(request: SerpSearchProviderRequest): string {
@@ -503,14 +361,3 @@ function decodeHtml(value: string): string {
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
-
-export const __duckDuckGoHtmlSerpSearchProviderTesting = {
-  setGoogleHeadlessSearch(
-    implementation: typeof googleHeadlessSearch,
-  ): void {
-    googleHeadlessSearch = implementation;
-  },
-  resetGoogleHeadlessSearch(): void {
-    googleHeadlessSearch = defaultGoogleHeadlessSearch;
-  },
-};

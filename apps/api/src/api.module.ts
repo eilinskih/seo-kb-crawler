@@ -16,6 +16,8 @@ import { ExternalEntityEnrichmentModule } from '@seo-kb/external-entity-enrichme
 import { RetrievalModule } from '@seo-kb/retrieval';
 import {
   DuckDuckGoHtmlSerpSearchProvider,
+  OpenSerpSearchProvider,
+  RoutedSerpSearchProvider,
   SerpIntelligenceModule,
 } from '@seo-kb/serp-intelligence';
 import { FactExtractionModule } from '@seo-kb/fact-extraction';
@@ -78,6 +80,8 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
   ],
   providers: [
     DuckDuckGoHtmlSerpSearchProvider,
+    OpenSerpSearchProvider,
+    RoutedSerpSearchProvider,
     InfrastructureHealthService,
     FocusedSerpDiscoveryApiService,
     TopicWorkRunService,

@@ -1,6 +1,5 @@
 import {
   DuckDuckGoHtmlSerpSearchProvider,
-  __duckDuckGoHtmlSerpSearchProviderTesting,
   parseBingHtmlResults,
   parseDuckDuckGoHtmlResults,
   parseGoogleHtmlResults,
@@ -11,7 +10,6 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
-    __duckDuckGoHtmlSerpSearchProviderTesting.resetGoogleHeadlessSearch();
   });
 
   it('tries Google before secondary fallback sources', async () => {
@@ -43,20 +41,18 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
     ]);
   });
 
-  it('uses bounded Google headless fallback when static Google HTML is blocked', async () => {
-    const fetchMock = jest.fn(async (_url: string) => ({
+  it('tries Bing when Google HTML is blocked', async () => {
+    const fetchMock = jest.fn(async (url: string) => ({
       ok: true,
-      text: async () => '<a href="/httpservice/retry/enablejs">enable js</a>',
+      text: async () => String(url).includes('google.com/search')
+        ? '<a href="/httpservice/retry/enablejs">enable js</a>'
+        : `
+          <li class="b_algo">
+            <h2><a href="https://clinic.example/depilacja">Depilacja laserowa Jasło</a></h2>
+          </li>
+        `,
     }));
     global.fetch = fetchMock as never;
-    __duckDuckGoHtmlSerpSearchProviderTesting.setGoogleHeadlessSearch(
-      async () => ({
-        html: `
-          <a href="/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja">Depilacja laserowa Jasło</a>
-        `,
-        warnings: ['Google HTML fallback used bounded local Playwright Chrome.'],
-      }),
-    );
 
     const provider = new DuckDuckGoHtmlSerpSearchProvider();
     const result = await provider.search({
@@ -66,13 +62,10 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
       limit: 10,
     });
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(result.degraded).toBe(true);
     expect(result.warnings).toContain(
       'Google HTML fallback returned an anti-bot challenge',
-    );
-    expect(result.warnings).toContain(
-      'Google HTML fallback used bounded local Playwright Chrome.',
     );
     expect(result.results).toEqual([
       {

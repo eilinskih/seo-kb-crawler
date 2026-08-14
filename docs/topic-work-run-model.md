@@ -80,8 +80,14 @@ pipeline from the newest durable state.
 
 SERP discovery must not require paid credentials.
 
-The initial fallback provider attempts free HTML SERP sources and records
-degraded status when they are blocked, irrelevant or empty. It must never
+The automatic provider route should prefer OpenSERP self-host when
+`OPENSERP_BASE_URL` is configured. OpenSERP supplies normalized JSON for Google,
+Bing and multi-engine fallback modes while keeping infrastructure local to the
+operator.
+
+If OpenSERP is unavailable, blocked or returns no organic result URLs, the
+router may fall back to free HTML SERP sources. All fallback providers record
+degraded status when they are blocked, irrelevant or empty. They must never
 fabricate result URLs.
 
 Paid SERP providers can later replace or precede the fallback provider through
@@ -150,13 +156,14 @@ TOPIC_WORK_RUN_SERP_REFRESH_INTERVAL_MS=86400000
   running.
 - SEO Intelligence pack refresh and SEO Agent Gateway generation are not yet
   invoked by Topic Work Run.
-- Free SERP fallback quality is intentionally best-effort and may degrade when
-  sources block automation.
+- OpenSERP and free SERP fallback quality are intentionally best-effort and may
+  degrade when upstream search engines block automation.
 
 ## Next Hardening
 
 - Persist Topic Work Runs and stage transitions.
 - Make pack refresh part of the automated run.
-- Add provider-priority selection for paid, owned-data and free SERP providers.
+- Add durable provider-priority selection for paid, owned-data, OpenSERP and
+  free SERP providers.
 - Add topic-scoped dispatch limits for URL Frontier and downstream queues.
 - Expose Topic Work Run readiness directly to SEO Agent Gateway.

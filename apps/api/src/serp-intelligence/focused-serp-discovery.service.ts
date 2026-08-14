@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
-  DuckDuckGoHtmlSerpSearchProvider,
   FocusedSerpDiscoveryService,
   FocusedSerpResultInput,
+  RoutedSerpSearchProvider,
   SerpGeoTarget,
   SerpSnapshot,
 } from '@seo-kb/serp-intelligence';
@@ -58,7 +58,7 @@ export class FocusedSerpDiscoveryApiService {
     private readonly serpDiscovery: FocusedSerpDiscoveryService,
     private readonly frontierRepository: KnexUrlFrontierRepository,
     private readonly frontierReevaluation: UrlFrontierReevaluationService,
-    private readonly serpSearchProvider: DuckDuckGoHtmlSerpSearchProvider,
+    private readonly serpSearchProvider: RoutedSerpSearchProvider,
   ) {}
 
   async run(
