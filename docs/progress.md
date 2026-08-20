@@ -96,6 +96,10 @@ Summary:
   candidate pages.
 - Exposed `seo_kb_get_page_plan` through MCP and included `pagePlan` in Demand
   API output for website agents.
+- Stabilized Topic Universe fallback after a `crown coins casino` smoke showed
+  that generic dimension synthesis produced invalid service/medical long-tails.
+- Changed fallback discovery to stay narrow and stop labeling synthetic
+  questions as People Also Ask or related-search evidence.
 Validation:
 - npm test -- --runTestsByPath packages/demand-engine/src/page-candidate-planning.spec.ts packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts apps/mcp-server/src/mcp-server.spec.ts
 - npm run build:api
@@ -110,14 +114,12 @@ Date: 2026-08-15
 Issue: #186 coverage follow-up
 Status: Review needed
 Summary:
-- Expanded Topic Universe generation from a narrow smoke-pass into broad
-  coverage from a single topic seed.
-- Added generic language-aware dimension families for price, commercial,
-  local, informational, preparation, aftercare, safety, comparison, audience,
-  proof and FAQ expansion.
-- Added multi-dimension candidate clustering so combinations become distinct
-  page opportunities instead of collapsing into one generic price or question
-  page.
+- Expanded Topic Universe generation beyond the original smoke-pass, then
+  narrowed fallback generation again after real-topic validation showed that
+  broad synthetic combinations create low-quality candidates without SERP
+  evidence.
+- SERP-observed evidence remains the required source for broad long-tail and
+  People Also Ask / related-search expansion.
 - Increased automated Demand discovery to generate up to 300 current
   candidates while keeping SERP validation bounded to 25 queries per run.
 - Changed Topic Universe SERP Validation to use current candidate pages rather

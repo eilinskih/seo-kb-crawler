@@ -47,7 +47,7 @@ describe('DemandEngineService', () => {
     });
   });
 
-  it('expands a single topic seed into generic query clusters and candidate pages', async () => {
+  it('keeps fallback topic universe expansion narrow until SERP evidence exists', async () => {
     const service = new DemandEngineService();
 
     const result = await service.discover({
@@ -58,16 +58,20 @@ describe('DemandEngineService', () => {
       limit: 300,
     });
 
-    expect(result.keywordCandidates.length).toBeGreaterThan(80);
-    expect(result.candidatePages.length).toBeGreaterThan(40);
+    expect(result.keywordCandidates.length).toBeLessThan(25);
+    expect(result.candidatePages.length).toBeLessThan(25);
     expect(result.keywordCandidates.map((candidate) =>
       candidate.normalizedKeyword,
     )).toEqual(expect.arrayContaining([
       'depilacja laserowa cena',
-      'czy depilacja laserowa boli',
-      'jak przygotować się do depilacja laserowa',
       'depilacja laserowa jasło',
-      'depilacja laserowa cena salon',
+      'depilacja laserowa laser hair removal',
+      'hair removal depilacja laserowa',
+    ]));
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).not.toEqual(expect.arrayContaining([
+      'jak przygotować się do depilacja laserowa',
       'depilacja laserowa przeciwwskazania dla mężczyzn',
     ]));
     expect(result.candidatePages).toEqual(expect.arrayContaining([
@@ -75,14 +79,6 @@ describe('DemandEngineService', () => {
         clusterKey: 'commercial_price',
         primaryIntent: 'price',
         readiness: expect.stringMatching(/partial|not_ready/),
-      }),
-      expect.objectContaining({
-        clusterKey: 'process_preparation',
-        primaryIntent: 'informational_how_to',
-      }),
-      expect.objectContaining({
-        clusterKey: expect.stringContaining('price-commercial'),
-        primaryKeyword: 'depilacja laserowa cena salon',
       }),
     ]));
   });

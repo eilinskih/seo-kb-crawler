@@ -78,10 +78,13 @@ Topic Work Run
 Downstream workers may complete asynchronously. Later ticks continue the
 pipeline from the newest durable state.
 
-Demand Discovery expands the first topic seed into a broad topic universe using
-provider-optional demand sources. In fallback mode this includes generic query
-patterns, generic dimension families, entity vocabulary and other free signals
-without requiring Ahrefs, Semrush, SE Ranking or Google Ads credentials.
+Demand Discovery expands the first topic seed using provider-optional demand
+sources. In fallback mode this is intentionally narrow: seed/bootstrap variants
+and explicit manual/entity vocabulary may start the workflow, but broad
+long-tail expansion must come from observed SERP/provider evidence such as
+autocomplete, People Also Ask, related searches, SERP snippets, competitor
+headings, FAQ blocks or provider-backed keyword data. The workflow must not
+pretend that synthetic combinations are real SERP demand.
 
 Topic Universe SERP Validation probes generated demand queries through SERP
 Intelligence, submits discovered result URLs to URL Frontier and marks matched

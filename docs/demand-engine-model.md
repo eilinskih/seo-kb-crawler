@@ -389,11 +389,13 @@ The initial implementation:
   metric snapshot contracts;
 - defines provider adapter contracts across provider tiers;
 - includes a manual/free fallback provider;
-- includes a generic Topic Universe fallback provider that expands one topic
-  seed into a broad demand universe without niche-specific hardcoding;
-- uses generic dimension families such as price, commercial, local,
-  informational, preparation, aftercare, safety, comparison, audience, proof
-  and FAQ to generate both simple and multi-dimension page opportunities;
+- includes a narrow Topic Universe fallback provider for seed/bootstrap
+  variants only;
+- does not synthesize People Also Ask, related-search or multi-dimension
+  long-tail candidates without upstream evidence;
+- treats autocomplete, People Also Ask, related searches, competitor headings
+  and FAQ blocks as evidence types only when they are actually observed from a
+  provider, SERP result or crawled source;
 - keeps missing paid provider data non-blocking;
 - marks unknown volume, difficulty, CPC and traffic potential as `null`;
 - promotes fallback candidate pages only when enough fallback evidence exists;
