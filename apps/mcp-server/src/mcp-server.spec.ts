@@ -21,6 +21,7 @@ describe('SeoKbMcpServer', () => {
         tools: expect.arrayContaining([
           expect.objectContaining({ name: 'seo_kb_create_topic' }),
           expect.objectContaining({ name: 'seo_kb_get_page_candidates' }),
+          expect.objectContaining({ name: 'seo_kb_get_seo_packs' }),
         ]),
       }),
     }));
@@ -90,6 +91,34 @@ describe('SeoKbMcpServer', () => {
     expect(JSON.parse(result.content[0].text)).toMatchObject({
       candidatePages: [{ slug: '/ready/' }],
     });
+  });
+
+  it('fetches generated SEO Packs for a topic', async () => {
+    const api = apiClient({
+      get: jest.fn(async () => [{
+        id: 'seo-pack-1',
+        candidateKey: 'candidate-1',
+      }]),
+    });
+    const server = new SeoKbMcpServer(api as never);
+
+    const response = await server.handle({
+      jsonrpc: '2.0',
+      id: 3,
+      method: 'tools/call',
+      params: {
+        name: 'seo_kb_get_seo_packs',
+        arguments: {
+          topicId: 'topic-1',
+        },
+      },
+    });
+
+    expect(api.get).toHaveBeenCalledWith('/seo-pack/topics/topic-1');
+    const result = response?.result as { content: Array<{ text: string }> };
+    expect(JSON.parse(result.content[0].text)).toEqual([
+      expect.objectContaining({ id: 'seo-pack-1' }),
+    ]);
   });
 });
 

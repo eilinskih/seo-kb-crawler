@@ -16,4 +16,5 @@ export interface SeoPackRepository {
     topicId: string,
     candidateKey: string,
   ): Promise<SeoPackRecord | null>;
+  listSeoPacks(topicId: string): Promise<SeoPackRecord[]>;
 }

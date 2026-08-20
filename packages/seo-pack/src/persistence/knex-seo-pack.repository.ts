@@ -55,6 +55,15 @@ export class KnexSeoPackRepository implements SeoPackRepository {
 
     return row ? toPackRecord(row) : null;
   }
+
+  async listSeoPacks(topicId: string): Promise<SeoPackRecord[]> {
+    const rows = await this.db.knex<SeoPackRow>('seo_packs')
+      .where({ topic_id: topicId })
+      .orderBy('created_at', 'desc')
+      .orderBy('candidate_key', 'asc');
+
+    return rows.map(toPackRecord);
+  }
 }
 
 function toPackRow(command: SaveSeoPackCommand): SeoPackRow {

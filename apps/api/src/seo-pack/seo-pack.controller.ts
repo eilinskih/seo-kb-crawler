@@ -2,7 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Inject,
+  Param,
+  ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
 import {
@@ -30,6 +33,13 @@ export class SeoPackController {
       pack,
       createdAt: new Date().toISOString(),
     });
+  }
+
+  @Get('topics/:topicId')
+  listForTopic(
+    @Param('topicId', new ParseUUIDPipe({ version: '4' })) topicId: string,
+  ): Promise<SeoPackRecord[]> {
+    return this.repository.listSeoPacks(topicId);
   }
 }
 

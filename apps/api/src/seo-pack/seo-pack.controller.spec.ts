@@ -57,4 +57,32 @@ describe('SeoPackController', () => {
       controller.build({ topicId: '', candidateKey: 'candidate-1' }),
     ).rejects.toThrow(BadRequestException);
   });
+
+  it('lists generated SEO Packs for a topic', async () => {
+    const repository = {
+      saveSeoPack: jest.fn(),
+      listSeoPacks: jest.fn(async () => [{
+        id: 'seo-pack-1',
+        topicId: '11111111-1111-4111-8111-111111111111',
+        candidateKey: 'candidate-1',
+        packKey: 'pack-1',
+        pageType: 'local_page',
+        createdAt: '2026-08-20T00:00:00.000Z',
+      }]),
+    } as unknown as SeoPackRepository;
+    const controller = new SeoPackController(
+      { generate: jest.fn() } as unknown as SeoPackGeneratorService,
+      repository,
+    );
+
+    await expect(
+      controller.listForTopic('11111111-1111-4111-8111-111111111111'),
+    ).resolves.toEqual([expect.objectContaining({
+      id: 'seo-pack-1',
+      candidateKey: 'candidate-1',
+    })]);
+    expect(repository.listSeoPacks).toHaveBeenCalledWith(
+      '11111111-1111-4111-8111-111111111111',
+    );
+  });
 });

@@ -58,6 +58,8 @@ export class SeoKbMcpServer {
           await this.api.get(`/demand/topics/${requiredString(args.topicId, 'topicId')}`),
           optionalString(args.readiness) ?? 'ready',
         ),
+      seo_kb_get_seo_packs: async (args) =>
+        this.api.get(`/seo-pack/topics/${requiredString(args.topicId, 'topicId')}`),
       seo_kb_build_context_pack: async (args) =>
         this.api.post('/context-pack', requiredObject(args.request, 'request')),
       seo_kb_build_seo_pack: async (args) =>
@@ -206,6 +208,13 @@ function toolDefinitions(): ToolDefinition[] {
       inputSchema: objectSchema({
         topicId: stringSchema('Topic UUID.'),
         readiness: stringSchema('ready, partial, not_ready or all. Defaults to ready.'),
+      }, ['topicId']),
+    },
+    {
+      name: 'seo_kb_get_seo_packs',
+      description: 'Fetch generated SEO Packs and page briefs for a topic.',
+      inputSchema: objectSchema({
+        topicId: stringSchema('Topic UUID.'),
       }, ['topicId']),
     },
     {

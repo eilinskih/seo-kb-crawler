@@ -54,6 +54,7 @@ Initial tools:
 - `seo_kb_get_topic_work_status`
 - `seo_kb_get_demand_map`
 - `seo_kb_get_page_candidates`
+- `seo_kb_get_seo_packs`
 - `seo_kb_build_context_pack`
 - `seo_kb_build_seo_pack`
 
@@ -64,6 +65,7 @@ seo_kb_create_topic
   -> seo_kb_start_topic_work_run
   -> seo_kb_get_topic_work_status
   -> seo_kb_get_page_candidates
+  -> seo_kb_get_seo_packs
   -> seo_kb_build_context_pack / seo_kb_build_seo_pack
 ```
 
