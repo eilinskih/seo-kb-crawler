@@ -98,8 +98,10 @@ Summary:
   API output for website agents.
 - Stabilized Topic Universe fallback after a `crown coins casino` smoke showed
   that generic dimension synthesis produced invalid service/medical long-tails.
-- Changed fallback discovery to stay narrow and stop labeling synthetic
-  questions as People Also Ask or related-search evidence.
+- Removed generic fallback modifiers entirely; fallback discovery now uses only
+  explicit seed, geo-seed and manual/entity vocabulary inputs.
+- Stopped labeling synthetic questions as People Also Ask or related-search
+  evidence.
 Validation:
 - npm test -- --runTestsByPath packages/demand-engine/src/page-candidate-planning.spec.ts packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts apps/mcp-server/src/mcp-server.spec.ts
 - npm run build:api

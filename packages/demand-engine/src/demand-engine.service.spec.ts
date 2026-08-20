@@ -47,7 +47,7 @@ describe('DemandEngineService', () => {
     });
   });
 
-  it('keeps fallback topic universe expansion narrow until SERP evidence exists', async () => {
+  it('keeps fallback topic universe expansion limited to explicit inputs until SERP evidence exists', async () => {
     const service = new DemandEngineService();
 
     const result = await service.discover({
@@ -63,7 +63,6 @@ describe('DemandEngineService', () => {
     expect(result.keywordCandidates.map((candidate) =>
       candidate.normalizedKeyword,
     )).toEqual(expect.arrayContaining([
-      'depilacja laserowa cena',
       'depilacja laserowa jasło',
       'depilacja laserowa laser hair removal',
       'hair removal depilacja laserowa',
@@ -71,13 +70,14 @@ describe('DemandEngineService', () => {
     expect(result.keywordCandidates.map((candidate) =>
       candidate.normalizedKeyword,
     )).not.toEqual(expect.arrayContaining([
+      'depilacja laserowa cena',
       'jak przygotować się do depilacja laserowa',
       'depilacja laserowa przeciwwskazania dla mężczyzn',
     ]));
     expect(result.candidatePages).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        clusterKey: 'commercial_price',
-        primaryIntent: 'price',
+        clusterKey: 'topic:depilacja-laserowa',
+        primaryIntent: 'commercial_service',
         readiness: expect.stringMatching(/partial|not_ready/),
       }),
     ]));

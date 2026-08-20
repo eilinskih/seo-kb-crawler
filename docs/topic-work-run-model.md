@@ -79,8 +79,8 @@ Downstream workers may complete asynchronously. Later ticks continue the
 pipeline from the newest durable state.
 
 Demand Discovery expands the first topic seed using provider-optional demand
-sources. In fallback mode this is intentionally narrow: seed/bootstrap variants
-and explicit manual/entity vocabulary may start the workflow, but broad
+sources. In fallback mode this is intentionally narrow: only the explicit seed,
+geo-seed and manual/entity vocabulary inputs may start the workflow. Broad
 long-tail expansion must come from observed SERP/provider evidence such as
 autocomplete, People Also Ask, related searches, SERP snippets, competitor
 headings, FAQ blocks or provider-backed keyword data. The workflow must not

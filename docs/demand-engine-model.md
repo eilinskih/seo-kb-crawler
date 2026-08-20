@@ -389,8 +389,8 @@ The initial implementation:
   metric snapshot contracts;
 - defines provider adapter contracts across provider tiers;
 - includes a manual/free fallback provider;
-- includes a narrow Topic Universe fallback provider for seed/bootstrap
-  variants only;
+- includes a narrow Topic Universe fallback provider for explicit seed,
+  geo-seed and manual/entity vocabulary inputs only;
 - does not synthesize People Also Ask, related-search or multi-dimension
   long-tail candidates without upstream evidence;
 - treats autocomplete, People Also Ask, related searches, competitor headings

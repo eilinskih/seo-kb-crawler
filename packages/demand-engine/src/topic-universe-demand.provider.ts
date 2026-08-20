@@ -6,28 +6,6 @@ import {
 } from './domain/demand-engine-types';
 import { normalizeKeyword } from './normalize-keyword';
 
-interface LanguageExpansionSet {
-  seedModifiers: string[];
-}
-
-const POLISH_EXPANSION: LanguageExpansionSet = {
-  seedModifiers: [
-    'cena',
-    'cennik',
-    'koszt',
-    'opinie',
-  ],
-};
-
-const ENGLISH_EXPANSION: LanguageExpansionSet = {
-  seedModifiers: [
-    'review',
-    'reviews',
-    'login',
-    'app',
-  ],
-};
-
 export class TopicUniverseDemandProvider implements DemandProviderAdapter {
   readonly providerKey = 'topic_universe';
   readonly sourceTier = 'fallback';
@@ -38,13 +16,11 @@ export class TopicUniverseDemandProvider implements DemandProviderAdapter {
       return { observations: [] };
     }
 
-    const expansion = expansionFor(request.language);
     const vocabulary = (request.manualSeeds ?? [])
       .map((value) => normalizeKeyword(value))
       .filter((value) => value.length > 0 && value !== seed);
     const queries = unique([
       seed,
-      ...seedModifierQueries(seed, expansion),
       ...geoQueries(seed, request.geo?.city),
       ...vocabularyQueries(seed, vocabulary),
     ])
@@ -61,10 +37,6 @@ export class TopicUniverseDemandProvider implements DemandProviderAdapter {
       })),
     };
   }
-}
-
-function seedModifierQueries(seed: string, expansion: LanguageExpansionSet): string[] {
-  return expansion.seedModifiers.map((modifier) => `${seed} ${modifier}`);
 }
 
 function vocabularyQueries(
@@ -111,13 +83,7 @@ function fallbackEvidenceTypeFor(
   if (query === seed) {
     return 'topic_seed';
   }
-  return 'autocomplete';
-}
-
-function expansionFor(language: string | undefined): LanguageExpansionSet {
-  return language?.toLowerCase().startsWith('pl')
-    ? POLISH_EXPANSION
-    : ENGLISH_EXPANSION;
+  return 'manual_seed';
 }
 
 function unique(values: string[]): string[] {
