@@ -13,6 +13,7 @@ import {
   DemandEngineRepository,
   DemandCandidatePageRecord,
   DEMAND_ENGINE_REPOSITORY,
+  creatablePlannedPages,
 } from '@seo-kb/demand-engine';
 import { EmbeddingDispatchService } from '@seo-kb/embeddings';
 import { ExternalEntityEnrichmentService } from '@seo-kb/external-entity-enrichment';
@@ -484,8 +485,9 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     seoPackIds: string[];
     message: string;
   }> {
-    const readyPages = (await this.demandRepository.listCandidatePages(topic.id))
-      .filter((page) => page.readiness === 'ready')
+    const readyPages = creatablePlannedPages(
+      await this.demandRepository.listCandidatePages(topic.id),
+    )
       .slice(0, seoPackGenerationLimit);
     if (readyPages.length === 0) {
       return {
@@ -521,7 +523,7 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       skippedExisting,
       eligible: readyPages.length,
       seoPackIds,
-      message: `Generated ${seoPackIds.length} SEO Packs for ready Demand candidate pages.`,
+      message: `Generated ${seoPackIds.length} SEO Packs for planned creatable Demand candidate pages.`,
     };
   }
 

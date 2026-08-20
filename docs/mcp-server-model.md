@@ -54,6 +54,7 @@ Initial tools:
 - `seo_kb_get_topic_work_status`
 - `seo_kb_get_demand_map`
 - `seo_kb_get_page_candidates`
+- `seo_kb_get_page_plan`
 - `seo_kb_get_seo_packs`
 - `seo_kb_build_context_pack`
 - `seo_kb_build_seo_pack`
@@ -64,7 +65,7 @@ The main product path from a website workspace is:
 seo_kb_create_topic
   -> seo_kb_start_topic_work_run
   -> seo_kb_get_topic_work_status
-  -> seo_kb_get_page_candidates
+  -> seo_kb_get_page_plan
   -> seo_kb_get_seo_packs
   -> seo_kb_build_context_pack / seo_kb_build_seo_pack
 ```
@@ -102,12 +103,23 @@ Example agent instruction:
 Use the SEO KB MCP server.
 Find or create a topic for "depilacja laserowa jasło" in Polish and Poland.
 Start or continue the topic work run.
-Fetch ready page candidates.
+Fetch the page plan first, then inspect ready page candidates only as raw
+supporting data.
 For each candidate, use SEO Pack and Context Pack evidence before proposing
 website changes.
 Do not invent search volume, keyword difficulty, SERP evidence or page
 readiness when MCP data is missing.
 ```
+
+`seo_kb_get_page_plan` is the preferred website-agent entry point for page
+structure decisions. It separates technical candidate readiness from editorial
+planning recommendations:
+
+- `create`: good candidate for a new or updated page in the current batch;
+- `merge`: useful long-tail or modifier signal that should usually strengthen a
+  broader money/supporting page instead of becoming thin content;
+- `defer`: keep for future validation or provider-backed metrics;
+- `reject`: contradictory or implausible candidate.
 
 ## Current Limitations
 

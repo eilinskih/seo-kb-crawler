@@ -58,6 +58,11 @@ export class SeoKbMcpServer {
           await this.api.get(`/demand/topics/${requiredString(args.topicId, 'topicId')}`),
           optionalString(args.readiness) ?? 'ready',
         ),
+      seo_kb_get_page_plan: async (args) =>
+        pagePlan(
+          await this.api.get(`/demand/topics/${requiredString(args.topicId, 'topicId')}`),
+          optionalString(args.recommendation) ?? 'create',
+        ),
       seo_kb_get_seo_packs: async (args) =>
         this.api.get(`/seo-pack/topics/${requiredString(args.topicId, 'topicId')}`),
       seo_kb_build_context_pack: async (args) =>
@@ -211,6 +216,14 @@ function toolDefinitions(): ToolDefinition[] {
       }, ['topicId']),
     },
     {
+      name: 'seo_kb_get_page_plan',
+      description: 'Fetch the editorial page plan for a topic, grouped by intent cluster and filtered by planning recommendation. Defaults to create.',
+      inputSchema: objectSchema({
+        topicId: stringSchema('Topic UUID.'),
+        recommendation: stringSchema('create, merge, defer, reject or all. Defaults to create.'),
+      }, ['topicId']),
+    },
+    {
       name: 'seo_kb_get_seo_packs',
       description: 'Fetch generated SEO Packs and page briefs for a topic.',
       inputSchema: objectSchema({
@@ -240,12 +253,57 @@ function pageCandidates(demandMap: unknown, readiness: string): unknown {
   return {
     topicId: payload.topicId,
     summary: payload.summary,
+    pagePlan: compactPagePlan(payload.pagePlan),
     candidatePages: readiness === 'all'
       ? pages
       : pages.filter((page) =>
           isObject(page) && page.readiness === readiness,
         ),
   };
+}
+
+function pagePlan(demandMap: unknown, recommendation: string): unknown {
+  const payload = requiredObject(demandMap, 'demandMap');
+  const plan = requiredObject(payload.pagePlan, 'pagePlan');
+  const candidates = Array.isArray(plan.candidates) ? plan.candidates : [];
+  return {
+    topicId: payload.topicId,
+    summary: plan.summary,
+    clusters: compactPlanningClusters(plan.clusters),
+    candidates: recommendation === 'all'
+      ? candidates
+      : candidates.filter((page) =>
+          isObject(page) &&
+          isObject(page.planning) &&
+          page.planning.recommendation === recommendation,
+        ),
+  };
+}
+
+function compactPagePlan(value: unknown): unknown {
+  if (!isObject(value)) {
+    return value;
+  }
+  return {
+    summary: value.summary,
+    clusters: compactPlanningClusters(value.clusters),
+  };
+}
+
+function compactPlanningClusters(value: unknown): unknown[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .filter(isObject)
+    .map((cluster) => ({
+      clusterKey: cluster.clusterKey,
+      clusterLabel: cluster.clusterLabel,
+      moneyPageCount: Array.isArray(cluster.moneyPages) ? cluster.moneyPages.length : 0,
+      supportingPageCount: Array.isArray(cluster.supportingPages) ? cluster.supportingPages.length : 0,
+      mergeCandidateCount: Array.isArray(cluster.mergeCandidates) ? cluster.mergeCandidates.length : 0,
+      rejectedCandidateCount: Array.isArray(cluster.rejectedCandidates) ? cluster.rejectedCandidates.length : 0,
+    }));
 }
 
 function protocolVersion(params: unknown): string {

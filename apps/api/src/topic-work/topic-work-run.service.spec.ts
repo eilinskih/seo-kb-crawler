@@ -257,6 +257,12 @@ describe('TopicWorkRunService', () => {
             evidenceTypes: ['autocomplete', 'serp_snippet'],
             evidenceUrls: ['https://example.com/existing'],
           },
+          {
+            ...candidatePage('test topic cena salon dla kobiet', 'price_commercial_audience'),
+            readiness: 'ready',
+            evidenceTypes: ['autocomplete', 'serp_snippet'],
+            evidenceUrls: ['https://example.com/mechanical'],
+          },
           candidatePage('test topic later', 'commercial_service'),
         ]),
         markCandidatePagesSerpValidated: jest.fn(async () => []),

@@ -74,12 +74,37 @@ Roadmap order, phases and dependency rules live only in
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
-| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run now expands one topic seed through Demand discovery, validates generated queries with SERP and propagates SERP evidence to Demand candidate pages. |
-| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API so site workspaces can use the service without custom endpoint instructions. |
+| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence and now separates technical readiness from editorial page-planning recommendations. |
+| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API, including page-plan access for website workspaces. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-20
+Issue: #186 / #187 follow-up
+Status: Review needed
+Summary:
+- Added Demand candidate page planning over existing candidate records so
+  technical `ready` status no longer implies "create a standalone page".
+- Added planning recommendations: `create`, `merge`, `defer` and `reject`,
+  with roles for money pages, supporting pages, merge candidates and rejected
+  candidates.
+- Added generic safeguards for incompatible/mechanical modifier combinations
+  while keeping the rules niche-agnostic.
+- Updated Topic Work Run SEO Pack generation to use only planned creatable
+  candidate pages.
+- Exposed `seo_kb_get_page_plan` through MCP and included `pagePlan` in Demand
+  API output for website agents.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/page-candidate-planning.spec.ts packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts apps/mcp-server/src/mcp-server.spec.ts
+- npm run build:api
+- npm run build:mcp-server
+- npm test
+- Rebuilt the local API container and verified the live laser topic page plan:
+  225 technically ready candidates, 18 `create`, 206 `merge` and 1 `reject`.
+- MCP stdio smoke verified `seo_kb_get_page_plan` returns 18 create
+  candidates from the local API.
 
 Date: 2026-08-15
 Issue: #186 coverage follow-up

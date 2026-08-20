@@ -6,6 +6,7 @@ export * from './demand-metric-visibility.service';
 export * from './domain/demand-engine-types';
 export * from './external-seo-demand.provider';
 export * from './manual-fallback-demand.provider';
+export * from './page-candidate-planning';
 export * from './topic-universe-demand.provider';
 export * from './persistence/demand-engine.repository';
 export * from './persistence/knex-demand-engine.repository';

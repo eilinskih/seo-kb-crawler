@@ -4,16 +4,20 @@ import {
   DemandEngineRepository,
   DemandKeywordCandidateRecord,
   DEMAND_ENGINE_REPOSITORY,
+  PageCandidatePlan,
+  planCandidatePages,
 } from '@seo-kb/demand-engine';
 
 export interface TopicDemandMapResponse {
   topicId: string;
   keywordCandidates: DemandKeywordCandidateRecord[];
   candidatePages: DemandCandidatePageRecord[];
+  pagePlan: PageCandidatePlan<DemandCandidatePageRecord>;
   summary: {
     keywordCandidateCount: number;
     candidatePageCount: number;
     readinessCounts: Record<string, number>;
+    planningRecommendationCounts: Record<string, number>;
     clusterCount: number;
   };
 }
@@ -33,19 +37,24 @@ export class DemandController {
       this.demand.listKeywordCandidates(topicId),
       this.demand.listCandidatePages(topicId),
     ]);
+    const pagePlan = planCandidatePages(candidatePages);
 
     return {
       topicId,
       keywordCandidates,
       candidatePages,
+      pagePlan,
       summary: {
         keywordCandidateCount: keywordCandidates.length,
         candidatePageCount: candidatePages.length,
         readinessCounts: countBy(candidatePages.map((page) =>
           page.readiness ?? 'not_ready',
         )),
+        planningRecommendationCounts: countBy(pagePlan.candidates.map((page) =>
+          page.planning.recommendation,
+        )),
         clusterCount: new Set(
-          candidatePages.map((page) => page.clusterKey ?? page.slug),
+          pagePlan.clusters.map((cluster) => cluster.clusterKey),
         ).size,
       },
     };

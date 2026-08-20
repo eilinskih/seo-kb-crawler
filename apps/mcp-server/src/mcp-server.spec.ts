@@ -21,6 +21,7 @@ describe('SeoKbMcpServer', () => {
         tools: expect.arrayContaining([
           expect.objectContaining({ name: 'seo_kb_create_topic' }),
           expect.objectContaining({ name: 'seo_kb_get_page_candidates' }),
+          expect.objectContaining({ name: 'seo_kb_get_page_plan' }),
           expect.objectContaining({ name: 'seo_kb_get_seo_packs' }),
         ]),
       }),
@@ -119,6 +120,47 @@ describe('SeoKbMcpServer', () => {
     expect(JSON.parse(result.content[0].text)).toEqual([
       expect.objectContaining({ id: 'seo-pack-1' }),
     ]);
+  });
+
+  it('filters page plan candidates by planning recommendation', async () => {
+    const api = apiClient({
+      get: jest.fn(async () => ({
+        topicId: 'topic-1',
+        pagePlan: {
+          summary: { createCount: 1, mergeCount: 1 },
+          clusters: [{ clusterKey: 'core-service' }],
+          candidates: [
+            {
+              slug: '/create/',
+              planning: { recommendation: 'create' },
+            },
+            {
+              slug: '/merge/',
+              planning: { recommendation: 'merge' },
+            },
+          ],
+        },
+      })),
+    });
+    const server = new SeoKbMcpServer(api as never);
+
+    const response = await server.handle({
+      jsonrpc: '2.0',
+      id: 4,
+      method: 'tools/call',
+      params: {
+        name: 'seo_kb_get_page_plan',
+        arguments: {
+          topicId: 'topic-1',
+          recommendation: 'create',
+        },
+      },
+    });
+
+    const result = response?.result as { content: Array<{ text: string }> };
+    expect(JSON.parse(result.content[0].text)).toMatchObject({
+      candidates: [{ slug: '/create/' }],
+    });
   });
 });
 
