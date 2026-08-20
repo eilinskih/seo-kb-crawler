@@ -193,6 +193,12 @@ describe('TopicWorkRunService', () => {
           candidatePage('test topic cena', 'price'),
         ])
         .mockResolvedValueOnce([
+          candidatePage('test topic cena', 'price'),
+        ])
+        .mockResolvedValueOnce([
+          candidatePage('test topic przygotowanie', 'informational_how_to', 'guide'),
+        ])
+        .mockResolvedValueOnce([
           candidatePage('test topic przygotowanie', 'informational_how_to', 'guide'),
         ]),
       markCandidatePagesSerpValidated: jest.fn(async () => []),
@@ -217,6 +223,70 @@ describe('TopicWorkRunService', () => {
     expect((universeStage?.result as { queries: string[] }).queries).toEqual([
       'test topic przygotowanie',
     ]);
+  });
+
+  it('generates SEO Packs for ready demand candidate pages', async () => {
+    const seoPackGenerator = {
+      generate: jest.fn((request: { candidateKey: string }) => ({
+        topicId: 'topic-1',
+        candidateKey: request.candidateKey,
+        packKey: `topic-1:${request.candidateKey}:local_page`,
+        pageType: 'local_page',
+        warnings: [],
+        degraded: true,
+      })),
+    };
+    const seoPacks = {
+      findLatestSeoPack: jest.fn(async (_topicId: string, candidateKey: string) =>
+        candidateKey.includes('existing') ? { id: 'existing-pack' } : null,
+      ),
+      saveSeoPack: jest.fn(async () => ({ id: 'new-pack' })),
+    };
+    const service = makeService({
+      demandRepository: {
+        listCandidatePages: jest.fn(async () => [
+          {
+            ...candidatePage('test topic cena', 'price'),
+            readiness: 'ready',
+            evidenceTypes: ['autocomplete', 'serp_snippet'],
+            evidenceUrls: ['https://example.com/price'],
+          },
+          {
+            ...candidatePage('test topic existing', 'commercial_service'),
+            readiness: 'ready',
+            evidenceTypes: ['autocomplete', 'serp_snippet'],
+            evidenceUrls: ['https://example.com/existing'],
+          },
+          candidatePage('test topic later', 'commercial_service'),
+        ]),
+        markCandidatePagesSerpValidated: jest.fn(async () => []),
+      },
+      seoPackGenerator,
+      seoPacks,
+    });
+
+    const result = await service.runTopic({ topicId: 'topic-1', force: true });
+    const seoStage = result.stages.find((stage) =>
+      stage.name === 'seo_pack_generation',
+    );
+
+    expect(seoStage).toEqual(expect.objectContaining({
+      status: 'completed',
+    }));
+    expect(seoStage?.result).toEqual(expect.objectContaining({
+      generated: 1,
+      skippedExisting: 1,
+      eligible: 2,
+    }));
+    expect(seoPackGenerator.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        candidateKey: 'candidate:test-topic-cena',
+        demandPack: expect.objectContaining({
+          primaryKeyword: 'test topic cena',
+        }),
+      }),
+    );
+    expect(seoPacks.saveSeoPack).toHaveBeenCalledTimes(1);
   });
 });
 

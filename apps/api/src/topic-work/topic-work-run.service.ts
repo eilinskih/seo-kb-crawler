@@ -19,8 +19,10 @@ import { ExternalEntityEnrichmentService } from '@seo-kb/external-entity-enrichm
 import { FactExtractionDispatchService } from '@seo-kb/fact-extraction';
 import { SerpGeoTarget } from '@seo-kb/serp-intelligence';
 import {
+  SeoPackProfileName,
   SeoPackGeneratorService,
   SeoPackRepository,
+  SeoPackSourceReference,
   SEO_PACK_REPOSITORY,
 } from '@seo-kb/seo-pack';
 import { TopicRecord, TopicService } from '@seo-kb/topic-engine';
@@ -83,6 +85,7 @@ const factCandidateLimit = 100;
 const factBatchSize = 20;
 const demandDiscoveryLimit = 300;
 const topicUniverseSerpProbeLimit = 25;
+const seoPackGenerationLimit = 50;
 
 @Injectable()
 export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
@@ -425,8 +428,8 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     warnings));
 
     stages.push(await this.runStage('seo_pack_generation', () =>
-      this.generateSeedSeoPack(topic).then((result) => ({
-        status: result.generated ? 'completed' as const : 'skipped' as const,
+      this.generateReadyCandidateSeoPacks(topic).then((result) => ({
+        status: result.generated > 0 ? 'completed' as const : 'skipped' as const,
         message: result.message,
         result,
       })),
@@ -474,96 +477,51 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       Date.now() - lastAttemptAt >= this.serpRefreshIntervalMs;
   }
 
-  private async generateSeedSeoPack(topic: TopicRecord): Promise<{
-    generated: boolean;
-    candidateKey?: string;
-    seoPackId?: string;
+  private async generateReadyCandidateSeoPacks(topic: TopicRecord): Promise<{
+    generated: number;
+    skippedExisting: number;
+    eligible: number;
+    seoPackIds: string[];
     message: string;
   }> {
-    const seedQuery = topic.discovery.search.queries[0];
-    if (!seedQuery) {
+    const readyPages = (await this.demandRepository.listCandidatePages(topic.id))
+      .filter((page) => page.readiness === 'ready')
+      .slice(0, seoPackGenerationLimit);
+    if (readyPages.length === 0) {
       return {
-        generated: false,
-        message: 'Topic has no search seed query for SEO Pack generation.',
+        generated: 0,
+        skippedExisting: 0,
+        eligible: 0,
+        seoPackIds: [],
+        message: 'No ready Demand candidate pages are available for SEO Pack generation.',
       };
     }
-    const candidateKey = `candidate:${slugify(seedQuery.text)}`;
-    const existing = await this.seoPacks.findLatestSeoPack(
-      topic.id,
-      candidateKey,
-    );
-    if (existing) {
-      return {
-        generated: false,
-        candidateKey,
-        seoPackId: existing.id,
-        message: 'Seed SEO Pack already exists.',
-      };
+
+    let skippedExisting = 0;
+    const seoPackIds: string[] = [];
+    for (const page of readyPages) {
+      const candidateKey = candidateKeyForPage(page);
+      const existing = await this.seoPacks.findLatestSeoPack(topic.id, candidateKey);
+      if (existing) {
+        skippedExisting += 1;
+        continue;
+      }
+
+      const saved = await this.seoPacks.saveSeoPack({
+        pack: this.seoPackGenerator.generate(
+          seoPackRequestForPage(topic, page, candidateKey),
+        ),
+        createdAt: new Date().toISOString(),
+      });
+      seoPackIds.push(saved.id);
     }
-    const primaryGeo = seedQuery.geo ?? topic.languageGeo.geoTargets[0];
-    const pack = this.seoPackGenerator.generate({
-      topicId: topic.id,
-      candidateKey,
-      language: seedQuery.language ?? topic.languageGeo.languages[0]?.tag,
-      geo: primaryGeo ? {
-        country: primaryGeo.countryCode,
-        region: primaryGeo.regionCode,
-      } : undefined,
-      profile: 'local_page',
-      demandPack: {
-        primaryKeyword: seedQuery.text,
-        candidateLabel: titleCase(seedQuery.text),
-        demandSummary: 'Seed keyword from the topic configuration. Paid demand metrics may be unavailable in fallback mode.',
-        nullableMetricsWarning: 'Paid keyword metrics are unavailable in the current free-provider workflow.',
-        degraded: true,
-      },
-      serpPack: {
-        summary: 'SERP and competitor evidence is collected by focused discovery, URL Frontier, crawling and retrieval stages.',
-        contentDepthExpectation: 'Cover the primary local intent, service details, pricing signals, safety, trust and booking path.',
-        warnings: [
-          'Baseline SEO Pack generated automatically from topic seed data; enrich with Demand, SERP Intent and Knowledge packs when available.',
-        ],
-        degraded: true,
-      },
-      serpIntentPack: {
-        intents: [
-          {
-            intentId: 'intent:local-commercial',
-            label: `Find and compare ${seedQuery.text}`,
-            priority: 'mandatory',
-            confidence: 'medium',
-          },
-        ],
-      },
-      candidateScoringPack: {
-        scoredCandidates: [{
-          candidateKey,
-          label: titleCase(seedQuery.text),
-          recommendedPageType: 'local_page',
-          confidence: 'medium',
-          rationale: [
-            'Generated from the first configured topic search query.',
-            'Use as the initial page brief while richer demand and knowledge packs are unavailable.',
-          ],
-          degraded: true,
-        }],
-        degraded: true,
-      },
-      warnings: [
-        'Automatically generated baseline SEO Pack; verify against richer provider data before production content decisions.',
-      ],
-      degraded: true,
-    });
-    const saved = await this.seoPacks.saveSeoPack({
-      pack,
-      createdAt: new Date().toISOString(),
-    });
 
     return {
-      generated: true,
-      candidateKey,
-      seoPackId: saved.id,
-      message: 'Generated baseline SEO Pack for the topic seed query.',
+      generated: seoPackIds.length,
+      skippedExisting,
+      eligible: readyPages.length,
+      seoPackIds,
+      message: `Generated ${seoPackIds.length} SEO Packs for ready Demand candidate pages.`,
     };
   }
 
@@ -673,6 +631,178 @@ function titleCase(value: string): string {
     .split(' ')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function candidateKeyForPage(page: DemandCandidatePageRecord): string {
+  return `candidate:${slugify(page.primaryKeyword)}`;
+}
+
+function seoPackRequestForPage(
+  topic: TopicRecordLike,
+  page: DemandCandidatePageRecord,
+  candidateKey: string,
+) {
+  const primaryGeo = topic.discovery.search.queries[0]?.geo ??
+    topic.languageGeo.geoTargets[0];
+  const profile = seoPackProfileForPage(page);
+  const sourceReferences = sourceReferencesForPage(page);
+  const intentLabel = intentLabelForPage(page);
+
+  return {
+    topicId: topic.id,
+    candidateKey,
+    language: topicLanguage(topic),
+    geo: primaryGeo ? {
+      country: primaryGeo.countryCode,
+      region: primaryGeo.regionCode,
+    } : undefined,
+    profile,
+    demandPack: {
+      packId: page.id,
+      primaryKeyword: page.primaryKeyword,
+      candidateLabel: page.clusterLabel ?? titleCase(page.primaryKeyword),
+      keywordCluster: [
+        page.primaryKeyword,
+        ...page.supportingKeywords,
+      ],
+      demandSummary: demandSummaryForPage(page),
+      nullableMetricsWarning: 'Paid keyword metrics are unavailable in the current free-provider workflow.',
+      warnings: [
+        ...page.missingMetrics.map((metric) => `Missing demand metric: ${metric}.`),
+        ...(page.missingResearchGaps ?? []).map((gap) => `Missing research evidence: ${gap}.`),
+      ],
+      degraded: page.missingMetrics.length > 0 ||
+        (page.missingResearchGaps ?? []).length > 0,
+    },
+    serpPack: {
+      summary: sourceReferences.length > 0
+        ? `SERP validation found ${sourceReferences.length} evidence URLs for this candidate page.`
+        : 'Candidate page is marked ready, but no SERP evidence URLs are available.',
+      competitorInsights: sourceReferences.slice(0, 10).map((reference) => ({
+        insight: `SERP evidence source: ${reference.url}`,
+        sourceReferences: [reference],
+        confidence: 'low' as const,
+      })),
+      contentDepthExpectation: contentDepthExpectationForPage(page),
+      warnings: [
+        'SEO Pack generated automatically from Demand candidate page evidence; verify before production content decisions.',
+      ],
+      degraded: true,
+    },
+    serpIntentPack: {
+      intents: [{
+        intentId: `intent:${slugify(page.primaryIntent ?? page.proposedPageType)}`,
+        label: intentLabel,
+        priority: 'mandatory' as const,
+        confidence: page.confidence === 'high' ? 'high' as const : 'medium' as const,
+      }],
+      degraded: true,
+    },
+    candidateScoringPack: {
+      scoredCandidates: [{
+        candidateKey,
+        label: page.clusterLabel ?? titleCase(page.primaryKeyword),
+        normalizedConcept: page.clusterKey ?? page.slug,
+        recommendedPageType: profile,
+        confidence: page.confidence === 'high' ? 'high' as const : 'medium' as const,
+        rationale: [
+          `Demand candidate page is marked ${page.readiness}.`,
+          `Primary intent: ${page.primaryIntent ?? 'unknown'}.`,
+          `${sourceReferences.length} SERP evidence URLs are attached.`,
+        ],
+        focusedResearchHints: page.missingResearchGaps ?? [],
+        degraded: true,
+      }],
+      degraded: true,
+    },
+    researchAssets: sourceReferences.map((reference) => ({
+      assetId: reference.sourceId,
+      assetType: 'serp_evidence',
+      title: reference.title,
+      sourceReferences: [reference],
+    })),
+    warnings: [
+      'Automatically generated from ready Demand candidate page.',
+      'Knowledge Pack and paid demand metrics may still be missing.',
+    ],
+    degraded: true,
+  };
+}
+
+function seoPackProfileForPage(
+  page: DemandCandidatePageRecord,
+): SeoPackProfileName {
+  switch (page.proposedPageType) {
+    case 'comparison':
+      return 'comparison_page';
+    case 'faq':
+      return 'faq_page';
+    case 'guide':
+      return 'guide';
+    case 'local_page':
+      return 'local_page';
+    case 'landing_page':
+    default:
+      return page.primaryIntent?.includes('commercial') ||
+        page.primaryIntent === 'price' ||
+        page.primaryIntent === 'audience'
+        ? 'local_page'
+        : 'landing_page';
+  }
+}
+
+function sourceReferencesForPage(
+  page: DemandCandidatePageRecord,
+): SeoPackSourceReference[] {
+  return (page.evidenceUrls ?? []).map((url, index) => ({
+    sourceId: `demand-serp:${page.id}:${index + 1}`,
+    sourceType: 'serp_evidence',
+    url,
+    title: hostFromUrl(url) ?? url,
+  }));
+}
+
+function hostFromUrl(url: string): string | null {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function demandSummaryForPage(page: DemandCandidatePageRecord): string {
+  const supporting = page.supportingKeywords.length > 0
+    ? ` Supporting keywords: ${page.supportingKeywords.slice(0, 8).join(', ')}.`
+    : '';
+  return [
+    `Ready candidate page for "${page.primaryKeyword}".`,
+    `Cluster: ${page.clusterLabel ?? page.clusterKey ?? page.slug}.`,
+    `Evidence types: ${page.evidenceTypes.join(', ') || 'unknown'}.`,
+    supporting,
+  ].join(' ').replace(/\s+/gu, ' ').trim();
+}
+
+function contentDepthExpectationForPage(page: DemandCandidatePageRecord): string {
+  if (page.proposedPageType === 'comparison') {
+    return 'Compare alternatives clearly, explain decision criteria and map recommendations to local search intent.';
+  }
+  if (page.proposedPageType === 'guide') {
+    return 'Explain the process, requirements, risks, preparation, aftercare and booking implications with evidence-backed detail.';
+  }
+  if (page.proposedPageType === 'faq') {
+    return 'Answer clustered questions directly and cite evidence-backed constraints where facts are still uncertain.';
+  }
+  if (page.primaryIntent?.includes('price') || page.primaryIntent === 'price') {
+    return 'Cover pricing intent, what changes price, package logic, trust signals and booking next steps.';
+  }
+  return 'Cover the primary intent, local relevance, service details, proof, objections and booking path.';
+}
+
+function intentLabelForPage(page: DemandCandidatePageRecord): string {
+  if (page.primaryIntent) {
+    return `${page.primaryIntent.replace(/_/gu, ' ')}: ${page.primaryKeyword}`;
+  }
+  return `Cover ${page.primaryKeyword}`;
 }
 
 const validationBucketOrder = [
