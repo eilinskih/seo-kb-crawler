@@ -11,6 +11,7 @@ import { ContentProcessingDispatchService } from '@seo-kb/content-processing';
 import {
   DemandDiscoveryPersistenceService,
   DemandEngineRepository,
+  DemandCandidatePageRecord,
   DEMAND_ENGINE_REPOSITORY,
 } from '@seo-kb/demand-engine';
 import { EmbeddingDispatchService } from '@seo-kb/embeddings';
@@ -303,21 +304,22 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
 
     stages.push(await this.runStage('topic_universe_serp_validation', async () => {
       const universeRefreshKey = `${topic.id}:universe`;
-      if (!this.shouldRefreshSerp(universeRefreshKey, options.force)) {
+      const candidatePages = await this.demandRepository.listCandidatePages(topic.id);
+      const hasUnvalidatedCandidates = candidatePages.some(needsSerpValidation);
+      if (
+        !hasUnvalidatedCandidates &&
+        !this.shouldRefreshSerp(universeRefreshKey, options.force)
+      ) {
         return {
           status: 'skipped' as const,
           message: 'Topic universe SERP refresh interval has not elapsed.',
         };
       }
       this.lastSerpAttemptAt.set(universeRefreshKey, Date.now());
-      const queries = (await this.demandRepository.listCandidatePages(topic.id))
-        .flatMap((page) => [
-          page.primaryKeyword,
-          ...page.supportingKeywords,
-        ])
-        .filter((query) => query.length > 0)
-        .filter((query, index, all) => all.indexOf(query) === index)
-        .slice(0, topicUniverseSerpProbeLimit);
+      const queries = selectTopicUniverseSerpQueries(
+        candidatePages,
+        topicUniverseSerpProbeLimit,
+      );
       const results: AutomaticFocusedSerpDiscoveryApiResult[] = [];
       for (const query of queries) {
         const result = await this.serpDiscovery.runFromTopic({
@@ -672,3 +674,180 @@ function titleCase(value: string): string {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 }
+
+const validationBucketOrder = [
+  'seed',
+  'price',
+  'local_commercial',
+  'audience',
+  'safety',
+  'preparation',
+  'aftercare',
+  'comparison',
+  'proof',
+  'faq',
+  'generic',
+];
+
+function selectTopicUniverseSerpQueries(
+  pages: DemandCandidatePageRecord[],
+  limit: number,
+): string[] {
+  const buckets = new Map<string, DemandCandidatePageRecord[]>();
+  for (const page of [...pages].sort(compareValidationPagePriority)) {
+    const bucket = validationBucket(page);
+    buckets.set(bucket, [...(buckets.get(bucket) ?? []), page]);
+  }
+
+  const queries: string[] = [];
+  const seenQueries = new Set<string>();
+  const orderedBuckets = [
+    ...validationBucketOrder,
+    ...[...buckets.keys()]
+      .filter((bucket) => !validationBucketOrder.includes(bucket))
+      .sort(),
+  ];
+
+  while (queries.length < limit) {
+    let progressed = false;
+    for (const bucket of orderedBuckets) {
+      const page = buckets.get(bucket)?.shift();
+      if (!page) {
+        continue;
+      }
+      progressed = true;
+      const query = page.primaryKeyword.trim();
+      const normalized = query.toLowerCase();
+      if (query.length === 0 || seenQueries.has(normalized)) {
+        continue;
+      }
+      seenQueries.add(normalized);
+      queries.push(query);
+      if (queries.length >= limit) {
+        break;
+      }
+    }
+    if (!progressed) {
+      break;
+    }
+  }
+
+  return queries;
+}
+
+function compareValidationPagePriority(
+  left: DemandCandidatePageRecord,
+  right: DemandCandidatePageRecord,
+): number {
+  return validationEvidenceScore(left) - validationEvidenceScore(right) ||
+    readinessScore(left) - readinessScore(right) ||
+    left.primaryKeyword.localeCompare(right.primaryKeyword);
+}
+
+function validationEvidenceScore(page: DemandCandidatePageRecord): number {
+  return needsSerpValidation(page) ? 0 : 1;
+}
+
+function needsSerpValidation(page: DemandCandidatePageRecord): boolean {
+  return !(page.evidenceTypes ?? []).includes('serp_snippet') &&
+    (page.evidenceUrls ?? []).length === 0;
+}
+
+function readinessScore(page: DemandCandidatePageRecord): number {
+  if (page.readiness === 'not_ready') {
+    return 0;
+  }
+  if (page.readiness === 'partial') {
+    return 1;
+  }
+  if (page.readiness === 'ready') {
+    return 2;
+  }
+  return 0;
+}
+
+function validationBucket(page: DemandCandidatePageRecord): string {
+  const intent = page.primaryIntent ?? '';
+  const cluster = page.clusterKey ?? '';
+  const keyword = page.primaryKeyword.toLowerCase();
+  const haystack = `${intent} ${cluster} ${keyword}`;
+
+  if ((page.evidenceTypes ?? []).includes('topic_seed')) {
+    return 'seed';
+  }
+  if (haystack.includes('price') || priceTerms.some((term) => keyword.includes(term))) {
+    return 'price';
+  }
+  if (haystack.includes('audience') || audienceTerms.some((term) => keyword.includes(term))) {
+    return 'audience';
+  }
+  if (haystack.includes('safety') || safetyTerms.some((term) => keyword.includes(term))) {
+    return 'safety';
+  }
+  if (haystack.includes('preparation') || preparationTerms.some((term) => keyword.includes(term))) {
+    return 'preparation';
+  }
+  if (haystack.includes('aftercare') || aftercareTerms.some((term) => keyword.includes(term))) {
+    return 'aftercare';
+  }
+  if (
+    page.proposedPageType === 'comparison' ||
+    haystack.includes('comparison') ||
+    comparisonTerms.some((term) => keyword.includes(term))
+  ) {
+    return 'comparison';
+  }
+  if (haystack.includes('proof') || proofTerms.some((term) => keyword.includes(term))) {
+    return 'proof';
+  }
+  if (
+    page.proposedPageType === 'faq' ||
+    haystack.includes('question') ||
+    questionTerms.some((term) => keyword.includes(term))
+  ) {
+    return 'faq';
+  }
+  if (haystack.includes('commercial') || page.proposedPageType === 'local_page') {
+    return 'local_commercial';
+  }
+  return 'generic';
+}
+
+const priceTerms = ['cena', 'cennik', 'koszt', 'ile kosztuje', 'price', 'cost'];
+const audienceTerms = [
+  'mężczyzn',
+  'mezczyzn',
+  'kobiet',
+  'nastolat',
+  'skóry wrażliwej',
+  'skory wrazliwej',
+  'men',
+  'women',
+];
+const safetyTerms = [
+  'bezpieczne',
+  'przeciwwskazania',
+  'skutki uboczne',
+  'ciąża',
+  'ciaza',
+  'safe',
+  'contraindications',
+];
+const preparationTerms = [
+  'przygotowanie',
+  'przygotować',
+  'przygotowac',
+  'czego nie robić przed',
+  'czego nie robic przed',
+  'preparation',
+];
+const aftercareTerms = [
+  'po zabiegu',
+  'zalecenia po',
+  'czego nie robić po',
+  'czego nie robic po',
+  'aftercare',
+];
+const comparisonTerms = [' vs', 'różnice', 'roznice', 'czy lepsze', 'porównanie', 'porownanie'];
+const proofTerms = ['opinie', 'przed i po', 'efekty', 'zdjęcia', 'zdjecia', 'reviews', 'results'];
+const questionTerms = ['czy ', 'jak ', 'ile ', 'faq', 'pytania'];

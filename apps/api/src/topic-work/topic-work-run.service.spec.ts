@@ -105,6 +105,119 @@ describe('TopicWorkRunService', () => {
       'active-topic',
     ]);
   });
+
+  it('balances topic universe SERP validation across candidate page intents', async () => {
+    const serpDiscovery = {
+      runFromTopic: jest.fn(async (request?: { query?: string }) => ({
+        status: 'recorded',
+        providerKey: 'test',
+        warnings: [],
+        snapshot: {
+          id: `snapshot:${request?.query ?? 'seed'}`,
+          normalizedQuery: request?.query ?? 'test topic',
+          results: [{ url: `https://example.com/${request?.query ?? 'seed'}` }],
+        },
+        observations: { submitted: 1, receipts: [] },
+        frontier: { upsertedEntries: 1 },
+      })),
+    };
+    const service = makeService({
+      serpDiscovery,
+      demandRepository: {
+        listCandidatePages: jest.fn(async () => [
+          candidatePage('test topic salon 1', 'commercial_service'),
+          candidatePage('test topic salon 2', 'commercial_service'),
+          candidatePage('test topic salon 3', 'commercial_service'),
+          candidatePage('test topic salon 4', 'commercial_service'),
+          candidatePage('test topic cena', 'price'),
+          candidatePage('test topic dla mężczyzn', 'audience'),
+          candidatePage('test topic czy bezpieczne', 'safety'),
+          candidatePage('test topic przygotowanie', 'informational_how_to', 'guide'),
+          candidatePage('test topic po zabiegu', 'informational_how_to', 'guide'),
+          candidatePage('test topic vs ipl', 'comparison', 'comparison'),
+          candidatePage('test topic opinie', 'commercial_service'),
+        ]),
+        markCandidatePagesSerpValidated: jest.fn(async () => []),
+      },
+    });
+
+    const result = await service.runTopic({ topicId: 'topic-1', force: true });
+    const universeStage = result.stages.find((stage) =>
+      stage.name === 'topic_universe_serp_validation',
+    );
+
+    expect(universeStage).toEqual(expect.objectContaining({
+      status: 'completed',
+    }));
+    expect((universeStage?.result as { queries: string[] }).queries).toEqual(
+      expect.arrayContaining([
+        'test topic cena',
+        'test topic dla mężczyzn',
+        'test topic czy bezpieczne',
+        'test topic przygotowanie',
+        'test topic po zabiegu',
+        'test topic vs ipl',
+        'test topic opinie',
+      ]),
+    );
+    expect((universeStage?.result as { queries: string[] }).queries.slice(0, 7))
+      .not.toEqual([
+        'test topic salon 1',
+        'test topic salon 2',
+        'test topic salon 3',
+        'test topic salon 4',
+        'test topic cena',
+        'test topic dla mężczyzn',
+        'test topic czy bezpieczne',
+      ]);
+  });
+
+  it('continues topic universe SERP validation while unvalidated candidates remain', async () => {
+    const serpDiscovery = {
+      runFromTopic: jest.fn(async (request?: { query?: string }) => ({
+        status: 'recorded',
+        providerKey: 'test',
+        warnings: [],
+        snapshot: {
+          id: `snapshot:${request?.query ?? 'seed'}`,
+          normalizedQuery: request?.query ?? 'test topic',
+          results: [{ url: `https://example.com/${request?.query ?? 'seed'}` }],
+        },
+        observations: { submitted: 1, receipts: [] },
+        frontier: { upsertedEntries: 1 },
+      })),
+    };
+    const demandRepository = {
+      listCandidatePages: jest.fn()
+        .mockResolvedValueOnce([
+          candidatePage('test topic cena', 'price'),
+        ])
+        .mockResolvedValueOnce([
+          candidatePage('test topic przygotowanie', 'informational_how_to', 'guide'),
+        ]),
+      markCandidatePagesSerpValidated: jest.fn(async () => []),
+    };
+    const service = makeService({
+      serpDiscovery,
+      demandRepository,
+    });
+
+    await service.runTopic({ topicId: 'topic-1' });
+    const secondRun = await service.runTopic({ topicId: 'topic-1' });
+    const universeStage = secondRun.stages.find((stage) =>
+      stage.name === 'topic_universe_serp_validation',
+    );
+
+    expect(universeStage).toEqual(expect.objectContaining({
+      status: 'completed',
+    }));
+    expect(universeStage?.message).toBe(
+      'Validated 1/1 generated demand queries with SERP.',
+    );
+    expect((universeStage?.result as { queries: string[] }).queries).toEqual([
+      'test topic przygotowanie',
+    ]);
+  });
 });
 
 function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunService {
@@ -235,5 +348,44 @@ function topic(status: string, id = 'topic-1') {
       languages: [{ tag: 'en' }],
       geoTargets: [{ countryCode: 'PL' }],
     },
+  };
+}
+
+function candidatePage(
+  primaryKeyword: string,
+  primaryIntent: string,
+  proposedPageType = 'landing_page',
+) {
+  return {
+    id: `page:${primaryKeyword}`,
+    keywordCandidateId: `keyword:${primaryKeyword}`,
+    topicId: 'topic-1',
+    slug: `/${primaryKeyword.replace(/\s+/g, '-')}/`,
+    primaryKeyword,
+    supportingKeywords: [`${primaryKeyword} extra`],
+    proposedPageType,
+    confidence: 'low',
+    readiness: 'not_ready',
+    primaryIntent,
+    clusterKey: primaryIntent,
+    clusterLabel: primaryIntent,
+    evidenceTypes: ['autocomplete'],
+    evidenceUrls: [],
+    metrics: {
+      searchVolume: null,
+      keywordDifficulty: null,
+      cpc: null,
+      trafficPotential: null,
+      trend: null,
+      seasonality: null,
+      metricStatus: 'fallback_only',
+      providerKey: 'topic_universe',
+      collectedAt: null,
+    },
+    missingMetrics: [],
+    missingResearchGaps: ['SERP validation evidence'],
+    pageAction: 'new',
+    createdAt: '2026-08-20T00:00:00.000Z',
+    updatedAt: '2026-08-20T00:00:00.000Z',
   };
 }
