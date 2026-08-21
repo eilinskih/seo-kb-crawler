@@ -97,9 +97,12 @@ Summary:
   model-path support and Stanza left as an optional custom-image backend.
 - Fixed Docker Google Knowledge Graph configuration so blank
   `GOOGLE_KNOWLEDGE_GRAPH_API_KEY` values do not mask `GOOGLE_KG_API_KEY`.
-- Bounded provider-backed phrase analysis to a small configurable number of
-  phrase spans per candidate so public KG/Wikidata providers are enrichment
-  signals rather than bulk keyword-expansion sources.
+- Added provider-paced execution for public External Entity providers so
+  provider-backed phrase analysis queues KG/Wikidata calls across configured
+  request windows instead of dropping useful lookups at the first rate limit.
+- Kept provider-backed phrase-analysis span lookup configurable so public
+  KG/Wikidata providers are enrichment signals rather than unbounded keyword
+  expansion sources.
 - Moved External Entity provider cache lookup before rate-limit consumption so
   repeated cached spans do not spend public provider quota.
 - Added Docker defaults for External Entity cache TTL, Google Knowledge Graph

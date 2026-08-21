@@ -44,7 +44,7 @@ const STRUCTURAL_ONLY_KINDS = new Set([
   'low_quality_snippet',
 ]);
 
-const DEFAULT_MAX_LOOKUPS = 3;
+const DEFAULT_MAX_LOOKUPS = 12;
 
 export class EntityEnrichedPhraseAnalysisProvider implements PhraseAnalysisProvider {
   readonly providerKey = 'entity_enriched_phrase_analysis';

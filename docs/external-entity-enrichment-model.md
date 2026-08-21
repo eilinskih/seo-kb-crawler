@@ -94,6 +94,12 @@ entity results must not spend provider quota, because real topic workflows can
 ask about the same phrase spans repeatedly while processing SERP results,
 headings and related-search evidence.
 
+When provider rate windows are configured, public provider calls should be
+executed through the provider-paced queue. The queue serializes calls per
+provider and spaces them across the configured request window instead of
+dropping enrichment requests at the first rate-limit boundary. This preserves
+workflow integrity while respecting free/public provider limits.
+
 When no cache or rate-limit environment variables are configured, provider
 execution policy is empty and provider status/configuration still decides
 whether each provider runs.

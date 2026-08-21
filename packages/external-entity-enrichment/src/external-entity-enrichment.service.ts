@@ -5,6 +5,7 @@ import {
   ExternalEntityEnrichmentRequest,
   ExternalEntityProvider,
   ExternalEntityProviderDescriptor,
+  ExternalEntityProviderResult,
   ExternalEntityProviderWarning,
 } from './domain/external-entity-enrichment-types';
 import { ExternalEntityProviderRegistry } from './external-entity-provider-registry';
@@ -61,25 +62,12 @@ export class ExternalEntityEnrichmentService {
           continue;
         }
 
-        const rateLimitDecision = provider.tier === 'local_signal'
-          ? undefined
-          : await this.executionPolicy.rateLimiter?.consume(
+        const result = this.executionPolicy.queue && provider.tier !== 'local_signal'
+          ? await this.executionPolicy.queue.execute(
               provider.providerKey,
-              generatedAt,
-            );
-        if (rateLimitDecision && !rateLimitDecision.allowed) {
-          warnings.push({
-            providerKey: provider.providerKey,
-            status: 'rate_limited',
-            code: 'provider_rate_limited',
-            message: rateLimitDecision.resetAt
-              ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
-              : `${provider.providerKey} is rate-limited.`,
-          });
-          continue;
-        }
-
-        const result = await provider.enrich(request);
+              () => provider.enrich(request),
+            )
+          : await this.enrichWithRateLimiter(provider, request, generatedAt);
         if (this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
           await this.executionPolicy.cache.set({
             providerKey: provider.providerKey,
@@ -114,6 +102,34 @@ export class ExternalEntityEnrichmentService {
     await this.repository?.saveEnrichmentPack({ pack, createdAt: generatedAt });
 
     return pack;
+  }
+
+  private async enrichWithRateLimiter(
+    provider: ExternalEntityProvider,
+    request: ExternalEntityEnrichmentRequest,
+    generatedAt: string,
+  ): Promise<ExternalEntityProviderResult> {
+    const rateLimitDecision = provider.tier === 'local_signal'
+      ? undefined
+      : await this.executionPolicy.rateLimiter?.consume(
+          provider.providerKey,
+          generatedAt,
+        );
+    if (rateLimitDecision && !rateLimitDecision.allowed) {
+      return {
+        candidates: [],
+        warnings: [{
+          providerKey: provider.providerKey,
+          status: 'rate_limited',
+          code: 'provider_rate_limited',
+          message: rateLimitDecision.resetAt
+            ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
+            : `${provider.providerKey} is rate-limited.`,
+        }],
+      };
+    }
+
+    return provider.enrich(request);
   }
 }
 

@@ -4,6 +4,7 @@ import {
   ExternalEntityProviderExecutionPolicy,
   ExternalEntityProviderRateLimitConfig,
   InMemoryExternalEntityProviderCache,
+  PacedExternalEntityProviderQueue,
 } from './external-entity-execution-policy';
 
 export function configuredExternalEntityExecutionPolicy(
@@ -23,6 +24,7 @@ export function configuredExternalEntityExecutionPolicy(
       : {}),
     ...(rateLimitConfigs.size > 0
       ? {
+          queue: new PacedExternalEntityProviderQueue(rateLimitConfigs),
           rateLimiter: new ConfiguredExternalEntityRateLimiter(
             rateLimitConfigs,
           ),

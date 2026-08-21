@@ -8,6 +8,7 @@ describe('configuredExternalEntityExecutionPolicy', () => {
 
     expect(policy.cache).toBeUndefined();
     expect(policy.cacheTtlMs).toBeUndefined();
+    expect(policy.queue).toBeUndefined();
     expect(policy.rateLimiter).toBeUndefined();
   });
 
@@ -34,6 +35,7 @@ describe('configuredExternalEntityExecutionPolicy', () => {
         })[key],
     });
 
+    expect(policy.queue).toBeDefined();
     await expect(
       policy.rateLimiter?.consume(
         'google_knowledge_graph',

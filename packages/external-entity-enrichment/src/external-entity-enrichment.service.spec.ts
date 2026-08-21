@@ -6,6 +6,7 @@ import {
 import { ExternalEntityEnrichmentService } from './external-entity-enrichment.service';
 import {
   FixedWindowExternalEntityRateLimiter,
+  ExternalEntityProviderExecutionQueue,
   InMemoryExternalEntityProviderCache,
 } from './external-entity-execution-policy';
 import { ExternalEntityProviderRegistry } from './external-entity-provider-registry';
@@ -208,6 +209,28 @@ describe('ExternalEntityEnrichmentService', () => {
       }),
     ]));
   });
+
+  it('queues public provider execution instead of skipping queued providers', async () => {
+    const provider = new CountingProvider();
+    const queue = new CountingQueue();
+    const service = new ExternalEntityEnrichmentService(
+      new ExternalEntityProviderRegistry([provider]),
+      undefined,
+      { queue },
+    );
+
+    const firstPack = await service.enrich(request);
+    const secondPack = await service.enrich({
+      ...request,
+      entityName: 'Different Entity',
+      now: '2026-07-26T00:00:01.000Z',
+    });
+
+    expect(queue.executions).toEqual(['counting_provider', 'counting_provider']);
+    expect(provider.enrichCalls).toBe(2);
+    expect(firstPack.warnings).toEqual([]);
+    expect(secondPack.warnings).toEqual([]);
+  });
 });
 
 class ThrowingProvider implements ExternalEntityProvider {
@@ -266,5 +289,17 @@ class CountingProvider implements ExternalEntityProvider {
         },
       }],
     };
+  }
+}
+
+class CountingQueue implements ExternalEntityProviderExecutionQueue {
+  executions: string[] = [];
+
+  async execute<T>(
+    providerKey: string,
+    task: () => Promise<T>,
+  ): Promise<T> {
+    this.executions.push(providerKey);
+    return task();
   }
 }
