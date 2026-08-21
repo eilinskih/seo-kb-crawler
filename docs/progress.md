@@ -95,6 +95,10 @@ Summary:
   spaCy/Stanza/UDPipe-style HTTP services via `PHRASE_ANALYSIS_NLP_ENDPOINT`.
 - Added a Dockerized `phrase-nlp` sidecar using spaCy by default, with UDPipe
   model-path support and Stanza left as an optional custom-image backend.
+- Fixed Docker Google Knowledge Graph configuration so blank
+  `GOOGLE_KNOWLEDGE_GRAPH_API_KEY` values do not mask `GOOGLE_KG_API_KEY`.
+- Added a lock around spaCy model loading so first-run concurrent phrase
+  analysis requests do not repeatedly download the same language model.
 - Wired Demand discovery persistence to use the provider cascade:
   self-host NLP when configured, External Entity Enrichment when available and
   structural analysis as the final fallback.
@@ -111,6 +115,13 @@ Validation:
 - docker compose exec -T phrase-nlp curl -fsS -X POST
   http://127.0.0.1:8000/analyze -H 'Content-Type: application/json'
   -d '{"text":"szafka garażowa z szufladami","language":"pl"}'
+- Real topic smoke `szafka garażowa z szufladami`:
+  focused SERP recorded 10 URLs, Demand discovered 8 keyword candidates and 6
+  candidate pages, page planning recommended 1 create and 5 merge candidates,
+  and `phrase-nlp` received live `/analyze` calls from API.
+  Remaining smoke limitations: Google SERP fallback circuit opened, Google KG
+  and Wikidata returned rate-limit responses, and chunking skipped one document
+  version with no usable text.
 
 Date: 2026-08-20
 Issue: #186 / #187 follow-up

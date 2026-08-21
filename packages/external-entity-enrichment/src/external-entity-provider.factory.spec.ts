@@ -32,6 +32,21 @@ describe('configuredExternalEntityProviders', () => {
     });
   });
 
+  it('falls back to GOOGLE_KG_API_KEY when primary Google Knowledge Graph env is blank', async () => {
+    const providers = configuredExternalEntityProviders({
+      get: (key: string) =>
+        ({
+          GOOGLE_KNOWLEDGE_GRAPH_API_KEY: '',
+          GOOGLE_KG_API_KEY: 'test-key',
+        })[key],
+    });
+
+    await expect(providers[0].getStatus()).resolves.toMatchObject({
+      providerKey: 'google_knowledge_graph',
+      status: 'available',
+    });
+  });
+
   it('configures Wikidata from env-backed settings', async () => {
     const providers = configuredExternalEntityProviders({
       get: (key: string) =>

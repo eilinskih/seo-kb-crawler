@@ -1,5 +1,6 @@
 import os
 from functools import lru_cache
+from threading import Lock
 from typing import Any, Literal
 
 import spacy
@@ -45,6 +46,7 @@ class AnalyzeResponse(BaseModel):
 
 
 app = FastAPI(title="SEO KB Phrase NLP", version="0.1.0")
+_spacy_model_lock = Lock()
 
 
 @app.get("/health")
@@ -153,16 +155,17 @@ def analyze_with_stanza(text: str, language: str) -> AnalyzeResponse:
 @lru_cache(maxsize=16)
 def spacy_pipeline(language: str) -> Any:
     model_name = language_model_name(language)
-    try:
-        return spacy.load(model_name)
-    except OSError:
-        if should_download_spacy_models():
-            spacy_download(model_name)
-            return spacy.load(model_name)
+    with _spacy_model_lock:
         try:
-            return spacy.blank(language)
-        except ImportError:
-            return spacy.blank("xx")
+            return spacy.load(model_name)
+        except OSError:
+            if should_download_spacy_models():
+                spacy_download(model_name)
+                return spacy.load(model_name)
+            try:
+                return spacy.blank(language)
+            except ImportError:
+                return spacy.blank("xx")
 
 
 def language_model_name(language: str) -> str:
