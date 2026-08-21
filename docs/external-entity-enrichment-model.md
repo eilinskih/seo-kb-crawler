@@ -100,6 +100,13 @@ provider and spaces them across the configured request window instead of
 dropping enrichment requests at the first rate-limit boundary. This preserves
 workflow integrity while respecting free/public provider limits.
 
+Demand Engine uses this provider-paced execution inside a durable background
+queue. Topic work persists initial phrase analysis first, enqueues enrichment
+jobs with candidate correlation metadata and lets the worker merge later
+KG/Wikidata evidence back into Demand persistence. Background application is
+idempotent and must skip stale jobs when the target candidate has changed since
+the job was queued.
+
 When no cache or rate-limit environment variables are configured, provider
 execution policy is empty and provider status/configuration still decides
 whether each provider runs.

@@ -11,6 +11,9 @@ import {
   DemandDiscoveryPersistenceResult,
   DemandEngineRepository,
 } from './persistence/demand-engine.repository';
+import {
+  DemandEntityEnrichmentDispatchService,
+} from './demand-entity-enrichment-queue';
 import { DemandEngineService } from './demand-engine.service';
 import {
   EntityEnrichedPhraseAnalysisProvider,
@@ -33,6 +36,7 @@ export interface DiscoverAndPersistDemandResult {
 @Injectable()
 export class DemandDiscoveryPersistenceService {
   private readonly demandEngine: DemandEngineService;
+  private readonly asyncEntityEnrichment: boolean;
 
   constructor(
     @Inject(DEMAND_ENGINE_REPOSITORY)
@@ -43,7 +47,10 @@ export class DemandDiscoveryPersistenceService {
     entityEnrichment?: ExternalEntityEnrichmentService,
     @Optional()
     config?: ConfigService,
+    @Optional()
+    private readonly entityEnrichmentDispatch?: DemandEntityEnrichmentDispatchService,
   ) {
+    this.asyncEntityEnrichment = isAsyncEntityEnrichmentEnabled(config);
     this.demandEngine = new DemandEngineService(
       providers,
       phraseAnalysisProvider(entityEnrichment, config),
@@ -60,6 +67,15 @@ export class DemandDiscoveryPersistenceService {
       topicId: command.topicId,
       observedAt,
     });
+    if (this.asyncEntityEnrichment) {
+      await this.entityEnrichmentDispatch?.dispatch({
+        topicSeed: command.topicSeed,
+        topicId: command.topicId,
+        discovery,
+        persistence,
+        queuedAt: observedAt,
+      });
+    }
 
     return {
       discovery,
@@ -84,7 +100,7 @@ function phraseAnalysisProvider(
       })
     : structural;
 
-  if (!entityEnrichment) {
+  if (!entityEnrichment || isAsyncEntityEnrichmentEnabled(config)) {
     return base;
   }
 
@@ -97,6 +113,10 @@ function phraseAnalysisProvider(
       config?.get<string>('PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS'),
     ),
   });
+}
+
+function isAsyncEntityEnrichmentEnabled(config?: ConfigService): boolean {
+  return config?.get<string>('EXTERNAL_ENTITY_ENRICHMENT_ASYNC') !== 'false';
 }
 
 function numberConfig(value: string | undefined): number | undefined {

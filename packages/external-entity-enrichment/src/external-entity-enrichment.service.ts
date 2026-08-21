@@ -11,6 +11,7 @@ import {
 import { ExternalEntityProviderRegistry } from './external-entity-provider-registry';
 import {
   ExternalEntityEnrichmentRepository,
+  ExternalEntityEnrichmentPackRecord,
 } from './persistence/external-entity-enrichment.repository';
 import {
   cacheExpiry,
@@ -102,6 +103,12 @@ export class ExternalEntityEnrichmentService {
     await this.repository?.saveEnrichmentPack({ pack, createdAt: generatedAt });
 
     return pack;
+  }
+
+  async findLatestPack(
+    entityName: string,
+  ): Promise<ExternalEntityEnrichmentPackRecord | null> {
+    return this.repository?.findLatestEnrichmentPack(entityName) ?? null;
   }
 
   private async enrichWithRateLimiter(

@@ -230,11 +230,18 @@ setting `PHRASE_NLP_BACKEND=udpipe` and mounting a model path through
 supported self-host pattern, but is not part of the default image because its
 runtime dependency stack is substantially heavier.
 
-External entity lookups are intentionally paced. Phrase Analysis may inspect
-multiple phrase spans per keyword candidate, controlled by
-`PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS` and
+External entity lookups are intentionally asynchronous by default. Topic work
+runs should persist self-host NLP or structural phrase analysis immediately,
+then enqueue persisted keyword candidates for background External Entity
+Enrichment through `EXTERNAL_ENTITY_ENRICHMENT_ASYNC=true`. Worker processing
+must merge KG/Wikidata evidence back into the persisted keyword candidate and
+any primary candidate page, guarded by the candidate `updatedAt` timestamp so
+stale jobs cannot overwrite a newer topic run.
+
+Background Phrase Analysis may inspect multiple phrase spans per keyword
+candidate, controlled by `PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS` and
 `PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS`, but public providers such as Google
-Knowledge Graph and Wikidata must be called through cache-first provider
+Knowledge Graph and Wikidata must still be called through cache-first provider
 execution and provider-paced queues. These providers are enrichment signals,
 not bulk keyword-expansion sources. If entity evidence cannot be collected
 immediately, the Demand Engine must keep the candidate keyword and continue with

@@ -1,5 +1,6 @@
 import { normalizeKeyword } from '../normalize-keyword';
 import {
+  ApplyPhraseAnalysisToKeywordCandidateCommand,
   DemandCandidatePageRecord,
   DemandDiscoveryPersistenceResult,
   DemandEngineRepository,
@@ -26,6 +27,8 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
         ...candidate,
         id: existing?.id ?? `demand-keyword-candidate-${this.candidates.size + 1}`,
         topicId: command.topicId ?? null,
+        phraseAnalysisUpdatedAt: candidate.phraseAnalysis ? command.observedAt : null,
+        phraseAnalysisAttemptId: null,
         lastObservedAt: command.observedAt,
         createdAt: existing?.createdAt ?? command.observedAt,
         updatedAt: command.observedAt,
@@ -95,6 +98,8 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
         id: existing?.id ?? `demand-candidate-page-${this.pages.size + 1}`,
         keywordCandidateId: candidate?.id ?? 'unknown',
         topicId: command.topicId ?? null,
+        phraseAnalysisUpdatedAt: page.phraseAnalysis ? command.observedAt : null,
+        phraseAnalysisAttemptId: null,
         createdAt: existing?.createdAt ?? command.observedAt,
         updatedAt: command.observedAt,
       };
@@ -125,6 +130,53 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
     return [...this.candidates.values()].filter((candidate) =>
       candidate.topicId === topicId,
     );
+  }
+
+  async findKeywordCandidateById(
+    keywordCandidateId: string,
+  ): Promise<DemandKeywordCandidateRecord | null> {
+    return [...this.candidates.values()].find((candidate) =>
+      candidate.id === keywordCandidateId,
+    ) ?? null;
+  }
+
+  async applyPhraseAnalysisToKeywordCandidate(
+    command: ApplyPhraseAnalysisToKeywordCandidateCommand,
+  ): Promise<DemandKeywordCandidateRecord | null> {
+    const entry = [...this.candidates.entries()].find(([, candidate]) =>
+      candidate.id === command.keywordCandidateId,
+    );
+    if (!entry) {
+      return null;
+    }
+    const [candidateKeyValue, candidate] = entry;
+    if (candidate.updatedAt !== command.candidateUpdatedAt) {
+      return null;
+    }
+
+    const updatedCandidate: DemandKeywordCandidateRecord = {
+      ...candidate,
+      phraseAnalysis: command.phraseAnalysis,
+      phraseAnalysisUpdatedAt: command.appliedAt,
+      phraseAnalysisAttemptId: command.externalEntityAttemptId ?? null,
+      updatedAt: command.appliedAt,
+    };
+    this.candidates.set(candidateKeyValue, updatedCandidate);
+
+    for (const [pageKey, page] of this.pages.entries()) {
+      if (page.keywordCandidateId !== command.keywordCandidateId) {
+        continue;
+      }
+      this.pages.set(pageKey, {
+        ...page,
+        phraseAnalysis: command.phraseAnalysis,
+        phraseAnalysisUpdatedAt: command.appliedAt,
+        phraseAnalysisAttemptId: command.externalEntityAttemptId ?? null,
+        updatedAt: command.appliedAt,
+      });
+    }
+
+    return updatedCandidate;
   }
 
   async markCandidatePagesSerpValidated(

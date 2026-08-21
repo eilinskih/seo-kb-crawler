@@ -21,10 +21,20 @@ export interface MarkCandidatePagesSerpValidatedCommand {
   validatedAt: string;
 }
 
+export interface ApplyPhraseAnalysisToKeywordCandidateCommand {
+  keywordCandidateId: string;
+  candidateUpdatedAt: string;
+  phraseAnalysis: NonNullable<KeywordCandidate['phraseAnalysis']>;
+  externalEntityAttemptId?: string | null;
+  appliedAt: string;
+}
+
 export interface DemandKeywordCandidateRecord extends KeywordCandidate {
   id: string;
   topicId: string | null;
   lastObservedAt: string;
+  phraseAnalysisUpdatedAt?: string | null;
+  phraseAnalysisAttemptId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +59,8 @@ export interface DemandCandidatePageRecord extends CandidatePage {
   id: string;
   keywordCandidateId: string;
   topicId: string | null;
+  phraseAnalysisUpdatedAt?: string | null;
+  phraseAnalysisAttemptId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -67,6 +79,12 @@ export interface DemandEngineRepository {
   markCandidatePagesSerpValidated(
     command: MarkCandidatePagesSerpValidatedCommand,
   ): Promise<DemandCandidatePageRecord[]>;
+  findKeywordCandidateById(
+    keywordCandidateId: string,
+  ): Promise<DemandKeywordCandidateRecord | null>;
+  applyPhraseAnalysisToKeywordCandidate(
+    command: ApplyPhraseAnalysisToKeywordCandidateCommand,
+  ): Promise<DemandKeywordCandidateRecord | null>;
   listKeywordCandidates(topicId: string): Promise<DemandKeywordCandidateRecord[]>;
   listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]>;
 }

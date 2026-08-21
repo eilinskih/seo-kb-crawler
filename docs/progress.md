@@ -100,6 +100,13 @@ Summary:
 - Added provider-paced execution for public External Entity providers so
   provider-backed phrase analysis queues KG/Wikidata calls across configured
   request windows instead of dropping useful lookups at the first rate limit.
+- Added a durable External Entity enrichment BullMQ path so topic runs no
+  longer wait for KG/Wikidata by default; persisted keyword candidates are
+  queued after Demand persistence and background workers merge entity evidence
+  back into keyword candidates and primary candidate pages.
+- Added phrase-analysis persistence and stale-job guards based on candidate
+  `updatedAt`, so late enrichment results are retained when valid and skipped
+  when a newer topic run has already updated the candidate.
 - Kept provider-backed phrase-analysis span lookup configurable so public
   KG/Wikidata providers are enrichment signals rather than unbounded keyword
   expansion sources.
@@ -122,6 +129,11 @@ Validation:
 - npm test -- --runInBand
   packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
   packages/demand-engine/src/phrase-analysis/entity-enriched-phrase-analysis.provider.spec.ts
+- npm test -- --runInBand
+  packages/demand-engine/src/demand-entity-enrichment-queue.spec.ts
+  packages/demand-engine/src/demand-entity-enrichment-worker.service.spec.ts
+  packages/demand-engine/src/demand-engine.service.spec.ts
+  packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts
 - npm test -- --runInBand
 - npm run build
 - docker compose config

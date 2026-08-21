@@ -1,4 +1,6 @@
 export * from './demand-engine.module';
+export * from './demand-entity-enrichment-queue';
+export * from './demand-entity-enrichment-worker.service';
 export * from './demand-discovery-persistence.service';
 export * from './demand-engine.service';
 export * from './demand-engine.tokens';

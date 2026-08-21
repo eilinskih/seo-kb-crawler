@@ -10,6 +10,7 @@ import {
 } from '../domain/demand-engine-types';
 import { normalizeKeyword } from '../normalize-keyword';
 import {
+  ApplyPhraseAnalysisToKeywordCandidateCommand,
   DemandCandidatePageRecord,
   DemandDiscoveryPersistenceResult,
   DemandEngineRepository,
@@ -35,6 +36,9 @@ interface DemandKeywordCandidateRow {
   evidence_types: JsonColumn<KeywordCandidate['evidenceTypes']>;
   confidence: KeywordCandidate['confidence'];
   metrics: JsonColumn<DemandMetricSnapshot>;
+  phrase_analysis: JsonColumn<KeywordCandidate['phraseAnalysis'] | null>;
+  phrase_analysis_updated_at: Date | string | null;
+  phrase_analysis_attempt_id: string | null;
   last_observed_at: Date | string;
   created_at: Date | string;
   updated_at: Date | string;
@@ -92,6 +96,9 @@ interface DemandCandidatePageRow {
   metrics: JsonColumn<DemandMetricSnapshot>;
   missing_metrics: JsonColumn<string[]>;
   missing_research_gaps: JsonColumn<string[]>;
+  phrase_analysis: JsonColumn<CandidatePage['phraseAnalysis'] | null>;
+  phrase_analysis_updated_at: Date | string | null;
+  phrase_analysis_attempt_id: string | null;
   page_action: CandidatePage['pageAction'];
   created_at: Date | string;
   updated_at: Date | string;
@@ -154,6 +161,55 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
       .orderBy('normalized_keyword', 'asc');
 
     return rows.map(toKeywordCandidateRecord);
+  }
+
+  async findKeywordCandidateById(
+    keywordCandidateId: string,
+  ): Promise<DemandKeywordCandidateRecord | null> {
+    const row = await this.db.knex<DemandKeywordCandidateRow>(
+      'demand_keyword_candidates',
+    )
+      .where({ id: keywordCandidateId })
+      .first();
+
+    return row ? toKeywordCandidateRecord(row) : null;
+  }
+
+  async applyPhraseAnalysisToKeywordCandidate(
+    command: ApplyPhraseAnalysisToKeywordCandidateCommand,
+  ): Promise<DemandKeywordCandidateRecord | null> {
+    const phraseAnalysis = json(command.phraseAnalysis);
+    const updatedAt = command.appliedAt;
+    const patch = {
+      phrase_analysis: phraseAnalysis,
+      phrase_analysis_updated_at: updatedAt,
+      phrase_analysis_attempt_id: command.externalEntityAttemptId ?? null,
+      updated_at: updatedAt,
+    };
+
+    const rows = await this.db.knex<DemandKeywordCandidateRow>(
+      'demand_keyword_candidates',
+    )
+      .where({ id: command.keywordCandidateId })
+      .where('updated_at', command.candidateUpdatedAt)
+      .update(patch)
+      .returning('*');
+
+    const updatedKeyword = rows[0];
+    if (!updatedKeyword) {
+      return null;
+    }
+
+    await this.db.knex<DemandCandidatePageRow>('demand_candidate_pages')
+      .where({ keyword_candidate_id: command.keywordCandidateId })
+      .update({
+        phrase_analysis: phraseAnalysis,
+        phrase_analysis_updated_at: updatedAt,
+        phrase_analysis_attempt_id: command.externalEntityAttemptId ?? null,
+        updated_at: updatedAt,
+      });
+
+    return toKeywordCandidateRecord(updatedKeyword);
   }
 
   async markCandidatePagesSerpValidated(
@@ -249,6 +305,9 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
         evidence_types: row.evidence_types,
         confidence: row.confidence,
         metrics: row.metrics,
+        phrase_analysis: row.phrase_analysis,
+        phrase_analysis_updated_at: row.phrase_analysis_updated_at,
+        phrase_analysis_attempt_id: row.phrase_analysis_attempt_id,
         last_observed_at: row.last_observed_at,
         updated_at: row.updated_at,
       });
@@ -339,6 +398,9 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
           metrics: row.metrics,
           missing_metrics: row.missing_metrics,
           missing_research_gaps: row.missing_research_gaps,
+          phrase_analysis: row.phrase_analysis,
+          phrase_analysis_updated_at: row.phrase_analysis_updated_at,
+          phrase_analysis_attempt_id: row.phrase_analysis_attempt_id,
           page_action: row.page_action,
           updated_at: row.updated_at,
         });
@@ -387,6 +449,9 @@ function toKeywordCandidateRow(
     evidence_types: json(candidate.evidenceTypes),
     confidence: candidate.confidence,
     metrics: json(candidate.metrics),
+    phrase_analysis: json(candidate.phraseAnalysis ?? null),
+    phrase_analysis_updated_at: candidate.phraseAnalysis ? observedAt : null,
+    phrase_analysis_attempt_id: null,
     last_observed_at: observedAt,
     created_at: existing?.created_at ?? observedAt,
     updated_at: observedAt,
@@ -408,6 +473,11 @@ function toKeywordCandidateRecord(
     evidenceTypes: parseJson(row.evidence_types),
     confidence: row.confidence,
     metrics: parseJson(row.metrics),
+    phraseAnalysis: parseJson(row.phrase_analysis) ?? undefined,
+    phraseAnalysisUpdatedAt: row.phrase_analysis_updated_at
+      ? toIsoString(row.phrase_analysis_updated_at)
+      : null,
+    phraseAnalysisAttemptId: row.phrase_analysis_attempt_id,
     lastObservedAt: toIsoString(row.last_observed_at),
     createdAt: toIsoString(row.created_at),
     updatedAt: toIsoString(row.updated_at),
@@ -545,6 +615,9 @@ function toCandidatePageRow(
     metrics: json(page.metrics),
     missing_metrics: json(page.missingMetrics),
     missing_research_gaps: json(missingResearchGaps),
+    phrase_analysis: json(page.phraseAnalysis ?? null),
+    phrase_analysis_updated_at: page.phraseAnalysis ? observedAt : null,
+    phrase_analysis_attempt_id: null,
     page_action: page.pageAction,
     created_at: existing?.created_at ?? observedAt,
     updated_at: observedAt,
@@ -570,6 +643,11 @@ function toCandidatePageRecord(row: DemandCandidatePageRow): DemandCandidatePage
     metrics: parseJson(row.metrics),
     missingMetrics: parseJson(row.missing_metrics),
     missingResearchGaps: parseJson(row.missing_research_gaps),
+    phraseAnalysis: parseJson(row.phrase_analysis) ?? undefined,
+    phraseAnalysisUpdatedAt: row.phrase_analysis_updated_at
+      ? toIsoString(row.phrase_analysis_updated_at)
+      : null,
+    phraseAnalysisAttemptId: row.phrase_analysis_attempt_id,
     pageAction: row.page_action,
     createdAt: toIsoString(row.created_at),
     updatedAt: toIsoString(row.updated_at),
