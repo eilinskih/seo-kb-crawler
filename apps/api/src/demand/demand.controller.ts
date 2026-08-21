@@ -3,6 +3,7 @@ import {
   DemandCandidatePageRecord,
   DemandEngineRepository,
   DemandKeywordCandidateRecord,
+  DemandObservationRecord,
   DEMAND_ENGINE_REPOSITORY,
   PageCandidatePlan,
   planCandidatePages,
@@ -19,6 +20,17 @@ export interface TopicDemandMapResponse {
     readinessCounts: Record<string, number>;
     planningRecommendationCounts: Record<string, number>;
     clusterCount: number;
+  };
+}
+
+export interface TopicDemandEvidenceResponse {
+  topicId: string;
+  observations: DemandObservationRecord[];
+  summary: {
+    observationCount: number;
+    evidenceTypeCounts: Record<string, number>;
+    providerCounts: Record<string, number>;
+    sourceUrlCount: number;
   };
 }
 
@@ -56,6 +68,30 @@ export class DemandController {
         clusterCount: new Set(
           pagePlan.clusters.map((cluster) => cluster.clusterKey),
         ).size,
+      },
+    };
+  }
+
+  @Get('topics/:topicId/evidence')
+  async topicDemandEvidence(
+    @Param('topicId', new ParseUUIDPipe({ version: '4' })) topicId: string,
+  ): Promise<TopicDemandEvidenceResponse> {
+    const observations = await this.demand.listObservations(topicId);
+
+    return {
+      topicId,
+      observations,
+      summary: {
+        observationCount: observations.length,
+        evidenceTypeCounts: countBy(observations.map((observation) =>
+          observation.evidenceType,
+        )),
+        providerCounts: countBy(observations.map((observation) =>
+          observation.providerKey,
+        )),
+        sourceUrlCount: new Set(observations
+          .map((observation) => observation.evidenceUrl)
+          .filter(Boolean)).size,
       },
     };
   }

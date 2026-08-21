@@ -16,6 +16,7 @@ import {
   DemandEngineRepository,
   DemandCandidatePageRecord,
   DEMAND_ENGINE_REPOSITORY,
+  competitorContentEvidenceObservations,
   creatablePlannedPages,
 } from '@seo-kb/demand-engine';
 import { EmbeddingDispatchService } from '@seo-kb/embeddings';
@@ -705,6 +706,8 @@ interface DocumentVersionRow {
   final_url: string | null;
   title: string | null;
   meta_description: string | null;
+  cleaned_markdown: string | null;
+  plain_text: string | null;
   metadata: unknown;
   structured_data: unknown;
 }
@@ -767,39 +770,21 @@ function documentEvidenceObservations(
   row: DocumentVersionRow,
   seedQuery: string,
 ): DemandObservation[] {
-  const sourceQuery = seedQuery;
   const evidenceUrl = row.final_url ?? row.requested_url;
   const metadata = parseJson<DocumentMetadataLike>(row.metadata) ?? {};
-  const observations: DemandObservation[] = [];
-  for (const text of [row.title, row.meta_description]) {
-    for (const phrase of candidatePhrases(text, seedQuery)) {
-      observations.push(observation(
-        phrase,
-        'serp_snippet',
-        sourceQuery,
-        evidenceUrl,
-      ));
-    }
-  }
-  for (const heading of metadata.headings ?? []) {
-    for (const phrase of candidatePhrases(heading.text, seedQuery)) {
-      observations.push(observation(
-        phrase,
-        'competitor_heading',
-        sourceQuery,
-        evidenceUrl,
-      ));
-    }
-  }
-  for (const question of faqQuestions(parseJson<unknown[]>(row.structured_data) ?? [])) {
-    observations.push(observation(
-      question,
-      'faq_block',
-      sourceQuery,
-      evidenceUrl,
-    ));
-  }
-  return observations;
+  const structuredData = parseJson<unknown[]>(row.structured_data) ?? [];
+  return competitorContentEvidenceObservations({
+    topicSeed: seedQuery,
+    documents: [{
+      url: evidenceUrl,
+      title: row.title,
+      metaDescription: row.meta_description,
+      headings: metadata.headings ?? [],
+      bodyText: row.plain_text ?? row.cleaned_markdown,
+      breadcrumbs: breadcrumbLabels(structuredData),
+      faqQuestions: faqQuestions(structuredData),
+    }],
+  });
 }
 
 interface DocumentMetadataLike {
@@ -918,6 +903,42 @@ function hasSeedOverlap(phrase: string, seedTokens: Set<string>): boolean {
 
 function faqQuestions(values: unknown[]): string[] {
   return unique(values.flatMap((value) => faqQuestionsFromValue(value)));
+}
+
+function breadcrumbLabels(values: unknown[]): string[] {
+  return unique(values.flatMap((value) => breadcrumbLabelsFromValue(value)));
+}
+
+function breadcrumbLabelsFromValue(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(breadcrumbLabelsFromValue);
+  }
+  if (!isRecord(value)) {
+    return [];
+  }
+  const type = jsonLdType(value['@type']).toLowerCase();
+  const direct = type === 'breadcrumblist'
+    ? breadcrumbItemLabels(value.itemListElement)
+    : [];
+  return [
+    ...direct,
+    ...breadcrumbLabelsFromValue(value['@graph']),
+    ...breadcrumbLabelsFromValue(value.itemListElement),
+  ];
+}
+
+function breadcrumbItemLabels(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(breadcrumbItemLabels);
+  }
+  if (!isRecord(value)) {
+    return [];
+  }
+  const name = typeof value.name === 'string' ? [value.name] : [];
+  return [
+    ...name,
+    ...breadcrumbItemLabels(value.item),
+  ];
 }
 
 function faqQuestionsFromValue(value: unknown): string[] {

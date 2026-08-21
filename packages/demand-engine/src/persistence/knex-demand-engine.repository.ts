@@ -169,6 +169,16 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
     return rows.map(toKeywordCandidateRecord);
   }
 
+  async listObservations(topicId: string): Promise<DemandObservationRecord[]> {
+    const rows = await this.db.knex<DemandObservationRow>('demand_observations')
+      .where('topic_id', topicId)
+      .orderBy('observed_at', 'desc')
+      .orderBy('observed_text', 'asc')
+      .limit(500);
+
+    return rows.map(toObservationRecord);
+  }
+
   async findKeywordCandidateById(
     keywordCandidateId: string,
   ): Promise<DemandKeywordCandidateRecord | null> {

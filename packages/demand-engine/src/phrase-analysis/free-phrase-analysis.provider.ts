@@ -17,7 +17,12 @@ const SEARCH_EVIDENCE = new Set([
 
 const OWNED_SERP_EVIDENCE = new Set([
   'serp_snippet',
+  'competitor_title',
+  'competitor_meta',
   'competitor_heading',
+  'competitor_anchor',
+  'competitor_breadcrumb',
+  'competitor_body_phrase',
   'faq_block',
 ]);
 
@@ -56,7 +61,7 @@ export class FreePhraseAnalysisProvider implements PhraseAnalysisProvider {
     const normalizedTopic = normalizeKeyword(request.topicSeed);
     const tokens = tokenize(normalizedPhrase);
     const topicTokens = new Set(tokenize(normalizedTopic).map((token) =>
-      token.normalizedText,
+      canonicalToken(token.normalizedText),
     ));
     const evidenceTypes = new Set(request.evidenceTypes);
     const predicates = predicatesForPhrase(tokens);
@@ -73,7 +78,7 @@ export class FreePhraseAnalysisProvider implements PhraseAnalysisProvider {
     );
     const hasMeasurement = MEASUREMENT_PATTERN.test(normalizedPhrase);
     const overlapCount = tokens.filter((token) =>
-      topicTokens.has(token.normalizedText),
+      topicTokens.has(canonicalToken(token.normalizedText)),
     ).length;
     const overlapRatio = tokens.length === 0 ? 0 : overlapCount / tokens.length;
     const lowQuality = LOW_QUALITY_PATTERNS.some((pattern) =>
@@ -170,7 +175,7 @@ function predicatesForPhrase(tokens: PhraseToken[]): PhrasePredicateType[] {
 }
 
 function tokenRole(token: PhraseToken, topicTokens: Set<string>): PhraseTokenRole {
-  if (topicTokens.has(token.normalizedText)) {
+  if (topicTokens.has(canonicalToken(token.normalizedText))) {
     return 'object';
   }
   if (CONNECTOR_PREDICATES.some((connector) =>
@@ -185,6 +190,17 @@ function tokenRole(token: PhraseToken, topicTokens: Set<string>): PhraseTokenRol
     return 'measurement';
   }
   return 'modifier';
+}
+
+function canonicalToken(value: string): string {
+  const token = normalizeKeyword(value)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '');
+  if (token.length <= 4) {
+    return token;
+  }
+  return token
+    .replace(/(owego|owej|owych|ami|ach|owe|owa|owy|ego|iej|ie|em|om|ow|ą|a|e|i|y)$/u, '');
 }
 
 function decideCandidateKind(input: {

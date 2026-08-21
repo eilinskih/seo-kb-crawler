@@ -110,6 +110,7 @@ function fakeRepository(
     saveDiscoveryResult: jest.fn(),
     markCandidatePagesSerpValidated: jest.fn(),
     listKeywordCandidates: jest.fn(),
+    listObservations: jest.fn(),
     listCandidatePages: jest.fn(),
     findKeywordCandidateById: jest.fn(async (_keywordCandidateId: string) =>
       candidate,

@@ -176,6 +176,61 @@ describe('DemandEngineService', () => {
     ]));
   });
 
+  it('classifies inflected competitor content phrases as page clusters when they overlap the seed object', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [{
+        observedText: 'Podnośniki hydrauliczne',
+        sourceTier: 'owned_data',
+        providerKey: 'competitor_content_evidence',
+        evidenceType: 'competitor_heading',
+        sourceQuery: 'podnośnik hydrauliczny',
+        evidenceUrl: 'https://example.pl/podnosniki',
+      }],
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'podnośniki hydrauliczne',
+        phraseAnalysis: expect.objectContaining({
+          candidateKind: 'page_cluster',
+        }),
+      }),
+    ]));
+    expect(result.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'podnośniki hydrauliczne',
+      }),
+    ]));
+  });
+
+  it('keeps weak body fragments out of candidate pages even when they are observed', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [{
+        observedText: 'podnosnik hydrauliczny wymaga',
+        sourceTier: 'owned_data',
+        providerKey: 'competitor_content_evidence',
+        evidenceType: 'competitor_body_phrase',
+        sourceQuery: 'podnośnik hydrauliczny',
+        evidenceUrl: 'https://example.pl/podnosniki',
+      }],
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'podnosnik hydrauliczny wymaga',
+      }),
+    ]));
+    expect(result.candidatePages).toEqual([]);
+  });
+
   it('keeps degraded SERP-only evidence partial until stronger confirmation exists', async () => {
     const service = new DemandEngineService([]);
 

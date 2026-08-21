@@ -134,6 +134,12 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
     );
   }
 
+  async listObservations(topicId: string): Promise<DemandObservationRecord[]> {
+    return this.observations.filter((observation) =>
+      observation.topicId === topicId,
+    );
+  }
+
   async findKeywordCandidateById(
     keywordCandidateId: string,
   ): Promise<DemandKeywordCandidateRecord | null> {

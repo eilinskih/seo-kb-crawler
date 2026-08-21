@@ -187,7 +187,70 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
 }
 
 function isPageClusterCandidate(candidate: KeywordCandidate): boolean {
-  return candidate.phraseAnalysis?.candidateKind === 'page_cluster';
+  return candidate.phraseAnalysis?.candidateKind === 'page_cluster' &&
+    hasPageCandidateEvidence(candidate) &&
+    hasPageCandidatePhraseShape(candidate.normalizedKeyword);
+}
+
+function hasPageCandidateEvidence(candidate: KeywordCandidate): boolean {
+  return candidate.evidenceTypes.some((type) =>
+    [
+      'topic_seed',
+      'autocomplete',
+      'people_also_ask',
+      'related_search',
+      'serp_snippet',
+      'competitor_title',
+      'competitor_heading',
+      'competitor_breadcrumb',
+      'faq_block',
+      'provider_keyword_metric',
+    ].includes(type),
+  );
+}
+
+function hasPageCandidatePhraseShape(keyword: string): boolean {
+  const tokens = keyword
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .split(/[^a-z0-9ąćęłńóśźż]+/iu)
+    .filter(Boolean);
+  if (tokens.length < 2 || tokens.length > 7) {
+    return false;
+  }
+  if (tokens.some((token) =>
+    ['amp', 'nbsp', 'oacute', 'aacute', 'eacute', 'raquo'].includes(token),
+  )) {
+    return false;
+  }
+  const weakTerminalTokens = new Set([
+    'jak',
+    'jest',
+    'jestesmy',
+    'jesteśmy',
+    'czesc',
+    'część',
+    'marki',
+    'pl',
+    'przez',
+    'sa',
+    'są',
+    'tego',
+    'to',
+    'wymaga',
+    'wymagaja',
+    'wymagają',
+    'wybrac',
+    'wybrać',
+    'wylacznie',
+    'wyłącznie',
+    'wiedze',
+    'wiedzę',
+    'zwyzek',
+    'zwyżek',
+  ]);
+  return !weakTerminalTokens.has(tokens.at(-1) ?? '');
 }
 
 function classifyCandidate(keyword: string): {
@@ -290,7 +353,16 @@ function readiness(
     candidate.metrics.metricStatus === 'owned_data_backed',
   );
   const hasSerpEvidence = evidenceTypes.some((type) =>
-    ['serp_snippet', 'competitor_heading', 'faq_block'].includes(type),
+    [
+      'serp_snippet',
+      'competitor_title',
+      'competitor_meta',
+      'competitor_heading',
+      'competitor_anchor',
+      'competitor_breadcrumb',
+      'competitor_body_phrase',
+      'faq_block',
+    ].includes(type),
   );
   const hasExpansionEvidence = evidenceTypes.some((type) =>
     ['people_also_ask', 'related_search', 'autocomplete'].includes(type),
@@ -371,7 +443,15 @@ function defaultEvidenceQuality(
   if (observation.evidenceType === 'serp_snippet' && observation.evidenceUrl) {
     return 'medium';
   }
-  if (observation.evidenceType === 'competitor_heading' || observation.evidenceType === 'faq_block') {
+  if (
+    observation.evidenceType === 'competitor_title' ||
+    observation.evidenceType === 'competitor_meta' ||
+    observation.evidenceType === 'competitor_heading' ||
+    observation.evidenceType === 'competitor_anchor' ||
+    observation.evidenceType === 'competitor_breadcrumb' ||
+    observation.evidenceType === 'competitor_body_phrase' ||
+    observation.evidenceType === 'faq_block'
+  ) {
     return 'medium';
   }
   return 'weak';

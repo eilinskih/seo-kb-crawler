@@ -87,5 +87,6 @@ export interface DemandEngineRepository {
     command: ApplyPhraseAnalysisToKeywordCandidateCommand,
   ): Promise<DemandKeywordCandidateRecord | null>;
   listKeywordCandidates(topicId: string): Promise<DemandKeywordCandidateRecord[]>;
+  listObservations(topicId: string): Promise<DemandObservationRecord[]>;
   listCandidatePages(topicId: string): Promise<DemandCandidatePageRecord[]>;
 }
