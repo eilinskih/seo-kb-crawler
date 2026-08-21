@@ -63,6 +63,14 @@ export interface KeywordCandidate {
     providerKey: string;
     candidateKind: string;
     confidence: 'low' | 'medium' | 'high';
+    entityEvidence?: Array<{
+      text: string;
+      providerKey: string;
+      externalId: string | null;
+      name: string;
+      types: string[];
+      confidence: 'unknown' | 'low' | 'medium' | 'high';
+    }>;
     reasons: string[];
   };
 }

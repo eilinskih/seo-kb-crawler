@@ -74,7 +74,7 @@ Roadmap order, phases and dependency rules live only in
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
-| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence, separates technical readiness from editorial page-planning recommendations and now uses Phrase Analysis to keep product/model-like phrases out of automatic page candidates. |
+| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence, separates technical readiness from editorial page-planning recommendations and now uses provider-backed Phrase Analysis to keep product/model-like phrases out of automatic page candidates. |
 | #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API, including page-plan access for website workspaces. |
 
 ## Active work log
@@ -88,6 +88,14 @@ Summary:
 - Introduced the Demand Engine Phrase Analysis Provider boundary.
 - Added a free structural phrase-analysis provider for object/modifier and
   product/model-like phrase detection without niche-specific dictionaries.
+- Added an entity-enriched Phrase Analysis provider that consumes External
+  Entity Enrichment evidence from Wikidata, Google Knowledge Graph when
+  configured and cached provider results.
+- Added an optional self-host NLP Phrase Analysis provider for local
+  spaCy/Stanza/UDPipe-style HTTP services via `PHRASE_ANALYSIS_NLP_ENDPOINT`.
+- Wired Demand discovery persistence to use the provider cascade:
+  self-host NLP when configured, External Entity Enrichment when available and
+  structural analysis as the final fallback.
 - Kept all observed phrases as keyword candidates while allowing only
   page-cluster phrases to become automatic candidate pages.
 - Added regression coverage for SERP/competitor evidence where model/SKU-like

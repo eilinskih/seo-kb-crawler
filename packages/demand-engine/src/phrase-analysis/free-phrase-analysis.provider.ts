@@ -51,7 +51,7 @@ const MEASUREMENT_PATTERN = /\b\d+(?:[,.]\d+)?\s*(?:x|×)\s*\d+(?:[,.]\d+)?(?:\s
 export class FreePhraseAnalysisProvider implements PhraseAnalysisProvider {
   readonly providerKey = 'free_structural_phrase_analysis';
 
-  analyze(request: PhraseAnalysisRequest): PhraseAnalysisResult {
+  async analyze(request: PhraseAnalysisRequest): Promise<PhraseAnalysisResult> {
     const normalizedPhrase = normalizeKeyword(request.phrase);
     const normalizedTopic = normalizeKeyword(request.topicSeed);
     const tokens = tokenize(normalizedPhrase);

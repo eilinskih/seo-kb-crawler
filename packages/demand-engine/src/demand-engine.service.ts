@@ -55,11 +55,11 @@ export class DemandEngineService {
       }
     }
 
-    const keywordCandidates = buildKeywordCandidates(
+    const keywordCandidates = (await buildKeywordCandidates(
       observations,
       request,
       this.phraseAnalysisProvider,
-    ).slice(0, request.limit ?? 100);
+    )).slice(0, request.limit ?? 100);
 
     return {
       normalizedTopic,
@@ -78,7 +78,7 @@ function buildKeywordCandidates(
   observations: DemandObservation[],
   request: DemandDiscoveryRequest,
   phraseAnalysisProvider: PhraseAnalysisProvider,
-): KeywordCandidate[] {
+): Promise<KeywordCandidate[]> {
   const byKeyword = new Map<string, DemandObservation[]>();
   for (const observation of observations) {
     const normalized = normalizeKeyword(observation.observedText);
@@ -88,11 +88,11 @@ function buildKeywordCandidates(
     byKeyword.set(normalized, [...(byKeyword.get(normalized) ?? []), observation]);
   }
 
-  return [...byKeyword.entries()]
-    .map(([normalizedKeyword, grouped]) => {
+  return Promise.all([...byKeyword.entries()]
+    .map(async ([normalizedKeyword, grouped]) => {
       const metrics = mergeMetrics(grouped);
       const evidenceTypes = unique(grouped.map((observation) => observation.evidenceType));
-      const phraseAnalysis = phraseAnalysisProvider.analyze({
+      const phraseAnalysis = await phraseAnalysisProvider.analyze({
         phrase: normalizedKeyword,
         topicSeed: request.topicSeed,
         language: request.language,
@@ -112,15 +112,24 @@ function buildKeywordCandidates(
           providerKey: phraseAnalysis.providerKey,
           candidateKind: phraseAnalysis.candidateKind,
           confidence: phraseAnalysis.confidence,
+          entityEvidence: phraseAnalysis.entityEvidence?.map((evidence) => ({
+            text: evidence.text,
+            providerKey: evidence.providerKey,
+            externalId: evidence.externalId,
+            name: evidence.name,
+            types: evidence.types,
+            confidence: evidence.confidence,
+          })),
           reasons: phraseAnalysis.reasons,
         },
       };
-    })
+    }))
+    .then((candidates) => candidates
     .sort((a, b) =>
       confidenceRank(b.confidence) - confidenceRank(a.confidence) ||
       b.evidenceTypes.length - a.evidenceTypes.length ||
       a.normalizedKeyword.localeCompare(b.normalizedKeyword),
-    );
+    ));
 }
 
 function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {

@@ -207,6 +207,22 @@ Minimum evidence thresholds:
 - Candidates below the page threshold may remain keyword candidates, but should
   not become page candidates without review.
 
+Phrase interpretation must stay provider-backed where possible. The runtime
+Phrase Analysis boundary should prefer free/self-hostable evidence sources
+before relying on structural heuristics:
+
+1. self-host NLP adapters such as spaCy, Stanza or UDPipe, exposed as a local
+   HTTP service through `PHRASE_ANALYSIS_NLP_ENDPOINT`;
+2. External Entity Enrichment candidates from Wikidata, Google Knowledge Graph
+   when configured, and cached provider results;
+3. structural fallback checks for SKU/model/measurement-like phrases and
+   low-quality snippets.
+
+Structural analysis is a fallback guardrail only. It must not become a
+domain-specific keyword generator or a hand-maintained local dictionary.
+Observed phrases may remain keyword candidates even when phrase analysis does
+not allow them to become automatic page candidates.
+
 Unknown metrics must be explicit in Demand Packs:
 
 ```txt

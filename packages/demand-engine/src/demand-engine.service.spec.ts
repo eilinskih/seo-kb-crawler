@@ -6,6 +6,10 @@ import {
 } from './domain/demand-engine-types';
 import { ExternalSeoDemandProvider } from './external-seo-demand.provider';
 import { ManualFallbackDemandProvider } from './manual-fallback-demand.provider';
+import {
+  EntityEnrichedPhraseAnalysisProvider,
+  PhraseEntityEnrichmentService,
+} from './phrase-analysis/entity-enriched-phrase-analysis.provider';
 import { InMemoryDemandEngineRepository } from './testing/in-memory-demand-engine.repository';
 
 describe('DemandEngineService', () => {
@@ -201,6 +205,97 @@ describe('DemandEngineService', () => {
     )).not.toEqual(expect.arrayContaining([
       'stalowa szafka z szufladami do garażu dova 5x',
       'granatowa stalowa szafka z 6 szufladami l2-r61',
+    ]));
+  });
+
+  it('can enrich phrase analysis with external entity evidence without requiring paid APIs', async () => {
+    const service = new DemandEngineService(
+      [new ManualFallbackDemandProvider()],
+      new EntityEnrichedPhraseAnalysisProvider(fakeEntityEnrichment({
+        'crown coins casino': [{
+          name: 'Crown Coins Casino',
+          externalId: 'Q-test',
+          externalIdType: 'wikidata_qid',
+          providerKey: 'wikidata',
+          source: 'wikidata',
+          types: ['online casino'],
+          confidence: 'high',
+          score: 120,
+        }],
+      })),
+    );
+
+    const result = await service.discover({
+      topicSeed: 'crown coins casino',
+      evidenceObservations: [{
+        observedText: 'Crown Coins Casino Review',
+        sourceTier: 'owned_data',
+        providerKey: 'topic_work_evidence',
+        evidenceType: 'related_search',
+        sourceQuery: 'crown coins casino',
+      }],
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'crown coins casino review',
+        phraseAnalysis: expect.objectContaining({
+          providerKey: 'entity_enriched_phrase_analysis',
+          candidateKind: 'page_cluster',
+          entityEvidence: expect.arrayContaining([
+            expect.objectContaining({
+              text: 'crown coins casino',
+              providerKey: 'wikidata',
+              externalId: 'Q-test',
+            }),
+          ]),
+        }),
+      }),
+    ]));
+  });
+
+  it('does not let entity enrichment promote model-like product phrases into page candidates', async () => {
+    const service = new DemandEngineService(
+      [new ManualFallbackDemandProvider()],
+      new EntityEnrichedPhraseAnalysisProvider(fakeEntityEnrichment({
+        'dova': [{
+          name: 'Dova',
+          externalId: 'brand-test',
+          externalIdType: 'external_entity',
+          providerKey: 'google_knowledge_graph',
+          source: 'google_knowledge_graph',
+          types: ['Thing'],
+          confidence: 'high',
+          score: 200,
+        }],
+      })),
+    );
+
+    const result = await service.discover({
+      topicSeed: 'szafka garażowa z szufladami',
+      evidenceObservations: [{
+        observedText: 'Stalowa szafka z szufladami do garażu Dova 5X',
+        sourceTier: 'owned_data',
+        providerKey: 'topic_work_evidence',
+        evidenceType: 'competitor_heading',
+        sourceQuery: 'szafka garażowa z szufladami',
+      }],
+      limit: 100,
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'stalowa szafka z szufladami do garażu dova 5x',
+        phraseAnalysis: expect.objectContaining({
+          providerKey: 'entity_enriched_phrase_analysis',
+          candidateKind: 'product_or_instance',
+        }),
+      }),
+    ]));
+    expect(result.candidatePages.map((page) =>
+      page.primaryKeyword,
+    )).not.toEqual(expect.arrayContaining([
+      'stalowa szafka z szufladami do garażu dova 5x',
     ]));
   });
 
@@ -465,6 +560,52 @@ function unavailableProvider(): DemandProviderAdapter {
     sourceTier: 'paid_provider',
     async discover(): Promise<DemandProviderResult> {
       throw new Error('missing API key');
+    },
+  };
+}
+
+function fakeEntityEnrichment(
+  candidatesByName: Record<string, Array<{
+    name: string;
+    externalId: string;
+    externalIdType: string;
+    providerKey: string;
+    source: 'google_knowledge_graph' | 'wikidata' | 'schema_org' | 'other';
+    types: string[];
+    confidence: 'unknown' | 'low' | 'medium' | 'high';
+    score: number;
+  }>>,
+): PhraseEntityEnrichmentService {
+  return {
+    async enrich(request) {
+      const key = request.entityName.toLowerCase();
+      const candidates = candidatesByName[key] ?? [];
+      return {
+        request,
+        generatedAt: '2026-08-21T00:00:00.000Z',
+        degraded: candidates.length === 0,
+        providerStatuses: [],
+        warnings: [],
+        candidates: candidates.map((candidate) => ({
+          providerKey: candidate.providerKey,
+          source: candidate.source,
+          externalId: candidate.externalId,
+          externalIdType: candidate.externalIdType,
+          name: candidate.name,
+          description: null,
+          types: candidate.types,
+          aliases: [],
+          urls: [],
+          score: candidate.score,
+          confidence: candidate.confidence,
+          provenance: {
+            providerKey: candidate.providerKey,
+            source: candidate.source,
+            observedAt: '2026-08-21T00:00:00.000Z',
+          },
+        })),
+        externalIds: [],
+      };
     },
   };
 }

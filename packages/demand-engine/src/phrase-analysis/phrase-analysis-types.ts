@@ -53,10 +53,22 @@ export interface PhraseAnalysisResult {
   modifierSpans: PhraseSpan[];
   predicates: PhrasePredicateType[];
   tokens: PhraseToken[];
+  entityEvidence?: PhraseEntityEvidence[];
   reasons: string[];
 }
 
 export interface PhraseAnalysisProvider {
   providerKey: string;
-  analyze(request: PhraseAnalysisRequest): PhraseAnalysisResult;
+  analyze(request: PhraseAnalysisRequest): Promise<PhraseAnalysisResult>;
+}
+
+export interface PhraseEntityEvidence {
+  text: string;
+  providerKey: string;
+  externalId: string | null;
+  externalIdType: string | null;
+  name: string;
+  types: string[];
+  confidence: 'unknown' | 'low' | 'medium' | 'high';
+  score: number | null;
 }
