@@ -18,7 +18,11 @@ export class TopicUniverseDemandProvider implements DemandProviderAdapter {
 
     const vocabulary = (request.manualSeeds ?? [])
       .map((value) => normalizeKeyword(value))
-      .filter((value) => value.length > 0 && value !== seed);
+      .filter((value) =>
+        value.length > 0 &&
+        value !== seed &&
+        !isGenericVocabularyTerm(value),
+      );
     const queries = unique([
       seed,
       ...geoQueries(seed, request.geo?.city),
@@ -88,4 +92,22 @@ function fallbackEvidenceTypeFor(
 
 function unique(values: string[]): string[] {
   return [...new Set(values.map((value) => normalizeKeyword(value)).filter(Boolean))];
+}
+
+function isGenericVocabularyTerm(value: string): boolean {
+  return [
+    'entity',
+    'object',
+    'thing',
+    'creativework',
+    'creative work',
+    'intangible',
+    'product',
+    'place',
+    'organization',
+    'person',
+    'item',
+    'concept',
+    'category',
+  ].includes(value);
 }

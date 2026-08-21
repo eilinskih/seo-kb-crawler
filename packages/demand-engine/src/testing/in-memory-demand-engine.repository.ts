@@ -108,6 +108,17 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
         this.pages.delete(key);
       }
     }
+    const currentCandidateKeys = new Set(
+      command.result.keywordCandidates.map((candidate) =>
+        candidateKey(command.topicId, candidate.normalizedKeyword),
+      ),
+    );
+    for (const key of this.candidates.keys()) {
+      if (key.startsWith(`${command.topicId ?? 'global'}:`) &&
+        !currentCandidateKeys.has(key)) {
+        this.candidates.delete(key);
+      }
+    }
 
     return {
       keywordCandidates,

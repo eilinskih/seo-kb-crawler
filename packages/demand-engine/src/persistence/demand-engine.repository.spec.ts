@@ -53,6 +53,51 @@ describe('DemandEngineRepository', () => {
     );
   });
 
+  it('removes stale keyword candidates when a later discovery recalculates the topic universe', async () => {
+    const repository = new InMemoryDemandEngineRepository();
+    const service = new DemandEngineService([new ManualFallbackDemandProvider()]);
+    const firstResult = await service.discover({
+      topicId: 'topic-1',
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price', 'laser hair removal thing'],
+      language: 'en',
+      geo: { countryCode: 'PL' },
+    });
+    const secondResult = await service.discover({
+      topicId: 'topic-1',
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price'],
+      language: 'en',
+      geo: { countryCode: 'PL' },
+    });
+
+    await repository.saveDiscoveryResult({
+      result: firstResult,
+      topicId: 'topic-1',
+      observedAt: '2026-07-26T00:00:00.000Z',
+    });
+    await repository.saveDiscoveryResult({
+      result: secondResult,
+      topicId: 'topic-1',
+      observedAt: '2026-07-26T01:00:00.000Z',
+    });
+
+    await expect(repository.listKeywordCandidates('topic-1')).resolves.toEqual(
+      expect.not.arrayContaining([
+        expect.objectContaining({
+          normalizedKeyword: 'laser hair removal thing',
+        }),
+      ]),
+    );
+    await expect(repository.listKeywordCandidates('topic-1')).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          normalizedKeyword: 'laser hair removal price',
+        }),
+      ]),
+    );
+  });
+
   it('rebuilds stale SERP evidence when later fallback refreshes recalculate pages', async () => {
     const repository = new InMemoryDemandEngineRepository();
     const service = new DemandEngineService([new ManualFallbackDemandProvider()]);

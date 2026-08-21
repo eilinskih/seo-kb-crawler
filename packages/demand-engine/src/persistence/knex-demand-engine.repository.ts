@@ -143,6 +143,12 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
       command.topicId,
       command.observedAt,
     );
+    await this.deleteStaleKeywordCandidates(
+      command.topicId,
+      command.result.keywordCandidates.map((candidate) =>
+        candidate.normalizedKeyword,
+      ),
+    );
 
     return {
       keywordCandidates,
@@ -429,6 +435,20 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
       .where({ topic_key: topicKey(topicId) });
     if (currentSlugs.length > 0) {
       query.whereNotIn('slug', currentSlugs);
+    }
+    await query.delete();
+  }
+
+  private async deleteStaleKeywordCandidates(
+    topicId: string | undefined,
+    currentKeywords: string[],
+  ): Promise<void> {
+    const query = this.db.knex<DemandKeywordCandidateRow>(
+      'demand_keyword_candidates',
+    )
+      .where({ topic_key: topicKey(topicId) });
+    if (currentKeywords.length > 0) {
+      query.whereNotIn('normalized_keyword', currentKeywords);
     }
     await query.delete();
   }

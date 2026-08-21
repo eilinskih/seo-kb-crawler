@@ -610,7 +610,9 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         ...candidate.aliases,
         ...candidate.types,
       ]))
-        .filter((value) => value.length > 2)
+        .filter((value) =>
+          value.length > 2 && !isGenericEntityVocabularyTerm(value),
+        )
         .slice(0, 20);
     } catch (error) {
       options.warnings.push(
@@ -670,6 +672,25 @@ function inferCity(seedQuery: string): string | undefined {
 
 function unique(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function isGenericEntityVocabularyTerm(value: string): boolean {
+  const normalized = value.trim().toLowerCase().replace(/[_-]+/gu, ' ');
+  return [
+    'entity',
+    'object',
+    'thing',
+    'creativework',
+    'creative work',
+    'intangible',
+    'product',
+    'place',
+    'organization',
+    'person',
+    'item',
+    'concept',
+    'category',
+  ].includes(normalized);
 }
 
 interface SerpSnapshotRow {

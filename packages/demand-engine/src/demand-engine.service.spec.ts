@@ -87,6 +87,41 @@ describe('DemandEngineService', () => {
     ]));
   });
 
+  it('does not create topic universe combinations from generic entity types', async () => {
+    const service = new DemandEngineService();
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      geo: { countryCode: 'PL' },
+      manualSeeds: [
+        'Thing',
+        'Product',
+        'CreativeWork',
+        'podnośnik samochodowy',
+      ],
+      limit: 100,
+    });
+
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).toEqual(expect.arrayContaining([
+      'podnośnik hydrauliczny podnośnik samochodowy',
+      'podnośnik samochodowy podnośnik hydrauliczny',
+    ]));
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).not.toEqual(expect.arrayContaining([
+      'thing',
+      'product',
+      'creativework',
+      'podnośnik hydrauliczny thing',
+      'thing podnośnik hydrauliczny',
+      'podnośnik hydrauliczny product',
+      'product podnośnik hydrauliczny',
+    ]));
+  });
+
   it('uses persisted SERP and competitor evidence as demand signals without synthetic modifiers', async () => {
     const service = new DemandEngineService();
 
