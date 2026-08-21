@@ -69,18 +69,14 @@ export class DemandEntityEnrichmentDispatchService {
           queuedAt: command.queuedAt,
         },
         {
-          jobId: [
-            'demand-entity-enrichment',
-            record.id,
-            record.updatedAt,
-          ].join(':'),
+          jobId: demandEntityEnrichmentJobId(record.id),
           attempts: 3,
           backoff: {
             type: 'exponential',
             delay: 60_000,
           },
-          removeOnComplete: 1000,
-          removeOnFail: 1000,
+          removeOnComplete: true,
+          removeOnFail: true,
         },
       );
       enqueued += 1;
@@ -88,6 +84,10 @@ export class DemandEntityEnrichmentDispatchService {
 
     return enqueued;
   }
+}
+
+function demandEntityEnrichmentJobId(keywordCandidateId: string): string {
+  return ['demand-entity-enrichment', keywordCandidateId].join('-');
 }
 
 function hasEntityEvidence(candidate: KeywordCandidate): boolean {

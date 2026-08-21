@@ -6,7 +6,7 @@ import {
 } from './persistence/demand-engine.repository';
 
 describe('DemandEntityEnrichmentWorkerService', () => {
-  it('skips stale jobs without calling external providers', async () => {
+  it('uses the latest candidate version when an older job is processed', async () => {
     const repository = fakeRepository({
       updatedAt: '2026-08-21T00:01:00.000Z',
     });
@@ -27,9 +27,14 @@ describe('DemandEntityEnrichmentWorkerService', () => {
       queuedAt: '2026-08-21T00:00:00.000Z',
     });
 
-    expect(result.status).toBe('stale');
-    expect(entityEnrichment.enrich).not.toHaveBeenCalled();
-    expect(repository.applyPhraseAnalysisToKeywordCandidate).not.toHaveBeenCalled();
+    expect(result.status).toBe('applied');
+    expect(entityEnrichment.enrich).toHaveBeenCalled();
+    expect(repository.applyPhraseAnalysisToKeywordCandidate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        keywordCandidateId: 'candidate-1',
+        candidateUpdatedAt: '2026-08-21T00:01:00.000Z',
+      }),
+    );
   });
 
   it('applies entity evidence back to the persisted candidate', async () => {

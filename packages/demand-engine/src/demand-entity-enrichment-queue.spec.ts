@@ -28,11 +28,9 @@ describe('DemandEntityEnrichmentDispatchService', () => {
         candidateUpdatedAt: '2026-08-21T00:00:00.000Z',
       }),
       expect.objectContaining({
-        jobId: [
-          'demand-entity-enrichment',
-          'candidate-1',
-          '2026-08-21T00:00:00.000Z',
-        ].join(':'),
+        jobId: 'demand-entity-enrichment-candidate-1',
+        removeOnComplete: true,
+        removeOnFail: true,
       }),
     );
   });

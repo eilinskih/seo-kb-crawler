@@ -37,12 +37,6 @@ export class DemandEntityEnrichmentWorkerService {
         keywordCandidateId: job.keywordCandidateId,
       };
     }
-    if (candidate.updatedAt !== job.candidateUpdatedAt) {
-      return {
-        status: 'stale',
-        keywordCandidateId: job.keywordCandidateId,
-      };
-    }
 
     const provider = new EntityEnrichedPhraseAnalysisProvider(
       this.entityEnrichment,
@@ -62,7 +56,7 @@ export class DemandEntityEnrichmentWorkerService {
     );
     const applied = await this.repository.applyPhraseAnalysisToKeywordCandidate({
       keywordCandidateId: candidate.id,
-      candidateUpdatedAt: job.candidateUpdatedAt,
+      candidateUpdatedAt: candidate.updatedAt,
       phraseAnalysis: toKeywordPhraseAnalysis(phraseAnalysis),
       externalEntityAttemptId,
       appliedAt: new Date().toISOString(),
