@@ -3,5 +3,6 @@ export function normalizeKeyword(keyword: string): string {
     .trim()
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s-]+/gu, ' ')
-    .replace(/\s+/gu, ' ');
+    .replace(/\s+/gu, ' ')
+    .trim();
 }

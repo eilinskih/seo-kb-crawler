@@ -8,7 +8,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ChunkingDispatchService } from '@seo-kb/chunking';
 import { ContentProcessingDispatchService } from '@seo-kb/content-processing';
+import { DbService } from '@seo-kb/db';
 import {
+  DemandObservation,
   DemandDiscoveryPersistenceService,
   DemandEngineRepository,
   DemandCandidatePageRecord,
@@ -102,6 +104,7 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly config: ConfigService,
+    private readonly db: DbService,
     private readonly topics: TopicService,
     private readonly serpDiscovery: FocusedSerpDiscoveryApiService,
     private readonly demandDiscovery: DemandDiscoveryPersistenceService,
@@ -286,12 +289,18 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         geo,
         warnings,
       });
+      const evidenceObservations = await this.collectDemandEvidence({
+        topicId: topic.id,
+        seedQuery,
+        warnings,
+      });
       const result = await this.demandDiscovery.discoverAndPersist({
         topicId: topic.id,
         topicSeed: seedQuery,
         language,
         geo,
         manualSeeds: entityVocabulary,
+        evidenceObservations,
         limit: demandDiscoveryLimit,
       });
       return {
@@ -300,6 +309,7 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         result: {
           keywordCandidates: result.persistence.keywordCandidates.length,
           candidatePages: result.persistence.candidatePages.length,
+          evidenceObservations: evidenceObservations.length,
           fallbackMode: result.discovery.fallbackMode,
           warnings: result.discovery.warnings,
         },
@@ -527,6 +537,46 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
+  private async collectDemandEvidence(options: {
+    topicId: string;
+    seedQuery: string;
+    warnings: string[];
+  }): Promise<DemandObservation[]> {
+    try {
+      const [snapshots, documents] = await Promise.all([
+        this.latestSerpSnapshots(options.topicId),
+        this.latestDocumentVersions(options.topicId),
+      ]);
+      return uniqueObservations([
+        ...snapshots.flatMap((snapshot) =>
+          serpEvidenceObservations(snapshot, options.seedQuery),
+        ),
+        ...documents.flatMap((document) =>
+          documentEvidenceObservations(document, options.seedQuery),
+        ),
+      ]).slice(0, 250);
+    } catch (error) {
+      options.warnings.push(
+        `demand_evidence_collection unavailable: ${errorMessage(error)}`,
+      );
+      return [];
+    }
+  }
+
+  private async latestSerpSnapshots(topicId: string): Promise<SerpSnapshotRow[]> {
+    return this.db.knex<SerpSnapshotRow>('serp_snapshots')
+      .where({ topic_id: topicId })
+      .orderBy('captured_at', 'desc')
+      .limit(20);
+  }
+
+  private async latestDocumentVersions(topicId: string): Promise<DocumentVersionRow[]> {
+    return this.db.knex<DocumentVersionRow>('document_versions')
+      .where({ topic_id: topicId })
+      .orderBy('created_at', 'desc')
+      .limit(80);
+  }
+
   private async entityVocabulary(options: {
     seedQuery: string;
     language: string | undefined;
@@ -613,6 +663,242 @@ function inferCity(seedQuery: string): string | undefined {
 
 function unique(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+interface SerpSnapshotRow {
+  query: string;
+  normalized_query: string;
+  results: unknown;
+  snapshot: unknown;
+}
+
+interface DocumentVersionRow {
+  requested_url: string;
+  final_url: string | null;
+  title: string | null;
+  meta_description: string | null;
+  metadata: unknown;
+  structured_data: unknown;
+}
+
+interface SnapshotLike {
+  query?: string;
+  normalizedQuery?: string;
+  results?: Array<{
+    url?: string;
+    title?: string | null;
+    snippet?: string | null;
+  }>;
+  features?: {
+    peopleAlsoAsk?: string[];
+    relatedSearches?: string[];
+    autocompleteSuggestions?: string[];
+  };
+}
+
+function serpEvidenceObservations(
+  row: SerpSnapshotRow,
+  seedQuery: string,
+): DemandObservation[] {
+  const snapshot = parseJson<SnapshotLike>(row.snapshot) ?? {};
+  const sourceQuery = snapshot.query ?? row.normalized_query;
+  const observations: DemandObservation[] = [];
+  for (const text of snapshot.features?.peopleAlsoAsk ?? []) {
+    observations.push(observation(text, 'people_also_ask', sourceQuery));
+  }
+  for (const text of snapshot.features?.relatedSearches ?? []) {
+    observations.push(observation(text, 'related_search', sourceQuery));
+  }
+  for (const text of snapshot.features?.autocompleteSuggestions ?? []) {
+    observations.push(observation(text, 'autocomplete', sourceQuery));
+  }
+  for (const result of snapshot.results ?? parseJson<SnapshotLike['results']>(row.results) ?? []) {
+    const evidenceUrl = result.url ?? null;
+    for (const text of [result.title, result.snippet]) {
+      for (const phrase of candidatePhrases(text, seedQuery)) {
+        observations.push(observation(
+          phrase,
+          'serp_snippet',
+          sourceQuery,
+          evidenceUrl,
+        ));
+      }
+    }
+  }
+  return observations;
+}
+
+function documentEvidenceObservations(
+  row: DocumentVersionRow,
+  seedQuery: string,
+): DemandObservation[] {
+  const sourceQuery = seedQuery;
+  const evidenceUrl = row.final_url ?? row.requested_url;
+  const metadata = parseJson<DocumentMetadataLike>(row.metadata) ?? {};
+  const observations: DemandObservation[] = [];
+  for (const text of [row.title, row.meta_description]) {
+    for (const phrase of candidatePhrases(text, seedQuery)) {
+      observations.push(observation(
+        phrase,
+        'serp_snippet',
+        sourceQuery,
+        evidenceUrl,
+      ));
+    }
+  }
+  for (const heading of metadata.headings ?? []) {
+    for (const phrase of candidatePhrases(heading.text, seedQuery)) {
+      observations.push(observation(
+        phrase,
+        'competitor_heading',
+        sourceQuery,
+        evidenceUrl,
+      ));
+    }
+  }
+  for (const question of faqQuestions(parseJson<unknown[]>(row.structured_data) ?? [])) {
+    observations.push(observation(
+      question,
+      'faq_block',
+      sourceQuery,
+      evidenceUrl,
+    ));
+  }
+  return observations;
+}
+
+interface DocumentMetadataLike {
+  headings?: Array<{ text?: string | null }>;
+}
+
+function observation(
+  observedText: string,
+  evidenceType: DemandObservation['evidenceType'],
+  sourceQuery: string,
+  evidenceUrl?: string | null,
+): DemandObservation {
+  return {
+    observedText,
+    sourceTier: 'owned_data',
+    providerKey: 'topic_work_evidence',
+    evidenceType,
+    sourceQuery,
+    evidenceUrl,
+  };
+}
+
+function candidatePhrases(
+  value: string | null | undefined,
+  seedQuery: string,
+): string[] {
+  if (!value) {
+    return [];
+  }
+  const seedTokens = meaningfulTokens(seedQuery);
+  return unique(value
+    .split(/[|:;()\[\]{}<>]/u)
+    .flatMap((part) => part.split(/\s[-–—]\s/u))
+    .map((part) => cleanPhrase(part))
+    .filter((phrase) =>
+      phrase.length >= 3 &&
+      phrase.length <= 120 &&
+      hasSeedOverlap(phrase, seedTokens),
+    ))
+    .slice(0, 8);
+}
+
+function cleanPhrase(value: string): string {
+  return value
+    .replace(/\b(19|20)\d{2}\b/gu, '')
+    .replace(/[™®©]/gu, '')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
+function meaningfulTokens(value: string): Set<string> {
+  return new Set(value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .split(/[^a-z0-9ąćęłńóśźż]+/iu)
+    .filter((token) => token.length >= 3));
+}
+
+function hasSeedOverlap(phrase: string, seedTokens: Set<string>): boolean {
+  if (seedTokens.size === 0) {
+    return false;
+  }
+  const phraseTokens = meaningfulTokens(phrase);
+  const overlap = [...seedTokens].filter((token) => phraseTokens.has(token)).length;
+  return overlap >= Math.min(2, seedTokens.size);
+}
+
+function faqQuestions(values: unknown[]): string[] {
+  return unique(values.flatMap((value) => faqQuestionsFromValue(value)));
+}
+
+function faqQuestionsFromValue(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(faqQuestionsFromValue);
+  }
+  if (!isRecord(value)) {
+    return [];
+  }
+  const type = jsonLdType(value['@type']).toLowerCase();
+  const direct = type === 'question' && typeof value.name === 'string'
+    ? [value.name]
+    : [];
+  return [
+    ...direct,
+    ...faqQuestionsFromValue(value.mainEntity),
+    ...faqQuestionsFromValue(value.acceptedAnswer),
+  ];
+}
+
+function jsonLdType(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string').join(' ');
+  }
+  return '';
+}
+
+function uniqueObservations(values: DemandObservation[]): DemandObservation[] {
+  const seen = new Set<string>();
+  const result: DemandObservation[] = [];
+  for (const value of values) {
+    const key = [
+      value.observedText.toLowerCase(),
+      value.evidenceType,
+      value.evidenceUrl ?? '',
+    ].join('|');
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    result.push(value);
+  }
+  return result;
+}
+
+function parseJson<Value>(value: unknown): Value | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as Value;
+    } catch {
+      return null;
+    }
+  }
+  return value as Value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function slugify(value: string): string {

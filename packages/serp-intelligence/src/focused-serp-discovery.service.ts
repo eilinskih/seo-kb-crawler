@@ -6,6 +6,7 @@ import {
 import {
   SerpGeoTarget,
   SerpProviderMode,
+  SerpQueryFeatures,
   SerpResult,
   SerpSnapshot,
 } from './domain/serp-intelligence-types';
@@ -33,6 +34,7 @@ export interface FocusedSerpDiscoveryCommand {
   degraded?: boolean;
   warnings?: string[];
   results: FocusedSerpResultInput[];
+  features?: Partial<SerpQueryFeatures>;
   capturedAt?: string;
 }
 
@@ -88,6 +90,17 @@ function toSnapshot(command: FocusedSerpDiscoveryCommand): SerpSnapshot {
     degraded: command.degraded ?? false,
     warnings: command.warnings ?? [],
     results,
+    features: normalizeFeatures(command.features),
+  };
+}
+
+function normalizeFeatures(
+  features: Partial<SerpQueryFeatures> | undefined,
+): SerpQueryFeatures {
+  return {
+    peopleAlsoAsk: uniqueTexts(features?.peopleAlsoAsk ?? []),
+    relatedSearches: uniqueTexts(features?.relatedSearches ?? []),
+    autocompleteSuggestions: uniqueTexts(features?.autocompleteSuggestions ?? []),
   };
 }
 
@@ -164,6 +177,13 @@ function optionalText(value: string | null | undefined): string | null {
   return typeof value === 'string' && value.trim().length > 0
     ? value.trim()
     : null;
+}
+
+function uniqueTexts(values: string[]): string[] {
+  return [...new Set(values
+    .map((value) => value.trim().replace(/\s+/gu, ' '))
+    .filter(Boolean))]
+    .slice(0, 50);
 }
 
 function normalizeHttpUrl(value: string): string {

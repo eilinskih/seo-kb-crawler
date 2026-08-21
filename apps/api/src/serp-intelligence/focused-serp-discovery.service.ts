@@ -134,6 +134,7 @@ export class FocusedSerpDiscoveryApiService {
       degraded: searchResult.degraded,
       warnings: searchResult.warnings,
       results: searchResult.results,
+      features: searchResult.features,
       capturedAt: new Date().toISOString(),
     });
     const receipts = await this.frontierRepository.appendDiscoveryObservations(

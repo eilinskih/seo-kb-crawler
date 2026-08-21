@@ -1,6 +1,7 @@
 import {
   SerpGeoTarget,
   SerpProviderMode,
+  SerpQueryFeatures,
 } from './domain/serp-intelligence-types';
 
 export interface SerpSearchProviderRequest {
@@ -21,6 +22,7 @@ export interface SerpSearchProviderResult {
     snippet?: string | null;
     position: number;
   }>;
+  features?: Partial<SerpQueryFeatures>;
 }
 
 export interface SerpSearchProvider {

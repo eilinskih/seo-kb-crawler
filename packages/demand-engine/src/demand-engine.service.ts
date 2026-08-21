@@ -36,7 +36,7 @@ export class DemandEngineService {
     request: DemandDiscoveryRequest,
   ): Promise<DemandDiscoveryResult> {
     const normalizedTopic = normalizeKeyword(request.topicSeed);
-    const observations: DemandObservation[] = [];
+    const observations: DemandObservation[] = [...(request.evidenceObservations ?? [])];
     const warnings: string[] = [];
 
     for (const provider of this.providers) {

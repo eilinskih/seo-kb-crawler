@@ -83,6 +83,60 @@ describe('DemandEngineService', () => {
     ]));
   });
 
+  it('uses persisted SERP and competitor evidence as demand signals without synthetic modifiers', async () => {
+    const service = new DemandEngineService();
+
+    const result = await service.discover({
+      topicSeed: 'crown coins casino',
+      evidenceObservations: [
+        {
+          observedText: 'Crown Coins Casino Review',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'serp_snippet',
+          sourceQuery: 'crown coins casino',
+          evidenceUrl: 'https://www.casino.org/us/sweepstakes-casinos/crowncoins',
+        },
+        {
+          observedText: 'Crown Coins Casino Promo Code',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'related_search',
+          sourceQuery: 'crown coins casino',
+        },
+        {
+          observedText: 'Is Crown Coins Casino legit?',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'people_also_ask',
+          sourceQuery: 'crown coins casino',
+        },
+      ],
+      limit: 100,
+    });
+
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).toEqual(expect.arrayContaining([
+      'crown coins casino review',
+      'crown coins casino promo code',
+      'is crown coins casino legit',
+    ]));
+    expect(result.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'crown coins casino review',
+        readiness: 'ready',
+        evidenceTypes: expect.arrayContaining(['serp_snippet']),
+      }),
+    ]));
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).not.toEqual(expect.arrayContaining([
+      'crown coins casino pregnancy for men',
+      'crown coins casino aftercare',
+    ]));
+  });
+
   it('uses provider-backed metrics when available without requiring them', async () => {
     const service = new DemandEngineService([
       {

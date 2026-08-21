@@ -299,6 +299,13 @@ describe('TopicWorkRunService', () => {
 function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunService {
   return new TopicWorkRunService(
     { get: jest.fn().mockReturnValue('false') } as never,
+    (overrides.db ?? {
+      knex: jest.fn(() => ({
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn(async () => []),
+      })),
+    }) as never,
     (overrides.topics ?? {
       get: jest.fn(async () => topic('active')),
       activate: jest.fn(),

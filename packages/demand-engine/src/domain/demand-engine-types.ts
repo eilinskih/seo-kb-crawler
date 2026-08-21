@@ -85,6 +85,7 @@ export interface DemandDiscoveryRequest {
   language?: string;
   geo?: DemandGeoTarget;
   manualSeeds?: string[];
+  evidenceObservations?: DemandObservation[];
   limit?: number;
 }
 

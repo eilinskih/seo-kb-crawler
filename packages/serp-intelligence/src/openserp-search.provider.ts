@@ -58,6 +58,7 @@ export class OpenSerpSearchProvider implements SerpSearchProvider {
         degraded: warnings.length > 0,
         warnings,
         results,
+        features: nonEmptyFeatures(envelope.features),
       };
     } catch (error) {
       return this.degradedResult(`OpenSERP request failed: ${errorMessage(error)}`);
@@ -97,6 +98,11 @@ interface OpenSerpEnvelope {
       absolute?: number;
     };
   }>;
+  features: {
+    peopleAlsoAsk: string[];
+    relatedSearches: string[];
+    autocompleteSuggestions: string[];
+  };
 }
 
 function openSerpSearchUrl(
@@ -174,7 +180,86 @@ function normalizeOpenSerpEnvelope(value: unknown): OpenSerpEnvelope {
         ? { absolute: numberValue(result.position.absolute) }
         : undefined,
     })),
+    features: extractOpenSerpFeatures(object),
   };
+}
+
+function extractOpenSerpFeatures(
+  envelope: Record<string, unknown>,
+): OpenSerpEnvelope['features'] {
+  const results = Array.isArray(envelope.results)
+    ? envelope.results.filter(isRecord)
+    : [];
+  return {
+    peopleAlsoAsk: uniqueTexts([
+      ...textList(envelope.people_also_ask),
+      ...textList(envelope.peopleAlsoAsk),
+      ...textList(envelope.questions),
+      ...resultTexts(results, ['people_also_ask', 'peopleAlsoAsk', 'question']),
+    ]),
+    relatedSearches: uniqueTexts([
+      ...textList(envelope.related_searches),
+      ...textList(envelope.relatedSearches),
+      ...resultTexts(results, ['related_search', 'relatedSearch']),
+    ]),
+    autocompleteSuggestions: uniqueTexts([
+      ...textList(envelope.autocomplete),
+      ...textList(envelope.autocomplete_suggestions),
+      ...textList(envelope.suggestions),
+      ...resultTexts(results, ['autocomplete', 'suggestion']),
+    ]),
+  };
+}
+
+function resultTexts(
+  results: Record<string, unknown>[],
+  types: string[],
+): string[] {
+  const accepted = new Set(types.map((type) => type.toLowerCase()));
+  return results
+    .filter((result) => {
+      const type = stringValue(result.type)?.toLowerCase();
+      return type ? accepted.has(type) : false;
+    })
+    .flatMap(textValues);
+}
+
+function textList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.flatMap((item) => {
+    if (typeof item === 'string') {
+      return [item];
+    }
+    if (isRecord(item)) {
+      return textValues(item);
+    }
+    return [];
+  });
+}
+
+function textValues(value: Record<string, unknown>): string[] {
+  return ['text', 'query', 'question', 'title', 'name']
+    .map((key) => stringValue(value[key]))
+    .filter((text): text is string => Boolean(text));
+}
+
+function uniqueTexts(values: string[]): string[] {
+  return [...new Set(values
+    .map((value) => value.trim().replace(/\s+/gu, ' '))
+    .filter(Boolean))]
+    .slice(0, 50);
+}
+
+function nonEmptyFeatures(
+  features: OpenSerpEnvelope['features'],
+): OpenSerpEnvelope['features'] | undefined {
+  return features.peopleAlsoAsk.length > 0 ||
+    features.relatedSearches.length > 0 ||
+    features.autocompleteSuggestions.length > 0
+    ? features
+    : undefined;
 }
 
 function openSerpWarnings(envelope: OpenSerpEnvelope): string[] {

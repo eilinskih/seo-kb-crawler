@@ -44,6 +44,12 @@ export interface SerpResult {
   documentVersionId?: string | null;
 }
 
+export interface SerpQueryFeatures {
+  peopleAlsoAsk: string[];
+  relatedSearches: string[];
+  autocompleteSuggestions: string[];
+}
+
 export interface SerpSnapshot {
   id: string;
   query: string;
@@ -57,6 +63,7 @@ export interface SerpSnapshot {
   degraded: boolean;
   warnings: string[];
   results: SerpResult[];
+  features?: SerpQueryFeatures;
 }
 
 export interface SerpHeadingObservation {
