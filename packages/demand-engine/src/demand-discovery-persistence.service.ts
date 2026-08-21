@@ -90,6 +90,12 @@ function phraseAnalysisProvider(
 
   return new EntityEnrichedPhraseAnalysisProvider(entityEnrichment, {
     fallbackProvider: base,
+    maxLookups: numberConfig(
+      config?.get<string>('PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS'),
+    ),
+    maxSpanTokens: numberConfig(
+      config?.get<string>('PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS'),
+    ),
   });
 }
 

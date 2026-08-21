@@ -48,24 +48,6 @@ export class ExternalEntityEnrichmentService {
         continue;
       }
 
-      const rateLimitDecision = provider.tier === 'local_signal'
-        ? undefined
-        : await this.executionPolicy.rateLimiter?.consume(
-            provider.providerKey,
-            generatedAt,
-          );
-      if (rateLimitDecision && !rateLimitDecision.allowed) {
-        warnings.push({
-          providerKey: provider.providerKey,
-          status: 'rate_limited',
-          code: 'provider_rate_limited',
-          message: rateLimitDecision.resetAt
-            ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
-            : `${provider.providerKey} is rate-limited.`,
-        });
-        continue;
-      }
-
       try {
         const cacheKey = externalEntityCacheKey(provider.providerKey, request);
         const cached = await this.executionPolicy.cache?.get(
@@ -73,8 +55,32 @@ export class ExternalEntityEnrichmentService {
           cacheKey,
           generatedAt,
         );
-        const result = cached ?? await provider.enrich(request);
-        if (!cached && this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
+        if (cached) {
+          candidates.push(...cached.candidates);
+          warnings.push(...(cached.warnings ?? []));
+          continue;
+        }
+
+        const rateLimitDecision = provider.tier === 'local_signal'
+          ? undefined
+          : await this.executionPolicy.rateLimiter?.consume(
+              provider.providerKey,
+              generatedAt,
+            );
+        if (rateLimitDecision && !rateLimitDecision.allowed) {
+          warnings.push({
+            providerKey: provider.providerKey,
+            status: 'rate_limited',
+            code: 'provider_rate_limited',
+            message: rateLimitDecision.resetAt
+              ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
+              : `${provider.providerKey} is rate-limited.`,
+          });
+          continue;
+        }
+
+        const result = await provider.enrich(request);
+        if (this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
           await this.executionPolicy.cache.set({
             providerKey: provider.providerKey,
             cacheKey,

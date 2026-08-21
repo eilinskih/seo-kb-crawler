@@ -170,6 +170,44 @@ describe('ExternalEntityEnrichmentService', () => {
       candidate.providerKey === 'local_schema_org',
     )).toBe(true);
   });
+
+  it('does not consume provider quota for cached provider results', async () => {
+    const provider = new CountingProvider();
+    const service = new ExternalEntityEnrichmentService(
+      new ExternalEntityProviderRegistry([provider]),
+      undefined,
+      {
+        cache: new InMemoryExternalEntityProviderCache(),
+        cacheTtlMs: 60_000,
+        rateLimiter: new FixedWindowExternalEntityRateLimiter(1, 60_000),
+      },
+    );
+
+    await service.enrich(request);
+    const cachedPack = await service.enrich({
+      ...request,
+      now: '2026-07-26T00:00:30.000Z',
+    });
+    const rateLimitedPack = await service.enrich({
+      ...request,
+      entityName: 'Different Entity',
+      now: '2026-07-26T00:00:31.000Z',
+    });
+
+    expect(provider.enrichCalls).toBe(1);
+    expect(cachedPack.warnings).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerKey: 'counting_provider',
+        code: 'provider_rate_limited',
+      }),
+    ]));
+    expect(rateLimitedPack.warnings).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerKey: 'counting_provider',
+        code: 'provider_rate_limited',
+      }),
+    ]));
+  });
 });
 
 class ThrowingProvider implements ExternalEntityProvider {

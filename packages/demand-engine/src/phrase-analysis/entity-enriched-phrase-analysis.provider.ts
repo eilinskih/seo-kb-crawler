@@ -44,6 +44,8 @@ const STRUCTURAL_ONLY_KINDS = new Set([
   'low_quality_snippet',
 ]);
 
+const DEFAULT_MAX_LOOKUPS = 3;
+
 export class EntityEnrichedPhraseAnalysisProvider implements PhraseAnalysisProvider {
   readonly providerKey = 'entity_enriched_phrase_analysis';
 
@@ -58,7 +60,7 @@ export class EntityEnrichedPhraseAnalysisProvider implements PhraseAnalysisProvi
   ) {
     this.fallback = options.fallbackProvider ?? new FreePhraseAnalysisProvider();
     this.maxSpanTokens = options.maxSpanTokens ?? 3;
-    this.maxLookups = options.maxLookups ?? 12;
+    this.maxLookups = options.maxLookups ?? DEFAULT_MAX_LOOKUPS;
     this.minAcceptedConfidence = options.minAcceptedConfidence ?? 'medium';
   }
 
@@ -126,7 +128,12 @@ export class EntityEnrichedPhraseAnalysisProvider implements PhraseAnalysisProvi
       }
     }
 
-    if (evidence.length === 0 && structural.objectSpan?.text) {
+    if (
+      evidence.length === 0 &&
+      structural.objectSpan?.text &&
+      spans.length < this.maxLookups &&
+      !spans.includes(normalizeKeyword(structural.objectSpan.text))
+    ) {
       return this.lookupObjectSpan(request, structural.objectSpan.text);
     }
 

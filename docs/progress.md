@@ -97,6 +97,14 @@ Summary:
   model-path support and Stanza left as an optional custom-image backend.
 - Fixed Docker Google Knowledge Graph configuration so blank
   `GOOGLE_KNOWLEDGE_GRAPH_API_KEY` values do not mask `GOOGLE_KG_API_KEY`.
+- Bounded provider-backed phrase analysis to a small configurable number of
+  phrase spans per candidate so public KG/Wikidata providers are enrichment
+  signals rather than bulk keyword-expansion sources.
+- Moved External Entity provider cache lookup before rate-limit consumption so
+  repeated cached spans do not spend public provider quota.
+- Added Docker defaults for External Entity cache TTL, Google Knowledge Graph
+  request windows, Wikidata request windows and Phrase Analysis entity span
+  limits.
 - Added a lock around spaCy model loading so first-run concurrent phrase
   analysis requests do not repeatedly download the same language model.
 - Wired Demand discovery persistence to use the provider cascade:
@@ -109,7 +117,10 @@ Summary:
 Validation:
 - npm test -- --runInBand packages/demand-engine/src/demand-engine.service.spec.ts
 - npm test -- --runInBand
-- npm run build:api
+  packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+  packages/demand-engine/src/phrase-analysis/entity-enriched-phrase-analysis.provider.spec.ts
+- npm test -- --runInBand
+- npm run build
 - docker compose config
 - docker compose build phrase-nlp
 - docker compose exec -T phrase-nlp curl -fsS -X POST

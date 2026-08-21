@@ -230,6 +230,15 @@ setting `PHRASE_NLP_BACKEND=udpipe` and mounting a model path through
 supported self-host pattern, but is not part of the default image because its
 runtime dependency stack is substantially heavier.
 
+External entity lookups are intentionally bounded. Phrase Analysis should use
+only a small number of high-value phrase spans per keyword candidate, controlled
+by `PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS` and
+`PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS`. Public providers such as Google
+Knowledge Graph and Wikidata are enrichment signals, not bulk keyword-expansion
+sources. If these providers are rate-limited, the Demand Engine must keep the
+candidate keyword and continue with degraded entity evidence instead of failing
+the topic workflow.
+
 Unknown metrics must be explicit in Demand Packs:
 
 ```txt

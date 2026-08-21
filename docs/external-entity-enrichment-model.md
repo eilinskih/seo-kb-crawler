@@ -89,6 +89,11 @@ Execution policy configuration is explicit:
 - `WIKIDATA_RATE_LIMIT_MAX` and `WIKIDATA_RATE_LIMIT_WINDOW_MS` configure
   Wikidata request windows.
 
+Provider cache lookup happens before rate-limit consumption. Cached public
+entity results must not spend provider quota, because real topic workflows can
+ask about the same phrase spans repeatedly while processing SERP results,
+headings and related-search evidence.
+
 When no cache or rate-limit environment variables are configured, provider
 execution policy is empty and provider status/configuration still decides
 whether each provider runs.
