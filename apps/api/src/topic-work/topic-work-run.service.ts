@@ -801,7 +801,9 @@ function candidatePhrases(
     .map((part) => cleanPhrase(part))
     .filter((phrase) =>
       phrase.length >= 3 &&
-      phrase.length <= 120 &&
+      phrase.length <= 90 &&
+      phrase.split(/\s+/u).length <= 8 &&
+      !looksLikeMarketingCopy(phrase) &&
       hasSeedOverlap(phrase, seedTokens),
     ))
     .slice(0, 8);
@@ -813,6 +815,12 @@ function cleanPhrase(value: string): string {
     .replace(/[™®©]/gu, '')
     .replace(/\s+/gu, ' ')
     .trim();
+}
+
+function looksLikeMarketingCopy(value: string): boolean {
+  const normalized = value.toLowerCase();
+  return /\b(sprawdź|sprawdz|wejdź|wejdz|znajdź|znajdz|kupuj|taniej|promocj|oferujemy|najwięcej ofert|najwiecej ofert|radość|radosc|best prices|find what|shop now)\b/u
+    .test(normalized);
 }
 
 function meaningfulTokens(value: string): Set<string> {

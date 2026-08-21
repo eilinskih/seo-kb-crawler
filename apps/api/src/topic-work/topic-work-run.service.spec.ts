@@ -83,6 +83,77 @@ describe('TopicWorkRunService', () => {
     }));
   });
 
+  it('uses SERP evidence without turning marketing snippets into demand queries', async () => {
+    const demandDiscovery = {
+      discoverAndPersist: jest.fn(async (_command: unknown) => ({
+        discovery: {
+          fallbackMode: false,
+          warnings: [],
+        },
+        persistence: {
+          keywordCandidates: [
+            { normalizedKeyword: 'szafka do garażu z szufladami' },
+          ],
+          candidatePages: [
+            { slug: '/szafka-do-garazu-z-szufladami/' },
+          ],
+        },
+      })),
+    };
+    const db = {
+      knex: jest.fn((table: string) => ({
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn(async () =>
+          table === 'serp_snapshots'
+            ? [{
+                normalized_query: 'szafka garażowa z szufladami',
+                results: [],
+                snapshot: {
+                  query: 'szafka garażowa z szufladami',
+                  results: [{
+                    url: 'https://example.com/szafka',
+                    title: 'Szafka do Garażu z Szufladami - Niska cena',
+                    snippet: 'Szafka do Garażu z Szufladami Zróżnicowany zbiór ofert, najlepsze ceny i promocje. Wejdź i znajdź to, czego szukasz!',
+                  }],
+                  features: {
+                    peopleAlsoAsk: [],
+                    relatedSearches: [],
+                    autocompleteSuggestions: [],
+                  },
+                },
+              }]
+            : []),
+      })),
+    };
+    const service = makeService({
+      db,
+      demandDiscovery,
+      topics: {
+        get: jest.fn(async () => topic('active', 'topic-1', 'szafka garażowa z szufladami')),
+        activate: jest.fn(),
+        list: jest.fn(),
+      },
+    });
+
+    await service.runTopic({ topicId: 'topic-1', force: true });
+
+    const request = demandDiscovery.discoverAndPersist.mock.calls[0][0] as {
+      evidenceObservations: Array<{ observedText: string }>;
+    };
+    expect(request.evidenceObservations).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        observedText: 'Szafka do Garażu z Szufladami',
+        evidenceType: 'serp_snippet',
+      }),
+    ]));
+    expect(request.evidenceObservations.map((observation: { observedText: string }) =>
+      observation.observedText,
+    )).not.toEqual(expect.arrayContaining([
+      'Szafka do Garażu z Szufladami Zróżnicowany zbiór ofert, najlepsze ceny i promocje. Wejdź i znajdź to, czego szukasz!',
+    ]));
+  });
+
   it('processes draft and active topics on every tick', async () => {
     const topics = {
       get: jest.fn(async (topicId: string) =>
@@ -413,7 +484,7 @@ function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunServi
   );
 }
 
-function topic(status: string, id = 'topic-1') {
+function topic(status: string, id = 'topic-1', seed = 'test topic') {
   return {
     id,
     name: 'Test Topic',
@@ -421,7 +492,7 @@ function topic(status: string, id = 'topic-1') {
     discovery: {
       search: {
         queries: [{
-          text: 'test topic',
+          text: seed,
           language: 'en',
           geo: { countryCode: 'PL' },
         }],
