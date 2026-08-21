@@ -59,6 +59,12 @@ export interface KeywordCandidate {
   evidenceTypes: DemandEvidenceType[];
   confidence: DemandConfidence;
   metrics: DemandMetricSnapshot;
+  phraseAnalysis?: {
+    providerKey: string;
+    candidateKind: string;
+    confidence: 'low' | 'medium' | 'high';
+    reasons: string[];
+  };
 }
 
 export interface CandidatePage {
@@ -76,6 +82,7 @@ export interface CandidatePage {
   metrics: DemandMetricSnapshot;
   missingMetrics: string[];
   missingResearchGaps?: string[];
+  phraseAnalysis?: KeywordCandidate['phraseAnalysis'];
   pageAction: 'new' | 'update' | 'merge' | 'split' | 'reject';
 }
 

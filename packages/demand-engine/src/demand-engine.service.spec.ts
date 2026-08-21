@@ -137,6 +137,73 @@ describe('DemandEngineService', () => {
     ]));
   });
 
+  it('keeps product and model-like competitor phrases out of automatic page candidates', async () => {
+    const service = new DemandEngineService();
+
+    const result = await service.discover({
+      topicSeed: 'szafka garażowa z szufladami',
+      language: 'pl',
+      evidenceObservations: [
+        {
+          observedText: 'Szafka do garażu z szufladami',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'serp_snippet',
+          sourceQuery: 'szafka garażowa z szufladami',
+        },
+        {
+          observedText: 'Stalowa szafka z szufladami do garażu Dova 5X',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'szafka garażowa z szufladami',
+        },
+        {
+          observedText: 'Granatowa stalowa szafka z 6 szufladami L2-R61',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'szafka garażowa z szufladami',
+        },
+        {
+          observedText: 'Szafka warsztatowa garażowa z szufladą',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'szafka garażowa z szufladami',
+        },
+      ],
+      limit: 100,
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'stalowa szafka z szufladami do garażu dova 5x',
+        phraseAnalysis: expect.objectContaining({
+          candidateKind: 'product_or_instance',
+        }),
+      }),
+      expect.objectContaining({
+        normalizedKeyword: 'granatowa stalowa szafka z 6 szufladami l2-r61',
+        phraseAnalysis: expect.objectContaining({
+          candidateKind: 'product_or_instance',
+        }),
+      }),
+    ]));
+    expect(result.candidatePages.map((page) =>
+      page.primaryKeyword,
+    )).toEqual(expect.arrayContaining([
+      'szafka do garażu z szufladami',
+      'szafka warsztatowa garażowa z szufladą',
+    ]));
+    expect(result.candidatePages.map((page) =>
+      page.primaryKeyword,
+    )).not.toEqual(expect.arrayContaining([
+      'stalowa szafka z szufladami do garażu dova 5x',
+      'granatowa stalowa szafka z 6 szufladami l2-r61',
+    ]));
+  });
+
   it('uses provider-backed metrics when available without requiring them', async () => {
     const service = new DemandEngineService([
       {

@@ -10,6 +10,8 @@ import {
 } from './domain/demand-engine-types';
 import { ManualFallbackDemandProvider } from './manual-fallback-demand.provider';
 import { normalizeKeyword } from './normalize-keyword';
+import { FreePhraseAnalysisProvider } from './phrase-analysis/free-phrase-analysis.provider';
+import { PhraseAnalysisProvider } from './phrase-analysis/phrase-analysis-types';
 import { TopicUniverseDemandProvider } from './topic-universe-demand.provider';
 
 const UNKNOWN_METRICS: DemandMetricSnapshot = {
@@ -30,6 +32,8 @@ export class DemandEngineService {
       new TopicUniverseDemandProvider(),
       new ManualFallbackDemandProvider(),
     ],
+    private readonly phraseAnalysisProvider: PhraseAnalysisProvider =
+      new FreePhraseAnalysisProvider(),
   ) {}
 
   async discover(
@@ -54,6 +58,7 @@ export class DemandEngineService {
     const keywordCandidates = buildKeywordCandidates(
       observations,
       request,
+      this.phraseAnalysisProvider,
     ).slice(0, request.limit ?? 100);
 
     return {
@@ -72,6 +77,7 @@ export class DemandEngineService {
 function buildKeywordCandidates(
   observations: DemandObservation[],
   request: DemandDiscoveryRequest,
+  phraseAnalysisProvider: PhraseAnalysisProvider,
 ): KeywordCandidate[] {
   const byKeyword = new Map<string, DemandObservation[]>();
   for (const observation of observations) {
@@ -85,6 +91,13 @@ function buildKeywordCandidates(
   return [...byKeyword.entries()]
     .map(([normalizedKeyword, grouped]) => {
       const metrics = mergeMetrics(grouped);
+      const evidenceTypes = unique(grouped.map((observation) => observation.evidenceType));
+      const phraseAnalysis = phraseAnalysisProvider.analyze({
+        phrase: normalizedKeyword,
+        topicSeed: request.topicSeed,
+        language: request.language,
+        evidenceTypes,
+      });
       return {
         normalizedKeyword,
         observedTexts: unique(grouped.map((observation) => observation.observedText)),
@@ -92,9 +105,15 @@ function buildKeywordCandidates(
         geo: request.geo,
         sourceTiers: unique(grouped.map((observation) => observation.sourceTier)),
         providers: unique(grouped.map((observation) => observation.providerKey)),
-        evidenceTypes: unique(grouped.map((observation) => observation.evidenceType)),
+        evidenceTypes,
         confidence: confidence(grouped, metrics),
         metrics,
+        phraseAnalysis: {
+          providerKey: phraseAnalysis.providerKey,
+          candidateKind: phraseAnalysis.candidateKind,
+          confidence: phraseAnalysis.confidence,
+          reasons: phraseAnalysis.reasons,
+        },
       };
     })
     .sort((a, b) =>
@@ -106,7 +125,7 @@ function buildKeywordCandidates(
 
 function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
   const clusters = new Map<string, KeywordCandidate[]>();
-  for (const candidate of candidates) {
+  for (const candidate of candidates.filter(isPageClusterCandidate)) {
     const cluster = classifyCandidate(candidate.normalizedKeyword);
     clusters.set(cluster.key, [...(clusters.get(cluster.key) ?? []), candidate]);
   }
@@ -142,6 +161,7 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
         metrics: primary.metrics,
         missingMetrics: missingMetrics(primary.metrics),
         missingResearchGaps: missingResearchGaps(grouped, evidenceTypes),
+        phraseAnalysis: primary.phraseAnalysis,
         pageAction: 'new' as const,
       };
     })
@@ -150,6 +170,10 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
       confidenceRank(b.confidence) - confidenceRank(a.confidence) ||
       a.slug.localeCompare(b.slug),
     );
+}
+
+function isPageClusterCandidate(candidate: KeywordCandidate): boolean {
+  return candidate.phraseAnalysis?.candidateKind === 'page_cluster';
 }
 
 function classifyCandidate(keyword: string): {
