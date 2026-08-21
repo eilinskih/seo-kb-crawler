@@ -231,6 +231,181 @@ describe('DemandEngineService', () => {
     expect(result.candidatePages).toEqual([]);
   });
 
+  it('keeps adjective-led or verb-led competitor fragments out of candidate pages', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [
+        {
+          observedText: 'hydrauliczne czesc',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+        {
+          observedText: 'podnosnik musi',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+        {
+          observedText: 'podnosniki hydrauliczne',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+        {
+          observedText: 'podnosnik bałwanek',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+      ],
+    });
+
+    expect(result.keywordCandidates.map((candidate) =>
+      candidate.normalizedKeyword,
+    )).toEqual(expect.arrayContaining([
+      'hydrauliczne czesc',
+      'podnosnik musi',
+      'podnosniki hydrauliczne',
+      'podnosnik bałwanek',
+    ]));
+    expect(result.candidatePages.map((page) => page.primaryKeyword))
+      .toEqual(expect.arrayContaining([
+        'podnosniki hydrauliczne',
+        'podnosnik bałwanek',
+      ]));
+    expect(result.candidatePages.map((page) => page.primaryKeyword))
+      .not.toEqual(expect.arrayContaining([
+        'hydrauliczne czesc',
+        'podnosnik musi',
+      ]));
+  });
+
+  it('deduplicates inflected competitor phrases into one page cluster', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [
+        {
+          observedText: 'podnosnik samochodowy',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+        {
+          observedText: 'podnosnika samochodowego',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+        {
+          observedText: 'podnosniki samochodowe',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+      ],
+    });
+
+    const matchingPages = result.candidatePages.filter((page) =>
+      page.primaryKeyword.includes('samochodow') ||
+      page.supportingKeywords.some((keyword) => keyword.includes('samochodow')),
+    );
+
+    expect(matchingPages).toHaveLength(1);
+    expect(matchingPages[0]).toMatchObject({
+      clusterKey: 'topic:podnosnik-samochodowy',
+      primaryKeyword: 'podnosnik samochodowy',
+      supportingKeywords: expect.arrayContaining([
+        'podnosnika samochodowego',
+        'podnosniki samochodowe',
+      ]),
+    });
+  });
+
+  it('deduplicates plural genitive topic forms with the seed page cluster', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [
+        {
+          observedText: 'podnośnik hydrauliczny',
+          sourceTier: 'owned_data',
+          providerKey: 'topic_work_evidence',
+          evidenceType: 'serp_snippet',
+          sourceQuery: 'podnośnik hydrauliczny',
+        },
+        {
+          observedText: 'podnosnikow hydraulicznych',
+          sourceTier: 'owned_data',
+          providerKey: 'competitor_content_evidence',
+          evidenceType: 'competitor_heading',
+          sourceQuery: 'podnośnik hydrauliczny',
+          evidenceUrl: 'https://example.pl/podnosniki',
+        },
+      ],
+    });
+
+    const matchingPages = result.candidatePages.filter((page) =>
+      page.primaryKeyword.includes('hydrauliczn') ||
+      page.supportingKeywords.some((keyword) => keyword.includes('hydrauliczn')),
+    );
+
+    expect(matchingPages).toHaveLength(1);
+    expect(matchingPages[0]).toMatchObject({
+      primaryKeyword: 'podnośnik hydrauliczny',
+      supportingKeywords: expect.arrayContaining([
+        'podnosnikow hydraulicznych',
+      ]),
+    });
+  });
+
+  it('keeps connective-led fragments out of candidate pages', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'podnośnik hydrauliczny',
+      language: 'pl',
+      evidenceObservations: [{
+        observedText: 'podnosnik zgodnie',
+        sourceTier: 'owned_data',
+        providerKey: 'competitor_content_evidence',
+        evidenceType: 'competitor_body_phrase',
+        sourceQuery: 'podnośnik hydrauliczny',
+        evidenceUrl: 'https://example.pl/podnosniki',
+      }],
+    });
+
+    expect(result.keywordCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        normalizedKeyword: 'podnosnik zgodnie',
+      }),
+    ]));
+    expect(result.candidatePages).toEqual([]);
+  });
+
   it('keeps degraded SERP-only evidence partial until stronger confirmation exists', async () => {
     const service = new DemandEngineService([]);
 

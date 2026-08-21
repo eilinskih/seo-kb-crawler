@@ -70,7 +70,7 @@ export class DemandEngineService {
       warnings,
       observations,
       keywordCandidates,
-      candidatePages: buildCandidatePages(keywordCandidates),
+      candidatePages: buildCandidatePages(keywordCandidates, request.topicSeed),
     };
   }
 }
@@ -135,22 +135,27 @@ function buildKeywordCandidates(
     ));
 }
 
-function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
+function buildCandidatePages(
+  candidates: KeywordCandidate[],
+  topicSeed: string,
+): CandidatePage[] {
   const clusters = new Map<string, KeywordCandidate[]>();
-  for (const candidate of candidates.filter(isPageClusterCandidate)) {
-    const cluster = classifyCandidate(candidate.normalizedKeyword);
-    clusters.set(cluster.key, [...(clusters.get(cluster.key) ?? []), candidate]);
+  for (const candidate of candidates.filter((candidate) =>
+    isPageClusterCandidate(candidate, topicSeed),
+  )) {
+    const clusterKey = candidateClusterKey(candidate.normalizedKeyword);
+    clusters.set(clusterKey, [...(clusters.get(clusterKey) ?? []), candidate]);
   }
 
   return [...clusters.entries()]
-    .map(([clusterKey, grouped]) => {
-      const cluster = classifyCandidate(grouped[0].normalizedKeyword);
+    .map(([, grouped]) => {
       const primary = grouped
         .sort((a, b) =>
           confidenceRank(b.confidence) - confidenceRank(a.confidence) ||
           b.evidenceTypes.length - a.evidenceTypes.length ||
           a.normalizedKeyword.length - b.normalizedKeyword.length,
         )[0];
+      const cluster = classifyCandidate(primary.normalizedKeyword);
       const evidenceTypes = unique(grouped.flatMap((candidate) =>
         candidate.evidenceTypes,
       ));
@@ -167,7 +172,7 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
         confidence: confidenceValue,
         readiness: readiness(grouped, evidenceTypes, evidenceQuality),
         primaryIntent: cluster.intent,
-        clusterKey,
+        clusterKey: cluster.key,
         clusterLabel: cluster.label,
         evidenceTypes,
         evidenceQuality,
@@ -186,10 +191,13 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
     );
 }
 
-function isPageClusterCandidate(candidate: KeywordCandidate): boolean {
+function isPageClusterCandidate(
+  candidate: KeywordCandidate,
+  topicSeed: string,
+): boolean {
   return candidate.phraseAnalysis?.candidateKind === 'page_cluster' &&
     hasPageCandidateEvidence(candidate) &&
-    hasPageCandidatePhraseShape(candidate.normalizedKeyword);
+    hasPageCandidatePhraseShape(candidate.normalizedKeyword, topicSeed);
 }
 
 function hasPageCandidateEvidence(candidate: KeywordCandidate): boolean {
@@ -209,13 +217,8 @@ function hasPageCandidateEvidence(candidate: KeywordCandidate): boolean {
   );
 }
 
-function hasPageCandidatePhraseShape(keyword: string): boolean {
-  const tokens = keyword
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/gu, '')
-    .split(/[^a-z0-9ąćęłńóśźż]+/iu)
-    .filter(Boolean);
+function hasPageCandidatePhraseShape(keyword: string, topicSeed: string): boolean {
+  const tokens = normalizedTokens(keyword);
   if (tokens.length < 2 || tokens.length > 7) {
     return false;
   }
@@ -225,19 +228,27 @@ function hasPageCandidatePhraseShape(keyword: string): boolean {
     return false;
   }
   const weakTerminalTokens = new Set([
+    'a',
+    'czesc',
+    'część',
     'jak',
     'jest',
     'jestesmy',
     'jesteśmy',
-    'czesc',
-    'część',
     'marki',
+    'musi',
     'pl',
+    'po',
     'przez',
+    's',
     'sa',
     'są',
+    'stale',
     'tego',
     'to',
+    'uklady',
+    'układy',
+    'uzyskuje',
     'wymaga',
     'wymagaja',
     'wymagają',
@@ -249,8 +260,44 @@ function hasPageCandidatePhraseShape(keyword: string): boolean {
     'wiedzę',
     'zwyzek',
     'zwyżek',
+    'zgodnie',
   ]);
-  return !weakTerminalTokens.has(tokens.at(-1) ?? '');
+  if (weakTerminalTokens.has(tokens.at(-1) ?? '')) {
+    return false;
+  }
+  return hasSeedObjectAnchor(tokens, normalizedTokens(topicSeed));
+}
+
+function normalizedTokens(value: string): string[] {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .split(/[^a-z0-9ąćęłńóśźż]+/iu)
+    .filter(Boolean);
+}
+
+function hasSeedObjectAnchor(tokens: string[], seedTokens: string[]): boolean {
+  if (seedTokens.length === 0) {
+    return false;
+  }
+  const canonicalTokens = tokens.map(canonicalToken);
+  const canonicalSeedTokens = seedTokens.map(canonicalToken);
+  const fullOverlap = canonicalSeedTokens.filter((token) =>
+    canonicalTokens.includes(token),
+  ).length;
+  if (fullOverlap >= Math.min(2, canonicalSeedTokens.length)) {
+    return true;
+  }
+  return canonicalTokens[0] === canonicalSeedTokens[0];
+}
+
+function canonicalToken(value: string): string {
+  if (value.length <= 4) {
+    return value;
+  }
+  return value
+    .replace(/(owego|owej|owych|ych|ich|ami|ach|owe|owa|owy|ego|iej|ie|em|om|ow|ą|a|e|i|y)$/u, '');
 }
 
 function classifyCandidate(keyword: string): {
@@ -301,6 +348,26 @@ function classifyCandidate(keyword: string): {
     pageType: 'landing_page',
     slug: slugify(keyword),
   };
+}
+
+function candidateClusterKey(keyword: string): string {
+  const classified = classifyCandidate(keyword);
+  if (!classified.key.startsWith('topic:')) {
+    return classified.key;
+  }
+  const categories = categoryKeys(keyword);
+  const canonicalKey = canonicalKeywordKey(keyword);
+  if (categories.length >= 2) {
+    return `topic:${categories.join('-')}:${canonicalKey}`;
+  }
+  return `topic:${canonicalKey}`;
+}
+
+function canonicalKeywordKey(keyword: string): string {
+  return normalizedTokens(keyword)
+    .map(canonicalToken)
+    .filter(Boolean)
+    .join('-');
 }
 
 function categoryKeys(keyword: string): string[] {

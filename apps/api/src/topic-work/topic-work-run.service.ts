@@ -513,7 +513,7 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
         skippedExisting: 0,
         eligible: 0,
         seoPackIds: [],
-        message: 'No ready Demand candidate pages are available for SEO Pack generation.',
+        message: 'No creatable Demand candidate pages are available for SEO Pack generation.',
       };
     }
 
@@ -1114,7 +1114,7 @@ function seoPackRequestForPage(
       sourceReferences: [reference],
     })),
     warnings: [
-      'Automatically generated from ready Demand candidate page.',
+      `Automatically generated from ${page.readiness} Demand candidate page.`,
       'Knowledge Pack and paid demand metrics may still be missing.',
     ],
     degraded: true,

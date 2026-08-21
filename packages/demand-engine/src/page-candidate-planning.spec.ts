@@ -79,6 +79,42 @@ describe('page candidate planning', () => {
       primaryKeyword: 'depilacja laserowa jasło cena',
     }));
   });
+
+  it('allows partial pages with enough SERP evidence to become draft briefs', () => {
+    const plan = planCandidatePages([
+      candidatePage('podnośnik hydrauliczny', {
+        readiness: 'partial',
+        confidence: 'medium',
+        evidenceTypes: ['serp_snippet'],
+        evidenceUrls: [
+          'https://example.com/one',
+          'https://example.com/two',
+          'https://example.com/three',
+        ],
+      }),
+      candidatePage('podnosnik bałwanek', {
+        readiness: 'partial',
+        confidence: 'low',
+        evidenceTypes: ['competitor_heading'],
+        evidenceUrls: [],
+      }),
+    ]);
+
+    expect(plan.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'podnośnik hydrauliczny',
+        planning: expect.objectContaining({
+          recommendation: 'create',
+        }),
+      }),
+      expect.objectContaining({
+        primaryKeyword: 'podnosnik bałwanek',
+        planning: expect.objectContaining({
+          recommendation: expect.not.stringMatching(/^create$/u),
+        }),
+      }),
+    ]));
+  });
 });
 
 function candidatePage(

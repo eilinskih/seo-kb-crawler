@@ -349,10 +349,20 @@ function recommendationFor(
   ) {
     return 'merge';
   }
-  if (page.readiness === 'ready' && score >= 45) {
+  if (isCreatableEvidenceState(page, score)) {
     return 'create';
   }
   return 'defer';
+}
+
+function isCreatableEvidenceState(page: CandidatePage, score: number): boolean {
+  if (page.readiness === 'ready' && score >= 45) {
+    return true;
+  }
+  return page.readiness === 'partial' &&
+    score >= 45 &&
+    hasSerpEvidence(page) &&
+    (page.evidenceUrls?.length ?? 0) >= 3;
 }
 
 function isStandaloneSupportIntent(
