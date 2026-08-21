@@ -223,6 +223,13 @@ domain-specific keyword generator or a hand-maintained local dictionary.
 Observed phrases may remain keyword candidates even when phrase analysis does
 not allow them to become automatic page candidates.
 
+The default Docker setup provides a `phrase-nlp` sidecar using spaCy for free
+local token, lemma and part-of-speech analysis. UDPipe can be selected by
+setting `PHRASE_NLP_BACKEND=udpipe` and mounting a model path through
+`PHRASE_NLP_UDPIPE_MODEL` or a language-specific variant. Stanza remains a
+supported self-host pattern, but is not part of the default image because its
+runtime dependency stack is substantially heavier.
+
 Unknown metrics must be explicit in Demand Packs:
 
 ```txt

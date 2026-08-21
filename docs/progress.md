@@ -93,6 +93,8 @@ Summary:
   configured and cached provider results.
 - Added an optional self-host NLP Phrase Analysis provider for local
   spaCy/Stanza/UDPipe-style HTTP services via `PHRASE_ANALYSIS_NLP_ENDPOINT`.
+- Added a Dockerized `phrase-nlp` sidecar using spaCy by default, with UDPipe
+  model-path support and Stanza left as an optional custom-image backend.
 - Wired Demand discovery persistence to use the provider cascade:
   self-host NLP when configured, External Entity Enrichment when available and
   structural analysis as the final fallback.
@@ -104,6 +106,11 @@ Validation:
 - npm test -- --runInBand packages/demand-engine/src/demand-engine.service.spec.ts
 - npm test -- --runInBand
 - npm run build:api
+- docker compose config
+- docker compose build phrase-nlp
+- docker compose exec -T phrase-nlp curl -fsS -X POST
+  http://127.0.0.1:8000/analyze -H 'Content-Type: application/json'
+  -d '{"text":"szafka garażowa z szufladami","language":"pl"}'
 
 Date: 2026-08-20
 Issue: #186 / #187 follow-up

@@ -52,6 +52,36 @@ services:
       retries: 10
     restart: unless-stopped
 
+  phrase-nlp:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/phrase-nlp/Dockerfile
+    environment:
+      PHRASE_NLP_BACKEND: ${PHRASE_NLP_BACKEND:-spacy}
+      PHRASE_NLP_LANGUAGES: ${PHRASE_NLP_LANGUAGES:-en,pl}
+      PHRASE_NLP_MODEL_DIR: /models
+      PHRASE_NLP_DOWNLOAD_SPACY_MODELS: ${PHRASE_NLP_DOWNLOAD_SPACY_MODELS:-true}
+      PHRASE_NLP_STANZA_PROCESSORS: ${PHRASE_NLP_STANZA_PROCESSORS:-tokenize,pos,lemma}
+      PHRASE_NLP_UDPIPE_MODEL: ${PHRASE_NLP_UDPIPE_MODEL:-}
+      PHRASE_NLP_UDPIPE_MODEL_PL: ${PHRASE_NLP_UDPIPE_MODEL_PL:-}
+      PHRASE_NLP_UDPIPE_MODEL_EN: ${PHRASE_NLP_UDPIPE_MODEL_EN:-}
+    ports:
+      - "${PHRASE_NLP_PORT:-18000}:8000"
+    volumes:
+      - phrase_nlp_models:/models
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "http://127.0.0.1:8000/health",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -65,6 +95,7 @@ services:
       OPENSERP_ENGINES: ${OPENSERP_ENGINES:-google,bing}
       OPENSERP_TIMEOUT_MS: ${OPENSERP_TIMEOUT_MS:-20000}
       GOOGLE_KNOWLEDGE_GRAPH_API_KEY: ${GOOGLE_KNOWLEDGE_GRAPH_API_KEY:-}
+      GOOGLE_KG_API_KEY: ${GOOGLE_KG_API_KEY:-}
       GOOGLE_KNOWLEDGE_GRAPH_LIMIT: ${GOOGLE_KNOWLEDGE_GRAPH_LIMIT:-5}
       GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS: ${GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS:-20000}
       WIKIDATA_ENABLED: ${WIKIDATA_ENABLED:-true}
@@ -72,6 +103,8 @@ services:
       WIKIDATA_SPARQL_ENDPOINT: ${WIKIDATA_SPARQL_ENDPOINT:-https://query.wikidata.org/sparql}
       WIKIDATA_LIMIT: ${WIKIDATA_LIMIT:-5}
       WIKIDATA_TIMEOUT_MS: ${WIKIDATA_TIMEOUT_MS:-30000}
+      PHRASE_ANALYSIS_NLP_ENDPOINT: ${PHRASE_ANALYSIS_NLP_ENDPOINT:-http://phrase-nlp:8000/analyze}
+      PHRASE_ANALYSIS_NLP_TIMEOUT_MS: ${PHRASE_ANALYSIS_NLP_TIMEOUT_MS:-10000}
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
@@ -85,6 +118,8 @@ services:
       redis:
         condition: service_healthy
       openserp:
+        condition: service_healthy
+      phrase-nlp:
         condition: service_healthy
     healthcheck:
       test:
@@ -205,3 +240,4 @@ services:
 
 volumes:
   postgres_data:
+  phrase_nlp_models:
