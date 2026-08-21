@@ -243,14 +243,20 @@ export class KnexDemandEngineRepository implements DemandEngineRepository {
         ...(record.evidenceUrls ?? []),
         ...matches.flatMap((validation) => validation.evidenceUrls),
       ]);
-      const missingResearchGaps = (record.missingResearchGaps ?? [])
-        .filter((gap) => gap !== 'SERP validation evidence');
+      const quality = highestValidationQuality(matches.map((validation) =>
+        validation.evidenceQuality ?? evidenceQualityFromUrlCount(validation.evidenceUrls.length),
+      ));
+      const missingResearchGaps = nextResearchGaps(
+        record.missingResearchGaps ?? [],
+        evidenceUrls,
+        quality,
+      );
 
       const patch = {
         evidence_types: json(evidenceTypes),
         evidence_urls: json(evidenceUrls),
         missing_research_gaps: json(missingResearchGaps),
-        readiness: 'ready' as const,
+        readiness: readinessAfterSerpValidation(record.readiness, evidenceUrls, quality),
         updated_at: command.validatedAt,
       };
 
@@ -579,17 +585,10 @@ function toCandidatePageRow(
   observedAt: string,
   existing?: DemandCandidatePageRow,
 ): DemandCandidatePageRow {
-  const existingRecord = existing ? toCandidatePageRecord(existing) : null;
-  const evidenceTypes = unique([
-    ...(existingRecord?.evidenceTypes ?? []),
-    ...page.evidenceTypes,
-  ]);
-  const evidenceUrls = unique([
-    ...(existingRecord?.evidenceUrls ?? []),
-    ...(page.evidenceUrls ?? []),
-  ]);
+  const evidenceTypes = unique(page.evidenceTypes);
+  const evidenceUrls = unique(page.evidenceUrls ?? []);
   const missingResearchGaps = unresolvedResearchGaps(
-    page.missingResearchGaps ?? existingRecord?.missingResearchGaps ?? [],
+    page.missingResearchGaps ?? [],
     evidenceTypes,
   );
 
@@ -603,10 +602,7 @@ function toCandidatePageRow(
     supporting_keywords: json(page.supportingKeywords),
     proposed_page_type: page.proposedPageType,
     confidence: page.confidence,
-    readiness: highestReadiness([
-      existingRecord?.readiness,
-      page.readiness ?? readinessFromConfidence(page.confidence),
-    ]),
+    readiness: page.readiness ?? readinessFromConfidence(page.confidence),
     primary_intent: page.primaryIntent ?? null,
     cluster_key: page.clusterKey ?? null,
     cluster_label: page.clusterLabel ?? null,
@@ -712,6 +708,58 @@ function unresolvedResearchGaps(
     gap !== 'SERP validation evidence' ||
     !evidenceTypes.includes('serp_snippet'),
   );
+}
+
+function nextResearchGaps(
+  gaps: string[],
+  evidenceUrls: string[],
+  quality: 'weak' | 'medium' | 'strong',
+): string[] {
+  const next = gaps.filter((gap) =>
+    gap !== 'SERP validation evidence' || evidenceUrls.length === 0,
+  );
+  if (quality !== 'strong' && !next.includes('Strong SERP relevance evidence')) {
+    next.push('Strong SERP relevance evidence');
+  }
+  return next;
+}
+
+function readinessAfterSerpValidation(
+  current: CandidatePage['readiness'],
+  evidenceUrls: string[],
+  quality: 'weak' | 'medium' | 'strong',
+): NonNullable<CandidatePage['readiness']> {
+  if (quality === 'strong' && evidenceUrls.length >= 3) {
+    return 'ready';
+  }
+  if (quality === 'medium' && evidenceUrls.length >= 3) {
+    return highestReadiness([current, 'partial']);
+  }
+  return current === 'ready' ? 'partial' : current ?? 'not_ready';
+}
+
+function evidenceQualityFromUrlCount(count: number): 'weak' | 'medium' | 'strong' {
+  if (count >= 7) {
+    return 'strong';
+  }
+  if (count >= 3) {
+    return 'medium';
+  }
+  return 'weak';
+}
+
+function highestValidationQuality(
+  values: Array<'weak' | 'medium' | 'strong'>,
+): 'weak' | 'medium' | 'strong' {
+  return values.sort((a, b) => validationQualityRank(b) - validationQualityRank(a))[0] ?? 'weak';
+}
+
+function validationQualityRank(value: 'weak' | 'medium' | 'strong'): number {
+  return {
+    weak: 0,
+    medium: 1,
+    strong: 2,
+  }[value];
 }
 
 function highestReadiness(

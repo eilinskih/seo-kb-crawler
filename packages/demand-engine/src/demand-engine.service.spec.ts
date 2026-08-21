@@ -129,7 +129,7 @@ describe('DemandEngineService', () => {
     expect(result.candidatePages).toEqual(expect.arrayContaining([
       expect.objectContaining({
         primaryKeyword: 'crown coins casino review',
-        readiness: 'ready',
+        readiness: 'partial',
         evidenceTypes: expect.arrayContaining(['serp_snippet']),
       }),
     ]));
@@ -138,6 +138,59 @@ describe('DemandEngineService', () => {
     )).not.toEqual(expect.arrayContaining([
       'crown coins casino pregnancy for men',
       'crown coins casino aftercare',
+    ]));
+  });
+
+  it('keeps degraded SERP-only evidence partial until stronger confirmation exists', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'chicken road spiel casino',
+      evidenceObservations: [{
+        observedText: 'Chicken Road Spiel Casino',
+        sourceTier: 'owned_data',
+        providerKey: 'topic_work_evidence',
+        evidenceType: 'serp_snippet',
+        sourceQuery: 'chicken road spiel casino',
+        evidenceUrl: 'https://chickensroad.net/de',
+        evidenceQuality: 'medium',
+      }],
+      limit: 100,
+    });
+
+    expect(result.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'chicken road spiel casino',
+        readiness: 'partial',
+        missingResearchGaps: expect.arrayContaining([
+          'Strong SERP relevance evidence',
+        ]),
+      }),
+    ]));
+  });
+
+  it('marks SERP-backed page candidates ready only with strong evidence', async () => {
+    const service = new DemandEngineService([]);
+
+    const result = await service.discover({
+      topicSeed: 'chicken road spiel casino',
+      evidenceObservations: [{
+        observedText: 'Chicken Road Spiel Casino',
+        sourceTier: 'owned_data',
+        providerKey: 'topic_work_evidence',
+        evidenceType: 'serp_snippet',
+        sourceQuery: 'chicken road spiel casino',
+        evidenceUrl: 'https://chickensroad.net/de',
+        evidenceQuality: 'strong',
+      }],
+      limit: 100,
+    });
+
+    expect(result.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'chicken road spiel casino',
+        readiness: 'ready',
+      }),
     ]));
   });
 

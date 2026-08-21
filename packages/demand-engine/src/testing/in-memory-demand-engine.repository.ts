@@ -76,23 +76,14 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
       const candidate = candidateByKeyword.get(page.primaryKeyword);
       const key = `${command.topicId ?? 'global'}:${page.slug}`;
       const existing = this.pages.get(key);
-      const evidenceTypes = unique([
-        ...(existing?.evidenceTypes ?? []),
-        ...page.evidenceTypes,
-      ]);
+      const evidenceTypes = unique(page.evidenceTypes);
       const record: DemandCandidatePageRecord = {
         ...page,
-        readiness: highestReadiness([
-          existing?.readiness,
-          page.readiness ?? readinessFromConfidence(page.confidence),
-        ]),
+        readiness: page.readiness ?? readinessFromConfidence(page.confidence),
         evidenceTypes,
-        evidenceUrls: unique([
-          ...(existing?.evidenceUrls ?? []),
-          ...(page.evidenceUrls ?? []),
-        ]),
+        evidenceUrls: unique(page.evidenceUrls ?? []),
         missingResearchGaps: unresolvedResearchGaps(
-          page.missingResearchGaps ?? existing?.missingResearchGaps ?? [],
+          page.missingResearchGaps ?? [],
           evidenceTypes,
         ),
         id: existing?.id ?? `demand-candidate-page-${this.pages.size + 1}`,
@@ -195,14 +186,25 @@ export class InMemoryDemandEngineRepository implements DemandEngineRepository {
       }
       const record: DemandCandidatePageRecord = {
         ...page,
-        readiness: 'ready',
+        readiness: readinessAfterSerpValidation(
+          page.readiness,
+          matches.flatMap((validation) => validation.evidenceUrls),
+          highestValidationQuality(matches.map((validation) =>
+            validation.evidenceQuality ?? evidenceQualityFromUrlCount(validation.evidenceUrls.length),
+          )),
+        ),
         evidenceTypes: unique([...page.evidenceTypes, 'serp_snippet']),
         evidenceUrls: unique([
           ...(page.evidenceUrls ?? []),
           ...matches.flatMap((validation) => validation.evidenceUrls),
         ]),
-        missingResearchGaps: (page.missingResearchGaps ?? [])
-          .filter((gap) => gap !== 'SERP validation evidence'),
+        missingResearchGaps: nextResearchGaps(
+          page.missingResearchGaps ?? [],
+          matches.flatMap((validation) => validation.evidenceUrls),
+          highestValidationQuality(matches.map((validation) =>
+            validation.evidenceQuality ?? evidenceQualityFromUrlCount(validation.evidenceUrls.length),
+          )),
+        ),
         updatedAt: command.validatedAt,
       };
       this.pages.set(key, record);
@@ -250,6 +252,58 @@ function unresolvedResearchGaps(
     gap !== 'SERP validation evidence' ||
     !evidenceTypes.includes('serp_snippet'),
   );
+}
+
+function nextResearchGaps(
+  gaps: string[],
+  evidenceUrls: string[],
+  quality: 'weak' | 'medium' | 'strong',
+): string[] {
+  const next = gaps.filter((gap) =>
+    gap !== 'SERP validation evidence' || evidenceUrls.length === 0,
+  );
+  if (quality !== 'strong' && !next.includes('Strong SERP relevance evidence')) {
+    next.push('Strong SERP relevance evidence');
+  }
+  return next;
+}
+
+function readinessAfterSerpValidation(
+  current: DemandCandidatePageRecord['readiness'] | undefined,
+  evidenceUrls: string[],
+  quality: 'weak' | 'medium' | 'strong',
+): NonNullable<DemandCandidatePageRecord['readiness']> {
+  if (quality === 'strong' && evidenceUrls.length >= 3) {
+    return 'ready';
+  }
+  if (quality === 'medium' && evidenceUrls.length >= 3) {
+    return highestReadiness([current, 'partial']);
+  }
+  return current === 'ready' ? 'partial' : current ?? 'not_ready';
+}
+
+function evidenceQualityFromUrlCount(count: number): 'weak' | 'medium' | 'strong' {
+  if (count >= 7) {
+    return 'strong';
+  }
+  if (count >= 3) {
+    return 'medium';
+  }
+  return 'weak';
+}
+
+function highestValidationQuality(
+  values: Array<'weak' | 'medium' | 'strong'>,
+): 'weak' | 'medium' | 'strong' {
+  return values.sort((a, b) => validationQualityRank(b) - validationQualityRank(a))[0] ?? 'weak';
+}
+
+function validationQualityRank(value: 'weak' | 'medium' | 'strong'): number {
+  return {
+    weak: 0,
+    medium: 1,
+    strong: 2,
+  }[value];
 }
 
 function highestReadiness(

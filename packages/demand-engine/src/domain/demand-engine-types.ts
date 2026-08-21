@@ -15,6 +15,8 @@ export type DemandEvidenceType =
 
 export type DemandConfidence = 'unknown' | 'low' | 'medium' | 'high';
 
+export type DemandEvidenceQuality = 'weak' | 'medium' | 'strong';
+
 export type DemandMetricStatus =
   | 'provider_backed'
   | 'owned_data_backed'
@@ -46,6 +48,7 @@ export interface DemandObservation {
   evidenceType: DemandEvidenceType;
   sourceQuery: string;
   evidenceUrl?: string | null;
+  evidenceQuality?: DemandEvidenceQuality;
   metrics?: Partial<DemandMetricSnapshot>;
 }
 
@@ -57,6 +60,7 @@ export interface KeywordCandidate {
   sourceTiers: DemandSourceTier[];
   providers: string[];
   evidenceTypes: DemandEvidenceType[];
+  evidenceQuality?: DemandEvidenceQuality;
   confidence: DemandConfidence;
   metrics: DemandMetricSnapshot;
   phraseAnalysis?: {
@@ -86,6 +90,7 @@ export interface CandidatePage {
   clusterKey?: string;
   clusterLabel?: string;
   evidenceTypes: DemandEvidenceType[];
+  evidenceQuality?: DemandEvidenceQuality;
   evidenceUrls?: string[];
   metrics: DemandMetricSnapshot;
   missingMetrics: string[];

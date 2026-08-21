@@ -53,7 +53,7 @@ describe('DemandEngineRepository', () => {
     );
   });
 
-  it('keeps SERP evidence when later fallback refreshes recalculate pages', async () => {
+  it('rebuilds stale SERP evidence when later fallback refreshes recalculate pages', async () => {
     const repository = new InMemoryDemandEngineRepository();
     const service = new DemandEngineService([new ManualFallbackDemandProvider()]);
     const result = await service.discover({
@@ -74,13 +74,43 @@ describe('DemandEngineRepository', () => {
       validatedAt: '2026-07-26T00:05:00.000Z',
       validations: [{
         query: 'laser hair removal',
-        evidenceUrls: ['https://clinic.example/laser'],
+        evidenceUrls: [
+          'https://clinic.example/laser',
+          'https://clinic.example/laser-cost',
+          'https://clinic.example/laser-faq',
+        ],
+        evidenceQuality: 'strong',
       }],
     });
-    await repository.saveDiscoveryResult({
+    const second = await repository.saveDiscoveryResult({
       result,
       topicId: 'topic-1',
       observedAt: '2026-07-26T01:00:00.000Z',
+    });
+
+    expect(second.candidatePages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        primaryKeyword: 'laser hair removal',
+        readiness: 'partial',
+        evidenceUrls: [],
+        missingResearchGaps: expect.arrayContaining([
+          'SERP validation evidence',
+        ]),
+      }),
+    ]));
+
+    await repository.markCandidatePagesSerpValidated({
+      topicId: 'topic-1',
+      validatedAt: '2026-07-26T01:05:00.000Z',
+      validations: [{
+        query: 'laser hair removal',
+        evidenceUrls: [
+          'https://clinic.example/laser',
+          'https://clinic.example/laser-cost',
+          'https://clinic.example/laser-faq',
+        ],
+        evidenceQuality: 'strong',
+      }],
     });
 
     await expect(repository.listCandidatePages('topic-1')).resolves.toEqual(
@@ -89,9 +119,52 @@ describe('DemandEngineRepository', () => {
           primaryKeyword: 'laser hair removal',
           readiness: 'ready',
           evidenceTypes: expect.arrayContaining(['serp_snippet']),
-          evidenceUrls: ['https://clinic.example/laser'],
+          evidenceUrls: [
+            'https://clinic.example/laser',
+            'https://clinic.example/laser-cost',
+            'https://clinic.example/laser-faq',
+          ],
           missingResearchGaps: expect.not.arrayContaining([
             'SERP validation evidence',
+          ]),
+        }),
+      ]),
+    );
+  });
+
+  it('does not promote weak SERP validation to ready', async () => {
+    const repository = new InMemoryDemandEngineRepository();
+    const service = new DemandEngineService([new ManualFallbackDemandProvider()]);
+    const result = await service.discover({
+      topicId: 'topic-1',
+      topicSeed: 'laser hair removal',
+      manualSeeds: ['laser hair removal price'],
+      language: 'en',
+      geo: { countryCode: 'PL' },
+    });
+
+    await repository.saveDiscoveryResult({
+      result,
+      topicId: 'topic-1',
+      observedAt: '2026-07-26T00:00:00.000Z',
+    });
+    await repository.markCandidatePagesSerpValidated({
+      topicId: 'topic-1',
+      validatedAt: '2026-07-26T00:05:00.000Z',
+      validations: [{
+        query: 'laser hair removal',
+        evidenceUrls: ['https://kfc.example/chicken'],
+        evidenceQuality: 'weak',
+      }],
+    });
+
+    await expect(repository.listCandidatePages('topic-1')).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          primaryKeyword: 'laser hair removal',
+          readiness: 'partial',
+          missingResearchGaps: expect.arrayContaining([
+            'Strong SERP relevance evidence',
           ]),
         }),
       ]),

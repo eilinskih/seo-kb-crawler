@@ -3,6 +3,7 @@ import {
   DemandConfidence,
   DemandDiscoveryRequest,
   DemandDiscoveryResult,
+  DemandEvidenceQuality,
   DemandMetricSnapshot,
   DemandObservation,
   DemandProviderAdapter,
@@ -92,6 +93,7 @@ function buildKeywordCandidates(
     .map(async ([normalizedKeyword, grouped]) => {
       const metrics = mergeMetrics(grouped);
       const evidenceTypes = unique(grouped.map((observation) => observation.evidenceType));
+      const evidenceQuality = aggregateObservationQuality(grouped);
       const phraseAnalysis = await phraseAnalysisProvider.analyze({
         phrase: normalizedKeyword,
         topicSeed: request.topicSeed,
@@ -106,6 +108,7 @@ function buildKeywordCandidates(
         sourceTiers: unique(grouped.map((observation) => observation.sourceTier)),
         providers: unique(grouped.map((observation) => observation.providerKey)),
         evidenceTypes,
+        evidenceQuality,
         confidence: confidence(grouped, metrics),
         metrics,
         phraseAnalysis: {
@@ -151,6 +154,7 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
       const evidenceTypes = unique(grouped.flatMap((candidate) =>
         candidate.evidenceTypes,
       ));
+      const evidenceQuality = aggregateCandidateEvidenceQuality(grouped);
       const confidenceValue = highestConfidence(grouped);
       return {
         slug: `/${cluster.slug}/`,
@@ -161,11 +165,12 @@ function buildCandidatePages(candidates: KeywordCandidate[]): CandidatePage[] {
           .slice(0, 12),
         proposedPageType: cluster.pageType,
         confidence: confidenceValue,
-        readiness: readiness(grouped, evidenceTypes),
+        readiness: readiness(grouped, evidenceTypes, evidenceQuality),
         primaryIntent: cluster.intent,
         clusterKey,
         clusterLabel: cluster.label,
         evidenceTypes,
+        evidenceQuality,
         evidenceUrls: [],
         metrics: primary.metrics,
         missingMetrics: missingMetrics(primary.metrics),
@@ -278,6 +283,7 @@ function highestConfidence(candidates: KeywordCandidate[]): DemandConfidence {
 function readiness(
   candidates: KeywordCandidate[],
   evidenceTypes: KeywordCandidate['evidenceTypes'],
+  evidenceQuality: DemandEvidenceQuality,
 ): NonNullable<CandidatePage['readiness']> {
   const hasProviderOrOwnedEvidence = candidates.some((candidate) =>
     candidate.metrics.metricStatus === 'provider_backed' ||
@@ -286,10 +292,22 @@ function readiness(
   const hasSerpEvidence = evidenceTypes.some((type) =>
     ['serp_snippet', 'competitor_heading', 'faq_block'].includes(type),
   );
-  if (hasProviderOrOwnedEvidence || hasSerpEvidence) {
+  const hasExpansionEvidence = evidenceTypes.some((type) =>
+    ['people_also_ask', 'related_search', 'autocomplete'].includes(type),
+  );
+  if (
+    hasProviderOrOwnedEvidence ||
+    evidenceQuality === 'strong' ||
+    (hasSerpEvidence && hasExpansionEvidence && candidates.length >= 2)
+  ) {
     return 'ready';
   }
-  if (candidates.length >= 2 || evidenceTypes.length >= 2) {
+  if (
+    evidenceQuality === 'medium' ||
+    hasSerpEvidence ||
+    candidates.length >= 2 ||
+    evidenceTypes.length >= 2
+  ) {
     return 'partial';
   }
   return 'not_ready';
@@ -306,6 +324,9 @@ function missingResearchGaps(
   if (!evidenceTypes.includes('faq_block') && !evidenceTypes.includes('people_also_ask')) {
     gaps.push('FAQ or People Also Ask evidence');
   }
+  if (aggregateCandidateEvidenceQuality(candidates) !== 'strong') {
+    gaps.push('Strong SERP relevance evidence');
+  }
   if (!candidates.some((candidate) =>
     candidate.metrics.metricStatus === 'provider_backed' ||
     candidate.metrics.metricStatus === 'owned_data_backed',
@@ -313,6 +334,61 @@ function missingResearchGaps(
     gaps.push('Provider-backed demand metrics');
   }
   return gaps;
+}
+
+function aggregateObservationQuality(
+  observations: DemandObservation[],
+): DemandEvidenceQuality {
+  return highestEvidenceQuality(observations.map((observation) =>
+    observation.evidenceQuality ?? defaultEvidenceQuality(observation),
+  ));
+}
+
+function aggregateCandidateEvidenceQuality(
+  candidates: KeywordCandidate[],
+): DemandEvidenceQuality {
+  return highestEvidenceQuality(candidates.map((candidate) =>
+    candidate.evidenceQuality ?? 'weak',
+  ));
+}
+
+function defaultEvidenceQuality(
+  observation: DemandObservation,
+): DemandEvidenceQuality {
+  if (
+    observation.metrics?.metricStatus === 'provider_backed' ||
+    observation.metrics?.metricStatus === 'owned_data_backed'
+  ) {
+    return 'strong';
+  }
+  if (
+    observation.evidenceType === 'people_also_ask' ||
+    observation.evidenceType === 'related_search' ||
+    observation.evidenceType === 'autocomplete'
+  ) {
+    return 'strong';
+  }
+  if (observation.evidenceType === 'serp_snippet' && observation.evidenceUrl) {
+    return 'medium';
+  }
+  if (observation.evidenceType === 'competitor_heading' || observation.evidenceType === 'faq_block') {
+    return 'medium';
+  }
+  return 'weak';
+}
+
+function highestEvidenceQuality(
+  values: DemandEvidenceQuality[],
+): DemandEvidenceQuality {
+  return values.sort((a, b) => evidenceQualityRank(b) - evidenceQualityRank(a))[0] ?? 'weak';
+}
+
+function evidenceQualityRank(value: DemandEvidenceQuality): number {
+  return {
+    weak: 0,
+    medium: 1,
+    strong: 2,
+  }[value];
 }
 
 function readinessRank(value: CandidatePage['readiness']): number {

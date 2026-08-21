@@ -17,6 +17,7 @@ export interface MarkCandidatePagesSerpValidatedCommand {
   validations: Array<{
     query: string;
     evidenceUrls: string[];
+    evidenceQuality?: 'weak' | 'medium' | 'strong';
   }>;
   validatedAt: string;
 }

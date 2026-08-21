@@ -10,6 +10,7 @@ import { ChunkingDispatchService } from '@seo-kb/chunking';
 import { ContentProcessingDispatchService } from '@seo-kb/content-processing';
 import { DbService } from '@seo-kb/db';
 import {
+  DemandEvidenceQuality,
   DemandObservation,
   DemandDiscoveryPersistenceService,
   DemandEngineRepository,
@@ -351,17 +352,22 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
       const validatedPages = await this.demandRepository.markCandidatePagesSerpValidated({
         topicId: topic.id,
         validatedAt: new Date().toISOString(),
-        validations: recorded.flatMap((result) =>
-          result.snapshot
+        validations: recorded.flatMap((result) => {
+          const snapshot = result.snapshot;
+          return snapshot
             ? [{
-                query: result.snapshot.normalizedQuery,
-                evidenceUrls: result.snapshot.results
-                  .map((serpResult) => serpResult.url)
-                  .filter(Boolean)
-                  .slice(0, 10),
-              }]
-            : [],
-        ),
+              query: snapshot.normalizedQuery,
+              evidenceUrls: snapshot.results
+                .filter((serpResult) =>
+                  serpResultIsRelevant(serpResult, snapshot.normalizedQuery),
+                )
+                .map((serpResult) => serpResult.url)
+                .filter(Boolean)
+                .slice(0, 10),
+              evidenceQuality: serpEvidenceQuality(snapshot),
+            }]
+            : [];
+        }),
       });
       return {
         status: queries.length > 0 ? 'completed' as const : 'skipped' as const,
@@ -685,6 +691,8 @@ interface DocumentVersionRow {
 interface SnapshotLike {
   query?: string;
   normalizedQuery?: string;
+  degraded?: boolean;
+  providerMode?: string;
   results?: Array<{
     url?: string;
     title?: string | null;
@@ -703,17 +711,21 @@ function serpEvidenceObservations(
 ): DemandObservation[] {
   const snapshot = parseJson<SnapshotLike>(row.snapshot) ?? {};
   const sourceQuery = snapshot.query ?? row.normalized_query;
+  const quality = serpEvidenceQuality(snapshot);
   const observations: DemandObservation[] = [];
   for (const text of snapshot.features?.peopleAlsoAsk ?? []) {
-    observations.push(observation(text, 'people_also_ask', sourceQuery));
+    observations.push(observation(text, 'people_also_ask', sourceQuery, null, quality));
   }
   for (const text of snapshot.features?.relatedSearches ?? []) {
-    observations.push(observation(text, 'related_search', sourceQuery));
+    observations.push(observation(text, 'related_search', sourceQuery, null, quality));
   }
   for (const text of snapshot.features?.autocompleteSuggestions ?? []) {
-    observations.push(observation(text, 'autocomplete', sourceQuery));
+    observations.push(observation(text, 'autocomplete', sourceQuery, null, quality));
   }
   for (const result of snapshot.results ?? parseJson<SnapshotLike['results']>(row.results) ?? []) {
+    if (!serpResultIsRelevant(result, sourceQuery)) {
+      continue;
+    }
     const evidenceUrl = result.url ?? null;
     for (const text of [result.title, result.snippet]) {
       for (const phrase of candidatePhrases(text, seedQuery)) {
@@ -722,6 +734,7 @@ function serpEvidenceObservations(
           'serp_snippet',
           sourceQuery,
           evidenceUrl,
+          quality,
         ));
       }
     }
@@ -777,6 +790,7 @@ function observation(
   evidenceType: DemandObservation['evidenceType'],
   sourceQuery: string,
   evidenceUrl?: string | null,
+  evidenceQuality?: DemandEvidenceQuality,
 ): DemandObservation {
   return {
     observedText,
@@ -785,7 +799,46 @@ function observation(
     evidenceType,
     sourceQuery,
     evidenceUrl,
+    evidenceQuality,
   };
+}
+
+function serpEvidenceQuality(snapshot: SnapshotLike): DemandEvidenceQuality {
+  const results = snapshot.results ?? [];
+  const query = snapshot.normalizedQuery ?? snapshot.query ?? '';
+  const relevantCount = results.filter((result) =>
+    serpResultIsRelevant(result, query),
+  ).length;
+  const hasExpansionFeatures = Boolean(
+    snapshot.features?.peopleAlsoAsk?.length ||
+    snapshot.features?.relatedSearches?.length ||
+    snapshot.features?.autocompleteSuggestions?.length,
+  );
+  if (!snapshot.degraded && (hasExpansionFeatures || relevantCount >= 7)) {
+    return 'strong';
+  }
+  if (relevantCount >= 5) {
+    return 'medium';
+  }
+  return 'weak';
+}
+
+function serpResultIsRelevant(
+  result: NonNullable<SnapshotLike['results']>[number],
+  query: string,
+): boolean {
+  const queryTokens = meaningfulTokens(query);
+  if (queryTokens.size === 0) {
+    return false;
+  }
+  const haystack = [
+    result.url,
+    result.title,
+    result.snippet,
+  ].filter(Boolean).join(' ');
+  const resultTokens = meaningfulTokens(haystack);
+  const overlap = [...queryTokens].filter((token) => resultTokens.has(token)).length;
+  return overlap >= Math.min(2, queryTokens.size);
 }
 
 function candidatePhrases(
