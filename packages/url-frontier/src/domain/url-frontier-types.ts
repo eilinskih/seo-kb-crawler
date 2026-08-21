@@ -75,6 +75,7 @@ export interface UrlFrontierLeaseOptions {
   leaseOwner: string;
   leaseDurationMs: number;
   now: Date;
+  topicId?: string;
   limit?: number;
 }
 

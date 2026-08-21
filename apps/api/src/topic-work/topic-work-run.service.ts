@@ -381,6 +381,7 @@ export class TopicWorkRunService implements OnModuleInit, OnModuleDestroy {
 
     stages.push(await this.runStage('url_frontier_dispatch', () =>
       this.urlFrontierDispatch.dispatchBatch({
+        topicId: topic.id,
         leaseOwner: 'topic-work-run',
         leaseDurationMs: 15 * 60 * 1000,
         now: new Date(),

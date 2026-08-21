@@ -154,6 +154,34 @@ describe('TopicWorkRunService', () => {
     ]));
   });
 
+  it('dispatches URL Frontier jobs only for the current topic', async () => {
+    const urlFrontierDispatch = {
+      dispatchBatch: jest.fn(async () => ({
+        requested: 10,
+        dispatched: 0,
+        jobIds: [],
+        exhausted: true,
+      })),
+    };
+    const service = makeService({
+      urlFrontierDispatch,
+      topics: {
+        get: jest.fn(async () => topic('active', 'topic-scope')),
+        activate: jest.fn(),
+        list: jest.fn(),
+      },
+    });
+
+    await service.runTopic({ topicId: 'topic-scope', force: true });
+
+    expect(urlFrontierDispatch.dispatchBatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        topicId: 'topic-scope',
+        leaseOwner: 'topic-work-run',
+      }),
+    );
+  });
+
   it('processes draft and active topics on every tick', async () => {
     const topics = {
       get: jest.fn(async (topicId: string) =>
@@ -429,14 +457,14 @@ function makeService(overrides: Record<string, unknown> = {}): TopicWorkRunServi
         warnings: [],
       })),
     }) as never,
-    {
+    (overrides.urlFrontierDispatch ?? {
       dispatchBatch: jest.fn(async () => ({
         requested: 10,
         dispatched: 1,
         jobIds: ['crawl-1'],
         exhausted: true,
       })),
-    } as never,
+    }) as never,
     {
       dispatchPendingSuccessfulAttempts: jest.fn(async () => ({
         requested: 10,

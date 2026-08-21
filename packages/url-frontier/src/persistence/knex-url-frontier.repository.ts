@@ -189,6 +189,11 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
       const entry = await transaction<UrlFrontierEntryRow>(
         'url_frontier_entries',
       )
+        .modify((query) => {
+          if (options.topicId) {
+            query.where('topic_id', options.topicId);
+          }
+        })
         .modify((query) => applyEligibleFrontierFilter(query, options.now))
         .orderBy('next_crawl_at', 'asc')
         .orderBy('priority_score', 'desc')
