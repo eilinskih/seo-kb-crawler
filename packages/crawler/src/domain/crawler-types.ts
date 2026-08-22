@@ -15,6 +15,7 @@ export type CrawlerFailureCategory =
   | 'connection_failure'
   | 'network_timeout'
   | 'http_429'
+  | 'http_4xx'
   | 'http_5xx'
   | 'unsupported_content_type'
   | 'content_too_large'

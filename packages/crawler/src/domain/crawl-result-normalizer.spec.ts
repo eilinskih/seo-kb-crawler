@@ -76,6 +76,29 @@ describe('CrawlResultNormalizer', () => {
     expect(result.mediaAssets).toHaveLength(1);
   });
 
+  it('drops empty response headers instead of failing the crawl result', () => {
+    const result = new CrawlResultNormalizer().normalize(
+      command,
+      { key: 'http-fetch', version: '1.0.0' },
+      {
+        status: 'succeeded',
+        finalUrl: 'https://example.com/final',
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'text/html',
+          'accept-ch': '',
+        },
+        rawHtml: '<html>Hello</html>',
+        timing: { totalMs: 42 },
+      },
+    );
+
+    expect(result.headers).toEqual({
+      'content-type': 'text/html',
+    });
+    expect(result.status).toBe('succeeded');
+  });
+
   it('bounds redirect chains and rejects oversized link metadata', () => {
     const normalizer = new CrawlResultNormalizer();
     const result = normalizer.normalize(

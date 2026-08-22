@@ -66,6 +66,8 @@ describe('HttpFetchAdapter', () => {
         maxRedirects: 5,
         headers: expect.objectContaining({
           'user-agent': 'seo-kb-crawler',
+          'accept-language': 'en-US,en;q=0.9',
+          'cache-control': 'no-cache',
         }),
       }),
     );
@@ -174,6 +176,33 @@ describe('HttpFetchAdapter', () => {
       failure: {
         category: 'http_429',
         retryable: true,
+      },
+    });
+  });
+
+  it('records client HTTP failures without treating them as adapter errors', async () => {
+    const safeNetworkGateway: SafeNetworkGateway = {
+      fetch: jest.fn(async () => ({
+        finalUrl: 'https://example.com/docs/page',
+        statusCode: 403,
+        headers: {
+          'content-type': 'text/html',
+        },
+        body: new TextEncoder().encode('<html><body>Forbidden</body></html>'),
+        redirectChain: [],
+      })),
+    };
+
+    const result = await new HttpFetchAdapter().crawl(
+      executionContext(safeNetworkGateway),
+    );
+
+    expect(result).toMatchObject({
+      status: 'failed_terminal',
+      failure: {
+        category: 'http_4xx',
+        detail: 'HTTP 403 client error',
+        retryable: false,
       },
     });
   });

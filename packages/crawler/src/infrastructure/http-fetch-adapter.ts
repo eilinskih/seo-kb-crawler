@@ -113,6 +113,9 @@ async function fetchHtml(
       headers: {
         'user-agent': context.command.policy.userAgent,
         accept: 'text/html,application/xhtml+xml',
+        'accept-language': 'en-US,en;q=0.9',
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
       deadline: context.deadline,
       signal: context.signal,
@@ -232,7 +235,7 @@ function failureFromHttpCode(
   }
   if (statusCode >= 400) {
     return {
-      category: 'adapter_error',
+      category: 'http_4xx',
       detail: `HTTP ${statusCode} client error`,
       retryable: false,
     };

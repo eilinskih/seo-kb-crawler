@@ -94,10 +94,15 @@ function normalizeHeaders(
     return {};
   }
   return Object.fromEntries(
-    Object.entries(headers).slice(0, maxHeaderEntries).map(([key, value]) => [
-      normalizeRequiredText(key.toLowerCase(), 'header key', 100),
-      normalizeRequiredText(value, `header ${key}`, maxHeaderLength),
-    ]),
+    Object.entries(headers)
+      .map(([key, value]) => [
+        normalizeRequiredText(key.toLowerCase(), 'header key', 100),
+        normalizeOptionalTruncatedText(value, maxHeaderLength),
+      ] as const)
+      .filter((entry): entry is readonly [string, string] =>
+        entry[1] !== undefined,
+      )
+      .slice(0, maxHeaderEntries),
   );
 }
 
