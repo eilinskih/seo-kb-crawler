@@ -5,6 +5,7 @@ export * from './duckduckgo-html-serp-search.provider';
 export * from './entity-pattern.service';
 export * from './faq-pattern.service';
 export * from './focused-serp-discovery.service';
+export * from './google-autocomplete-serp-feature.provider';
 export * from './heading-pattern.service';
 export * from './normalize-serp-text';
 export * from './openserp-search.provider';

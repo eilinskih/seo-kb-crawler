@@ -68,13 +68,13 @@ export class UrlFrontierReevaluationService {
 
       const evaluation = evaluatePreCrawlObservation(observation, snapshot);
       const seed = toEntrySeed(observation, snapshot, evaluation, options.now);
-      await this.repository.upsertEntry(seed);
+      const frontierEntryId = await this.repository.upsertEntry(seed);
       result.upsertedEntries += 1;
 
       if (
         await this.repository.linkDiscoveryObservation(
           observation.observationId,
-          seed.id,
+          frontierEntryId,
         )
       ) {
         result.linkedObservations += 1;

@@ -4,6 +4,7 @@ import {
   toAgeMinutes,
   toLease,
   toObservationRowInput,
+  returnedId,
 } from './knex-url-frontier.repository';
 import {
   UrlFrontierDiscoveryObservation,
@@ -114,6 +115,12 @@ describe('KnexUrlFrontierRepository mapping', () => {
     expect(toAgeMinutes('2026-07-04T00:00:00Z', now)).toBe(10);
     expect(toAgeMinutes(new Date('2026-07-04T00:20:00Z'), now)).toBe(0);
     expect(toAgeMinutes(null, now)).toBeUndefined();
+  });
+
+  it('normalizes upsert returning values from different knex drivers', () => {
+    expect(returnedId('entry-1')).toBe('entry-1');
+    expect(returnedId({ id: 'entry-2' })).toBe('entry-2');
+    expect(returnedId(undefined)).toBeNull();
   });
 });
 

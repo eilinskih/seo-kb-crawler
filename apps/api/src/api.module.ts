@@ -18,6 +18,7 @@ import { RetrievalModule } from '@seo-kb/retrieval';
 import { SeoPackModule } from '@seo-kb/seo-pack';
 import {
   DuckDuckGoHtmlSerpSearchProvider,
+  GoogleAutocompleteSerpFeatureProvider,
   OpenSerpSearchProvider,
   RoutedSerpSearchProvider,
   SerpIntelligenceModule,
@@ -88,6 +89,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
   ],
   providers: [
     DuckDuckGoHtmlSerpSearchProvider,
+    GoogleAutocompleteSerpFeatureProvider,
     OpenSerpSearchProvider,
     RoutedSerpSearchProvider,
     InfrastructureHealthService,

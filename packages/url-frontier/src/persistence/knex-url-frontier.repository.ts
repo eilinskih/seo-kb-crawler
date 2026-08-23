@@ -90,9 +90,9 @@ export interface UrlDiscoveryObservationRow {
 export class KnexUrlFrontierRepository implements UrlFrontierRepository {
   constructor(private readonly db: DbService) {}
 
-  async upsertEntry(seed: UrlFrontierEntrySeed): Promise<void> {
+  async upsertEntry(seed: UrlFrontierEntrySeed): Promise<string> {
     const row = toEntryRow(seed);
-    await this.db
+    const [persisted] = await this.db
       .knex<UrlFrontierEntryRow>('url_frontier_entries')
       .insert(row)
       .onConflict(['topic_id', 'normalized_url_hash'])
@@ -110,7 +110,10 @@ export class KnexUrlFrontierRepository implements UrlFrontierRepository {
         relevance_profile_version: row.relevance_profile_version,
         next_crawl_at: row.next_crawl_at,
         updated_at: row.updated_at,
-      });
+      })
+      .returning('id');
+
+    return returnedId(persisted) ?? row.id;
   }
 
   async appendDiscoveryObservations(
@@ -565,6 +568,21 @@ function commandDeadline(
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+export function returnedId(value: unknown): string | null {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    typeof value.id === 'string'
+  ) {
+    return value.id;
+  }
+  return null;
 }
 
 function applyEligibleFrontierFilter(

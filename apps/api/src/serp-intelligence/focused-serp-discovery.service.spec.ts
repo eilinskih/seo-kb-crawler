@@ -216,4 +216,75 @@ describe('FocusedSerpDiscoveryApiService', () => {
       frontier: null,
     });
   });
+
+  it('records feature-only snapshots without fabricating URL Frontier entries', async () => {
+    const topicService = {
+      get: jest.fn(async () => ({
+        id: 'topic-1',
+        configurationVersion: 3,
+        discovery: {
+          search: {
+            queries: [{ text: 'chicken road spiel casino', language: 'de' }],
+            maxResultsPerQuery: 10,
+          },
+        },
+        languageGeo: {
+          languages: [{ tag: 'de' }],
+          geoTargets: [{ countryCode: 'DE' }],
+        },
+      })),
+    };
+    const serpDiscovery = {
+      recordSnapshot: jest.fn(async () => ({
+        snapshot: {
+          id: 'snapshot-1',
+          results: [],
+          features: {
+            autocompleteSuggestions: ['chicken road spiel casino demo'],
+          },
+        },
+        observations: [],
+      })),
+    };
+    const frontierRepository = { appendDiscoveryObservations: jest.fn() };
+    const frontierReevaluation = { reevaluatePending: jest.fn() };
+    const serpSearchProvider = {
+      providerKey: 'routed_serp_provider',
+      search: jest.fn(async () => ({
+        providerKey: 'free_html_serp_fallback',
+        providerMode: 'fallback',
+        degraded: true,
+        warnings: ['Google TOP-10 unavailable; autocomplete evidence collected.'],
+        results: [],
+        features: {
+          autocompleteSuggestions: ['chicken road spiel casino demo'],
+        },
+      })),
+    };
+    const service = new FocusedSerpDiscoveryApiService(
+      topicService as never,
+      serpDiscovery as never,
+      frontierRepository as never,
+      frontierReevaluation as never,
+      serpSearchProvider as never,
+    );
+
+    const result = await service.runFromTopic({ topicId: 'topic-1' });
+
+    expect(serpDiscovery.recordSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        results: [],
+        features: {
+          autocompleteSuggestions: ['chicken road spiel casino demo'],
+        },
+      }),
+    );
+    expect(frontierRepository.appendDiscoveryObservations).not.toHaveBeenCalled();
+    expect(frontierReevaluation.reevaluatePending).not.toHaveBeenCalled();
+    expect(result).toEqual(expect.objectContaining({
+      status: 'recorded',
+      observations: { submitted: 0, receipts: [] },
+      frontier: expect.objectContaining({ upsertedEntries: 0 }),
+    }));
+  });
 });

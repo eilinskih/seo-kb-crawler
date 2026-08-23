@@ -112,7 +112,7 @@ export class FocusedSerpDiscoveryApiService {
       limit: topic.discovery.search.maxResultsPerQuery,
     });
 
-    if (searchResult.results.length === 0) {
+    if (searchResult.results.length === 0 && !hasSearchFeatures(searchResult)) {
       return {
         status: 'degraded_no_results',
         providerKey: searchResult.providerKey,
@@ -137,13 +137,25 @@ export class FocusedSerpDiscoveryApiService {
       features: searchResult.features,
       capturedAt: new Date().toISOString(),
     });
-    const receipts = await this.frontierRepository.appendDiscoveryObservations(
-      recorded.observations,
-    );
-    const frontier = await this.frontierReevaluation.reevaluatePending({
-      limit: Math.max(recorded.observations.length, 1),
-      now: new Date(),
-    });
+    const receipts = recorded.observations.length > 0
+      ? await this.frontierRepository.appendDiscoveryObservations(
+          recorded.observations,
+        )
+      : [];
+    const frontier = recorded.observations.length > 0
+      ? await this.frontierReevaluation.reevaluatePending({
+          limit: Math.max(recorded.observations.length, 1),
+          now: new Date(),
+        })
+      : {
+          examined: 0,
+          upsertedEntries: 0,
+          linkedObservations: 0,
+          missingSnapshots: 0,
+          accepted: 0,
+          rejected: 0,
+          insufficientEvidence: 0,
+        };
 
     return {
       status: 'recorded',
@@ -157,6 +169,16 @@ export class FocusedSerpDiscoveryApiService {
       frontier,
     };
   }
+}
+
+function hasSearchFeatures(
+  searchResult: Awaited<ReturnType<RoutedSerpSearchProvider['search']>>,
+): boolean {
+  return Boolean(
+    searchResult.features?.peopleAlsoAsk?.length ||
+    searchResult.features?.relatedSearches?.length ||
+    searchResult.features?.autocompleteSuggestions?.length,
+  );
 }
 
 type TopicRecordLike = Awaited<ReturnType<TopicService['get']>>;

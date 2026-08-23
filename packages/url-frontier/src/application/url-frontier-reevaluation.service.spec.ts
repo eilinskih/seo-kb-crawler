@@ -143,6 +143,7 @@ function repositoryDouble(
     listPendingDiscoveryObservations: jest.fn(async () => observations),
     upsertEntry: jest.fn(async (seed) => {
       upserted.push(seed);
+      return seed.id;
     }),
     linkDiscoveryObservation: jest.fn(async () => true),
   } as unknown as KnexUrlFrontierRepository & {
