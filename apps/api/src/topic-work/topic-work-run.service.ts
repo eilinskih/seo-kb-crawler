@@ -864,6 +864,7 @@ function candidatePhrases(
       phrase.length <= 90 &&
       phrase.split(/\s+/u).length <= 8 &&
       !looksLikeMarketingCopy(phrase) &&
+      !looksLikeSentenceFragment(phrase) &&
       hasSeedOverlap(phrase, seedTokens),
     ))
     .slice(0, 8);
@@ -881,6 +882,34 @@ function looksLikeMarketingCopy(value: string): boolean {
   const normalized = value.toLowerCase();
   return /\b(sprawdź|sprawdz|wejdź|wejdz|znajdź|znajdz|kupuj|taniej|promocj|oferujemy|najwięcej ofert|najwiecej ofert|radość|radosc|best prices|find what|shop now)\b/u
     .test(normalized);
+}
+
+function looksLikeSentenceFragment(value: string): boolean {
+  const tokens = [...meaningfulTokens(value)];
+  const last = tokens.at(-1);
+  if (!last) {
+    return true;
+  }
+  if (/\b(this game adds to our|adds to our)\b/iu.test(value)) {
+    return true;
+  }
+  return new Set([
+    'a',
+    'an',
+    'and',
+    'are',
+    'for',
+    'from',
+    'in',
+    'is',
+    'of',
+    'our',
+    'the',
+    'this',
+    'to',
+    'von',
+    'with',
+  ]).has(last);
 }
 
 function meaningfulTokens(value: string): Set<string> {

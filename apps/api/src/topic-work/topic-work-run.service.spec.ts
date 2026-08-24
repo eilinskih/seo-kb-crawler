@@ -154,6 +154,74 @@ describe('TopicWorkRunService', () => {
     ]));
   });
 
+  it('keeps sentence fragments from SERP snippets out of demand queries', async () => {
+    const demandDiscovery = {
+      discoverAndPersist: jest.fn(async (_command: unknown) => ({
+        discovery: {
+          fallbackMode: false,
+          warnings: [],
+        },
+        persistence: {
+          keywordCandidates: [],
+          candidatePages: [],
+        },
+      })),
+    };
+    const db = {
+      knex: jest.fn((table: string) => ({
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn(async () =>
+          table === 'serp_snapshots'
+            ? [{
+                normalized_query: 'chicken road casino',
+                results: [],
+                snapshot: {
+                  query: 'chicken road casino',
+                  results: [{
+                    url: 'https://chicken-road.net/',
+                    title: 'Chicken Road Casino Game',
+                    snippet: 'At Inout Games, we are pleased to introduce our new casino mini-game: Chicken Road. This game adds to our portfolio.',
+                  }],
+                  features: {
+                    peopleAlsoAsk: [],
+                    relatedSearches: [],
+                    autocompleteSuggestions: [],
+                  },
+                },
+              }]
+            : []),
+      })),
+    };
+    const service = makeService({
+      db,
+      demandDiscovery,
+      topics: {
+        get: jest.fn(async () => topic('active', 'topic-1', 'chicken road casino')),
+        activate: jest.fn(),
+        list: jest.fn(),
+      },
+    });
+
+    await service.runTopic({ topicId: 'topic-1', force: true });
+
+    const request = demandDiscovery.discoverAndPersist.mock.calls[0][0] as {
+      evidenceObservations: Array<{ observedText: string }>;
+    };
+    expect(request.evidenceObservations.map((observation) =>
+      observation.observedText,
+    )).toEqual(expect.arrayContaining([
+      'Chicken Road Casino Game',
+    ]));
+    expect(request.evidenceObservations.map((observation) =>
+      observation.observedText,
+    )).not.toEqual(expect.arrayContaining([
+      'Chicken Road This game adds to our portfolio.',
+      'Chicken Road This game adds to our portfolio',
+      'Chicken Road This game adds to our',
+    ]));
+  });
+
   it('dispatches URL Frontier jobs only for the current topic', async () => {
     const urlFrontierDispatch = {
       dispatchBatch: jest.fn(async () => ({
