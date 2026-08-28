@@ -20,6 +20,7 @@ describe('SeoKbMcpServer', () => {
       result: expect.objectContaining({
         tools: expect.arrayContaining([
           expect.objectContaining({ name: 'seo_kb_create_topic' }),
+          expect.objectContaining({ name: 'seo_kb_prepare_site_topic' }),
           expect.objectContaining({ name: 'seo_kb_get_page_candidates' }),
           expect.objectContaining({ name: 'seo_kb_get_page_plan' }),
           expect.objectContaining({ name: 'seo_kb_get_seo_packs' }),
@@ -62,6 +63,55 @@ describe('SeoKbMcpServer', () => {
         content: [expect.objectContaining({ type: 'text' })],
       }),
     }));
+  });
+
+  it('prepares a site topic and starts the automated work run', async () => {
+    const api = apiClient({
+      post: jest.fn(async (path: string, body: unknown) => {
+        if (path === '/topics') {
+          return {
+            id: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+            body,
+          };
+        }
+        return {
+          topicId: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+          status: 'accepted',
+        };
+      }),
+    });
+    const server = new SeoKbMcpServer(api as never);
+
+    const response = await server.handle({
+      jsonrpc: '2.0',
+      id: 'site-topic',
+      method: 'tools/call',
+      params: {
+        name: 'seo_kb_prepare_site_topic',
+        arguments: {
+          seed: 'szafka garażowa z szufladami',
+          language: 'pl',
+          countryCode: 'PL',
+        },
+      },
+    });
+
+    expect(api.post).toHaveBeenNthCalledWith(
+      1,
+      '/topics',
+      expect.objectContaining({ slug: 'szafka-garazowa-z-szufladami' }),
+    );
+    expect(api.post).toHaveBeenNthCalledWith(2, '/topic-work-runs', {
+      topicId: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+      force: false,
+    });
+    const result = response?.result as { content: Array<{ text: string }> };
+    expect(JSON.parse(result.content[0].text)).toMatchObject({
+      nextTools: [
+        'seo_kb_get_topic_work_status',
+        'seo_kb_get_site_generation_package',
+      ],
+    });
   });
 
   it('filters page candidates by readiness', async () => {

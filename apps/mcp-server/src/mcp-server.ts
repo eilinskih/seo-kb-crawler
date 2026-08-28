@@ -40,6 +40,25 @@ export class SeoKbMcpServer {
         this.api.get(`/topics/${requiredString(args.topicId, 'topicId')}`),
       seo_kb_create_topic: async (args) =>
         this.api.post('/topics', buildTopicInput(args as unknown as CreateTopicFromSeedArgs)),
+      seo_kb_prepare_site_topic: async (args) => {
+        const topic = await this.api.post(
+          '/topics',
+          buildTopicInput(args as unknown as CreateTopicFromSeedArgs),
+        );
+        const topicId = requiredString(requiredObject(topic, 'topic').id, 'topic.id');
+        const workRun = await this.api.post('/topic-work-runs', {
+          topicId,
+          force: args.force === true,
+        });
+        return {
+          topic,
+          workRun,
+          nextTools: [
+            'seo_kb_get_topic_work_status',
+            'seo_kb_get_site_generation_package',
+          ],
+        };
+      },
       seo_kb_start_topic_work_run: async (args) =>
         this.api.post('/topic-work-runs', {
           topicId: requiredString(args.topicId, 'topicId'),
@@ -187,6 +206,25 @@ function toolDefinitions(): ToolDefinition[] {
         seedUrls: arraySchema('Optional known seed URLs for crawling.'),
         sitemapUrls: arraySchema('Optional sitemap URLs.'),
         allowedHosts: arraySchema('Optional allowed crawl hosts required when seed URLs or sitemaps are used.'),
+      }, ['seed']),
+    },
+    {
+      name: 'seo_kb_prepare_site_topic',
+      description: 'Create a topic from one seed and immediately start the automated Topic Work Run for autonomous site generation.',
+      inputSchema: objectSchema({
+        seed: stringSchema('Primary topic or keyword seed, for example "depilacja laserowa jaslo".'),
+        slug: stringSchema('Optional lowercase kebab-case topic slug.'),
+        name: stringSchema('Optional human-readable topic name.'),
+        description: stringSchema('Optional topic description.'),
+        language: stringSchema('BCP 47 language tag. Defaults to en.'),
+        countryCode: stringSchema('Optional ISO 3166-1 alpha-2 country code, for example PL.'),
+        regionCode: stringSchema('Optional region code, for example PL-PK.'),
+        maxResultsPerQuery: integerSchema('SERP result limit per query. Defaults to 10.'),
+        maxPages: integerSchema('Topic crawl page budget. Defaults to 100.'),
+        seedUrls: arraySchema('Optional known seed URLs for crawling.'),
+        sitemapUrls: arraySchema('Optional sitemap URLs.'),
+        allowedHosts: arraySchema('Optional allowed crawl hosts required when seed URLs or sitemaps are used.'),
+        force: booleanSchema('When true, bypasses in-process SERP refresh throttling.'),
       }, ['seed']),
     },
     {

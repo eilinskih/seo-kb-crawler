@@ -106,6 +106,9 @@ Summary:
   `ready`, `degraded_ready` and `blocked` before generating or publishing.
 - Added Site Generation Package API/MCP handoff so website workspaces can fetch
   Site Blueprint, included SEO Packs and missing SEO Pack keys in one call.
+- Added `seo_kb_prepare_site_topic` so Codex-first site workflows can create a
+  topic from one seed and immediately start Topic Work Run without manual
+  multi-tool sequencing.
 Validation:
 - npm run build
 - npm test -- --runInBand

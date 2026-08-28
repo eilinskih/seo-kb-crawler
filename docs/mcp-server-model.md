@@ -50,6 +50,7 @@ Initial tools:
 - `seo_kb_list_topics`
 - `seo_kb_get_topic`
 - `seo_kb_create_topic`
+- `seo_kb_prepare_site_topic`
 - `seo_kb_start_topic_work_run`
 - `seo_kb_get_topic_work_status`
 - `seo_kb_get_demand_map`
@@ -64,15 +65,20 @@ Initial tools:
 The main product path from a website workspace is:
 
 ```txt
-seo_kb_create_topic
-  -> seo_kb_start_topic_work_run
+seo_kb_prepare_site_topic
   -> seo_kb_get_topic_work_status
-  -> seo_kb_get_page_plan
-  -> seo_kb_get_seo_packs
-  -> seo_kb_get_site_blueprint
   -> seo_kb_get_site_generation_package
-  -> seo_kb_build_context_pack / seo_kb_build_seo_pack
 ```
+
+Lower-level tools such as `seo_kb_create_topic`,
+`seo_kb_start_topic_work_run`, `seo_kb_get_page_plan`,
+`seo_kb_get_seo_packs`, `seo_kb_get_site_blueprint`,
+`seo_kb_build_context_pack` and `seo_kb_build_seo_pack` remain available for
+debugging, retries and advanced workflows.
+
+`seo_kb_prepare_site_topic` is the preferred start for the normal Codex-first
+workflow. It accepts one topic seed, creates the Topic Engine record and starts
+Topic Work Run immediately.
 
 `seo_kb_get_site_blueprint` is the preferred handoff for website workspaces
 that need to build or update a site. It aggregates the current page plan, SEO
@@ -115,8 +121,8 @@ Example agent instruction:
 
 ```txt
 Use the SEO KB MCP server.
-Find or create a topic for "depilacja laserowa jasło" in Polish and Poland.
-Start or continue the topic work run.
+Prepare a site topic for "depilacja laserowa jasło" in Polish and Poland.
+Wait for or inspect the topic work run.
 Fetch the page plan first, then inspect ready page candidates only as raw
 supporting data.
 Fetch the site blueprint before editing the website. Use it as the route,
