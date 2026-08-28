@@ -10,8 +10,8 @@ export function configuredExternalEntityProviders(
   return [
     new GoogleKnowledgeGraphProvider({
       apiKey:
-        config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_API_KEY') ??
-        config.get<string>('GOOGLE_KG_API_KEY'),
+        stringConfig(config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_API_KEY')) ??
+        stringConfig(config.get<string>('GOOGLE_KG_API_KEY')),
       disabled: booleanConfig(
         config.get<string>('GOOGLE_KNOWLEDGE_GRAPH_DISABLED'),
       ),
@@ -47,4 +47,9 @@ function numberConfig(value: string | undefined): number | undefined {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function stringConfig(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
 }

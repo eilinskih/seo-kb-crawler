@@ -61,6 +61,10 @@ class InMemoryChunkingRepository implements ChunkingRepository {
     return this.documentVersion;
   }
 
+  async findUnchunkedDocumentVersionIds() {
+    return [this.documentVersion.id];
+  }
+
   async findRun(_identity: ChunkingRunIdentity) {
     return this.existingRun;
   }

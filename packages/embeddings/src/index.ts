@@ -2,6 +2,7 @@ export * from './domain/embedding-types';
 export * from './domain/embedding-provider';
 export * from './domain/local-embedding.provider';
 export * from './domain/no-embedding.provider';
+export * from './domain/ollama-embedding.provider';
 export * from './embedding-dispatch.service';
 export * from './embedding.module';
 export * from './embedding.service';

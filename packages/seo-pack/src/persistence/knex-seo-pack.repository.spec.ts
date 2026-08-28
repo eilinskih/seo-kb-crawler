@@ -30,9 +30,9 @@ describe('KnexSeoPackRepository', () => {
         region: null,
         city: 'Warsaw',
       }),
-      source_pack_references: pack.sourcePackReferences,
-      uncertainty: pack.uncertainty,
-      pack,
+      source_pack_references: JSON.stringify(pack.sourcePackReferences),
+      uncertainty: JSON.stringify(pack.uncertainty),
+      pack: JSON.stringify(pack),
       created_at: '2026-07-26T00:00:00.000Z',
     });
   });

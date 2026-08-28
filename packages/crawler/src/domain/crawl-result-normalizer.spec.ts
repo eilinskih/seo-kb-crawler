@@ -76,6 +76,29 @@ describe('CrawlResultNormalizer', () => {
     expect(result.mediaAssets).toHaveLength(1);
   });
 
+  it('drops empty response headers instead of failing the crawl result', () => {
+    const result = new CrawlResultNormalizer().normalize(
+      command,
+      { key: 'http-fetch', version: '1.0.0' },
+      {
+        status: 'succeeded',
+        finalUrl: 'https://example.com/final',
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'text/html',
+          'accept-ch': '',
+        },
+        rawHtml: '<html>Hello</html>',
+        timing: { totalMs: 42 },
+      },
+    );
+
+    expect(result.headers).toEqual({
+      'content-type': 'text/html',
+    });
+    expect(result.status).toBe('succeeded');
+  });
+
   it('bounds redirect chains and rejects oversized link metadata', () => {
     const normalizer = new CrawlResultNormalizer();
     const result = normalizer.normalize(
@@ -136,6 +159,31 @@ describe('CrawlResultNormalizer', () => {
         timing: { totalMs: 42 },
       }),
     ).toThrow(CrawlerValidationError);
+  });
+
+  it('truncates oversized content artifacts and link text instead of rejecting the crawl', () => {
+    const result = new CrawlResultNormalizer().normalize(
+      command,
+      { key: 'http-fetch', version: '1.0.0' },
+      {
+        status: 'succeeded',
+        rawHtml: `<html>${'x'.repeat(600_000)}</html>`,
+        outgoingLinks: [
+          {
+            href: '/a',
+            resolvedUrl: 'https://example.com/a',
+            anchorText: 'x'.repeat(2_000),
+          },
+        ],
+        timing: { totalMs: 42 },
+      },
+    );
+
+    expect(result.status).toBe('succeeded');
+    expect(result.rawHtml).toHaveLength(500_000);
+    expect(result.outgoingLinks).toHaveLength(1);
+    expect(result.outgoingLinks?.[0]?.anchorText).toHaveLength(1_000);
+    expect(result.contentHash).toHaveLength(64);
   });
 
   it('rejects unsafe normalized result URLs', () => {

@@ -5,11 +5,13 @@ import {
   ExternalEntityEnrichmentRequest,
   ExternalEntityProvider,
   ExternalEntityProviderDescriptor,
+  ExternalEntityProviderResult,
   ExternalEntityProviderWarning,
 } from './domain/external-entity-enrichment-types';
 import { ExternalEntityProviderRegistry } from './external-entity-provider-registry';
 import {
   ExternalEntityEnrichmentRepository,
+  ExternalEntityEnrichmentPackRecord,
 } from './persistence/external-entity-enrichment.repository';
 import {
   cacheExpiry,
@@ -48,24 +50,6 @@ export class ExternalEntityEnrichmentService {
         continue;
       }
 
-      const rateLimitDecision = provider.tier === 'local_signal'
-        ? undefined
-        : await this.executionPolicy.rateLimiter?.consume(
-            provider.providerKey,
-            generatedAt,
-          );
-      if (rateLimitDecision && !rateLimitDecision.allowed) {
-        warnings.push({
-          providerKey: provider.providerKey,
-          status: 'rate_limited',
-          code: 'provider_rate_limited',
-          message: rateLimitDecision.resetAt
-            ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
-            : `${provider.providerKey} is rate-limited.`,
-        });
-        continue;
-      }
-
       try {
         const cacheKey = externalEntityCacheKey(provider.providerKey, request);
         const cached = await this.executionPolicy.cache?.get(
@@ -73,8 +57,19 @@ export class ExternalEntityEnrichmentService {
           cacheKey,
           generatedAt,
         );
-        const result = cached ?? await provider.enrich(request);
-        if (!cached && this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
+        if (cached) {
+          candidates.push(...cached.candidates);
+          warnings.push(...(cached.warnings ?? []));
+          continue;
+        }
+
+        const result = this.executionPolicy.queue && provider.tier !== 'local_signal'
+          ? await this.executionPolicy.queue.execute(
+              provider.providerKey,
+              () => provider.enrich(request),
+            )
+          : await this.enrichWithRateLimiter(provider, request, generatedAt);
+        if (this.executionPolicy.cache && this.executionPolicy.cacheTtlMs) {
           await this.executionPolicy.cache.set({
             providerKey: provider.providerKey,
             cacheKey,
@@ -108,6 +103,40 @@ export class ExternalEntityEnrichmentService {
     await this.repository?.saveEnrichmentPack({ pack, createdAt: generatedAt });
 
     return pack;
+  }
+
+  async findLatestPack(
+    entityName: string,
+  ): Promise<ExternalEntityEnrichmentPackRecord | null> {
+    return this.repository?.findLatestEnrichmentPack(entityName) ?? null;
+  }
+
+  private async enrichWithRateLimiter(
+    provider: ExternalEntityProvider,
+    request: ExternalEntityEnrichmentRequest,
+    generatedAt: string,
+  ): Promise<ExternalEntityProviderResult> {
+    const rateLimitDecision = provider.tier === 'local_signal'
+      ? undefined
+      : await this.executionPolicy.rateLimiter?.consume(
+          provider.providerKey,
+          generatedAt,
+        );
+    if (rateLimitDecision && !rateLimitDecision.allowed) {
+      return {
+        candidates: [],
+        warnings: [{
+          providerKey: provider.providerKey,
+          status: 'rate_limited',
+          code: 'provider_rate_limited',
+          message: rateLimitDecision.resetAt
+            ? `${provider.providerKey} is rate-limited until ${rateLimitDecision.resetAt}.`
+            : `${provider.providerKey} is rate-limited.`,
+        }],
+      };
+    }
+
+    return provider.enrich(request);
   }
 }
 

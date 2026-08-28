@@ -68,13 +68,13 @@ export class UrlFrontierReevaluationService {
 
       const evaluation = evaluatePreCrawlObservation(observation, snapshot);
       const seed = toEntrySeed(observation, snapshot, evaluation, options.now);
-      await this.repository.upsertEntry(seed);
+      const frontierEntryId = await this.repository.upsertEntry(seed);
       result.upsertedEntries += 1;
 
       if (
         await this.repository.linkDiscoveryObservation(
           observation.observationId,
-          seed.id,
+          frontierEntryId,
         )
       ) {
         result.linkedObservations += 1;
@@ -197,7 +197,7 @@ function evaluateCrawlPolicy(
   if (policy.deniedHosts.includes(host)) {
     return rejected(0, 'denied_host', { host });
   }
-  if (!policy.allowedHosts.includes(host)) {
+  if (policy.allowedHosts.length > 0 && !policy.allowedHosts.includes(host)) {
     return rejected(0, 'host_not_allowed', { host });
   }
   if (

@@ -38,6 +38,26 @@ The scoring layer must not produce fake topic coverage percentages, research
 readiness percentages or knowledge completeness percentages. Scores are
 ranking aids derived from observable signals, not truth claims.
 
+## Readiness vs Planning
+
+Technical `readiness` and editorial planning recommendations are intentionally
+separate.
+
+`readiness` belongs to the data pipeline. It tells operators whether a
+candidate page has enough observable evidence to continue through downstream
+processing.
+
+Planning recommendations belong to the page-planning boundary. They tell Codex
+and human reviewers how to use a candidate:
+
+- `create`: use as a money page or supporting page candidate;
+- `merge`: use as long-tail evidence inside a broader page or cluster;
+- `defer`: keep the candidate for later validation, metrics or review;
+- `reject`: discard contradictory or implausible combinations.
+
+This prevents a technically `ready` but mechanically generated long-tail
+combination from being treated as an automatic publishing instruction.
+
 ## Boundaries
 
 SEO Page Candidate Scoring owns:

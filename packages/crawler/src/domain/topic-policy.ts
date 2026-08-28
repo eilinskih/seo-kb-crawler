@@ -18,7 +18,7 @@ export function evaluateTopicCrawlPolicy(
     return denied(target, kind, `denied host: ${host}`);
   }
 
-  if (!matchesHost(host, policy.allowedHosts)) {
+  if (policy.allowedHosts.length > 0 && !matchesHost(host, policy.allowedHosts)) {
     return denied(target, kind, `host not allowed: ${host}`);
   }
 

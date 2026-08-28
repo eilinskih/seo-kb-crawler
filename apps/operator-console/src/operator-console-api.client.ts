@@ -44,6 +44,24 @@ export interface OperatorDispatchCommand {
   maxDispatches: number;
 }
 
+export interface OperatorFocusedSerpDiscoveryCommand {
+  topicId: string;
+  query: string;
+  language: string;
+  countryCode: string;
+  city: string | null;
+  resultUrls: string[];
+}
+
+export interface OperatorAutomaticSerpDiscoveryResult {
+  status: 'recorded' | 'degraded_no_results';
+  providerKey: string;
+  warnings: string[];
+  snapshot: { id: string; results: unknown[] } | null;
+  observations: { submitted: number };
+  frontier: { upsertedEntries?: number } | null;
+}
+
 export interface OperatorReviewAliasCommand {
   reviewedBy: string;
   note: string | null;
@@ -260,6 +278,46 @@ export class OperatorConsoleApiClient {
         'content-type': 'application/json',
       },
     });
+  }
+
+  async runFocusedSerpDiscovery(
+    command: OperatorFocusedSerpDiscoveryCommand,
+  ): Promise<void> {
+    await this.request('/serp-intelligence/focused-discovery', {
+      method: 'POST',
+      body: JSON.stringify({
+        topicId: command.topicId,
+        query: command.query,
+        language: command.language,
+        geo: {
+          countryCode: command.countryCode,
+          city: command.city,
+        },
+        providerKey: 'operator_console_manual_serp',
+        results: command.resultUrls.map((url, index) => ({
+          url,
+          position: index + 1,
+        })),
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+
+  async runFocusedSerpDiscoveryForTopic(
+    topicId: string,
+  ): Promise<OperatorAutomaticSerpDiscoveryResult> {
+    return this.request<OperatorAutomaticSerpDiscoveryResult>(
+      '/serp-intelligence/focused-discovery/run-topic',
+      {
+        method: 'POST',
+        body: JSON.stringify({ topicId }),
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    );
   }
 
   async approveAlias(

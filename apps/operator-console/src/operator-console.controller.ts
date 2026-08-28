@@ -5,6 +5,7 @@ import {
   Header,
   Param,
   Post,
+  Query,
   Redirect,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import {
   OperatorConsoleApiClient,
   OperatorCreateTopicCommand,
   OperatorDispatchCommand,
+  OperatorFocusedSerpDiscoveryCommand,
   OperatorReviewExternalEntityCommand,
   OperatorReviewAliasCommand,
   OperatorUpdateTopicCommand,
@@ -38,8 +40,13 @@ export class OperatorConsoleController {
 
   @Get()
   @Header('Content-Type', 'text/html; charset=utf-8')
-  async index(): Promise<string> {
-    return renderOperatorConsoleHtml(await this.consoleService.buildViewModel());
+  async index(@Query('flash') flash?: string): Promise<string> {
+    return renderOperatorConsoleHtml(
+      await this.consoleService.buildViewModel(
+        new Date(),
+        optionalText(flash),
+      ),
+    );
   }
 
   @Get('status')
@@ -123,6 +130,25 @@ export class OperatorConsoleController {
     @Body() body: Record<string, unknown>,
   ): Promise<void> {
     await this.apiClient.dispatchContentProcessing(toDispatchCommand(body));
+  }
+
+  @Post('serp-intelligence/focused-discovery')
+  @Redirect('/', 303)
+  async focusedSerpDiscovery(
+    @Body() body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.apiClient.runFocusedSerpDiscovery(
+      toFocusedSerpDiscoveryCommand(body),
+    );
+  }
+
+  @Post('topics/:id/discover-serp')
+  @Redirect('/', 303)
+  async discoverTopicSerp(@Param('id') id: string): Promise<{ url: string }> {
+    const result = await this.apiClient.runFocusedSerpDiscoveryForTopic(id);
+    return {
+      url: `/?flash=${encodeURIComponent(serpDiscoveryFlash(result))}`,
+    };
   }
 
   @Post('review/aliases/:id/approve')
@@ -235,6 +261,23 @@ function toDispatchCommand(
   };
 }
 
+function toFocusedSerpDiscoveryCommand(
+  body: Record<string, unknown>,
+): OperatorFocusedSerpDiscoveryCommand {
+  const resultUrls = lines(body.resultUrls).slice(0, 10);
+  if (resultUrls.length === 0) {
+    throw new Error('resultUrls is required');
+  }
+  return {
+    topicId: requiredText(body.topicId, 'topicId'),
+    query: requiredText(body.query, 'query'),
+    language: optionalText(body.language) ?? 'pl',
+    countryCode: optionalText(body.countryCode) ?? 'PL',
+    city: optionalText(body.city),
+    resultUrls,
+  };
+}
+
 function toReviewAliasCommand(
   body: Record<string, unknown>,
 ): OperatorReviewAliasCommand {
@@ -264,6 +307,27 @@ function externalEntitySubjectType(value: unknown): 'external_id' | 'candidate' 
     return value;
   }
   throw new Error('subjectType is required');
+}
+
+function serpDiscoveryFlash(result: {
+  status: string;
+  providerKey: string;
+  warnings: string[];
+  observations: { submitted: number };
+  frontier: { upsertedEntries?: number } | null;
+}): string {
+  if (result.status === 'recorded') {
+    return [
+      `SERP discovery recorded via ${result.providerKey}.`,
+      `Submitted ${result.observations.submitted} URL observations.`,
+      `Frontier upserts: ${result.frontier?.upsertedEntries ?? 0}.`,
+      ...result.warnings,
+    ].join(' ');
+  }
+  return [
+    `SERP discovery degraded via ${result.providerKey}.`,
+    ...result.warnings,
+  ].join(' ');
 }
 
 function failureStageKey(value: string): OperatorFailureStageKey {

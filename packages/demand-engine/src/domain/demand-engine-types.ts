@@ -7,13 +7,20 @@ export type DemandEvidenceType =
   | 'people_also_ask'
   | 'related_search'
   | 'serp_snippet'
+  | 'competitor_title'
+  | 'competitor_meta'
   | 'competitor_heading'
+  | 'competitor_anchor'
+  | 'competitor_breadcrumb'
+  | 'competitor_body_phrase'
   | 'competitor_sitemap'
   | 'faq_block'
   | 'knowledge_graph_combination'
   | 'provider_keyword_metric';
 
 export type DemandConfidence = 'unknown' | 'low' | 'medium' | 'high';
+
+export type DemandEvidenceQuality = 'weak' | 'medium' | 'strong';
 
 export type DemandMetricStatus =
   | 'provider_backed'
@@ -46,6 +53,7 @@ export interface DemandObservation {
   evidenceType: DemandEvidenceType;
   sourceQuery: string;
   evidenceUrl?: string | null;
+  evidenceQuality?: DemandEvidenceQuality;
   metrics?: Partial<DemandMetricSnapshot>;
 }
 
@@ -57,8 +65,23 @@ export interface KeywordCandidate {
   sourceTiers: DemandSourceTier[];
   providers: string[];
   evidenceTypes: DemandEvidenceType[];
+  evidenceQuality?: DemandEvidenceQuality;
   confidence: DemandConfidence;
   metrics: DemandMetricSnapshot;
+  phraseAnalysis?: {
+    providerKey: string;
+    candidateKind: string;
+    confidence: 'low' | 'medium' | 'high';
+    entityEvidence?: Array<{
+      text: string;
+      providerKey: string;
+      externalId: string | null;
+      name: string;
+      types: string[];
+      confidence: 'unknown' | 'low' | 'medium' | 'high';
+    }>;
+    reasons: string[];
+  };
 }
 
 export interface CandidatePage {
@@ -67,9 +90,17 @@ export interface CandidatePage {
   supportingKeywords: string[];
   proposedPageType: 'landing_page' | 'guide' | 'faq' | 'comparison' | 'local_page';
   confidence: DemandConfidence;
+  readiness?: 'ready' | 'partial' | 'not_ready';
+  primaryIntent?: string;
+  clusterKey?: string;
+  clusterLabel?: string;
   evidenceTypes: DemandEvidenceType[];
+  evidenceQuality?: DemandEvidenceQuality;
+  evidenceUrls?: string[];
   metrics: DemandMetricSnapshot;
   missingMetrics: string[];
+  missingResearchGaps?: string[];
+  phraseAnalysis?: KeywordCandidate['phraseAnalysis'];
   pageAction: 'new' | 'update' | 'merge' | 'split' | 'reject';
 }
 
@@ -79,6 +110,7 @@ export interface DemandDiscoveryRequest {
   language?: string;
   geo?: DemandGeoTarget;
   manualSeeds?: string[];
+  evidenceObservations?: DemandObservation[];
   limit?: number;
 }
 

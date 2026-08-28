@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { DbModule } from '@seo-kb/db';
 import { KnexSerpIntelligenceRepository } from './persistence/knex-serp-intelligence.repository';
 import { SERP_INTELLIGENCE_REPOSITORY } from './serp-intelligence.tokens';
+import { FocusedSerpDiscoveryService } from './focused-serp-discovery.service';
 import { SerpIntelligenceService } from './serp-intelligence.service';
 
 @Module({
   imports: [DbModule],
   providers: [
+    FocusedSerpDiscoveryService,
     SerpIntelligenceService,
     KnexSerpIntelligenceRepository,
     {
@@ -16,6 +18,7 @@ import { SerpIntelligenceService } from './serp-intelligence.service';
   ],
   exports: [
     SERP_INTELLIGENCE_REPOSITORY,
+    FocusedSerpDiscoveryService,
     KnexSerpIntelligenceRepository,
     SerpIntelligenceService,
   ],

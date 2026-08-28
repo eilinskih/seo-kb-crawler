@@ -167,6 +167,9 @@ export interface ChunkingRepository {
   findDocumentVersion(
     documentVersionId: string,
   ): Promise<DocumentVersionForChunking | null>;
+  findUnchunkedDocumentVersionIds(
+    options: { limit: number },
+  ): Promise<string[]>;
   findRun(identity: ChunkingRunIdentity): Promise<ChunkingRunRecord | null>;
   saveChunkingPlan(
     plan: ChunkingPlan,

@@ -18,12 +18,19 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
   it('maps enrichment packs into attempt rows', async () => {
     const pack = await fixturePack();
 
-    expect(
-      __testing.toAttemptRow({
-        pack,
-        createdAt: '2026-08-06T00:00:00.000Z',
-      }, packId),
-    ).toMatchObject({
+    const row = __testing.toAttemptRow({
+      pack,
+      createdAt: '2026-08-06T00:00:00.000Z',
+    }, packId);
+
+    expect({
+      ...row,
+      geo: JSON.parse(row.geo as string),
+      request: JSON.parse(row.request as string),
+      provider_statuses: JSON.parse(row.provider_statuses as string),
+      warnings: JSON.parse(row.warnings as string),
+      candidates: JSON.parse(row.candidates as string),
+    }).toMatchObject({
       id: packId,
       entity_id: 'entity-1',
       entity_name: 'Frogger Jump',
@@ -36,7 +43,9 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
       request: pack.request,
       provider_statuses: pack.providerStatuses,
       warnings: pack.warnings,
-      candidates: pack.candidates,
+      candidates: pack.candidates.map(({ metadata: _metadata, ...candidate }) =>
+        candidate,
+      ),
       started_at: '2026-08-06T00:00:00.000Z',
       completed_at: '2026-08-06T00:00:00.000Z',
       created_at: '2026-08-06T00:00:00.000Z',
@@ -48,9 +57,16 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
     const providerStatus = pack.providerStatuses[0];
     const externalId = pack.externalIds[0];
 
-    expect(
-      __testing.toSourceRow(providerStatus, '2026-08-06T00:00:00.000Z'),
-    ).toMatchObject({
+    const sourceRow = __testing.toSourceRow(
+      providerStatus,
+      '2026-08-06T00:00:00.000Z',
+    );
+
+    expect({
+      ...sourceRow,
+      capabilities: JSON.parse(sourceRow.capabilities as string),
+      metadata: JSON.parse(sourceRow.metadata as string),
+    }).toMatchObject({
       provider_key: 'local_schema_org',
       tier: 'local_signal',
       capabilities: providerStatus.capabilities,
@@ -101,7 +117,9 @@ describe('KnexExternalEntityEnrichmentRepository', () => {
       id: packId,
       createdAt: '2026-08-06T00:00:00.000Z',
       request: pack.request,
-      candidates: pack.candidates,
+      candidates: pack.candidates.map(({ metadata: _metadata, ...candidate }) =>
+        candidate,
+      ),
       externalIds: pack.externalIds,
     });
   });

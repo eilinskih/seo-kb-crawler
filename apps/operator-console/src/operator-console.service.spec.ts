@@ -170,6 +170,11 @@ describe('OperatorConsoleService', () => {
         status: 'active',
         configurationVersion: 1,
         updatedAt: '2026-07-23T00:00:00.000Z',
+        discovery: {
+          search: {
+            queries: [{ text: 'laser hair removal', language: 'en' }],
+          },
+        },
       }],
       providerStatuses: [{
         providerKey: 'fallback_seo_signals',
@@ -233,9 +238,14 @@ describe('OperatorConsoleService', () => {
     });
 
     expect(html).toContain('action="/topics"');
+    expect(html).toContain('Focused SERP Discovery');
+    expect(html).toContain('action="/serp-intelligence/focused-discovery"');
+    expect(html).toContain('Import SERP TOP-10');
     expect(html).toContain('Seed keywords');
     expect(html).toContain('Laser Hair Removal');
     expect(html).toContain('href="/topics/topic-1"');
+    expect(html).toContain('action="/topics/topic-1/discover-serp"');
+    expect(html).toContain('Discover SERP');
     expect(html).toContain('action="/topics/topic-1/pause"');
     expect(html).toContain('action="/topics/topic-1/configuration"');
     expect(html).toContain('Save config');
@@ -244,6 +254,9 @@ describe('OperatorConsoleService', () => {
     expect(html).toContain('fallback_seo_signals');
     expect(html).toContain('href="/providers/fallback_seo_signals"');
     expect(html).toContain('Only fallback SEO signals are available.');
+    expect(html).toContain('Topic Work Status');
+    expect(html).toContain('Recent frontier work');
+    expect(html).toContain('Dispatch crawl batch.');
     expect(html).toContain('URL Frontier Status');
     expect(html).toContain('https://example.com/');
     expect(html).toContain('Jobs, Failures And Readiness');
@@ -473,6 +486,7 @@ function mockClient(): OperatorConsoleApiClient {
     reactivateTopic: jest.fn(),
     dispatchUrlFrontier: jest.fn(),
     dispatchContentProcessing: jest.fn(),
+    runFocusedSerpDiscoveryForTopic: jest.fn(),
     approveAlias: jest.fn(),
     rejectAlias: jest.fn(),
   } as unknown as OperatorConsoleApiClient;

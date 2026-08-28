@@ -33,6 +33,8 @@ import { seoAgentGenerationPersistenceMigration } from './migrations/025-seo-age
 import { externalSeoProviderPersistenceMigration } from './migrations/026-external-seo-provider-persistence';
 import { entityAliasReviewAuditMigration } from './migrations/027-entity-alias-review-audit';
 import { externalEntityReviewDecisionsMigration } from './migrations/028-external-entity-review-decisions';
+import { demandCandidatePageReadinessMigration } from './migrations/029-demand-candidate-page-readiness';
+import { demandPhraseAnalysisPersistenceMigration } from './migrations/030-demand-phrase-analysis-persistence';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnApplicationShutdown {
@@ -99,6 +101,8 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     externalSeoProviderPersistenceMigration,
     entityAliasReviewAuditMigration,
     externalEntityReviewDecisionsMigration,
+    demandCandidatePageReadinessMigration,
+    demandPhraseAnalysisPersistenceMigration,
   ];
   private readonly migrationNames = new Map<Knex.Migration, string>([
     [topicEngineMigration, '001-topic-engine'],
@@ -155,6 +159,14 @@ class BundledMigrationSource implements Knex.MigrationSource<Knex.Migration> {
     [
       externalEntityReviewDecisionsMigration,
       '028-external-entity-review-decisions',
+    ],
+    [
+      demandCandidatePageReadinessMigration,
+      '029-demand-candidate-page-readiness',
+    ],
+    [
+      demandPhraseAnalysisPersistenceMigration,
+      '030-demand-phrase-analysis-persistence',
     ],
   ]);
 

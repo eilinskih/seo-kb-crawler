@@ -20,15 +20,15 @@ interface SerpSnapshotRow {
   normalized_query: string;
   language: string | null;
   language_key: string;
-  geo: SerpGeoTarget;
+  geo: JsonColumn<SerpGeoTarget>;
   geo_key: string;
   captured_at: Date | string;
   provider_key: string;
   provider_mode: SerpSnapshot['providerMode'];
   degraded: boolean;
-  warnings: string[];
-  results: SerpSnapshot['results'];
-  snapshot: SerpSnapshot;
+  warnings: JsonColumn<string[]>;
+  results: JsonColumn<SerpSnapshot['results']>;
+  snapshot: JsonColumn<SerpSnapshot>;
   created_at: Date | string;
   updated_at: Date | string;
 }
@@ -40,15 +40,17 @@ interface SerpPackRow {
   normalized_query: string;
   language: string | null;
   language_key: string;
-  geo: SerpGeoTarget;
+  geo: JsonColumn<SerpGeoTarget>;
   geo_key: string;
-  snapshot_ids: string[];
-  pack: SerpPack;
+  snapshot_ids: JsonColumn<string[]>;
+  pack: JsonColumn<SerpPack>;
   degraded: boolean;
-  warnings: string[];
+  warnings: JsonColumn<string[]>;
   rule_version: string;
   created_at: Date | string;
 }
+
+type JsonColumn<Value> = Value | string;
 
 @Injectable()
 export class KnexSerpIntelligenceRepository
@@ -90,7 +92,7 @@ export class KnexSerpIntelligenceRepository
       .where({ id: snapshotId })
       .first();
 
-    return row ? row.snapshot : null;
+    return row ? parseJson(row.snapshot) : null;
   }
 
   async saveSerpPack(command: SaveSerpPackCommand): Promise<SerpPackRecord> {
@@ -129,15 +131,15 @@ function toSnapshotRow(
     normalized_query: snapshot.normalizedQuery,
     language: snapshot.language ?? null,
     language_key: languageKey(snapshot.language),
-    geo: snapshot.geo ?? {},
+    geo: json(snapshot.geo ?? {}),
     geo_key: geoKey(snapshot.geo),
     captured_at: snapshot.capturedAt,
     provider_key: snapshot.providerKey,
     provider_mode: snapshot.providerMode,
     degraded: snapshot.degraded,
-    warnings: snapshot.warnings,
-    results: snapshot.results,
-    snapshot,
+    warnings: json(snapshot.warnings),
+    results: json(snapshot.results),
+    snapshot: json(snapshot),
     created_at: createdAt,
     updated_at: snapshot.capturedAt,
   };
@@ -151,12 +153,12 @@ function toPackRow(command: SaveSerpPackCommand): SerpPackRow {
     normalized_query: command.pack.normalizedQuery,
     language: command.pack.language ?? null,
     language_key: languageKey(command.pack.language),
-    geo: command.pack.geo ?? {},
+    geo: json(command.pack.geo ?? {}),
     geo_key: geoKey(command.pack.geo),
-    snapshot_ids: command.pack.snapshotIds,
-    pack: command.pack,
+    snapshot_ids: json(command.pack.snapshotIds),
+    pack: json(command.pack),
     degraded: command.pack.degraded,
-    warnings: command.pack.warnings,
+    warnings: json(command.pack.warnings),
     rule_version: command.pack.ruleVersion,
     created_at: command.createdAt,
   };
@@ -164,10 +166,18 @@ function toPackRow(command: SaveSerpPackCommand): SerpPackRow {
 
 function toPackRecord(row: SerpPackRow): SerpPackRecord {
   return {
-    ...row.pack,
+    ...parseJson(row.pack),
     id: row.id,
     createdAt: toIsoString(row.created_at),
   };
+}
+
+function json<Value>(value: Value): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<Value>(value: JsonColumn<Value>): Value {
+  return typeof value === 'string' ? JSON.parse(value) as Value : value;
 }
 
 function geoKey(geo: SerpGeoTarget | undefined): string {

@@ -39,7 +39,7 @@ export function renderOperatorConsoleHtml(
     .enabled { color: #126b42; font-weight: 600; }
     .topic-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 16px; border-bottom: 1px solid #edf0f4; }
     label { display: grid; gap: 6px; color: #526173; font-size: 12px; font-weight: 600; }
-    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cbd3df; border-radius: 6px; padding: 8px 10px; font: inherit; color: #17202a; }
+    input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #cbd3df; border-radius: 6px; padding: 8px 10px; font: inherit; color: #17202a; background: #ffffff; }
     textarea { resize: vertical; }
     button { border: 1px solid #1f6feb; background: #1f6feb; color: #ffffff; border-radius: 6px; padding: 8px 10px; font: inherit; font-weight: 600; cursor: pointer; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -60,6 +60,8 @@ export function renderOperatorConsoleHtml(
       ${model.warnings.map((warning) => `<div class="warning">${escapeHtml(warning)}</div>`).join('')}
     </div>
     ${renderTopicWorkflow(model)}
+    ${renderTopicWorkStatus(model)}
+    ${renderFocusedSerpDiscovery(model)}
     ${renderJobsReadiness(model)}
     ${renderRetryControls(model)}
     ${renderReviewQueues(model)}
@@ -304,7 +306,7 @@ function renderTopicDetail(
     </tbody>
   </table>
   ${renderTopicEditForm(topic)}
-  <div class="inline-config actions">${renderTopicActions(topic.id, topic.status)}</div>
+  <div class="inline-config actions">${renderTopicActions(topic)}</div>
 </section>`;
 }
 
@@ -685,22 +687,24 @@ function renderFrontierStatus(model: OperatorConsoleViewModel): string {
       </tr>
     </tbody>
   </table>
-  ${renderFrontierRecentEntries(status.recentEntries)}` : '<p class="empty">Frontier status is unavailable.</p>'}
+  ${renderFrontierRecentEntries(status.recentEntries, model)}` : '<p class="empty">Frontier status is unavailable.</p>'}
 </section>`;
 }
 
 function renderFrontierRecentEntries(
   entries: OperatorFrontierRecentEntry[],
+  model: OperatorConsoleViewModel,
 ): string {
   if (entries.length === 0) {
     return '<p class="empty">No recent frontier entries.</p>';
   }
   return `<table>
     <thead>
-      <tr><th>URL</th><th>Status</th><th>Relevance</th><th>Freshness</th><th>Reason</th><th>Next crawl</th><th>Failures</th></tr>
+      <tr><th>Topic</th><th>URL</th><th>Status</th><th>Relevance</th><th>Freshness</th><th>Reason</th><th>Next crawl</th><th>Failures</th></tr>
     </thead>
     <tbody>
       ${entries.map((entry) => `<tr>
+        <td>${renderFrontierTopicLabel(model, entry.topicId)}</td>
         <td><code>${escapeHtml(entry.normalizedUrl)}</code></td>
         <td>${escapeHtml(entry.crawlStatus)}</td>
         <td>${escapeHtml(entry.relevanceDecision)}</td>
@@ -711,6 +715,98 @@ function renderFrontierRecentEntries(
       </tr>`).join('')}
     </tbody>
   </table>`;
+}
+
+function renderTopicWorkStatus(model: OperatorConsoleViewModel): string {
+  const status = model.frontierStatus;
+  if (model.topics.length === 0) {
+    return `<section id="topic-work-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Topic Work Status</h2>
+      <p>Topic-level visibility for recent discovery and crawler work.</p>
+    </div>
+    <span class="badge">empty</span>
+  </div>
+  <p class="empty">No topics loaded from the Topic API.</p>
+</section>`;
+  }
+
+  const recentEntries = status?.recentEntries ?? [];
+  return `<section id="topic-work-status" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Topic Work Status</h2>
+      <p>Topic-level visibility for recent discovery and crawler work.</p>
+    </div>
+    <span class="badge">${status ? 'available' : 'planned'}</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Topic</th><th>Lifecycle</th><th>Recent frontier work</th><th>Status counts</th><th>Next operator action</th></tr>
+    </thead>
+    <tbody>
+      ${model.topics.map((topic) => {
+        const entries = recentEntries.filter((entry) => entry.topicId === topic.id);
+        return `<tr>
+          <td><strong><a href="/topics/${escapeHtml(encodeURIComponent(topic.id))}">${escapeHtml(topic.name)}</a></strong><br><code>${escapeHtml(topic.slug)}</code></td>
+          <td>${escapeHtml(topic.status)}</td>
+          <td>${escapeHtml(String(entries.length))}${renderLatestFrontierEntry(entries)}</td>
+          <td>${renderTopicFrontierCounts(entries)}</td>
+          <td>${escapeHtml(topicFrontierNextAction(entries))}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+</section>`;
+}
+
+function renderLatestFrontierEntry(entries: OperatorFrontierRecentEntry[]): string {
+  const latestEntry = entries[0];
+  if (!latestEntry) {
+    return '';
+  }
+  return `<br><code>${escapeHtml(latestEntry.normalizedUrl)}</code>`;
+}
+
+function renderTopicFrontierCounts(entries: OperatorFrontierRecentEntry[]): string {
+  if (entries.length === 0) {
+    return '<span class="disabled">No recent frontier entries</span>';
+  }
+  const counts = new Map<string, number>();
+  for (const entry of entries) {
+    counts.set(entry.crawlStatus, (counts.get(entry.crawlStatus) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .map(([crawlStatus, count]) => `${escapeHtml(crawlStatus)}: ${escapeHtml(String(count))}`)
+    .join('<br>');
+}
+
+function topicFrontierNextAction(entries: OperatorFrontierRecentEntry[]): string {
+  if (entries.length === 0) {
+    return 'Import SERP TOP-10 or add seed URLs.';
+  }
+  if (entries.some((entry) => entry.crawlStatus === 'scheduled')) {
+    return 'Dispatch crawl batch.';
+  }
+  if (entries.some((entry) => entry.crawlStatus === 'leased' || entry.crawlStatus === 'crawling')) {
+    return 'Crawler work is in progress.';
+  }
+  if (entries.some((entry) => entry.crawlStatus.includes('failed'))) {
+    return 'Review failures or dispatch retryable work.';
+  }
+  return 'Review processed content and downstream readiness.';
+}
+
+function renderFrontierTopicLabel(
+  model: OperatorConsoleViewModel,
+  topicId: string,
+): string {
+  const topic = model.topics.find((candidate) => candidate.id === topicId);
+  if (!topic) {
+    return `<code>${escapeHtml(topicId)}</code>`;
+  }
+  return `<strong>${escapeHtml(topic.name)}</strong><br><code>${escapeHtml(topic.slug)}</code>`;
 }
 
 function formatScore(score: number): string {
@@ -789,6 +885,27 @@ function renderTopicWorkflow(model: OperatorConsoleViewModel): string {
 </section>`;
 }
 
+function renderFocusedSerpDiscovery(model: OperatorConsoleViewModel): string {
+  return `<section id="focused-serp-discovery" class="wide">
+  <div class="section-head">
+    <div>
+      <h2>Focused SERP Discovery</h2>
+      <p>Record a bounded TOP-10 SERP snapshot and enqueue organic result URLs.</p>
+    </div>
+    <span class="badge">manual import</span>
+  </div>
+  ${model.topics.length === 0 ? '<p class="empty">Create a topic before SERP discovery.</p>' : `<form method="post" action="/serp-intelligence/focused-discovery" class="topic-form">
+    <label>Topic<select name="topicId" required>${model.topics.map((topic) => `<option value="${escapeHtml(topic.id)}">${escapeHtml(topic.name)} (${escapeHtml(topic.slug)})</option>`).join('')}</select></label>
+    <label>Query<input name="query" required placeholder="depilacja laserowa jasło"></label>
+    <label>Language<input name="language" value="${escapeHtml(topicLanguage(model.topics[0]))}" required></label>
+    <label>Country<input name="countryCode" value="${escapeHtml(topicCountry(model.topics[0]))}" required></label>
+    <label>City<input name="city" placeholder="Jasło"></label>
+    <label>TOP-10 URLs<textarea name="resultUrls" rows="5" required placeholder="https://competitor.example/page&#10;https://example.com/offer"></textarea></label>
+    <button type="submit">Import SERP TOP-10</button>
+  </form>`}
+</section>`;
+}
+
 function renderTopicTable(model: OperatorConsoleViewModel): string {
   if (model.topics.length === 0) {
     return '<p class="empty">No topics loaded from the Topic API.</p>';
@@ -804,7 +921,7 @@ function renderTopicTable(model: OperatorConsoleViewModel): string {
         <td>${escapeHtml(String(topic.configurationVersion))}</td>
         <td>${escapeHtml(topic.updatedAt)}</td>
         <td>${renderTopicEditForm(topic)}</td>
-        <td class="actions">${renderTopicActions(topic.id, topic.status)}</td>
+        <td class="actions">${renderTopicActions(topic)}</td>
       </tr>`).join('')}
     </tbody>
   </table>`;
@@ -827,10 +944,17 @@ function renderTopicEditForm(
   </form>`;
 }
 
-function renderTopicActions(topicId: string, status: string): string {
+function renderTopicActions(
+  topic: OperatorConsoleViewModel['topics'][number],
+): string {
+  const topicId = topic.id;
+  const status = topic.status;
   const encoded = encodeURIComponent(topicId);
   const actions = [
     `<a href="/topics/${encoded}">Open detail</a>`,
+    topicSeedKeywords(topic).length > 0
+      ? formButton(`/topics/${encoded}/discover-serp`, 'Discover SERP')
+      : '<span class="disabled">No seed keyword</span>',
     status === 'active'
       ? formButton(`/topics/${encoded}/pause`, 'Pause')
       : '',

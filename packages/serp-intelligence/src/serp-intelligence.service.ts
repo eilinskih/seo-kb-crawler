@@ -4,7 +4,7 @@ import { SerpPackService } from './serp-pack.service';
 
 @Injectable()
 export class SerpIntelligenceService {
-  constructor(private readonly serpPackService = new SerpPackService()) {}
+  private readonly serpPackService = new SerpPackService();
 
   buildSerpPack(request: SerpPackRequest): SerpPack {
     return this.serpPackService.build(request);

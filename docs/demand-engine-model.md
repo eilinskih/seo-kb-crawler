@@ -207,6 +207,46 @@ Minimum evidence thresholds:
 - Candidates below the page threshold may remain keyword candidates, but should
   not become page candidates without review.
 
+Phrase interpretation must stay provider-backed where possible. The runtime
+Phrase Analysis boundary should prefer free/self-hostable evidence sources
+before relying on structural heuristics:
+
+1. self-host NLP adapters such as spaCy, Stanza or UDPipe, exposed as a local
+   HTTP service through `PHRASE_ANALYSIS_NLP_ENDPOINT`;
+2. External Entity Enrichment candidates from Wikidata, Google Knowledge Graph
+   when configured, and cached provider results;
+3. structural fallback checks for SKU/model/measurement-like phrases and
+   low-quality snippets.
+
+Structural analysis is a fallback guardrail only. It must not become a
+domain-specific keyword generator or a hand-maintained local dictionary.
+Observed phrases may remain keyword candidates even when phrase analysis does
+not allow them to become automatic page candidates.
+
+The default Docker setup provides a `phrase-nlp` sidecar using spaCy for free
+local token, lemma and part-of-speech analysis. UDPipe can be selected by
+setting `PHRASE_NLP_BACKEND=udpipe` and mounting a model path through
+`PHRASE_NLP_UDPIPE_MODEL` or a language-specific variant. Stanza remains a
+supported self-host pattern, but is not part of the default image because its
+runtime dependency stack is substantially heavier.
+
+External entity lookups are intentionally asynchronous by default. Topic work
+runs should persist self-host NLP or structural phrase analysis immediately,
+then enqueue persisted keyword candidates for background External Entity
+Enrichment through `EXTERNAL_ENTITY_ENRICHMENT_ASYNC=true`. Worker processing
+must merge KG/Wikidata evidence back into the persisted keyword candidate and
+any primary candidate page, guarded by the candidate `updatedAt` timestamp so
+stale jobs cannot overwrite a newer topic run.
+
+Background Phrase Analysis may inspect multiple phrase spans per keyword
+candidate, controlled by `PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS` and
+`PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS`, but public providers such as Google
+Knowledge Graph and Wikidata must still be called through cache-first provider
+execution and provider-paced queues. These providers are enrichment signals,
+not bulk keyword-expansion sources. If entity evidence cannot be collected
+immediately, the Demand Engine must keep the candidate keyword and continue with
+degraded entity evidence instead of failing the topic workflow.
+
 Unknown metrics must be explicit in Demand Packs:
 
 ```txt
@@ -389,6 +429,13 @@ The initial implementation:
   metric snapshot contracts;
 - defines provider adapter contracts across provider tiers;
 - includes a manual/free fallback provider;
+- includes a narrow Topic Universe fallback provider for explicit seed,
+  geo-seed and manual/entity vocabulary inputs only;
+- does not synthesize People Also Ask, related-search or multi-dimension
+  long-tail candidates without upstream evidence;
+- treats autocomplete, People Also Ask, related searches, competitor headings
+  and FAQ blocks as evidence types only when they are actually observed from a
+  provider, SERP result or crawled source;
 - keeps missing paid provider data non-blocking;
 - marks unknown volume, difficulty, CPC and traffic potential as `null`;
 - promotes fallback candidate pages only when enough fallback evidence exists;
@@ -427,6 +474,15 @@ Product Owner and SEO Research Architect decisions can distinguish known search
 demand from inferred or unmeasured demand. Freshness thresholds are operational
 policy; Demand Engine exposes the report without fabricating missing volume,
 difficulty, CPC or traffic potential.
+
+Topic Work Run now invokes Demand discovery automatically after focused seed
+SERP discovery. It asks Demand Engine for a broad candidate universe, then asks
+SERP Intelligence to validate a bounded set of generated demand queries.
+Recorded SERP snapshots submit result URLs into URL Frontier and update matched
+Demand candidate pages with `serp_snippet` evidence and source URLs. This keeps
+the product workflow topic-first: after a topic is created, the system should
+expand it into a wide page-candidate universe and keep collecting evidence
+through background runs.
 
 ## Review gates
 

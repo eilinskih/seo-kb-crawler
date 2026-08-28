@@ -29,4 +29,13 @@ export class InMemorySeoPackRepository implements SeoPackRepository {
         ) ?? null
     );
   }
+
+  async listSeoPacks(topicId: string): Promise<SeoPackRecord[]> {
+    return [...this.packs]
+      .filter((pack) => pack.topicId === topicId)
+      .sort((left, right) =>
+        right.createdAt.localeCompare(left.createdAt) ||
+        left.candidateKey.localeCompare(right.candidateKey),
+      );
+  }
 }

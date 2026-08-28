@@ -97,6 +97,11 @@ Initial fields:
 - degraded/fallback flags;
 - result count;
 - result URLs;
+- displayed URLs when available;
+- click URLs when the provider returns a redirect wrapper;
+- resolved URLs when the wrapper exposes a target;
+- URL resolution status for direct, provider-resolved, redirect-parameter and
+  unresolved redirect cases;
 - result positions;
 - result titles/snippets when available;
 - linked document ids when crawled and processed.

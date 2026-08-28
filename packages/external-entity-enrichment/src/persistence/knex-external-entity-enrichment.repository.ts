@@ -17,9 +17,9 @@ import {
 interface ExternalEntitySourceRow {
   provider_key: string;
   tier: ExternalEntityProviderDescriptor['tier'];
-  capabilities: ExternalEntityProviderDescriptor['capabilities'];
+  capabilities: JsonColumn<ExternalEntityProviderDescriptor['capabilities']>;
   status: ExternalEntityProviderDescriptor['status'];
-  metadata: Record<string, unknown>;
+  metadata: JsonColumn<Record<string, unknown>>;
   created_at: Date | string;
   updated_at: Date | string;
 }
@@ -31,13 +31,13 @@ interface EntityEnrichmentAttemptRow {
   entity_type: string | null;
   vertical: string | null;
   language: string | null;
-  geo: ExternalEntityEnrichmentPack['request']['geo'] | Record<string, never>;
+  geo: JsonColumn<ExternalEntityEnrichmentPack['request']['geo'] | Record<string, never>>;
   status: 'completed' | 'failed_open';
   degraded: boolean;
-  request: ExternalEntityEnrichmentPack['request'];
-  provider_statuses: ExternalEntityEnrichmentPack['providerStatuses'];
-  warnings: ExternalEntityEnrichmentPack['warnings'];
-  candidates: ExternalEntityEnrichmentPack['candidates'];
+  request: JsonColumn<ExternalEntityEnrichmentPack['request']>;
+  provider_statuses: JsonColumn<ExternalEntityEnrichmentPack['providerStatuses']>;
+  warnings: JsonColumn<ExternalEntityEnrichmentPack['warnings']>;
+  candidates: JsonColumn<ExternalEntityEnrichmentPack['candidates']>;
   started_at: Date | string;
   completed_at: Date | string;
   created_at: Date | string;
@@ -52,7 +52,7 @@ interface EntityExternalIdRow {
   confidence: EntityExternalIdSignal['confidence'];
   source_url: string | null;
   latest_attempt_id: string | null;
-  metadata: Record<string, unknown>;
+  metadata: JsonColumn<Record<string, unknown>>;
   observed_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
@@ -70,10 +70,12 @@ interface ExternalEntityReviewDecisionRow {
   decision: ExternalEntityReviewDecisionRecord['decision'];
   reviewed_by: string;
   review_note: string | null;
-  provenance: ExternalEntityReviewDecisionRecord['provenance'];
-  metadata: ExternalEntityReviewDecisionRecord['metadata'];
+  provenance: JsonColumn<ExternalEntityReviewDecisionRecord['provenance']>;
+  metadata: JsonColumn<ExternalEntityReviewDecisionRecord['metadata']>;
   created_at: Date | string;
 }
+
+type JsonColumn<Value> = Value | string;
 
 @Injectable()
 export class KnexExternalEntityEnrichmentRepository
@@ -237,11 +239,11 @@ function toSourceRow(
   return {
     provider_key: status.providerKey,
     tier: status.tier,
-    capabilities: status.capabilities,
+    capabilities: json(status.capabilities),
     status: status.status,
-    metadata: {
+    metadata: json({
       warningCodes: (status.warnings ?? []).map((warning) => warning.code),
-    },
+    }),
     created_at: timestamp,
     updated_at: timestamp,
   };
@@ -260,13 +262,13 @@ function toAttemptRow(
     entity_type: request.entityType ?? null,
     vertical: request.vertical ?? null,
     language: request.language ?? null,
-    geo: request.geo ?? {},
+    geo: json(request.geo ?? {}),
     status: command.pack.degraded ? 'failed_open' : 'completed',
     degraded: command.pack.degraded,
-    request,
-    provider_statuses: command.pack.providerStatuses,
-    warnings: command.pack.warnings,
-    candidates: command.pack.candidates,
+    request: json(request),
+    provider_statuses: json(command.pack.providerStatuses),
+    warnings: json(command.pack.warnings),
+    candidates: json(command.pack.candidates),
     started_at: command.pack.generatedAt,
     completed_at: command.pack.generatedAt,
     created_at: command.createdAt,
@@ -288,7 +290,7 @@ function toExternalIdRow(
     confidence: signal.confidence,
     source_url: signal.sourceUrl ?? null,
     latest_attempt_id: attemptId,
-    metadata: {},
+    metadata: json({}),
     observed_at: signal.observedAt,
     created_at: timestamp,
     updated_at: timestamp,
@@ -300,12 +302,12 @@ function toPackRecord(
   externalIds: EntityExternalIdSignal[],
 ): ExternalEntityEnrichmentPackRecord {
   return {
-    request: row.request,
+    request: parseJson(row.request),
     generatedAt: toIsoString(row.completed_at),
     degraded: row.degraded,
-    providerStatuses: row.provider_statuses,
-    warnings: row.warnings,
-    candidates: row.candidates,
+    providerStatuses: parseJson(row.provider_statuses),
+    warnings: parseJson(row.warnings),
+    candidates: parseJson(row.candidates),
     externalIds,
     id: row.id,
     createdAt: toIsoString(row.created_at),
@@ -338,8 +340,8 @@ function toReviewDecisionRow(
     decision: decision.decision,
     reviewed_by: decision.reviewedBy,
     review_note: decision.reviewNote,
-    provenance: decision.provenance,
-    metadata: decision.metadata,
+    provenance: json(decision.provenance),
+    metadata: json(decision.metadata),
     created_at: decision.createdAt,
   };
 }
@@ -359,8 +361,8 @@ function toReviewDecisionRecord(
     decision: row.decision,
     reviewedBy: row.reviewed_by,
     reviewNote: row.review_note,
-    provenance: row.provenance,
-    metadata: row.metadata,
+    provenance: parseJson(row.provenance),
+    metadata: parseJson(row.metadata),
     createdAt: toIsoString(row.created_at),
   };
 }
@@ -384,6 +386,14 @@ function groupExternalIdsByAttemptId(
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function json<Value>(value: Value): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<Value>(value: JsonColumn<Value>): Value {
+  return typeof value === 'string' ? JSON.parse(value) as Value : value;
 }
 
 export const __testing = {

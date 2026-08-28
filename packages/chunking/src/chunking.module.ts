@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DbModule } from '@seo-kb/db';
+import { ChunkingDispatchService } from './chunking-dispatch.service';
 import { ChunkingService } from './chunking.service';
 import { CHUNKING_REPOSITORY } from './chunking.tokens';
 import { KnexChunkingRepository } from './persistence/knex-chunking.repository';
@@ -7,6 +8,7 @@ import { KnexChunkingRepository } from './persistence/knex-chunking.repository';
 @Module({
   imports: [DbModule],
   providers: [
+    ChunkingDispatchService,
     ChunkingService,
     KnexChunkingRepository,
     {
@@ -14,6 +16,11 @@ import { KnexChunkingRepository } from './persistence/knex-chunking.repository';
       useExisting: KnexChunkingRepository,
     },
   ],
-  exports: [CHUNKING_REPOSITORY, ChunkingService, KnexChunkingRepository],
+  exports: [
+    CHUNKING_REPOSITORY,
+    ChunkingDispatchService,
+    ChunkingService,
+    KnexChunkingRepository,
+  ],
 })
 export class ChunkingModule {}

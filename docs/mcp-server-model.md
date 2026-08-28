@@ -1,0 +1,158 @@
+# SEO KB MCP Server Model
+
+- Status: Initial runtime foundation in current PR.
+- Owner: SEO Agent Gateway / Codex integration boundary.
+
+## Purpose
+
+The SEO KB MCP Server is the agent-facing entry point for Codex workspaces that
+need to use this platform without being re-taught API URLs, endpoints or Topic
+Engine payload shapes.
+
+The expected user workflow is:
+
+```txt
+Codex workspace for a website
+  -> SEO KB MCP tools
+  -> SEO KB API
+  -> Topic Work Run / Demand / SERP / Context / SEO Pack services
+```
+
+The MCP server is a thin integration layer. It does not own SEO logic,
+provider logic, crawling, Demand discovery, ranking decisions or content
+generation.
+
+## Responsibilities
+
+The MCP server owns:
+
+- exposing stable MCP tool names for Codex and other agent clients;
+- converting simple agent inputs into existing API requests;
+- building a complete Topic Engine creation payload from one topic seed;
+- returning structured JSON from the API as MCP text content;
+- failing transparently when the API or a downstream service is unavailable.
+
+The MCP server does not own:
+
+- Topic Engine validation rules;
+- Demand Engine keyword discovery or candidate-page logic;
+- SERP provider selection;
+- URL Frontier scheduling;
+- Context Pack retrieval logic;
+- SEO Pack generation semantics;
+- persistence.
+
+## Tools
+
+Initial tools:
+
+- `seo_kb_health`
+- `seo_kb_list_topics`
+- `seo_kb_get_topic`
+- `seo_kb_create_topic`
+- `seo_kb_prepare_site_topic`
+- `seo_kb_start_topic_work_run`
+- `seo_kb_get_topic_work_status`
+- `seo_kb_get_demand_map`
+- `seo_kb_get_page_candidates`
+- `seo_kb_get_page_plan`
+- `seo_kb_get_seo_packs`
+- `seo_kb_get_site_blueprint`
+- `seo_kb_get_site_generation_package`
+- `seo_kb_build_context_pack`
+- `seo_kb_build_seo_pack`
+
+The main product path from a website workspace is:
+
+```txt
+seo_kb_prepare_site_topic
+  -> seo_kb_get_topic_work_status
+  -> seo_kb_get_site_generation_package
+```
+
+Lower-level tools such as `seo_kb_create_topic`,
+`seo_kb_start_topic_work_run`, `seo_kb_get_page_plan`,
+`seo_kb_get_seo_packs`, `seo_kb_get_site_blueprint`,
+`seo_kb_build_context_pack` and `seo_kb_build_seo_pack` remain available for
+debugging, retries and advanced workflows.
+
+`seo_kb_prepare_site_topic` is the preferred start for the normal Codex-first
+workflow. It accepts one topic seed, creates the Topic Engine record and starts
+Topic Work Run immediately. If a topic with the derived slug already exists,
+the tool reuses it and starts a new work run instead of creating a duplicate
+topic.
+
+`seo_kb_get_site_blueprint` is the preferred handoff for website workspaces
+that need to build or update a site. It aggregates the current page plan, SEO
+Pack readiness, route paths, internal-linking hints and Cloudflare Pages
+constraints so the workspace does not reconstruct site structure from multiple
+lower-level tools.
+
+`seo_kb_get_site_generation_package` is the preferred one-call handoff when a
+website workspace is ready to create or update files. It returns Site Blueprint
+plus the included SEO Packs and missing SEO Pack candidate keys.
+
+## Configuration
+
+The server connects to the API through:
+
+```txt
+SEO_KB_API_BASE_URL=http://127.0.0.1:3000
+SEO_KB_MCP_TIMEOUT_MS=30000
+```
+
+Local command:
+
+```bash
+npm run build:mcp-server
+SEO_KB_API_BASE_URL=http://127.0.0.1:3000 npm run start:mcp-server
+```
+
+Docker command for MCP clients that support command-based stdio servers:
+
+```bash
+docker compose --profile mcp run --rm mcp-server
+```
+
+## Agent Usage
+
+In a website workspace, Codex should treat SEO KB MCP output as structured
+research context, not as permission to publish.
+
+Example agent instruction:
+
+```txt
+Use the SEO KB MCP server.
+Prepare a site topic for "depilacja laserowa jasło" in Polish and Poland.
+Wait for or inspect the topic work run.
+Fetch the page plan first, then inspect ready page candidates only as raw
+supporting data.
+Fetch the site blueprint before editing the website. Use it as the route,
+internal-linking and Cloudflare Pages generation plan.
+For each candidate, use SEO Pack and Context Pack evidence before proposing
+website changes.
+Do not invent search volume, keyword difficulty, SERP evidence or page
+readiness when MCP data is missing.
+```
+
+`seo_kb_get_page_plan` is the preferred website-agent entry point for page
+structure decisions. It separates technical candidate readiness from editorial
+planning recommendations:
+
+- `create`: good candidate for a new or updated page in the current batch;
+- `merge`: useful long-tail or modifier signal that should usually strengthen a
+  broader money/supporting page instead of becoming thin content;
+- `defer`: keep for future validation or provider-backed metrics;
+- `reject`: contradictory or implausible candidate.
+
+## Current Limitations
+
+- MCP server uses stdio transport only.
+- Authentication is not implemented in the MCP boundary; secure deployment
+  should be handled before exposing the API outside trusted local networks.
+- Tool responses are JSON text content, not custom MCP resources.
+- `seo_kb_build_context_pack` and `seo_kb_build_seo_pack` accept native API
+  request objects; richer convenience wrappers can be added after real
+  workspace usage shows the right shape.
+- Site Blueprint does not generate or deploy a website yet; it is the current
+  contract that a site workspace or future generator should consume.

@@ -31,10 +31,10 @@ interface DocumentVersionRow {
   extractor_version: string;
   cleaned_markdown: string | null;
   plain_text: string | null;
-  metadata: DocumentVersionForChunking['metadata'];
-  structured_data: DocumentVersionForChunking['structuredData'];
-  language_hints: DocumentVersionForChunking['languageHints'];
-  geo_hints: DocumentVersionForChunking['geoHints'];
+  metadata: DocumentVersionForChunking['metadata'] | string;
+  structured_data: DocumentVersionForChunking['structuredData'] | string;
+  language_hints: DocumentVersionForChunking['languageHints'] | string;
+  geo_hints: DocumentVersionForChunking['geoHints'] | string;
   created_at: Date | string;
 }
 
@@ -48,7 +48,7 @@ interface ChunkingRunRow {
   chunking_profile: ChunkingRunRecord['chunkingProfile'];
   tokenizer_key: string;
   tokenizer_version: string;
-  failure: ChunkingRunRecord['failure'];
+  failure: ChunkingRunRecord['failure'] | string;
   started_at: Date | string | null;
   completed_at: Date | string | null;
   created_at: Date | string;
@@ -65,15 +65,15 @@ interface ChunkRow {
   chunk_index: number;
   text: string;
   normalized_text: string;
-  heading_path: string[];
+  heading_path: string[] | string;
   section_title: string | null;
   chunk_type: ChunkType;
   chunk_type_confidence: ChunkTypeConfidence;
   token_count: number;
   language: string | null;
-  language_hints: ChunkRecord['languageHints'];
-  geo_hints: ChunkRecord['geoHints'];
-  source_metadata: ChunkRecord['sourceMetadata'];
+  language_hints: ChunkRecord['languageHints'] | string;
+  geo_hints: ChunkRecord['geoHints'] | string;
+  source_metadata: ChunkRecord['sourceMetadata'] | string;
   content_hash: string;
   normalized_text_hash: string;
   near_duplicate_group_id: string | null;
@@ -92,6 +92,26 @@ export class KnexChunkingRepository implements ChunkingRepository {
       .first();
 
     return row ? toDocumentVersion(row) : null;
+  }
+
+  async findUnchunkedDocumentVersionIds(
+    options: { limit: number },
+  ): Promise<string[]> {
+    if (!Number.isInteger(options.limit) || options.limit < 1) {
+      throw new Error('limit must be a positive integer');
+    }
+
+    const rows = await this.db.knex<DocumentVersionRow>('document_versions')
+      .leftJoin('chunking_runs', function joinChunkingRuns() {
+        this.on('chunking_runs.document_version_id', '=', 'document_versions.id')
+          .andOnVal('chunking_runs.status', '=', 'chunked');
+      })
+      .whereNull('chunking_runs.id')
+      .orderBy('document_versions.created_at', 'asc')
+      .limit(options.limit)
+      .select('document_versions.id');
+
+    return rows.map((row) => row.id);
   }
 
   async findRun(identity: ChunkingRunIdentity): Promise<ChunkingRunRecord | null> {
@@ -188,15 +208,15 @@ export class KnexChunkingRepository implements ChunkingRepository {
             chunk_index: chunk.chunkIndex,
             text: chunk.text,
             normalized_text: chunk.normalizedText,
-            heading_path: chunk.headingPath,
+            heading_path: serializeJson(chunk.headingPath),
             section_title: chunk.sectionTitle,
             chunk_type: chunk.chunkType,
             chunk_type_confidence: chunk.chunkTypeConfidence,
             token_count: chunk.tokenCount,
             language: chunk.language,
-            language_hints: chunk.languageHints,
-            geo_hints: chunk.geoHints,
-            source_metadata: chunk.sourceMetadata,
+            language_hints: serializeJson(chunk.languageHints),
+            geo_hints: serializeJson(chunk.geoHints),
+            source_metadata: serializeJson(chunk.sourceMetadata),
             content_hash: chunk.contentHash,
             normalized_text_hash: chunk.normalizedTextHash,
             near_duplicate_group_id: chunk.nearDuplicateGroupId,
@@ -243,15 +263,18 @@ export class KnexChunkingRepository implements ChunkingRepository {
       terminalFailures: countChunkingStatus(counts, 'failed_terminal'),
       recentFailures: recentFailureRows
         .filter((row) => row.failure)
-        .map((row) => ({
-          runId: row.id,
-          documentVersionId: row.document_version_id,
-          status: row.status,
-          category: row.failure!.category,
-          detail: row.failure!.detail,
-          retryable: row.failure!.retryable,
-          updatedAt: toIsoString(row.updated_at),
-        })),
+        .map((row) => {
+          const failure = parseJson(row.failure!);
+          return {
+            runId: row.id,
+            documentVersionId: row.document_version_id,
+            status: row.status,
+            category: failure.category,
+            detail: failure.detail,
+            retryable: failure.retryable,
+            updatedAt: toIsoString(row.updated_at),
+          };
+        }),
     };
   }
 
@@ -291,10 +314,10 @@ function toDocumentVersion(row: DocumentVersionRow): DocumentVersionForChunking 
     extractorVersion: row.extractor_version,
     cleanedMarkdown: row.cleaned_markdown,
     plainText: row.plain_text,
-    metadata: row.metadata,
-    structuredData: row.structured_data,
-    languageHints: row.language_hints,
-    geoHints: row.geo_hints,
+    metadata: parseJson(row.metadata),
+    structuredData: parseJson(row.structured_data),
+    languageHints: parseJson(row.language_hints),
+    geoHints: parseJson(row.geo_hints),
     createdAt: new Date(row.created_at),
   };
 }
@@ -310,7 +333,7 @@ function toChunkingRun(row: ChunkingRunRow): ChunkingRunRecord {
     chunkingProfile: row.chunking_profile,
     tokenizerKey: row.tokenizer_key,
     tokenizerVersion: row.tokenizer_version,
-    failure: row.failure,
+    failure: row.failure ? parseJson(row.failure) : null,
     startedAt: row.started_at ? new Date(row.started_at) : null,
     completedAt: row.completed_at ? new Date(row.completed_at) : null,
     createdAt: new Date(row.created_at),
@@ -327,4 +350,12 @@ function countChunkingStatus(
 
 function toIsoString(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<T>(value: T | string): T {
+  return typeof value === 'string' ? JSON.parse(value) as T : value;
 }

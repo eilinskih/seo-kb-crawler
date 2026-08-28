@@ -74,10 +74,317 @@ Roadmap order, phases and dependency rules live only in
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
+| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence, separates technical readiness from editorial page-planning recommendations and now exposes Site Blueprint input for autonomous site workspaces. |
+| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API, including page-plan and Site Blueprint access for website workspaces. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-28
+Issue: #186 / #187 follow-up
+Status: Review needed
+Summary:
+- Updated the canonical roadmap with the autonomous site conveyor milestone:
+  Topic Work Run, Demand candidate pages, SEO Packs, Site Blueprint, Next.js
+  static-first site workspace, Cloudflare Pages deployment and launch report.
+- Documented Google SERP acquisition and `/goto` URL resolution as a
+  production-readiness blocker for fully autonomous site generation.
+- Added the Site Blueprint API boundary as the canonical handoff from SEO KB
+  to website workspaces.
+- Added `GET /site-blueprints/topics/:topicId` to aggregate current Demand
+  page planning, SEO Pack readiness, route paths, sitemap routes,
+  internal-linking hints and Cloudflare Pages constraints.
+- Exposed the same handoff through MCP as `seo_kb_get_site_blueprint`.
+- Extended Site Blueprint with a Next.js workspace plan: expected files,
+  App Router page tasks, SEO Pack blocking status, launch checklist and
+  Cloudflare Pages static export defaults.
+- Added a static export kit to Site Blueprint so website workspaces can
+  bootstrap/synchronize `next.config.ts`, `src/data/seo-site-blueprint.ts` and
+  `public/robots.txt` from the audited blueprint contract.
+- Added Site Blueprint launch readiness so site workspaces can distinguish
+  `ready`, `degraded_ready` and `blocked` before generating or publishing.
+- Added Site Generation Package API/MCP handoff so website workspaces can fetch
+  Site Blueprint, included SEO Packs and missing SEO Pack keys in one call.
+- Added `seo_kb_prepare_site_topic` so Codex-first site workflows can create a
+  topic from one seed and immediately start Topic Work Run without manual
+  multi-tool sequencing.
+- Added generation-package workspace export files, including a static
+  `src/data/seo-packs.ts` SEO Pack snapshot for build-time site generation.
+- Added generation-package agent instructions so Codex website workspaces can
+  follow the canonical static-site workflow directly from MCP output.
+- Made `seo_kb_prepare_site_topic` reuse an existing topic with the derived
+  slug before starting Topic Work Run, avoiding duplicate topic setup in
+  repeated Codex workspace tests.
+- Added SERP URL resolution metadata for Google/OpenSERP results so snapshots
+  preserve displayed URLs, click URLs, resolved URLs and unresolved redirect
+  wrapper state such as Google `/goto`.
+Validation:
+- npm run build
+- npm test -- --runInBand
+  apps/api/src/site-blueprint/site-blueprint.service.spec.ts
+  apps/mcp-server/src/mcp-server.spec.ts
+
+Date: 2026-08-21
+Issue: #186 follow-up
+Status: Review needed
+Summary:
+- Introduced the Demand Engine Phrase Analysis Provider boundary.
+- Added a free structural phrase-analysis provider for object/modifier and
+  product/model-like phrase detection without niche-specific dictionaries.
+- Added an entity-enriched Phrase Analysis provider that consumes External
+  Entity Enrichment evidence from Wikidata, Google Knowledge Graph when
+  configured and cached provider results.
+- Added an optional self-host NLP Phrase Analysis provider for local
+  spaCy/Stanza/UDPipe-style HTTP services via `PHRASE_ANALYSIS_NLP_ENDPOINT`.
+- Added a Dockerized `phrase-nlp` sidecar using spaCy by default, with UDPipe
+  model-path support and Stanza left as an optional custom-image backend.
+- Fixed Docker Google Knowledge Graph configuration so blank
+  `GOOGLE_KNOWLEDGE_GRAPH_API_KEY` values do not mask `GOOGLE_KG_API_KEY`.
+- Added provider-paced execution for public External Entity providers so
+  provider-backed phrase analysis queues KG/Wikidata calls across configured
+  request windows instead of dropping useful lookups at the first rate limit.
+- Added a durable External Entity enrichment BullMQ path so topic runs no
+  longer wait for KG/Wikidata by default; persisted keyword candidates are
+  queued after Demand persistence and background workers merge entity evidence
+  back into keyword candidates and primary candidate pages.
+- Added phrase-analysis persistence and stale-job guards based on candidate
+  `updatedAt`, so late enrichment results are retained when valid and skipped
+  when a newer topic run has already updated the candidate.
+- Kept provider-backed phrase-analysis span lookup configurable so public
+  KG/Wikidata providers are enrichment signals rather than unbounded keyword
+  expansion sources.
+- Moved External Entity provider cache lookup before rate-limit consumption so
+  repeated cached spans do not spend public provider quota.
+- Added Docker defaults for External Entity cache TTL, Google Knowledge Graph
+  request windows, Wikidata request windows and Phrase Analysis entity span
+  limits.
+- Added a lock around spaCy model loading so first-run concurrent phrase
+  analysis requests do not repeatedly download the same language model.
+- Wired Demand discovery persistence to use the provider cascade:
+  self-host NLP when configured, External Entity Enrichment when available and
+  structural analysis as the final fallback.
+- Kept all observed phrases as keyword candidates while allowing only
+  page-cluster phrases to become automatic candidate pages.
+- Added regression coverage for SERP/competitor evidence where model/SKU-like
+  product phrases remain evidence but do not become standalone pages.
+Validation:
+- npm test -- --runInBand packages/demand-engine/src/demand-engine.service.spec.ts
+- npm test -- --runInBand
+  packages/external-entity-enrichment/src/external-entity-enrichment.service.spec.ts
+  packages/demand-engine/src/phrase-analysis/entity-enriched-phrase-analysis.provider.spec.ts
+- npm test -- --runInBand
+  packages/demand-engine/src/demand-entity-enrichment-queue.spec.ts
+  packages/demand-engine/src/demand-entity-enrichment-worker.service.spec.ts
+  packages/demand-engine/src/demand-engine.service.spec.ts
+  packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts
+- npm test -- --runInBand
+- npm run build
+- docker compose config
+- docker compose build phrase-nlp
+- docker compose exec -T phrase-nlp curl -fsS -X POST
+  http://127.0.0.1:8000/analyze -H 'Content-Type: application/json'
+  -d '{"text":"szafka garażowa z szufladami","language":"pl"}'
+- Real topic smoke `szafka garażowa z szufladami`:
+  focused SERP recorded 10 URLs, Demand discovered 8 keyword candidates and 6
+  candidate pages, page planning recommended 1 create and 5 merge candidates,
+  and `phrase-nlp` received live `/analyze` calls from API.
+  Remaining smoke limitations: Google SERP fallback circuit opened, Google KG
+  and Wikidata returned rate-limit responses, and chunking skipped one document
+  version with no usable text.
+
+Date: 2026-08-20
+Issue: #186 / #187 follow-up
+Status: Review needed
+Summary:
+- Added Demand candidate page planning over existing candidate records so
+  technical `ready` status no longer implies "create a standalone page".
+- Added planning recommendations: `create`, `merge`, `defer` and `reject`,
+  with roles for money pages, supporting pages, merge candidates and rejected
+  candidates.
+- Added generic safeguards for incompatible/mechanical modifier combinations
+  while keeping the rules niche-agnostic.
+- Updated Topic Work Run SEO Pack generation to use only planned creatable
+  candidate pages.
+- Exposed `seo_kb_get_page_plan` through MCP and included `pagePlan` in Demand
+  API output for website agents.
+- Stabilized Topic Universe fallback after a `crown coins casino` smoke showed
+  that generic dimension synthesis produced invalid service/medical long-tails.
+- Removed generic fallback modifiers entirely; fallback discovery now uses only
+  explicit seed, geo-seed and manual/entity vocabulary inputs.
+- Stopped labeling synthetic questions as People Also Ask or related-search
+  evidence.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/page-candidate-planning.spec.ts packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts apps/mcp-server/src/mcp-server.spec.ts
+- npm run build:api
+- npm run build:mcp-server
+- npm test
+- Rebuilt the local API container and verified the live laser topic page plan:
+  225 technically ready candidates, 18 `create`, 206 `merge` and 1 `reject`.
+- MCP stdio smoke verified `seo_kb_get_page_plan` returns 18 create
+  candidates from the local API.
+
+Date: 2026-08-15
+Issue: #186 coverage follow-up
+Status: Review needed
+Summary:
+- Expanded Topic Universe generation beyond the original smoke-pass, then
+  narrowed fallback generation again after real-topic validation showed that
+  broad synthetic combinations create low-quality candidates without SERP
+  evidence.
+- SERP-observed evidence remains the required source for broad long-tail and
+  People Also Ask / related-search expansion.
+- Increased automated Demand discovery to generate up to 300 current
+  candidates while keeping SERP validation bounded to 25 queries per run.
+- Changed Topic Universe SERP Validation to use current candidate pages rather
+  than historical keyword rows, so stale generated phrases do not drive new
+  validation batches.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/demand-engine.service.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Rebuilt API container and forced the laser topic work run.
+- Local smoke now reports 290 current demand candidates and 225 current
+  candidate pages; Topic Universe SERP Validation recorded 25/25 generated
+  queries and submitted 230 URL observations.
+- Local Demand API smoke reports 225 candidate pages: 19 ready with SERP
+  evidence, 2 partial and 204 not_ready awaiting later validation/metrics.
+- npm test
+
+Date: 2026-08-14
+Issue: #187
+Status: Review needed
+Summary:
+- Started SEO KB MCP Server after #186 exposed automatic page-candidate
+  workflow through the API.
+- Added a dependency-free stdio MCP app that bridges Codex/agent tools to the
+  existing API instead of duplicating SEO business logic.
+- Added tools for health, topics, Topic Work Run, Demand maps, page candidates,
+  Context Pack and SEO Pack calls.
+- Added a simplified topic creation wrapper that builds a complete Topic
+  Engine payload from one seed plus optional language/geo hints.
+- Added Docker target and Compose `mcp` profile for command-based MCP clients.
+Validation:
+- npm test -- --runTestsByPath apps/mcp-server/src/topic-input.spec.ts apps/mcp-server/src/mcp-server.spec.ts
+- npm run build
+- MCP stdio smoke verified `initialize`, `tools/list` and `seo_kb_health`
+  through the running local API.
+- npm test
+- docker compose build mcp-server
+
+Date: 2026-08-14
+Issue: #186 follow-up
+Status: Review needed
+Summary:
+- Investigated a real laser workspace report where Demand API showed 0 ready
+  candidate pages after a repeated run.
+- Fixed Demand candidate page persistence so later fallback refreshes preserve
+  previously collected SERP evidence URLs, `serp_snippet` evidence type and
+  higher readiness instead of downgrading pages.
+- Included the seed query in Topic Universe SERP Validation so the primary
+  money page can receive SERP evidence, not only generated long-tail pages.
+- Added Docker Compose passthrough configuration for optional Google Knowledge
+  Graph credentials without committing real API keys.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/persistence/demand-engine.repository.spec.ts packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Rebuilt API container and forced the laser topic work run.
+- Local Demand API smoke now reports 13 candidate pages: 9 ready with SERP
+  evidence URLs and 4 not_ready pending later validation/metrics.
+
+Date: 2026-08-14
+Issue: #186
+Status: Review needed
+Summary:
+- Started automatic topic universe to page candidates.
+- Added a generic Topic Universe Demand provider that expands one topic seed
+  into candidate keyword patterns without niche-specific hardcoding.
+- Added candidate page readiness, intent, cluster metadata, SERP evidence URLs
+  and missing research gaps to Demand persistence.
+- Extended Topic Work Run with automatic Demand discovery and bounded SERP
+  validation for generated demand queries before URL Frontier and downstream
+  dispatch.
+- Added Demand API read output for topic keyword candidates, candidate pages
+  and readiness summary.
+- Fixed JSONB persistence for Demand and External Entity enrichment runtime
+  repositories so Docker/PostgreSQL smoke runs can persist structured provider
+  data.
+Validation:
+- npm test -- --runTestsByPath packages/demand-engine/src/persistence/demand-engine.repository.spec.ts packages/demand-engine/src/persistence/knex-demand-engine.repository.spec.ts apps/api/src/topic-work/topic-work-run.service.spec.ts
+- npm run build
+- Docker Compose rebuild for API and Operator Console completed successfully.
+- Local smoke forced a Topic Work Run for the laser-depilation Jasło topic:
+  focused SERP discovery recorded 10 real result URLs, Demand discovery
+  persisted 23 demand candidates and 13 candidate pages, Topic Universe SERP
+  Validation recorded 12/12 generated queries and submitted 112 URL
+  observations, then crawl/content/chunk/embedding/fact stages advanced.
+- Local Demand API smoke reports 13 candidate pages: 9 ready with SERP evidence
+  URLs, 1 partial and 3 not_ready pending additional validation/metrics.
+Notes:
+- Run status remains degraded when OpenSERP reports Google engine circuit-open
+  and falls back through other engines, or when optional Google Knowledge Graph
+  credentials are unavailable in the runtime environment.
+
+Date: 2026-08-14
+Issue: Current focused SERP discovery workflow PR
+Status: In progress
+Summary:
+- Added a local Ollama embedding provider backed by `bge-m3`.
+- Configured Docker Compose and `.env.example` to use
+  `EMBEDDING_PROVIDER=ollama` with `OLLAMA_EMBEDDING_DIMENSIONS=1024`.
+- Verified real Ollama embeddings locally and through the Docker workflow:
+  `chunk_embeddings` now records `ollama/bge-m3/local` rows with
+  `status=embedded`, and retrieval reports `vectorReady=true`.
+
+Date: 2026-08-13
+Issue: Current focused SERP discovery workflow PR
+Status: In progress
+Summary:
+- Added Topic Work Run as the Codex-first orchestration layer for starting and
+  continuing work from a topic.
+- Added bounded automatic passes for topic activation, focused SERP discovery,
+  URL Frontier dispatch, Content Processing dispatch, Chunking dispatch,
+  Embedding dispatch and Fact Extraction dispatch.
+- Added API endpoints for starting a topic work run, triggering a loop tick and
+  reading in-process loop/last-run status.
+- Added free HTML SERP fallback behavior that degrades honestly instead of
+  fabricating URLs when sources are blocked or irrelevant.
+- Added OpenSERP self-host integration as the first automatic SERP route when
+  `OPENSERP_BASE_URL` is configured, with free HTML fallback retained only as a
+  last-resort degraded source.
+- Removed the local Playwright Google recovery path from normal SERP discovery
+  after smoke testing showed it behaves as diagnostic-only under Google
+  anti-bot challenge conditions.
+Changed files:
+- docs/topic-work-run-model.md
+- docs/project-map.md
+- docs/progress.md
+- .env.example
+- apps/api/src/topic-work/*
+- apps/api/src/api.module.ts
+- packages/chunking/src/chunking-dispatch.service.ts
+- packages/serp-intelligence/src/openserp-search.provider.ts
+- packages/serp-intelligence/src/routed-serp-search.provider.ts
+- packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.ts
+Validation:
+- npm test -- --runTestsByPath packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
+- npm test -- --runTestsByPath apps/api/src/topic-work/topic-work-run.service.spec.ts apps/api/src/topic-work/topic-work-run.controller.spec.ts packages/chunking/src/chunking-dispatch.service.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
+- npm test
+- npm run build
+- npm test -- --runTestsByPath packages/serp-intelligence/src/openserp-search.provider.spec.ts packages/serp-intelligence/src/routed-serp-search.provider.spec.ts packages/serp-intelligence/src/duckduckgo-html-serp-search.provider.spec.ts apps/api/src/serp-intelligence/focused-serp-discovery.service.spec.ts
+- Local smoke checked `GET /topic-work-runs/status` and forced
+  `POST /topic-work-runs` for the focused SERP smoke topic.
+- Local smoke ran OpenSERP Docker sidecar on host port `7700`, confirmed
+  `/health`, `/ready` and `/mega/search`, then recorded 10 real SERP result URLs
+  through Topic Work Run.
+- Added complete Docker Compose orchestration for API, Operator Console,
+  crawler-worker, embedding-worker, fact-extraction-worker, PostgreSQL, Redis
+  and OpenSERP. Local compose smoke on safe host ports confirmed API health,
+  OpenSERP readiness, token-protected Operator Console access and a Topic Work
+  Run recording 10 OpenSERP-derived URL observations.
+- Local smoke confirmed Google fallback degrades without fabricating URLs when
+  the current network returns anti-bot/unusual-traffic pages.
+Next step:
+- Review and merge the focused SERP discovery workflow PR.
 
 Date: 2026-08-06
 Issue: #182

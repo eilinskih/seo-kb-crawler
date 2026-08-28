@@ -27,7 +27,7 @@ interface ChunkRow {
   normalized_text_hash: string;
   token_count: number;
   language: string | null;
-  geo_hints: ChunkForEmbedding['geoHints'];
+  geo_hints: ChunkForEmbedding['geoHints'] | string;
   chunk_type: ChunkForEmbedding['chunkType'];
 }
 
@@ -56,10 +56,10 @@ interface ChunkEmbeddingRow {
   chunk_content_hash: string;
   chunk_normalized_text_hash: string;
   language: string | null;
-  geo_hints: ChunkEmbeddingRecord['geoHints'];
+  geo_hints: ChunkEmbeddingRecord['geoHints'] | string;
   chunk_type: ChunkEmbeddingRecord['chunkType'];
   status: EmbeddingStatus;
-  failure: EmbeddingFailure | null;
+  failure: EmbeddingFailure | string | null;
   embedded_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
@@ -427,10 +427,10 @@ export class KnexEmbeddingRepository implements EmbeddingRepository {
           chunk_content_hash: chunk.contentHash,
           chunk_normalized_text_hash: chunk.normalizedTextHash,
           language: chunk.language,
-          geo_hints: chunk.geoHints,
+          geo_hints: serializeJson(chunk.geoHints),
           chunk_type: chunk.chunkType,
           status: values.status,
-          failure: values.failure,
+          failure: values.failure ? serializeJson(values.failure) : null,
           embedded_at: values.embedded_at,
           created_at: now,
           updated_at: now,
@@ -460,7 +460,7 @@ function toChunkForEmbedding(row: ChunkRow): ChunkForEmbedding {
     normalizedTextHash: row.normalized_text_hash,
     tokenCount: row.token_count,
     language: row.language,
-    geoHints: row.geo_hints,
+    geoHints: parseJson(row.geo_hints),
     chunkType: row.chunk_type,
   };
 }
@@ -482,4 +482,12 @@ function toEmbeddingModel(row: EmbeddingModelRow): EmbeddingModelRecord {
 
 function formatVector(vector: number[]): string {
   return `[${vector.join(',')}]`;
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(value);
+}
+
+function parseJson<T>(value: T | string): T {
+  return typeof value === 'string' ? JSON.parse(value) as T : value;
 }

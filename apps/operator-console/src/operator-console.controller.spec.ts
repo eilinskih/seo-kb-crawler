@@ -126,4 +126,49 @@ describe('OperatorConsoleController', () => {
       note: null,
     });
   });
+
+  it('passes focused SERP discovery imports to the API client', async () => {
+    const apiClient = {
+      runFocusedSerpDiscovery: jest.fn(),
+    } as unknown as OperatorConsoleApiClient;
+    const controller = new OperatorConsoleController({} as never, apiClient);
+
+    await controller.focusedSerpDiscovery({
+      topicId: 'topic-1',
+      query: 'depilacja laserowa jasło',
+      language: 'pl',
+      countryCode: 'PL',
+      city: 'Jasło',
+      resultUrls: 'https://example.com/a\nhttps://example.com/b',
+    });
+
+    expect(apiClient.runFocusedSerpDiscovery).toHaveBeenCalledWith({
+      topicId: 'topic-1',
+      query: 'depilacja laserowa jasło',
+      language: 'pl',
+      countryCode: 'PL',
+      city: 'Jasło',
+      resultUrls: ['https://example.com/a', 'https://example.com/b'],
+    });
+  });
+
+  it('passes automatic topic SERP discovery requests to the API client', async () => {
+    const apiClient = {
+      runFocusedSerpDiscoveryForTopic: jest.fn(async () => ({
+        status: 'recorded',
+        providerKey: 'fallback_test',
+        warnings: [],
+        snapshot: { id: 'snapshot-1', results: [] },
+        observations: { submitted: 2 },
+        frontier: { upsertedEntries: 2 },
+      })),
+    } as unknown as OperatorConsoleApiClient;
+    const controller = new OperatorConsoleController({} as never, apiClient);
+
+    await controller.discoverTopicSerp('topic-1');
+
+    expect(apiClient.runFocusedSerpDiscoveryForTopic).toHaveBeenCalledWith(
+      'topic-1',
+    );
+  });
 });

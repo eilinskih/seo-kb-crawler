@@ -34,6 +34,8 @@ specialized documents:
 - `docs/discovery-sources-model.md` for Discovery Sources.
 - `docs/research-engine-scheduling-model.md` for Focused Research,
   Background Research and Research Engine Scheduling.
+- `docs/topic-work-run-model.md` for Codex-first topic workflow
+  orchestration and continuous background passes.
 - `docs/crawler-worker-model.md` for the Crawler Worker.
 - `docs/content-processing-model.md` for the Content Processing Pipeline.
 - `docs/chunking-model.md` for the Chunking Engine.
@@ -56,6 +58,9 @@ specialized documents:
 - `docs/seo-page-candidate-scoring-model.md` for SEO Page Candidate Scoring.
 - `docs/seo-pack-generator-model.md` for SEO Pack Generator.
 - `docs/seo-agent-gateway-model.md` for SEO Agent Gateway.
+- `docs/mcp-server-model.md` for the Codex-facing MCP server.
+- `docs/site-blueprint-model.md` for the autonomous site workspace handoff
+  and Cloudflare Pages site conveyor boundary.
 - `docs/external-seo-data-providers-model.md` for optional external SEO data
   provider enrichment.
 - `docs/operator-console-model.md` for the internal Operator Console.
@@ -186,11 +191,22 @@ Implemented on `main`:
   priority mapping, fair background budget allocation, TTL-aware freshness
   decisions, dispatch planning, media policy decisions and repository
   abstraction.
+- Topic Work Run API orchestration for Codex-first topic starts, draft topic
+  activation, automatic focused SERP discovery, Demand Engine topic-universe
+  expansion, bounded SERP validation for generated demand queries, URL
+  Frontier dispatch, Content Processing dispatch, Chunking dispatch, Embedding
+  dispatch and Fact Extraction dispatch through existing service boundaries.
 - SEO Agent Gateway package boundary, model-agnostic generation request
   contracts, Focused Research requirement representation, structured
   generation context assembly, retrieval-only safeguards, consumer adapter
   contracts, model-agnostic prompt rendering, optional OpenAI provider
   execution, generation response persistence and repository abstraction.
+- SEO KB MCP Server stdio app for Codex and agent workspaces. It exposes
+  topic creation, Topic Work Run, Demand map, page candidates, Context Pack and
+  SEO Pack operations through the existing API.
+- Site Blueprint API and MCP handoff for autonomous site workspaces, including
+  Cloudflare Pages / Next.js static-first constraints, page route plans,
+  SEO Pack readiness and internal-linking hints.
 - External SEO Data Providers package boundary, provider capability/status
   contracts, provider-neutral observations, nullable metric snapshots,
   fail-open enrichment service, fallback SEO signals provider, durable
@@ -216,7 +232,9 @@ Not implemented:
   cache and live smoke tests (#181).
 - Concrete Ahrefs, Semrush, SE Ranking or other paid external SEO provider
   integrations, provider credentials management and quota operations (#179).
-- Live SERP providers and paid provider refresh jobs.
+- Paid SERP providers and paid provider refresh jobs.
+- Durable Topic Work Run persistence and automated SEO Intelligence pack
+  refresh from Topic Work Run.
 - Publishing workflows for generated content.
 - Operator Console selective retry-by-ID forms, richer external entity review
   filters, decision history views and full Research Scheduling controls (#182).

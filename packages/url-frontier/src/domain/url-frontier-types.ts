@@ -75,6 +75,7 @@ export interface UrlFrontierLeaseOptions {
   leaseOwner: string;
   leaseDurationMs: number;
   now: Date;
+  topicId?: string;
   limit?: number;
 }
 
@@ -161,7 +162,7 @@ export interface UrlFrontierCanonicalRelationResult {
 }
 
 export interface UrlFrontierRepository {
-  upsertEntry(seed: UrlFrontierEntrySeed): Promise<void>;
+  upsertEntry(seed: UrlFrontierEntrySeed): Promise<string>;
   appendDiscoveryObservations(
     observations: UrlFrontierDiscoveryObservation[],
   ): Promise<UrlFrontierDiscoveryObservationReceipt[]>;

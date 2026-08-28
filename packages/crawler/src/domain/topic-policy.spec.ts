@@ -41,6 +41,30 @@ describe('evaluateTopicCrawlPolicy', () => {
     });
   });
 
+  it('treats an empty allowlist as unrestricted public-host topic scope', () => {
+    expect(
+      evaluateTopicCrawlPolicy('https://competitor.example/docs/page', {
+        ...policy,
+        allowedHosts: [],
+      }),
+    ).toMatchObject({
+      allowed: true,
+      evidence: 'topic policy allowed',
+    });
+  });
+
+  it('keeps denied hosts authoritative when the allowlist is empty', () => {
+    expect(
+      evaluateTopicCrawlPolicy('https://blocked.example.org/docs/page', {
+        ...policy,
+        allowedHosts: [],
+      }),
+    ).toMatchObject({
+      allowed: false,
+      evidence: 'denied host: blocked.example.org',
+    });
+  });
+
   it('applies included and excluded path patterns', () => {
     expect(
       evaluateTopicCrawlPolicy('https://example.com/blog/page', policy),

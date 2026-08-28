@@ -55,8 +55,8 @@ export interface CrawlAttemptRow {
   status: UrlFrontierCrawlResult['status'];
   final_url: string | null;
   status_code: number | null;
-  headers: Record<string, string>;
-  redirect_chain: unknown[];
+  headers: Record<string, string> | string;
+  redirect_chain: unknown[] | string;
   canonical_url: string | null;
   title: string | null;
   meta_description: string | null;
@@ -64,12 +64,12 @@ export interface CrawlAttemptRow {
   cleaned_markdown: string | null;
   plain_text: string | null;
   content_hash: string | null;
-  outgoing_links: unknown[];
-  media_assets: unknown[];
+  outgoing_links: unknown[] | string;
+  media_assets: unknown[] | string;
   timing: unknown;
   adapter_key: string;
   adapter_version: string;
-  failure: UrlFrontierCrawlFailure | null;
+  failure: UrlFrontierCrawlFailure | string | null;
   recorded_at: Date;
   updated_at: Date;
 }
@@ -209,8 +209,8 @@ export function toCrawlAttemptRow(
     status: result.status,
     final_url: result.finalUrl ?? null,
     status_code: result.statusCode ?? null,
-    headers: result.headers,
-    redirect_chain: result.redirectChain ?? [],
+    headers: serializeJson(result.headers),
+    redirect_chain: serializeJson(result.redirectChain ?? []),
     canonical_url: result.canonicalUrl ?? null,
     title: result.title ?? null,
     meta_description: result.metaDescription ?? null,
@@ -218,15 +218,19 @@ export function toCrawlAttemptRow(
     cleaned_markdown: result.cleanedMarkdown ?? null,
     plain_text: result.plainText ?? null,
     content_hash: result.contentHash,
-    outgoing_links: result.outgoingLinks ?? [],
-    media_assets: result.mediaAssets ?? [],
-    timing: result.timing,
+    outgoing_links: serializeJson(result.outgoingLinks ?? []),
+    media_assets: serializeJson(result.mediaAssets ?? []),
+    timing: serializeJson(result.timing),
     adapter_key: result.adapter.key,
     adapter_version: result.adapter.version,
-    failure: result.failure,
+    failure: result.failure ? serializeJson(result.failure) : null,
     recorded_at: recordedAt,
     updated_at: recordedAt,
   };
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(value);
 }
 
 export function toFrontierCompletionUpdate(

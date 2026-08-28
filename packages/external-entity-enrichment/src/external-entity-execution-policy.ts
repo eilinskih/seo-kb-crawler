@@ -34,9 +34,17 @@ export interface ExternalEntityProviderRateLimiter {
   ): Promise<ExternalEntityRateLimitDecision>;
 }
 
+export interface ExternalEntityProviderExecutionQueue {
+  execute<T>(
+    providerKey: ExternalEntityProviderKey,
+    task: () => Promise<T>,
+  ): Promise<T>;
+}
+
 export interface ExternalEntityProviderExecutionPolicy {
   cache?: ExternalEntityProviderCache;
   cacheTtlMs?: number;
+  queue?: ExternalEntityProviderExecutionQueue;
   rateLimiter?: ExternalEntityProviderRateLimiter;
 }
 
@@ -167,6 +175,69 @@ implements ExternalEntityProviderRateLimiter {
       remaining: config.maxRequests - window.count,
       resetAt: new Date(window.startsAt + config.windowMs).toISOString(),
     };
+  }
+}
+
+export class PacedExternalEntityProviderQueue
+implements ExternalEntityProviderExecutionQueue {
+  private readonly tails = new Map<ExternalEntityProviderKey, Promise<void>>();
+  private readonly lastStartedAt = new Map<ExternalEntityProviderKey, number>();
+
+  constructor(
+    private readonly providerConfigs: ReadonlyMap<
+      ExternalEntityProviderKey,
+      ExternalEntityProviderRateLimitConfig
+    >,
+    private readonly clock: () => number = () => Date.now(),
+    private readonly sleep: (delayMs: number) => Promise<void> =
+      (delayMs) => new Promise((resolve) => {
+        setTimeout(resolve, delayMs);
+      }),
+  ) {
+    for (const [providerKey, config] of providerConfigs.entries()) {
+      validateRateLimitConfig(providerKey, config);
+    }
+  }
+
+  async execute<T>(
+    providerKey: ExternalEntityProviderKey,
+    task: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.tails.get(providerKey) ?? Promise.resolve();
+    const run = previous
+      .catch(() => undefined)
+      .then(async () => {
+        await this.waitForProviderSlot(providerKey);
+        return task();
+      });
+
+    this.tails.set(providerKey, run.then(
+      () => undefined,
+      () => undefined,
+    ));
+
+    return run;
+  }
+
+  private async waitForProviderSlot(
+    providerKey: ExternalEntityProviderKey,
+  ): Promise<void> {
+    const config = this.providerConfigs.get(providerKey);
+    if (!config) {
+      return;
+    }
+
+    const minDelayMs = Math.ceil(config.windowMs / config.maxRequests);
+    const previousStartedAt = this.lastStartedAt.get(providerKey);
+    if (previousStartedAt !== undefined) {
+      const elapsedMs = this.clock() - previousStartedAt;
+      const delayMs = minDelayMs - elapsedMs;
+      if (delayMs > 0) {
+        await this.sleep(delayMs);
+      }
+    }
+
+    this.lastStartedAt.set(providerKey, this.clock());
   }
 }
 

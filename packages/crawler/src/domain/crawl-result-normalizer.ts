@@ -27,19 +27,16 @@ export class CrawlResultNormalizer {
     adapter: Pick<CrawlerAdapter, 'key' | 'version'>,
     result: CrawlAdapterResult,
   ): NormalizedCrawlResult {
-    const rawHtml = normalizeOptionalText(
+    const rawHtml = normalizeOptionalTruncatedText(
       result.rawHtml,
-      'rawHtml',
       artifactFieldLength,
     );
-    const cleanedMarkdown = normalizeOptionalText(
+    const cleanedMarkdown = normalizeOptionalTruncatedText(
       result.cleanedMarkdown,
-      'cleanedMarkdown',
       artifactFieldLength,
     );
-    const plainText = normalizeOptionalText(
+    const plainText = normalizeOptionalTruncatedText(
       result.plainText,
-      'plainText',
       artifactFieldLength,
     );
 
@@ -97,10 +94,15 @@ function normalizeHeaders(
     return {};
   }
   return Object.fromEntries(
-    Object.entries(headers).slice(0, maxHeaderEntries).map(([key, value]) => [
-      normalizeRequiredText(key.toLowerCase(), 'header key', 100),
-      normalizeRequiredText(value, `header ${key}`, maxHeaderLength),
-    ]),
+    Object.entries(headers)
+      .map(([key, value]) => [
+        normalizeRequiredText(key.toLowerCase(), 'header key', 100),
+        normalizeOptionalTruncatedText(value, maxHeaderLength),
+      ] as const)
+      .filter((entry): entry is readonly [string, string] =>
+        entry[1] !== undefined,
+      )
+      .slice(0, maxHeaderEntries),
   );
 }
 
@@ -126,9 +128,8 @@ function normalizeLinks(
         link.resolvedUrl,
         `outgoingLinks[${index}].resolvedUrl`,
       ),
-      anchorText: normalizeOptionalText(
+      anchorText: normalizeOptionalTruncatedText(
         link.anchorText,
-        `outgoingLinks[${index}].anchorText`,
         maxTextLength,
       ),
       rel: link.rel?.slice(0, maxRelTokens).map((token, tokenIndex) =>
@@ -300,6 +301,20 @@ function normalizeOptionalText(
     throw new CrawlerValidationError(`${field} exceeds ${maxLength} characters`);
   }
   return normalized;
+}
+
+function normalizeOptionalTruncatedText(
+  value: string | undefined,
+  maxLength: number,
+): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const normalized = value.trim();
+  if (normalized.length === 0) {
+    return undefined;
+  }
+  return normalized.slice(0, maxLength);
 }
 
 function assertPositiveInteger(value: number, field: string): number {

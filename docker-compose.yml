@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-seo_kb}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-seo_kb}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-15432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/docker/postgres/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
@@ -24,12 +24,62 @@ services:
   redis:
     image: redis:8-alpine
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-16379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
+
+  openserp:
+    image: karust/openserp:latest
+    command: ["serve", "-a", "0.0.0.0", "-p", "7000"]
+    ports:
+      - "${OPENSERP_PORT:-17700}:7000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:7000/ready",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  phrase-nlp:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/phrase-nlp/Dockerfile
+    environment:
+      PHRASE_NLP_BACKEND: ${PHRASE_NLP_BACKEND:-spacy}
+      PHRASE_NLP_LANGUAGES: ${PHRASE_NLP_LANGUAGES:-en,pl}
+      PHRASE_NLP_MODEL_DIR: /models
+      PHRASE_NLP_DOWNLOAD_SPACY_MODELS: ${PHRASE_NLP_DOWNLOAD_SPACY_MODELS:-true}
+      PHRASE_NLP_STANZA_PROCESSORS: ${PHRASE_NLP_STANZA_PROCESSORS:-tokenize,pos,lemma}
+      PHRASE_NLP_UDPIPE_MODEL: ${PHRASE_NLP_UDPIPE_MODEL:-}
+      PHRASE_NLP_UDPIPE_MODEL_PL: ${PHRASE_NLP_UDPIPE_MODEL_PL:-}
+      PHRASE_NLP_UDPIPE_MODEL_EN: ${PHRASE_NLP_UDPIPE_MODEL_EN:-}
+    ports:
+      - "${PHRASE_NLP_PORT:-18000}:8000"
+    volumes:
+      - phrase_nlp_models:/models
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "http://127.0.0.1:8000/health",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
     restart: unless-stopped
 
   api:
@@ -41,12 +91,43 @@ services:
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
       REDIS_URL: redis://redis:6379
+      OPENSERP_BASE_URL: http://openserp:7000
+      OPENSERP_ENGINES: ${OPENSERP_ENGINES:-google,bing}
+      OPENSERP_TIMEOUT_MS: ${OPENSERP_TIMEOUT_MS:-20000}
+      GOOGLE_KNOWLEDGE_GRAPH_API_KEY: ${GOOGLE_KNOWLEDGE_GRAPH_API_KEY:-}
+      GOOGLE_KG_API_KEY: ${GOOGLE_KG_API_KEY:-}
+      GOOGLE_KNOWLEDGE_GRAPH_LIMIT: ${GOOGLE_KNOWLEDGE_GRAPH_LIMIT:-5}
+      GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS: ${GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS:-20000}
+      GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_MAX: ${GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_MAX:-30}
+      GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_WINDOW_MS: ${GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_WINDOW_MS:-60000}
+      WIKIDATA_ENABLED: ${WIKIDATA_ENABLED:-true}
+      WIKIDATA_SEARCH_ENDPOINT: ${WIKIDATA_SEARCH_ENDPOINT:-https://www.wikidata.org/w/api.php}
+      WIKIDATA_SPARQL_ENDPOINT: ${WIKIDATA_SPARQL_ENDPOINT:-https://query.wikidata.org/sparql}
+      WIKIDATA_LIMIT: ${WIKIDATA_LIMIT:-5}
+      WIKIDATA_TIMEOUT_MS: ${WIKIDATA_TIMEOUT_MS:-30000}
+      WIKIDATA_RATE_LIMIT_MAX: ${WIKIDATA_RATE_LIMIT_MAX:-20}
+      WIKIDATA_RATE_LIMIT_WINDOW_MS: ${WIKIDATA_RATE_LIMIT_WINDOW_MS:-60000}
+      EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS: ${EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS:-86400000}
+      EXTERNAL_ENTITY_ENRICHMENT_ASYNC: ${EXTERNAL_ENTITY_ENRICHMENT_ASYNC:-true}
+      PHRASE_ANALYSIS_NLP_ENDPOINT: ${PHRASE_ANALYSIS_NLP_ENDPOINT:-http://phrase-nlp:8000/analyze}
+      PHRASE_ANALYSIS_NLP_TIMEOUT_MS: ${PHRASE_ANALYSIS_NLP_TIMEOUT_MS:-10000}
+      PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS: ${PHRASE_ANALYSIS_ENTITY_MAX_LOOKUPS:-12}
+      PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS: ${PHRASE_ANALYSIS_ENTITY_MAX_SPAN_TOKENS:-3}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      OLLAMA_EMBEDDING_MODEL_VERSION: ${OLLAMA_EMBEDDING_MODEL_VERSION:-local}
+      OLLAMA_EMBEDDING_DIMENSIONS: ${OLLAMA_EMBEDDING_DIMENSIONS:-1024}
     ports:
       - "${API_PORT:-3000}:3000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      openserp:
+        condition: service_healthy
+      phrase-nlp:
         condition: service_healthy
     healthcheck:
       test:
@@ -63,10 +144,95 @@ services:
       retries: 10
     restart: unless-stopped
 
+  operator-console:
+    build:
+      context: .
+      target: operator-console
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      OPERATOR_CONSOLE_PORT: 4010
+      OPERATOR_CONSOLE_API_BASE_URL: http://api:3000
+      OPERATOR_CONSOLE_ACCESS_TOKEN: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "${OPERATOR_CONSOLE_PORT:-4010}:4010"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--header",
+          "x-operator-console-token: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}",
+          "--spider",
+          "http://127.0.0.1:4010/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   crawler-worker:
     build:
       context: .
       target: crawler-worker
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+      GOOGLE_KNOWLEDGE_GRAPH_API_KEY: ${GOOGLE_KNOWLEDGE_GRAPH_API_KEY:-}
+      GOOGLE_KG_API_KEY: ${GOOGLE_KG_API_KEY:-}
+      GOOGLE_KNOWLEDGE_GRAPH_LIMIT: ${GOOGLE_KNOWLEDGE_GRAPH_LIMIT:-5}
+      GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS: ${GOOGLE_KNOWLEDGE_GRAPH_TIMEOUT_MS:-20000}
+      GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_MAX: ${GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_MAX:-30}
+      GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_WINDOW_MS: ${GOOGLE_KNOWLEDGE_GRAPH_RATE_LIMIT_WINDOW_MS:-60000}
+      WIKIDATA_ENABLED: ${WIKIDATA_ENABLED:-true}
+      WIKIDATA_SEARCH_ENDPOINT: ${WIKIDATA_SEARCH_ENDPOINT:-https://www.wikidata.org/w/api.php}
+      WIKIDATA_SPARQL_ENDPOINT: ${WIKIDATA_SPARQL_ENDPOINT:-https://query.wikidata.org/sparql}
+      WIKIDATA_LIMIT: ${WIKIDATA_LIMIT:-5}
+      WIKIDATA_TIMEOUT_MS: ${WIKIDATA_TIMEOUT_MS:-30000}
+      WIKIDATA_RATE_LIMIT_MAX: ${WIKIDATA_RATE_LIMIT_MAX:-20}
+      WIKIDATA_RATE_LIMIT_WINDOW_MS: ${WIKIDATA_RATE_LIMIT_WINDOW_MS:-60000}
+      EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS: ${EXTERNAL_ENTITY_PROVIDER_CACHE_TTL_MS:-86400000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  embedding-worker:
+    build:
+      context: .
+      target: embedding-worker
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seo_kb}:${POSTGRES_PASSWORD:-seo_kb}@postgres:5432/${POSTGRES_DB:-seo_kb}
+      REDIS_URL: redis://redis:6379
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      OLLAMA_EMBEDDING_MODEL_VERSION: ${OLLAMA_EMBEDDING_MODEL_VERSION:-local}
+      OLLAMA_EMBEDDING_DIMENSIONS: ${OLLAMA_EMBEDDING_DIMENSIONS:-1024}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  fact-extraction-worker:
+    build:
+      context: .
+      target: fact-extraction-worker
     environment:
       NODE_ENV: production
       API_PORT: 3000
@@ -79,5 +245,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mcp-server:
+    profiles: ["mcp"]
+    build:
+      context: .
+      target: mcp-server
+    environment:
+      NODE_ENV: production
+      SEO_KB_API_BASE_URL: http://api:3000
+      SEO_KB_MCP_TIMEOUT_MS: ${SEO_KB_MCP_TIMEOUT_MS:-30000}
+    depends_on:
+      api:
+        condition: service_healthy
+    stdin_open: true
+    tty: false
+
 volumes:
   postgres_data:
+  phrase_nlp_models:

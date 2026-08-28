@@ -13,13 +13,25 @@ import { HttpFetchAdapter } from './infrastructure/http-fetch-adapter';
 import { InMemoryCrawlResultSink } from './infrastructure/in-memory-crawl-result-sink';
 import { KnexCrawlAttemptResultSink } from './infrastructure/knex-crawl-attempt-result-sink';
 import { RobotsPolicyService } from './infrastructure/robots-policy.service';
-import { SafeNetworkGatewayService } from './infrastructure/safe-network-gateway.service';
+import {
+  SAFE_NETWORK_DNS_LOOKUP,
+  SAFE_NETWORK_FETCH,
+  SafeNetworkGatewayService,
+} from './infrastructure/safe-network-gateway.service';
 
 @Module({
   imports: [DbModule, UrlFrontierModule],
   providers: [
     CrawlerAdapterSelector,
     CrawlResultNormalizer,
+    {
+      provide: SAFE_NETWORK_FETCH,
+      useValue: globalThis.fetch.bind(globalThis),
+    },
+    {
+      provide: SAFE_NETWORK_DNS_LOOKUP,
+      useValue: undefined,
+    },
     SafeNetworkGatewayService,
     RobotsPolicyService,
     CrawlExecutionWrapper,

@@ -9,6 +9,7 @@ describe('ContentProcessingDispatchService', () => {
   it('dispatches pending successful crawl attempts to BullMQ', async () => {
     const queue = {
       add: jest.fn(),
+      getJob: jest.fn(async () => null),
     } as unknown as Queue;
     const repository: ContentProcessingRepository = {
       findSuccessfulCrawlAttempt: jest.fn(),
@@ -56,11 +57,78 @@ describe('ContentProcessingDispatchService', () => {
         removeOnFail: 5000,
       },
     );
+    expect(queue.getJob).toHaveBeenCalledWith('attempt-1');
+  });
+
+  it('removes terminal queue jobs before redispatching the same crawl attempt', async () => {
+    const remove = jest.fn();
+    const queue = {
+      add: jest.fn(),
+      getJob: jest.fn(async () => ({
+        getState: jest.fn(async () => 'failed'),
+        remove,
+      })),
+    } as unknown as Queue;
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(async () => [
+        successfulAttempt('attempt-1'),
+      ]),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingDispatchService(queue, repository);
+
+    await service.dispatchPendingSuccessfulAttempts({ maxDispatches: 1 });
+
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(queue.add).toHaveBeenCalledWith(
+      'content-processing',
+      {
+        crawlAttemptId: 'attempt-1',
+        extractorVersion: 'content-processor/0.1.0',
+      },
+      {
+        jobId: 'attempt-1',
+        removeOnComplete: 1000,
+        removeOnFail: 5000,
+      },
+    );
+  });
+
+  it('keeps active queue jobs when redispatch is requested', async () => {
+    const remove = jest.fn();
+    const queue = {
+      add: jest.fn(),
+      getJob: jest.fn(async () => ({
+        getState: jest.fn(async () => 'active'),
+        remove,
+      })),
+    } as unknown as Queue;
+    const repository: ContentProcessingRepository = {
+      findSuccessfulCrawlAttempt: jest.fn(),
+      findPendingSuccessfulCrawlAttempts: jest.fn(async () => [
+        successfulAttempt('attempt-1'),
+      ]),
+      markProcessingPending: jest.fn(),
+      markProcessingStarted: jest.fn(),
+      markProcessingFailed: jest.fn(),
+      findProcessingRecord: jest.fn(),
+      processSuccessfulCrawlAttempt: jest.fn(),
+    };
+    const service = new ContentProcessingDispatchService(queue, repository);
+
+    await service.dispatchPendingSuccessfulAttempts({ maxDispatches: 1 });
+
+    expect(remove).not.toHaveBeenCalled();
   });
 
   it('reports exhaustion when fewer attempts are available than requested', async () => {
     const service = new ContentProcessingDispatchService(
-      { add: jest.fn() } as unknown as Queue,
+      { add: jest.fn(), getJob: jest.fn(async () => null) } as unknown as Queue,
       {
         findSuccessfulCrawlAttempt: jest.fn(),
         findPendingSuccessfulCrawlAttempts: jest.fn(async () => []),
@@ -93,7 +161,7 @@ describe('ContentProcessingDispatchService', () => {
       processSuccessfulCrawlAttempt: jest.fn(),
     } as unknown as ContentProcessingRepository;
     const service = new ContentProcessingDispatchService(
-      { add: jest.fn() } as unknown as Queue,
+      { add: jest.fn(), getJob: jest.fn(async () => null) } as unknown as Queue,
       repository,
     );
 

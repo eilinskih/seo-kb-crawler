@@ -43,10 +43,10 @@ export interface DocumentVersionRow {
   raw_html: string | null;
   cleaned_markdown: string | null;
   plain_text: string | null;
-  metadata: DocumentMetadata;
-  structured_data: unknown[];
-  language_hints: unknown[];
-  geo_hints: unknown[];
+  metadata: DocumentMetadata | string;
+  structured_data: unknown[] | string;
+  language_hints: unknown[] | string;
+  geo_hints: unknown[] | string;
   created_at: Date | string;
 }
 
@@ -55,7 +55,7 @@ export interface ContentProcessingRunRow {
   document_id: string | null;
   document_version_id: string | null;
   status: ContentProcessingStatus;
-  failure: ContentProcessingFailure | null;
+  failure: ContentProcessingFailure | string | null;
   extractor_version: string;
   started_at: Date | string | null;
   completed_at: Date | string | null;
@@ -218,9 +218,9 @@ export class KnexContentProcessingRepository
         .map((row) => ({
           crawlAttemptId: row.crawl_attempt_id,
           status: row.status,
-          category: row.failure!.category,
-          detail: row.failure!.detail,
-          retryable: row.failure!.retryable,
+          category: contentProcessingFailure(row.failure!).category,
+          detail: contentProcessingFailure(row.failure!).detail,
+          retryable: contentProcessingFailure(row.failure!).retryable,
           updatedAt: toIsoString(row.updated_at),
         })),
     };
@@ -239,7 +239,7 @@ export class KnexContentProcessingRepository
         requestedUrl: row.requested_url,
         finalUrl: row.final_url,
         title: row.title,
-        wordCount: row.metadata.wordCount,
+        wordCount: documentMetadata(row.metadata).wordCount,
         createdAt: toIsoString(row.created_at),
       })),
     };
@@ -445,7 +445,7 @@ function toProcessingRecord(
     documentId: row.document_id,
     documentVersionId: row.document_version_id,
     status: row.status,
-    failure: row.failure,
+    failure: row.failure ? contentProcessingFailure(row.failure) : null,
     extractorVersion: row.extractor_version,
     startedAt: row.started_at ? new Date(row.started_at) : null,
     completedAt: row.completed_at ? new Date(row.completed_at) : null,
@@ -531,10 +531,10 @@ function toDocumentVersionRow(
     raw_html: attempt.rawHtml,
     cleaned_markdown: attempt.cleanedMarkdown,
     plain_text: attempt.plainText,
-    metadata: extracted.metadata,
-    structured_data: extracted.structuredData,
-    language_hints: extracted.languageHints,
-    geo_hints: extracted.geoHints,
+    metadata: serializeJson(extracted.metadata),
+    structured_data: serializeJson(extracted.structuredData),
+    language_hints: serializeJson(extracted.languageHints),
+    geo_hints: serializeJson(extracted.geoHints),
     created_at: options.now,
   };
 }
@@ -544,10 +544,13 @@ async function upsertProcessingRun(
   row: ContentProcessingRunRow,
 ): Promise<void> {
   const { created_at: _createdAt, ...retryUpdate } = row;
+  const serializedRow = serializeProcessingRun(row);
+  const { created_at: _serializedCreatedAt, ...serializedRetryUpdate } =
+    serializedRow;
   await transaction<ContentProcessingRunRow>('content_processing_runs')
-    .insert(row)
+    .insert(serializedRow)
     .onConflict('crawl_attempt_id')
-    .merge(retryUpdate);
+    .merge(serializedRetryUpdate);
 }
 
 function requireDocumentId(row: ContentProcessingRunRow): string {
@@ -562,6 +565,33 @@ function countContentProcessingStatus(
   status: ContentProcessingStatus,
 ): number {
   return counts.find((row) => row.status === status)?.count ?? 0;
+}
+
+function serializeProcessingRun(
+  row: ContentProcessingRunRow,
+): ContentProcessingRunRow {
+  return {
+    ...row,
+    failure: row.failure ? serializeJson(row.failure) : null,
+  };
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(value);
+}
+
+function documentMetadata(value: DocumentMetadata | string): DocumentMetadata {
+  return typeof value === 'string'
+    ? JSON.parse(value) as DocumentMetadata
+    : value;
+}
+
+function contentProcessingFailure(
+  value: ContentProcessingFailure | string,
+): ContentProcessingFailure {
+  return typeof value === 'string'
+    ? JSON.parse(value) as ContentProcessingFailure
+    : value;
 }
 
 function toIsoString(value: Date | string): string {

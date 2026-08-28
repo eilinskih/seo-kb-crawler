@@ -56,6 +56,9 @@ Implemented on `main`:
 /apps/api
 /apps/crawler-worker
 /apps/embedding-worker
+/apps/fact-extraction-worker
+/apps/operator-console
+/apps/mcp-server
 /packages/topic-engine
 ```
 
@@ -122,6 +125,7 @@ Planned domain packages:
   Console.
 - `docs/demand-engine-model.md` documents provider-optional Keyword Discovery
   and candidate-page discovery.
+- `docs/mcp-server-model.md` documents the Codex-facing MCP server.
 - `docs/decisions/` contains accepted ADRs and the ADR practice guide.
 
 ## Engineering Documentation
@@ -130,6 +134,7 @@ For contributors and AI-assisted development see:
 
 - `docs/AI_COLLABORATION.md`
 - `docs/architecture.md`
+- `docs/mcp-server-model.md`
 - `docs/progress.md`
 - `docs/implementation-order.md`
 
@@ -160,6 +165,7 @@ Requirements:
 - Node.js 24.16.0 LTS (use `nvm use`)
 - npm
 - Docker with Compose
+- Ollama for local embeddings
 
 Install and validate the workspace:
 
@@ -169,6 +175,13 @@ npm test
 npm run build
 ```
 
+Set up the local embedding model:
+
+```bash
+ollama pull bge-m3
+ollama list
+```
+
 Run the complete local stack:
 
 ```bash
@@ -176,7 +189,58 @@ cp .env.example .env
 docker compose up --build
 ```
 
-The API readiness endpoint is available at `http://localhost:3000/health`.
+The compose stack starts PostgreSQL, Redis, OpenSERP, API, Operator Console,
+Crawler Worker, Embedding Worker and Fact Extraction Worker.
+
+By default Docker Compose uses `EMBEDDING_PROVIDER=ollama` with `bge-m3`
+through `http://host.docker.internal:11434`. If Ollama is unavailable,
+embedding jobs remain retryable and the rest of the pipeline continues.
+
+Default local endpoints:
+
+```txt
+API: http://localhost:3000
+API health: http://localhost:3000/health
+Operator Console: http://localhost:4010
+OpenSERP sidecar: http://localhost:17700
+OpenSERP health: http://localhost:17700/health
+PostgreSQL: localhost:15432
+Redis: localhost:16379
+```
+
+MCP server for Codex and agent workspaces:
+
+```bash
+npm run build:mcp-server
+SEO_KB_API_BASE_URL=http://127.0.0.1:3000 npm run start:mcp-server
+```
+
+Docker-based MCP command:
+
+```bash
+docker compose --profile mcp run --rm mcp-server
+```
+
+For a quick smoke check:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:${OPENSERP_PORT:-17700}/ready
+curl -H "x-operator-console-token: ${OPERATOR_CONSOLE_ACCESS_TOKEN:-local-operator-token}" \
+  -I http://localhost:${OPERATOR_CONSOLE_PORT:-4010}/
+```
+
+Inside Docker, the API uses `OPENSERP_BASE_URL=http://openserp:7000`. On the
+host, `.env.example` exposes PostgreSQL, Redis and OpenSERP on non-default
+ports (`15432`, `16379`, `17700`) to avoid collisions with other local services.
+If you already have a local `.env`, make sure its host ports do not collide
+with other Docker stacks before running Compose.
+
+Stop the complete stack:
+
+```bash
+docker compose down
+```
 
 Issue #2 adds the Topic Engine API:
 
