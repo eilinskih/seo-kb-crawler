@@ -59,6 +59,8 @@ specialized documents:
 - `docs/seo-pack-generator-model.md` for SEO Pack Generator.
 - `docs/seo-agent-gateway-model.md` for SEO Agent Gateway.
 - `docs/mcp-server-model.md` for the Codex-facing MCP server.
+- `docs/site-blueprint-model.md` for the autonomous site workspace handoff
+  and Cloudflare Pages site conveyor boundary.
 - `docs/external-seo-data-providers-model.md` for optional external SEO data
   provider enrichment.
 - `docs/operator-console-model.md` for the internal Operator Console.
@@ -202,6 +204,9 @@ Implemented on `main`:
 - SEO KB MCP Server stdio app for Codex and agent workspaces. It exposes
   topic creation, Topic Work Run, Demand map, page candidates, Context Pack and
   SEO Pack operations through the existing API.
+- Site Blueprint API and MCP handoff for autonomous site workspaces, including
+  Cloudflare Pages / Next.js static-first constraints, page route plans,
+  SEO Pack readiness and internal-linking hints.
 - External SEO Data Providers package boundary, provider capability/status
   contracts, provider-neutral observations, nullable metric snapshots,
   fail-open enrichment service, fallback SEO signals provider, durable

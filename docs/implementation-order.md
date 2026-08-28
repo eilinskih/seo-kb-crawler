@@ -122,6 +122,9 @@ into production hardening without reopening completed foundation scope.
 | 40 | #182 | Operator Console production hardening and review workflows | Done on `main`; selective retry-by-ID and richer review filters remain future scope. |
 | 41 | #186 | Automatic topic universe to page candidates | Depends on #185, #181, #18 and Topic Work Run. |
 | 42 | #187 | SEO KB MCP Server | Depends on #186, #42, #10 and #21. |
+| 43 | TBD | Site Blueprint API for autonomous site workspaces | Depends on #186, #187 and #21. |
+| 44 | TBD | Next.js static-first site generator contract | Depends on Site Blueprint API. |
+| 45 | TBD | Cloudflare Pages deployment adapter and launch report | Depends on Next.js generator contract. |
 
 Phase 9 work must preserve the repository's core fallback rule: external
 providers improve confidence, but missing provider credentials must not block
@@ -139,6 +142,41 @@ The #186 implementation must stay provider-optional. Paid keyword providers
 may improve metrics later, but fallback mode must still produce explicit
 candidate pages with nullable metrics, readiness, missing research gaps and
 SERP evidence when OpenSERP/free sources are available.
+
+The next product milestone is an autonomous site conveyor:
+
+```txt
+topic seed or keyword list
+-> Topic Work Run
+-> Demand candidate pages
+-> SEO Packs
+-> Site Blueprint
+-> Next.js static-first site workspace
+-> Cloudflare Pages deployment
+-> launch report and indexing handoff
+```
+
+Site Blueprint is the canonical handoff from this repository to a project
+workspace that builds a site. It must aggregate candidate pages, SEO Pack
+readiness, internal-linking hints, sitemap routes, language/geo targeting and
+Cloudflare Pages constraints. Site workspaces should consume the blueprint
+through API or MCP rather than reconstructing page plans from historical chat
+context.
+
+Cloudflare Pages is the primary deployment target for generated sites. Site
+generation should therefore prefer static-first Next.js routes and explicitly
+flag any server-only runtime requirement before implementation. Production
+deployment automation must produce a launch report that records generated
+routes, deployed URL, build status, indexing handoff status and unresolved SEO
+research gaps.
+
+Google SERP acquisition remains a product-critical reliability concern. Google
+organic URLs may be unavailable, rate-limited, challenged or represented through
+redirect wrappers such as `/goto`. SERP storage and provider adapters must
+preserve enough information to distinguish displayed URLs, click URLs, resolved
+canonical URLs and unresolved/degraded URL resolution state. The product may
+continue in fallback mode, but Google TOP-10 coverage must be treated as a
+separate production-readiness blocker for fully autonomous site generation.
 
 ## Dependency graph
 
@@ -165,7 +203,7 @@ Production hardening:
      -> #181
      -> #182
      -> #186
-     -> #187
+     -> #187 -> Site Blueprint -> Next.js Site Generator -> Cloudflare Pages Launch
 ```
 
 ## Future capability: Demand Engine

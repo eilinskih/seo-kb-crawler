@@ -56,6 +56,7 @@ Initial tools:
 - `seo_kb_get_page_candidates`
 - `seo_kb_get_page_plan`
 - `seo_kb_get_seo_packs`
+- `seo_kb_get_site_blueprint`
 - `seo_kb_build_context_pack`
 - `seo_kb_build_seo_pack`
 
@@ -67,8 +68,15 @@ seo_kb_create_topic
   -> seo_kb_get_topic_work_status
   -> seo_kb_get_page_plan
   -> seo_kb_get_seo_packs
+  -> seo_kb_get_site_blueprint
   -> seo_kb_build_context_pack / seo_kb_build_seo_pack
 ```
+
+`seo_kb_get_site_blueprint` is the preferred handoff for website workspaces
+that need to build or update a site. It aggregates the current page plan, SEO
+Pack readiness, route paths, internal-linking hints and Cloudflare Pages
+constraints so the workspace does not reconstruct site structure from multiple
+lower-level tools.
 
 ## Configuration
 
@@ -105,6 +113,8 @@ Find or create a topic for "depilacja laserowa jasło" in Polish and Poland.
 Start or continue the topic work run.
 Fetch the page plan first, then inspect ready page candidates only as raw
 supporting data.
+Fetch the site blueprint before editing the website. Use it as the route,
+internal-linking and Cloudflare Pages generation plan.
 For each candidate, use SEO Pack and Context Pack evidence before proposing
 website changes.
 Do not invent search volume, keyword difficulty, SERP evidence or page
@@ -130,3 +140,5 @@ planning recommendations:
 - `seo_kb_build_context_pack` and `seo_kb_build_seo_pack` accept native API
   request objects; richer convenience wrappers can be added after real
   workspace usage shows the right shape.
+- Site Blueprint does not generate or deploy a website yet; it is the current
+  contract that a site workspace or future generator should consume.

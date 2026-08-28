@@ -74,12 +74,33 @@ Roadmap order, phases and dependency rules live only in
 | #183 | SEO Intelligence persistence and scheduling | Done | Durable stores for SEO Intelligence planning packs, scheduler-owned stale/missing pack visibility and refresh dispatch are complete; Architecture Steward close-out accepted. |
 | #184 | SEO Agent Gateway generation runtime | Done | Runtime, optional provider execution, response persistence and close-out stabilization are complete; GitHub issue is closed. |
 | #185 | Demand Engine persistence and provider-backed refresh | Done | Durable demand candidates, metric snapshots, fallback-safe refresh, scheduling boundary and metric visibility are complete; Architecture Steward close-out accepted. |
-| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence, separates technical readiness from editorial page-planning recommendations and now uses provider-backed Phrase Analysis to keep product/model-like phrases out of automatic page candidates. |
-| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API, including page-plan access for website workspaces. |
+| #186 | Automatic topic universe to page candidates | Review needed | Topic Work Run expands one topic seed through Demand discovery, validates generated queries with SERP, propagates SERP evidence, separates technical readiness from editorial page-planning recommendations and now exposes Site Blueprint input for autonomous site workspaces. |
+| #187 | SEO KB MCP Server | Review needed | Adds a Codex-facing stdio MCP bridge over the existing API, including page-plan and Site Blueprint access for website workspaces. |
 
 ## Active work log
 
 Add entries here in reverse chronological order.
+
+Date: 2026-08-28
+Issue: #186 / #187 follow-up
+Status: Review needed
+Summary:
+- Updated the canonical roadmap with the autonomous site conveyor milestone:
+  Topic Work Run, Demand candidate pages, SEO Packs, Site Blueprint, Next.js
+  static-first site workspace, Cloudflare Pages deployment and launch report.
+- Documented Google SERP acquisition and `/goto` URL resolution as a
+  production-readiness blocker for fully autonomous site generation.
+- Added the Site Blueprint API boundary as the canonical handoff from SEO KB
+  to website workspaces.
+- Added `GET /site-blueprints/topics/:topicId` to aggregate current Demand
+  page planning, SEO Pack readiness, route paths, sitemap routes,
+  internal-linking hints and Cloudflare Pages constraints.
+- Exposed the same handoff through MCP as `seo_kb_get_site_blueprint`.
+Validation:
+- npm run build
+- npm test -- --runInBand
+  apps/api/src/site-blueprint/site-blueprint.service.spec.ts
+  apps/mcp-server/src/mcp-server.spec.ts
 
 Date: 2026-08-21
 Issue: #186 follow-up

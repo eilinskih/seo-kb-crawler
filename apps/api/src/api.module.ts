@@ -37,6 +37,8 @@ import { OperatorStatusController } from './operator/operator-status.controller'
 import { SeoPackController } from './seo-pack/seo-pack.controller';
 import { FocusedSerpDiscoveryController } from './serp-intelligence/focused-serp-discovery.controller';
 import { FocusedSerpDiscoveryApiService } from './serp-intelligence/focused-serp-discovery.service';
+import { SiteBlueprintController } from './site-blueprint/site-blueprint.controller';
+import { SiteBlueprintService } from './site-blueprint/site-blueprint.service';
 import { TopicWorkRunController } from './topic-work/topic-work-run.controller';
 import { TopicWorkRunService } from './topic-work/topic-work-run.service';
 import { TopicsController } from './topics/topics.controller';
@@ -82,6 +84,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     FocusedSerpDiscoveryController,
     OperatorStatusController,
     SeoPackController,
+    SiteBlueprintController,
     TopicWorkRunController,
     TopicsController,
     UrlFrontierDispatchController,
@@ -94,6 +97,7 @@ import { UrlFrontierStatusController } from './url-frontier/url-frontier-status.
     RoutedSerpSearchProvider,
     InfrastructureHealthService,
     FocusedSerpDiscoveryApiService,
+    SiteBlueprintService,
     TopicWorkRunService,
   ],
 })
