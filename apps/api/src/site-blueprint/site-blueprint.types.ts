@@ -111,6 +111,20 @@ export interface SiteBlueprintStaticExportKit {
   notes: string[];
 }
 
+export type SiteBlueprintLaunchReadinessStatus =
+  | 'ready'
+  | 'degraded_ready'
+  | 'blocked';
+
+export interface SiteBlueprintLaunchReadiness {
+  status: SiteBlueprintLaunchReadinessStatus;
+  canGenerateStaticSite: boolean;
+  canPublishWithoutReview: boolean;
+  blockers: string[];
+  warnings: string[];
+  nextActions: string[];
+}
+
 export interface SiteBlueprint {
   topicId: string;
   topicSlug: string;
@@ -135,6 +149,7 @@ export interface SiteBlueprint {
   sitemap: SiteBlueprintSitemap;
   workspacePlan: SiteBlueprintWorkspacePlan;
   staticExportKit: SiteBlueprintStaticExportKit;
+  launchReadiness: SiteBlueprintLaunchReadiness;
   pages: SiteBlueprintPage[];
   warnings: string[];
   degraded: boolean;

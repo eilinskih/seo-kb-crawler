@@ -89,6 +89,17 @@ describe('buildSiteBlueprint', () => {
         path: 'public/robots.txt',
       }),
     ]));
+    expect(blueprint.launchReadiness).toMatchObject({
+      status: 'degraded_ready',
+      canGenerateStaticSite: true,
+      canPublishWithoutReview: false,
+      warnings: expect.arrayContaining([
+        expect.stringContaining('missing SEO Packs'),
+      ]),
+      nextActions: expect.arrayContaining([
+        expect.stringContaining('Generate missing SEO Packs'),
+      ]),
+    });
   });
 });
 

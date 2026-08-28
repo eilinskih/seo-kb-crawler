@@ -83,6 +83,7 @@ The response includes:
 - sitemap route paths;
 - workspace file expectations and per-page App Router tasks;
 - static export kit file contents for baseline workspace files;
+- launch readiness status, blockers, warnings and next actions;
 - warnings and degraded status.
 
 ## Generation Policy
@@ -134,6 +135,21 @@ use to bootstrap or synchronize static export support:
 Files marked `create_or_update` can be generated from the current blueprint.
 Files marked `manual_merge` may conflict with existing site-specific settings
 and must be merged by the workspace agent rather than blindly overwritten.
+
+## Launch Readiness
+
+Site Blueprint reports launch readiness separately from raw page availability:
+
+- `ready`: static site generation and publication can proceed from current
+  evidence.
+- `degraded_ready`: static site generation can proceed, but publication needs
+  review because SEO Packs, provider evidence or research gaps are incomplete.
+- `blocked`: no create-ready page tasks exist, so a useful static site cannot
+  be generated yet.
+
+`canGenerateStaticSite` answers whether a website workspace can create a local
+draft now. `canPublishWithoutReview` answers whether that draft is safe to
+publish without Product Owner or SEO review.
 
 Future deployment adapters may be added, but Cloudflare Pages remains the
 default product path unless the Product Owner changes the roadmap.

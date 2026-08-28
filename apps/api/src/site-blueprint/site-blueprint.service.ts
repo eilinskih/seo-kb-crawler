@@ -17,6 +17,7 @@ import {
   BuildSiteBlueprintInput,
   SiteBlueprint,
   SiteBlueprintInternalLink,
+  SiteBlueprintLaunchReadiness,
   SiteBlueprintPage,
   SiteBlueprintStaticExportKit,
   SiteBlueprintWorkspacePlan,
@@ -125,6 +126,7 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
     },
     workspacePlan: workspacePlan(pages),
     staticExportKit: staticExportKit(input.topic, pages, generatedAt),
+    launchReadiness: launchReadiness(pages, warnings),
     pages,
     warnings,
     degraded: warnings.length > 0 ||
@@ -134,6 +136,90 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         page.seoPack.degraded === true,
       ),
   };
+}
+
+function launchReadiness(
+  pages: SiteBlueprintPage[],
+  blueprintWarnings: string[],
+): SiteBlueprintLaunchReadiness {
+  const generatePages = pages.filter((page) => page.recommendation === 'create');
+  const missingSeoPacks = pages.filter((page) =>
+    page.seoPack.status === 'needed',
+  );
+  const degradedSeoPacks = pages.filter((page) =>
+    page.seoPack.degraded === true,
+  );
+  const evidenceGaps = pages.flatMap((page) =>
+    page.missingResearchGaps.map((gap) => `${page.routePath}: ${gap}`),
+  );
+  const blockers: string[] = [];
+  const warnings: string[] = [];
+
+  if (generatePages.length === 0) {
+    blockers.push('No create-ready page tasks are available.');
+  }
+  if (missingSeoPacks.length > 0) {
+    warnings.push(`${missingSeoPacks.length} included pages are missing SEO Packs.`);
+  }
+  if (degradedSeoPacks.length > 0) {
+    warnings.push(`${degradedSeoPacks.length} included pages have degraded SEO Packs.`);
+  }
+  if (evidenceGaps.length > 0) {
+    warnings.push(`${evidenceGaps.length} included page evidence gaps remain.`);
+  }
+  warnings.push(...blueprintWarnings.filter((warning) =>
+    !warning.startsWith('No create-ready pages'),
+  ));
+
+  const status = blockers.length > 0
+    ? 'blocked'
+    : warnings.length > 0
+      ? 'degraded_ready'
+      : 'ready';
+
+  return {
+    status,
+    canGenerateStaticSite: blockers.length === 0,
+    canPublishWithoutReview: status === 'ready',
+    blockers,
+    warnings: unique(warnings),
+    nextActions: nextActionsForLaunch(status, {
+      missingSeoPackCount: missingSeoPacks.length,
+      degradedSeoPackCount: degradedSeoPacks.length,
+      evidenceGapCount: evidenceGaps.length,
+    }),
+  };
+}
+
+function nextActionsForLaunch(
+  status: SiteBlueprintLaunchReadiness['status'],
+  counts: {
+    missingSeoPackCount: number;
+    degradedSeoPackCount: number;
+    evidenceGapCount: number;
+  },
+): string[] {
+  if (status === 'blocked') {
+    return [
+      'Run or wait for Topic Work Run until Demand page planning produces create-ready candidates.',
+      'Inspect Demand candidate pages and SERP provider status if no page tasks become creatable.',
+    ];
+  }
+
+  const actions: string[] = [
+    'Generate static Next.js routes for workspacePlan.pageTasks where action=generate.',
+    'Use action=merge tasks as page sections, FAQs and internal-link context.',
+  ];
+  if (counts.missingSeoPackCount > 0) {
+    actions.push('Generate missing SEO Packs before publishing production copy.');
+  }
+  if (counts.degradedSeoPackCount > 0 || counts.evidenceGapCount > 0) {
+    actions.push('Keep uncertainty visible in the launch report and request review before publishing.');
+  }
+  if (status === 'ready') {
+    actions.push('Run static export build and prepare Cloudflare Pages deployment.');
+  }
+  return actions;
 }
 
 function staticExportKit(
@@ -482,4 +568,8 @@ function slugify(value: string): string {
 function siteBlueprintPageLimit(): number {
   const value = Number(process.env.SITE_BLUEPRINT_PAGE_LIMIT);
   return Number.isInteger(value) && value > 0 ? value : 100;
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values)];
 }

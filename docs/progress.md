@@ -102,6 +102,8 @@ Summary:
 - Added a static export kit to Site Blueprint so website workspaces can
   bootstrap/synchronize `next.config.ts`, `src/data/seo-site-blueprint.ts` and
   `public/robots.txt` from the audited blueprint contract.
+- Added Site Blueprint launch readiness so site workspaces can distinguish
+  `ready`, `degraded_ready` and `blocked` before generating or publishing.
 Validation:
 - npm run build
 - npm test -- --runInBand
