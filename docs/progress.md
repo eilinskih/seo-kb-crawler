@@ -104,6 +104,8 @@ Summary:
   `public/robots.txt` from the audited blueprint contract.
 - Added Site Blueprint launch readiness so site workspaces can distinguish
   `ready`, `degraded_ready` and `blocked` before generating or publishing.
+- Added Site Generation Package API/MCP handoff so website workspaces can fetch
+  Site Blueprint, included SEO Packs and missing SEO Pack keys in one call.
 Validation:
 - npm run build
 - npm test -- --runInBand

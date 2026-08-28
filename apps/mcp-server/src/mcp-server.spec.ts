@@ -24,6 +24,7 @@ describe('SeoKbMcpServer', () => {
           expect.objectContaining({ name: 'seo_kb_get_page_plan' }),
           expect.objectContaining({ name: 'seo_kb_get_seo_packs' }),
           expect.objectContaining({ name: 'seo_kb_get_site_blueprint' }),
+          expect.objectContaining({ name: 'seo_kb_get_site_generation_package' }),
         ]),
       }),
     }));
@@ -150,6 +151,36 @@ describe('SeoKbMcpServer', () => {
     expect(JSON.parse(result.content[0].text)).toMatchObject({
       deployment: { target: 'cloudflare_pages' },
       pages: [{ routePath: '/money-page' }],
+    });
+  });
+
+  it('fetches the site generation package for a topic', async () => {
+    const api = apiClient({
+      get: jest.fn(async () => ({
+        blueprint: { topicId: 'topic-1' },
+        seoPacks: [{ id: 'seo-pack-1' }],
+      })),
+    });
+    const server = new SeoKbMcpServer(api as never);
+
+    const response = await server.handle({
+      jsonrpc: '2.0',
+      id: 6,
+      method: 'tools/call',
+      params: {
+        name: 'seo_kb_get_site_generation_package',
+        arguments: {
+          topicId: 'topic-1',
+        },
+      },
+    });
+
+    expect(api.get).toHaveBeenCalledWith(
+      '/site-blueprints/topics/topic-1/generation-package',
+    );
+    const result = response?.result as { content: Array<{ text: string }> };
+    expect(JSON.parse(result.content[0].text)).toMatchObject({
+      seoPacks: [{ id: 'seo-pack-1' }],
     });
   });
 

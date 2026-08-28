@@ -67,6 +67,8 @@ export class SeoKbMcpServer {
         this.api.get(`/seo-pack/topics/${requiredString(args.topicId, 'topicId')}`),
       seo_kb_get_site_blueprint: async (args) =>
         this.api.get(`/site-blueprints/topics/${requiredString(args.topicId, 'topicId')}`),
+      seo_kb_get_site_generation_package: async (args) =>
+        this.api.get(`/site-blueprints/topics/${requiredString(args.topicId, 'topicId')}/generation-package`),
       seo_kb_build_context_pack: async (args) =>
         this.api.post('/context-pack', requiredObject(args.request, 'request')),
       seo_kb_build_seo_pack: async (args) =>
@@ -235,6 +237,13 @@ function toolDefinitions(): ToolDefinition[] {
     {
       name: 'seo_kb_get_site_blueprint',
       description: 'Fetch the autonomous site blueprint for a topic: Cloudflare Pages deployment constraints, routes, page priorities, SEO Pack readiness and internal-linking hints.',
+      inputSchema: objectSchema({
+        topicId: stringSchema('Topic UUID.'),
+      }, ['topicId']),
+    },
+    {
+      name: 'seo_kb_get_site_generation_package',
+      description: 'Fetch the one-call website generation handoff for a topic: Site Blueprint plus included SEO Packs and missing SEO Pack candidate keys.',
       inputSchema: objectSchema({
         topicId: stringSchema('Topic UUID.'),
       }, ['topicId']),

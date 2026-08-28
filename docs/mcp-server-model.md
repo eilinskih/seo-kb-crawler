@@ -57,6 +57,7 @@ Initial tools:
 - `seo_kb_get_page_plan`
 - `seo_kb_get_seo_packs`
 - `seo_kb_get_site_blueprint`
+- `seo_kb_get_site_generation_package`
 - `seo_kb_build_context_pack`
 - `seo_kb_build_seo_pack`
 
@@ -69,6 +70,7 @@ seo_kb_create_topic
   -> seo_kb_get_page_plan
   -> seo_kb_get_seo_packs
   -> seo_kb_get_site_blueprint
+  -> seo_kb_get_site_generation_package
   -> seo_kb_build_context_pack / seo_kb_build_seo_pack
 ```
 
@@ -77,6 +79,10 @@ that need to build or update a site. It aggregates the current page plan, SEO
 Pack readiness, route paths, internal-linking hints and Cloudflare Pages
 constraints so the workspace does not reconstruct site structure from multiple
 lower-level tools.
+
+`seo_kb_get_site_generation_package` is the preferred one-call handoff when a
+website workspace is ready to create or update files. It returns Site Blueprint
+plus the included SEO Packs and missing SEO Pack candidate keys.
 
 ## Configuration
 

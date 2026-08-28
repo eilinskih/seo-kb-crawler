@@ -21,6 +21,7 @@ import {
   SiteBlueprintPage,
   SiteBlueprintStaticExportKit,
   SiteBlueprintWorkspacePlan,
+  SiteGenerationPackage,
 } from './site-blueprint.types';
 
 @Injectable()
@@ -34,18 +35,27 @@ export class SiteBlueprintService {
   ) {}
 
   async buildForTopic(topicId: string): Promise<SiteBlueprint> {
+    return buildSiteBlueprint(await this.loadInput(topicId));
+  }
+
+  async buildGenerationPackageForTopic(topicId: string): Promise<SiteGenerationPackage> {
+    return buildSiteGenerationPackage(await this.loadInput(topicId));
+  }
+
+  private async loadInput(topicId: string): Promise<BuildSiteBlueprintInput> {
+    const generatedAt = new Date().toISOString();
     const [topic, candidatePages, seoPacks] = await Promise.all([
       this.topics.get(topicId),
       this.demand.listCandidatePages(topicId),
       this.seoPacks.listSeoPacks(topicId),
     ]);
 
-    return buildSiteBlueprint({
+    return {
       topic,
       candidatePages,
       seoPacks,
-      generatedAt: new Date().toISOString(),
-    });
+      generatedAt,
+    };
   }
 }
 
@@ -135,6 +145,37 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         page.seoPack.status === 'needed' ||
         page.seoPack.degraded === true,
       ),
+  };
+}
+
+export function buildSiteGenerationPackage(
+  input: BuildSiteBlueprintInput,
+): SiteGenerationPackage {
+  const blueprint = buildSiteBlueprint(input);
+  const includedCandidateKeys = new Set(
+    blueprint.pages.map((page) => page.seoPack.candidateKey),
+  );
+  const packsByKey = latestSeoPacksByCandidateKey(input.seoPacks);
+  const seoPacks = [...includedCandidateKeys]
+    .map((candidateKey) => packsByKey.get(candidateKey))
+    .filter((pack): pack is SeoPackRecord => Boolean(pack));
+  const missingSeoPackCandidateKeys = blueprint.pages
+    .filter((page) => page.seoPack.status === 'needed')
+    .map((page) => page.seoPack.candidateKey);
+  const warnings = [
+    ...blueprint.warnings,
+    ...missingSeoPackCandidateKeys.map((candidateKey) =>
+      `Missing SEO Pack for ${candidateKey}.`,
+    ),
+  ];
+
+  return {
+    generatedAt: blueprint.generatedAt,
+    blueprint,
+    seoPacks,
+    missingSeoPackCandidateKeys,
+    warnings: unique(warnings),
+    degraded: blueprint.degraded || missingSeoPackCandidateKeys.length > 0,
   };
 }
 

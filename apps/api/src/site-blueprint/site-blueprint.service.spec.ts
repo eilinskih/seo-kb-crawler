@@ -1,7 +1,10 @@
 import type { DemandCandidatePageRecord } from '@seo-kb/demand-engine';
 import type { SeoPackRecord } from '@seo-kb/seo-pack';
 import type { TopicRecord } from '@seo-kb/topic-engine';
-import { buildSiteBlueprint } from './site-blueprint.service';
+import {
+  buildSiteBlueprint,
+  buildSiteGenerationPackage,
+} from './site-blueprint.service';
 
 describe('buildSiteBlueprint', () => {
   it('builds a Cloudflare Pages site handoff from planned candidate pages', () => {
@@ -100,6 +103,41 @@ describe('buildSiteBlueprint', () => {
         expect.stringContaining('Generate missing SEO Packs'),
       ]),
     });
+  });
+
+  it('builds a one-call site generation package with included SEO Packs', () => {
+    const generationPackage = buildSiteGenerationPackage({
+      topic: topic(),
+      candidatePages: [
+        candidatePage({
+          slug: 'depilacja-laserowa-jaslo',
+          primaryKeyword: 'depilacja laserowa jaslo',
+          proposedPageType: 'local_page',
+          readiness: 'ready',
+          evidenceUrls: ['https://example.com/local'],
+        }),
+        candidatePage({
+          slug: 'depilacja-laserowa-cena',
+          primaryKeyword: 'depilacja laserowa cena',
+          readiness: 'partial',
+        }),
+      ],
+      seoPacks: [
+        seoPack('candidate:depilacja-laserowa-jaslo'),
+        seoPack('candidate:unrelated'),
+      ],
+      generatedAt: '2026-08-28T10:00:00.000Z',
+    });
+
+    expect(generationPackage.seoPacks).toEqual([
+      expect.objectContaining({
+        candidateKey: 'candidate:depilacja-laserowa-jaslo',
+      }),
+    ]);
+    expect(generationPackage.missingSeoPackCandidateKeys).toContain(
+      'candidate:depilacja-laserowa-cena',
+    );
+    expect(generationPackage.degraded).toBe(true);
   });
 });
 

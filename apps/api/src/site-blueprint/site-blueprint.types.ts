@@ -161,3 +161,12 @@ export interface BuildSiteBlueprintInput {
   seoPacks: SeoPackRecord[];
   generatedAt?: string;
 }
+
+export interface SiteGenerationPackage {
+  generatedAt: string;
+  blueprint: SiteBlueprint;
+  seoPacks: SeoPackRecord[];
+  missingSeoPackCandidateKeys: string[];
+  warnings: string[];
+  degraded: boolean;
+}

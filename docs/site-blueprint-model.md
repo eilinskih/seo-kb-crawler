@@ -61,12 +61,14 @@ Initial endpoint:
 
 ```txt
 GET /site-blueprints/topics/:topicId
+GET /site-blueprints/topics/:topicId/generation-package
 ```
 
 Initial MCP tool:
 
 ```txt
 seo_kb_get_site_blueprint
+seo_kb_get_site_generation_package
 ```
 
 The response includes:
@@ -85,6 +87,12 @@ The response includes:
 - static export kit file contents for baseline workspace files;
 - launch readiness status, blockers, warnings and next actions;
 - warnings and degraded status.
+
+The generation package endpoint is the preferred one-call input for a website
+workspace. It returns the Site Blueprint, the latest SEO Packs referenced by
+included blueprint pages, missing SEO Pack candidate keys and package-level
+warnings. This avoids every site workspace reimplementing candidate-key
+matching.
 
 ## Generation Policy
 
