@@ -99,6 +99,11 @@ baseline static export files plus `src/data/seo-packs.ts`, allowing generated
 Next.js sites to import SEO Pack snapshots at build time instead of calling SEO
 KB from production runtime pages.
 
+Generation packages include `agentInstructions` for Codex website workspaces.
+These instructions make the package self-describing: generate only approved
+routes, merge supporting candidates into broader pages, keep SEO Pack
+uncertainty visible and preserve Cloudflare Pages static export constraints.
+
 ## Generation Policy
 
 Website workspaces should use Site Blueprint before editing or generating a

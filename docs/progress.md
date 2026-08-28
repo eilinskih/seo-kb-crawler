@@ -111,6 +111,8 @@ Summary:
   multi-tool sequencing.
 - Added generation-package workspace export files, including a static
   `src/data/seo-packs.ts` SEO Pack snapshot for build-time site generation.
+- Added generation-package agent instructions so Codex website workspaces can
+  follow the canonical static-site workflow directly from MCP output.
 - Added SERP URL resolution metadata for Google/OpenSERP results so snapshots
   preserve displayed URLs, click URLs, resolved URLs and unresolved redirect
   wrapper state such as Google `/goto`.

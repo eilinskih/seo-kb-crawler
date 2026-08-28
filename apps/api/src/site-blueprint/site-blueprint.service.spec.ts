@@ -143,6 +143,11 @@ describe('buildSiteBlueprint', () => {
         content: expect.stringContaining('"candidateKey": "candidate:depilacja-laserowa-jaslo"'),
       }),
     ]));
+    expect(generationPackage.agentInstructions).toEqual(expect.arrayContaining([
+      expect.stringContaining('canonical SEO input'),
+      expect.stringContaining('Cloudflare Pages static export'),
+      expect.stringContaining('request review before publishing'),
+    ]));
     expect(generationPackage.degraded).toBe(true);
   });
 });

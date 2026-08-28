@@ -179,9 +179,27 @@ export function buildSiteGenerationPackage(
       ...blueprint.staticExportKit.files,
       seoPacksDataModule(seoPacks, blueprint.generatedAt),
     ],
+    agentInstructions: siteAgentInstructions(blueprint),
     warnings: unique(warnings),
     degraded: blueprint.degraded || missingSeoPackCandidateKeys.length > 0,
   };
+}
+
+function siteAgentInstructions(blueprint: SiteBlueprint): string[] {
+  return [
+    'Treat this generation package as the canonical SEO input for the website workspace.',
+    'Create or update only routes listed in blueprint.workspacePlan.pageTasks where action=generate.',
+    'Use action=merge tasks as supporting sections, FAQ coverage, comparison blocks or internal links for broader generated pages.',
+    'Do not create standalone pages for action=defer or missing/rejected blueprint candidates.',
+    'Write workspaceExportFiles marked create_or_update directly when safe; merge manual_merge files with existing project settings.',
+    'Use included SEO Packs as the page brief source. Do not invent search volume, keyword difficulty, SERP evidence or factual claims absent from the package.',
+    'Configure Next.js for Cloudflare Pages static export using output: "export", build directory out and unoptimized images.',
+    'Avoid route handlers, server actions, middleware and runtime-only image optimization unless the Product Owner approves leaving static export.',
+    'Run the local build before deployment and record route count, missing SEO Packs, degraded packs and unresolved research gaps in the launch report.',
+    blueprint.launchReadiness.canPublishWithoutReview
+      ? 'Publication can proceed after build verification if the target repository has no unrelated blocking issues.'
+      : 'Generate a local draft if canGenerateStaticSite is true, but request review before publishing because launchReadiness is not ready.',
+  ];
 }
 
 function seoPacksDataModule(
