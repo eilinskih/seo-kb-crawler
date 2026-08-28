@@ -167,6 +167,7 @@ export interface SiteGenerationPackage {
   blueprint: SiteBlueprint;
   seoPacks: SeoPackRecord[];
   missingSeoPackCandidateKeys: string[];
+  workspaceExportFiles: SiteBlueprintStaticExportFile[];
   warnings: string[];
   degraded: boolean;
 }

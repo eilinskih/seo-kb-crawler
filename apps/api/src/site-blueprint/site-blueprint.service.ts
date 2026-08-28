@@ -19,6 +19,7 @@ import {
   SiteBlueprintInternalLink,
   SiteBlueprintLaunchReadiness,
   SiteBlueprintPage,
+  SiteBlueprintStaticExportFile,
   SiteBlueprintStaticExportKit,
   SiteBlueprintWorkspacePlan,
   SiteGenerationPackage,
@@ -174,8 +175,36 @@ export function buildSiteGenerationPackage(
     blueprint,
     seoPacks,
     missingSeoPackCandidateKeys,
+    workspaceExportFiles: [
+      ...blueprint.staticExportKit.files,
+      seoPacksDataModule(seoPacks, blueprint.generatedAt),
+    ],
     warnings: unique(warnings),
     degraded: blueprint.degraded || missingSeoPackCandidateKeys.length > 0,
+  };
+}
+
+function seoPacksDataModule(
+  seoPacks: SeoPackRecord[],
+  generatedAt: string,
+): SiteBlueprintStaticExportFile {
+  const payload = {
+    generatedAt,
+    seoPacks,
+  };
+  return {
+    path: 'src/data/seo-packs.ts',
+    contentType: 'typescript',
+    overwritePolicy: 'create_or_update',
+    content: [
+      'export const seoPacks = ',
+      JSON.stringify(payload, null, 2),
+      ' as const;',
+      '',
+      'export type SeoPacksSnapshot = typeof seoPacks;',
+      'export type SeoPackSnapshot = SeoPacksSnapshot["seoPacks"][number];',
+      '',
+    ].join('\n'),
   };
 }
 

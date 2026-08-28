@@ -137,6 +137,12 @@ describe('buildSiteBlueprint', () => {
     expect(generationPackage.missingSeoPackCandidateKeys).toContain(
       'candidate:depilacja-laserowa-cena',
     );
+    expect(generationPackage.workspaceExportFiles).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'src/data/seo-packs.ts',
+        content: expect.stringContaining('"candidateKey": "candidate:depilacja-laserowa-jaslo"'),
+      }),
+    ]));
     expect(generationPackage.degraded).toBe(true);
   });
 });

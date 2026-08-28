@@ -109,6 +109,8 @@ Summary:
 - Added `seo_kb_prepare_site_topic` so Codex-first site workflows can create a
   topic from one seed and immediately start Topic Work Run without manual
   multi-tool sequencing.
+- Added generation-package workspace export files, including a static
+  `src/data/seo-packs.ts` SEO Pack snapshot for build-time site generation.
 Validation:
 - npm run build
 - npm test -- --runInBand

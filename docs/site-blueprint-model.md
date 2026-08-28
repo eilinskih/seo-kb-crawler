@@ -94,6 +94,11 @@ included blueprint pages, missing SEO Pack candidate keys and package-level
 warnings. This avoids every site workspace reimplementing candidate-key
 matching.
 
+Generation packages also expose `workspaceExportFiles`. These include the
+baseline static export files plus `src/data/seo-packs.ts`, allowing generated
+Next.js sites to import SEO Pack snapshots at build time instead of calling SEO
+KB from production runtime pages.
+
 ## Generation Policy
 
 Website workspaces should use Site Blueprint before editing or generating a
@@ -138,6 +143,7 @@ use to bootstrap or synchronize static export support:
 
 - `next.config.ts`;
 - `src/data/seo-site-blueprint.ts`;
+- `src/data/seo-packs.ts` when using the generation package;
 - `public/robots.txt`.
 
 Files marked `create_or_update` can be generated from the current blueprint.
