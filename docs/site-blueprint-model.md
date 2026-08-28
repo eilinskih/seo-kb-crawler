@@ -82,6 +82,7 @@ The response includes:
 - internal-linking hints;
 - sitemap route paths;
 - workspace file expectations and per-page App Router tasks;
+- static export kit file contents for baseline workspace files;
 - warnings and degraded status.
 
 ## Generation Policy
@@ -120,6 +121,19 @@ Generated website workspaces should avoid route handlers, server actions,
 middleware and runtime image optimization unless the Product Owner explicitly
 approves moving that site from Cloudflare Pages static export to a Cloudflare
 Workers runtime.
+
+## Static Export Kit
+
+The blueprint may include baseline file contents that a website workspace can
+use to bootstrap or synchronize static export support:
+
+- `next.config.ts`;
+- `src/data/seo-site-blueprint.ts`;
+- `public/robots.txt`.
+
+Files marked `create_or_update` can be generated from the current blueprint.
+Files marked `manual_merge` may conflict with existing site-specific settings
+and must be merged by the workspace agent rather than blindly overwritten.
 
 Future deployment adapters may be added, but Cloudflare Pages remains the
 default product path unless the Product Owner changes the roadmap.

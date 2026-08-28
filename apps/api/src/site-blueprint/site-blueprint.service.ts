@@ -18,6 +18,7 @@ import {
   SiteBlueprint,
   SiteBlueprintInternalLink,
   SiteBlueprintPage,
+  SiteBlueprintStaticExportKit,
   SiteBlueprintWorkspacePlan,
 } from './site-blueprint.types';
 
@@ -70,12 +71,13 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
     page.seoPack.status === 'needed',
   ).length;
   const warnings = blueprintWarnings(input.candidatePages, pages, missingSeoPacks);
+  const generatedAt = input.generatedAt ?? new Date().toISOString();
 
   return {
     topicId: input.topic.id,
     topicSlug: input.topic.slug,
     topicName: input.topic.name,
-    generatedAt: input.generatedAt ?? new Date().toISOString(),
+    generatedAt,
     language: topicLanguage(input.topic),
     geo: topicGeo(input.topic),
     deployment: {
@@ -122,6 +124,7 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         .map((page) => page.routePath),
     },
     workspacePlan: workspacePlan(pages),
+    staticExportKit: staticExportKit(input.topic, pages, generatedAt),
     pages,
     warnings,
     degraded: warnings.length > 0 ||
@@ -131,6 +134,105 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         page.seoPack.degraded === true,
       ),
   };
+}
+
+function staticExportKit(
+  topic: TopicRecord,
+  pages: SiteBlueprintPage[],
+  generatedAt: string,
+): SiteBlueprintStaticExportKit {
+  return {
+    files: [
+      {
+        path: 'next.config.ts',
+        contentType: 'typescript',
+        overwritePolicy: 'manual_merge',
+        content: [
+          "import type { NextConfig } from 'next';",
+          '',
+          'const nextConfig: NextConfig = {',
+          "  output: 'export',",
+          '  trailingSlash: true,',
+          '  images: {',
+          '    unoptimized: true,',
+          '  },',
+          '};',
+          '',
+          'export default nextConfig;',
+          '',
+        ].join('\n'),
+      },
+      {
+        path: 'src/data/seo-site-blueprint.ts',
+        contentType: 'typescript',
+        overwritePolicy: 'create_or_update',
+        content: siteBlueprintDataModule(topic, pages, generatedAt),
+      },
+      {
+        path: 'public/robots.txt',
+        contentType: 'text',
+        overwritePolicy: 'manual_merge',
+        content: [
+          'User-agent: *',
+          'Allow: /',
+          '',
+          'Sitemap: /sitemap.xml',
+          '',
+        ].join('\n'),
+      },
+    ],
+    notes: [
+      'Write static pages from workspacePlan.pageTasks where action=generate.',
+      'Use action=merge tasks as supporting sections, FAQs or internal-link context for broader pages.',
+      'Keep the blueprint data snapshot committed with the generated site so launch decisions are auditable.',
+      'Merge next.config.ts and robots.txt carefully when the target workspace already has project-specific settings.',
+    ],
+  };
+}
+
+function siteBlueprintDataModule(
+  topic: TopicRecord,
+  pages: SiteBlueprintPage[],
+  generatedAt: string,
+): string {
+  const payload = {
+    topic: {
+      id: topic.id,
+      slug: topic.slug,
+      name: topic.name,
+      language: topicLanguage(topic),
+      geo: topicGeo(topic),
+    },
+    generatedAt,
+    routes: pages.map((page) => ({
+      path: page.routePath,
+      titleConcept: page.titleConcept,
+      primaryKeyword: page.primaryKeyword,
+      supportingKeywords: page.supportingKeywords,
+      pageType: page.pageType,
+      generationProfile: page.generationProfile,
+      recommendation: page.recommendation,
+      role: page.role,
+      priorityScore: page.priorityScore,
+      clusterKey: page.clusterKey,
+      clusterLabel: page.clusterLabel,
+      primaryIntent: page.primaryIntent,
+      seoPackId: page.seoPack.packId,
+      seoPackStatus: page.seoPack.status,
+      internalLinks: page.internalLinks,
+      warnings: page.warnings,
+    })),
+  };
+
+  return [
+    'export const seoSiteBlueprint = ',
+    JSON.stringify(payload, null, 2),
+    ' as const;',
+    '',
+    'export type SeoSiteBlueprint = typeof seoSiteBlueprint;',
+    'export type SeoSiteRoute = SeoSiteBlueprint["routes"][number];',
+    '',
+  ].join('\n');
 }
 
 function workspacePlan(pages: SiteBlueprintPage[]): SiteBlueprintWorkspacePlan {

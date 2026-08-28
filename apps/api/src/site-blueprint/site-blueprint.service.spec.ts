@@ -74,6 +74,21 @@ describe('buildSiteBlueprint', () => {
         }),
       ]),
     });
+    expect(blueprint.staticExportKit.files).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'next.config.ts',
+        overwritePolicy: 'manual_merge',
+        content: expect.stringContaining("output: 'export'"),
+      }),
+      expect.objectContaining({
+        path: 'src/data/seo-site-blueprint.ts',
+        overwritePolicy: 'create_or_update',
+        content: expect.stringContaining('"generatedAt": "2026-08-28T10:00:00.000Z"'),
+      }),
+      expect.objectContaining({
+        path: 'public/robots.txt',
+      }),
+    ]));
   });
 });
 

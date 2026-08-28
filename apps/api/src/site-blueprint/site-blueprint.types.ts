@@ -99,6 +99,18 @@ export interface SiteBlueprintWorkspacePlan {
   launchChecklist: string[];
 }
 
+export interface SiteBlueprintStaticExportFile {
+  path: string;
+  contentType: 'typescript' | 'text';
+  overwritePolicy: 'create_or_update' | 'manual_merge';
+  content: string;
+}
+
+export interface SiteBlueprintStaticExportKit {
+  files: SiteBlueprintStaticExportFile[];
+  notes: string[];
+}
+
 export interface SiteBlueprint {
   topicId: string;
   topicSlug: string;
@@ -122,6 +134,7 @@ export interface SiteBlueprint {
   navigation: SiteBlueprintNavigationItem[];
   sitemap: SiteBlueprintSitemap;
   workspacePlan: SiteBlueprintWorkspacePlan;
+  staticExportKit: SiteBlueprintStaticExportKit;
   pages: SiteBlueprintPage[];
   warnings: string[];
   degraded: boolean;

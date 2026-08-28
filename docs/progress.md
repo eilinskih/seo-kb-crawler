@@ -99,6 +99,9 @@ Summary:
 - Extended Site Blueprint with a Next.js workspace plan: expected files,
   App Router page tasks, SEO Pack blocking status, launch checklist and
   Cloudflare Pages static export defaults.
+- Added a static export kit to Site Blueprint so website workspaces can
+  bootstrap/synchronize `next.config.ts`, `src/data/seo-site-blueprint.ts` and
+  `public/robots.txt` from the audited blueprint contract.
 Validation:
 - npm run build
 - npm test -- --runInBand
