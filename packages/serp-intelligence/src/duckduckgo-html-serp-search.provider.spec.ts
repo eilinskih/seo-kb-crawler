@@ -32,12 +32,15 @@ describe('DuckDuckGoHtmlSerpSearchProvider', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0][0])).toContain('google.com/search');
     expect(result.results).toEqual([
-      {
+      expect.objectContaining({
         url: 'https://clinic.example/depilacja',
+        clickUrl: 'https://www.google.com/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja',
+        resolvedUrl: 'https://clinic.example/depilacja',
+        urlResolutionStatus: 'redirect_parameter',
         title: 'Depilacja laserowa Jasło',
         snippet: null,
         position: 1,
-      },
+      }),
     ]);
   });
 
@@ -87,18 +90,37 @@ describe('parseGoogleHtmlResults', () => {
     `);
 
     expect(results).toEqual([
-      {
+      expect.objectContaining({
         url: 'https://clinic.example/depilacja',
+        displayUrl: 'clinic.example',
+        clickUrl: 'https://www.google.com/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja%23hero&sa=U',
+        resolvedUrl: 'https://clinic.example/depilacja',
+        urlResolutionStatus: 'redirect_parameter',
         title: 'Depilacja laserowa Jasło',
         snippet: null,
         position: 1,
-      },
-      {
+      }),
+      expect.objectContaining({
         url: 'https://example.org/laser',
+        urlResolutionStatus: 'direct',
         title: 'Laser Jasło',
         snippet: null,
         position: 2,
-      },
+      }),
+    ]);
+  });
+
+  it('does not turn unresolved Google /goto wrappers into organic URLs', () => {
+    const results = parseGoogleHtmlResults(`
+      <a href="/goto?opi=89978449&ved=example">Opaque redirect wrapper</a>
+      <a href="/url?q=https%3A%2F%2Fclinic.example%2Fdepilacja">Depilacja laserowa Jasło</a>
+    `);
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        url: 'https://clinic.example/depilacja',
+        urlResolutionStatus: 'redirect_parameter',
+      }),
     ]);
   });
 });

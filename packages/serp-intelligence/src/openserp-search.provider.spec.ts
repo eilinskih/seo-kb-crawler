@@ -51,6 +51,10 @@ describe('OpenSerpSearchProvider', () => {
       warnings: [],
       results: [{
         url: 'https://clinic.example/depilacja',
+        displayUrl: 'clinic.example',
+        clickUrl: 'https://clinic.example/depilacja',
+        resolvedUrl: 'https://clinic.example/depilacja',
+        urlResolutionStatus: 'provider_resolved',
         title: 'Depilacja laserowa Jasło',
         snippet: 'Laser hair removal in Jasło.',
         position: 1,

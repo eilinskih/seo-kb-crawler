@@ -42,6 +42,10 @@ export class OpenSerpSearchProvider implements SerpSearchProvider {
         .slice(0, Math.max(1, Math.min(request.limit, 10)))
         .map((result, index) => ({
           url: result.url,
+          displayUrl: displayUrl(result.url),
+          clickUrl: result.url,
+          resolvedUrl: result.url,
+          urlResolutionStatus: 'provider_resolved' as const,
           title: result.title ?? null,
           snippet: result.snippet ?? null,
           position: result.position?.absolute ?? result.rank ?? index + 1,
@@ -319,4 +323,12 @@ function numberValue(value: unknown): number | undefined {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function displayUrl(value: string): string | null {
+  try {
+    return new URL(value).hostname.replace(/^www\./u, '');
+  } catch {
+    return null;
+  }
 }

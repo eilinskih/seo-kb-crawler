@@ -36,6 +36,10 @@ export interface SerpResult {
   id: string;
   position: number;
   url: string;
+  displayUrl?: string | null;
+  clickUrl?: string | null;
+  resolvedUrl?: string | null;
+  urlResolutionStatus?: 'direct' | 'redirect_parameter' | 'unresolved_redirect' | 'provider_resolved';
   canonicalUrl?: string | null;
   domain?: string | null;
   title?: string | null;

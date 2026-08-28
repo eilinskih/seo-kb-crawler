@@ -18,6 +18,10 @@ export interface SerpSearchProviderResult {
   warnings: string[];
   results: Array<{
     url: string;
+    displayUrl?: string | null;
+    clickUrl?: string | null;
+    resolvedUrl?: string | null;
+    urlResolutionStatus?: 'direct' | 'redirect_parameter' | 'unresolved_redirect' | 'provider_resolved';
     title?: string | null;
     snippet?: string | null;
     position: number;

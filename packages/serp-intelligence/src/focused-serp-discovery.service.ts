@@ -18,6 +18,10 @@ import { SERP_INTELLIGENCE_REPOSITORY } from './serp-intelligence.tokens';
 
 export interface FocusedSerpResultInput {
   url: string;
+  displayUrl?: string | null;
+  clickUrl?: string | null;
+  resolvedUrl?: string | null;
+  urlResolutionStatus?: SerpResult['urlResolutionStatus'];
   title?: string | null;
   snippet?: string | null;
   position?: number;
@@ -121,6 +125,10 @@ function normalizeResults(
         id: `${snapshotId}:result:${position}`,
         position,
         url,
+        displayUrl: optionalText(result.displayUrl),
+        clickUrl: optionalText(result.clickUrl),
+        resolvedUrl: optionalText(result.resolvedUrl),
+        urlResolutionStatus: result.urlResolutionStatus,
         canonicalUrl: null,
         domain: domainFromUrl(url),
         title: optionalText(result.title),
@@ -159,6 +167,10 @@ function toObservations(
       providerKey: snapshot.providerKey,
       providerMode: snapshot.providerMode,
       normalizedQuery: snapshot.normalizedQuery,
+      displayUrl: result.displayUrl,
+      clickUrl: result.clickUrl,
+      resolvedUrl: result.resolvedUrl,
+      urlResolutionStatus: result.urlResolutionStatus,
     },
     idempotencyKey: createHash('sha256')
       .update(['serp', snapshot.id, result.position, result.url].join(':'))

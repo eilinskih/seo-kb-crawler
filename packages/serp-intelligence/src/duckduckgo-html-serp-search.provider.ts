@@ -120,12 +120,20 @@ export function parseBingHtmlResults(html: string): Array<{
 
 export function parseGoogleHtmlResults(html: string): Array<{
   url: string;
+  displayUrl?: string | null;
+  clickUrl?: string | null;
+  resolvedUrl?: string | null;
+  urlResolutionStatus?: 'direct' | 'redirect_parameter' | 'unresolved_redirect' | 'provider_resolved';
   title: string | null;
   snippet: string | null;
   position: number;
 }> {
   const results: Array<{
     url: string;
+    displayUrl?: string | null;
+    clickUrl?: string | null;
+    resolvedUrl?: string | null;
+    urlResolutionStatus?: 'direct' | 'redirect_parameter' | 'unresolved_redirect' | 'provider_resolved';
     title: string | null;
     snippet: string | null;
     position: number;
@@ -136,14 +144,21 @@ export function parseGoogleHtmlResults(html: string): Array<{
   );
 
   for (const match of anchors) {
-    const url = normalizeGoogleResultUrl(decodeHtml(match[1]));
+    const resolved = normalizeGoogleResultUrl(decodeHtml(match[1]));
+    const resultUrl = resolved.url;
     const title = stripHtml(match[2]);
-    if (!url || !title || seen.has(url) || isGoogleInternalUrl(url)) {
+    if (
+      !resultUrl ||
+      !title ||
+      seen.has(resultUrl) ||
+      isGoogleInternalUrl(resultUrl)
+    ) {
       continue;
     }
-    seen.add(url);
+    seen.add(resultUrl);
     results.push({
-      url,
+      ...resolved,
+      url: resultUrl,
       title,
       snippet: null,
       position: results.length + 1,
@@ -279,22 +294,68 @@ function normalizeResultUrl(value: string): string | null {
   }
 }
 
-function normalizeGoogleResultUrl(value: string): string | null {
+function normalizeGoogleResultUrl(value: string): {
+  url: string | null;
+  displayUrl: string | null;
+  clickUrl: string | null;
+  resolvedUrl: string | null;
+  urlResolutionStatus: 'direct' | 'redirect_parameter' | 'unresolved_redirect';
+} {
   try {
     const url = value.startsWith('/')
       ? new URL(value, 'https://www.google.com')
       : new URL(value);
-    const target = url.pathname === '/url' && url.searchParams.get('q')
-      ? new URL(url.searchParams.get('q') as string)
-      : url;
+    const redirectTarget = googleRedirectTarget(url);
+    if (!redirectTarget && isGoogleRedirectPath(url.pathname)) {
+      return {
+        url: null,
+        displayUrl: null,
+        clickUrl: url.toString(),
+        resolvedUrl: null,
+        urlResolutionStatus: 'unresolved_redirect',
+      };
+    }
+
+    const target = redirectTarget ? new URL(redirectTarget) : url;
     if (!['http:', 'https:'].includes(target.protocol)) {
-      return null;
+      return {
+        url: null,
+        displayUrl: null,
+        clickUrl: url.toString(),
+        resolvedUrl: null,
+        urlResolutionStatus: redirectTarget ? 'redirect_parameter' : 'direct',
+      };
     }
     target.hash = '';
-    return target.toString();
+    return {
+      url: target.toString(),
+      displayUrl: target.hostname.replace(/^www\./u, ''),
+      clickUrl: url.toString(),
+      resolvedUrl: target.toString(),
+      urlResolutionStatus: redirectTarget ? 'redirect_parameter' : 'direct',
+    };
   } catch {
-    return null;
+    return {
+      url: null,
+      displayUrl: null,
+      clickUrl: null,
+      resolvedUrl: null,
+      urlResolutionStatus: 'unresolved_redirect',
+    };
   }
+}
+
+function googleRedirectTarget(url: URL): string | null {
+  return url.searchParams.get('q') ??
+    url.searchParams.get('url') ??
+    url.searchParams.get('target') ??
+    url.searchParams.get('adurl');
+}
+
+function isGoogleRedirectPath(pathname: string): boolean {
+  return pathname === '/url' ||
+    pathname === '/goto' ||
+    pathname.endsWith('/goto');
 }
 
 function decodeBingRedirectTarget(value: string | null): string | null {

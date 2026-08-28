@@ -19,6 +19,10 @@ describe('FocusedSerpDiscoveryService', () => {
       results: [
         {
           url: 'HTTPS://Example.com/depilacja#section',
+          displayUrl: 'Example.com',
+          clickUrl: 'https://www.google.com/url?q=https%3A%2F%2Fexample.com%2Fdepilacja',
+          resolvedUrl: 'https://example.com/depilacja',
+          urlResolutionStatus: 'redirect_parameter',
           title: 'Depilacja laserowa Jasło',
           snippet: 'Oferta lokalna.',
         },
@@ -33,6 +37,10 @@ describe('FocusedSerpDiscoveryService', () => {
         expect.objectContaining({
           position: 1,
           url: 'https://example.com/depilacja',
+          displayUrl: 'Example.com',
+          clickUrl: 'https://www.google.com/url?q=https%3A%2F%2Fexample.com%2Fdepilacja',
+          resolvedUrl: 'https://example.com/depilacja',
+          urlResolutionStatus: 'redirect_parameter',
           domain: 'example.com',
         }),
       ],
@@ -47,6 +55,10 @@ describe('FocusedSerpDiscoveryService', () => {
         idempotencyKey: expect.stringMatching(/^[a-f0-9]{64}$/u),
         metadata: expect.objectContaining({
           normalizedQuery: 'depilacja laserowa jasło',
+          displayUrl: 'Example.com',
+          clickUrl: 'https://www.google.com/url?q=https%3A%2F%2Fexample.com%2Fdepilacja',
+          resolvedUrl: 'https://example.com/depilacja',
+          urlResolutionStatus: 'redirect_parameter',
         }),
       }),
     ]);
