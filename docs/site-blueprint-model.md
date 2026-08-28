@@ -74,11 +74,14 @@ The response includes:
 - topic id, slug and name;
 - primary language and geo;
 - Cloudflare Pages / Next.js static-first deployment constraints;
+- exact static export deployment defaults: `npx next build`, `out`,
+  `output: "export"`, trailing slashes and unoptimized images;
 - included pages with route paths, primary/supporting keywords, page type,
   planning role, recommendation, readiness and priority;
 - SEO Pack status per page: `existing` or `needed`;
 - internal-linking hints;
 - sitemap route paths;
+- workspace file expectations and per-page App Router tasks;
 - warnings and degraded status.
 
 ## Generation Policy
@@ -107,8 +110,16 @@ The initial blueprint therefore assumes:
 
 - framework: Next.js;
 - output mode: static-first;
-- build command: `npm run build`;
+- build command: `npx next build`;
+- build directory: `out`;
+- Next config: `output: "export"`, `trailingSlash: true` and unoptimized
+  images;
 - server-only runtime requirements must be flagged before implementation.
+
+Generated website workspaces should avoid route handlers, server actions,
+middleware and runtime image optimization unless the Product Owner explicitly
+approves moving that site from Cloudflare Pages static export to a Cloudflare
+Workers runtime.
 
 Future deployment adapters may be added, but Cloudflare Pages remains the
 default product path unless the Product Owner changes the roadmap.

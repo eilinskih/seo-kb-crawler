@@ -18,6 +18,7 @@ import {
   SiteBlueprint,
   SiteBlueprintInternalLink,
   SiteBlueprintPage,
+  SiteBlueprintWorkspacePlan,
 } from './site-blueprint.types';
 
 @Injectable()
@@ -81,10 +82,17 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
       target: 'cloudflare_pages',
       framework: 'nextjs',
       outputMode: 'static_first',
-      buildCommand: 'npm run build',
+      buildCommand: 'npx next build',
+      buildDirectory: 'out',
+      nextConfig: {
+        output: 'export',
+        trailingSlash: true,
+        imagesUnoptimized: true,
+      },
       constraints: [
-        'Prefer static routes and generated metadata compatible with Cloudflare Pages.',
+        'Use Next.js static export for Cloudflare Pages unless the Product Owner approves a Workers/vinext runtime.',
         'Flag server-only runtime requirements before site implementation.',
+        'Do not use route handlers, server actions, middleware or runtime image optimization in static-first output.',
         'Keep generated route paths deterministic so launch reports and indexing handoff can be audited.',
       ],
     },
@@ -113,6 +121,7 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         .filter((page) => page.recommendation === 'create')
         .map((page) => page.routePath),
     },
+    workspacePlan: workspacePlan(pages),
     pages,
     warnings,
     degraded: warnings.length > 0 ||
@@ -121,6 +130,79 @@ export function buildSiteBlueprint(input: BuildSiteBlueprintInput): SiteBlueprin
         page.seoPack.status === 'needed' ||
         page.seoPack.degraded === true,
       ),
+  };
+}
+
+function workspacePlan(pages: SiteBlueprintPage[]): SiteBlueprintWorkspacePlan {
+  return {
+    targetWorkspace: {
+      framework: 'nextjs',
+      deploymentTarget: 'cloudflare_pages',
+      outputMode: 'static_first',
+    },
+    requiredFiles: [
+      {
+        path: 'next.config.ts',
+        purpose: 'Configure static export with output: "export", trailingSlash: true and unoptimized images for Cloudflare Pages.',
+        required: true,
+      },
+      {
+        path: 'src/app/layout.tsx',
+        purpose: 'Set site-wide metadata, language, navigation shell and shared structured-data boundary.',
+        required: true,
+      },
+      {
+        path: 'src/app/page.tsx',
+        purpose: 'Build the homepage or primary commercial landing route from the highest-priority money page.',
+        required: true,
+      },
+      {
+        path: 'src/data/seo-site-blueprint.ts',
+        purpose: 'Persist the consumed Site Blueprint snapshot so generated routes are auditable in the website repository.',
+        required: true,
+      },
+      {
+        path: 'src/lib/seo-pack.ts',
+        purpose: 'Normalize SEO Pack data for page components without embedding SEO KB API calls in runtime pages.',
+        required: true,
+      },
+      {
+        path: 'public/robots.txt',
+        purpose: 'Expose crawl policy for generated static pages.',
+        required: true,
+      },
+      {
+        path: 'src/app/sitemap.ts',
+        purpose: 'Generate sitemap entries from Site Blueprint route paths when compatible with static export.',
+        required: false,
+      },
+    ],
+    pageTasks: pages.map((page) => ({
+      routePath: page.routePath,
+      appRouterFile: appRouterFileFor(page.routePath),
+      sourceBlueprintPageSlug: page.slug,
+      primaryKeyword: page.primaryKeyword,
+      seoPackId: page.seoPack.packId,
+      seoPackStatus: page.seoPack.status,
+      action: page.recommendation === 'create'
+        ? 'generate'
+        : page.recommendation === 'merge'
+          ? 'merge'
+          : 'defer',
+      blockingWarnings: page.warnings.filter((warning) =>
+        warning.includes('SEO Pack has not been generated') ||
+        warning.includes('degraded') ||
+        warning.includes('Missing research evidence'),
+      ),
+    })),
+    launchChecklist: [
+      'Consume the latest Site Blueprint through MCP/API before editing website routes.',
+      'Generate only pages with action=generate; use action=merge pages as supporting sections or internal-link context.',
+      'Do not publish production copy for pages whose SEO Pack is missing unless the Product Owner explicitly accepts degraded output.',
+      'Keep route paths, canonical URLs, sitemap entries and internal links aligned with the blueprint.',
+      'Run local build and static export checks before Cloudflare Pages deployment.',
+      'Record deployed URL, generated route count, missing SEO Packs and unresolved research gaps in the launch report.',
+    ],
   };
 }
 
@@ -262,6 +344,17 @@ function seoPackProfileForPage(page: DemandCandidatePageRecord): SeoPackProfileN
 function routePath(slug: string): string {
   const normalized = slug.trim().replace(/^\/+|\/+$/gu, '');
   return normalized ? `/${normalized}` : '/';
+}
+
+function appRouterFileFor(routePathValue: string): string {
+  const segments = routePathValue
+    .split('/')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  if (segments.length === 0) {
+    return 'src/app/page.tsx';
+  }
+  return `src/app/${segments.join('/')}/page.tsx`;
 }
 
 function titleCase(value: string): string {

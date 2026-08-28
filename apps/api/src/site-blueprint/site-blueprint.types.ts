@@ -16,6 +16,12 @@ export interface SiteBlueprintDeployment {
   framework: SiteBlueprintFramework;
   outputMode: SiteBlueprintOutputMode;
   buildCommand: string;
+  buildDirectory: string;
+  nextConfig: {
+    output: 'export';
+    trailingSlash: boolean;
+    imagesUnoptimized: boolean;
+  };
   constraints: string[];
 }
 
@@ -65,6 +71,34 @@ export interface SiteBlueprintSitemap {
   routePaths: string[];
 }
 
+export interface SiteBlueprintWorkspaceFile {
+  path: string;
+  purpose: string;
+  required: boolean;
+}
+
+export interface SiteBlueprintWorkspacePageTask {
+  routePath: string;
+  appRouterFile: string;
+  sourceBlueprintPageSlug: string;
+  primaryKeyword: string;
+  seoPackId: string | null;
+  seoPackStatus: SiteBlueprintSeoPackStatus;
+  action: 'generate' | 'merge' | 'defer';
+  blockingWarnings: string[];
+}
+
+export interface SiteBlueprintWorkspacePlan {
+  targetWorkspace: {
+    framework: SiteBlueprintFramework;
+    deploymentTarget: SiteBlueprintDeploymentTarget;
+    outputMode: SiteBlueprintOutputMode;
+  };
+  requiredFiles: SiteBlueprintWorkspaceFile[];
+  pageTasks: SiteBlueprintWorkspacePageTask[];
+  launchChecklist: string[];
+}
+
 export interface SiteBlueprint {
   topicId: string;
   topicSlug: string;
@@ -87,6 +121,7 @@ export interface SiteBlueprint {
   };
   navigation: SiteBlueprintNavigationItem[];
   sitemap: SiteBlueprintSitemap;
+  workspacePlan: SiteBlueprintWorkspacePlan;
   pages: SiteBlueprintPage[];
   warnings: string[];
   degraded: boolean;

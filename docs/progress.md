@@ -96,6 +96,9 @@ Summary:
   page planning, SEO Pack readiness, route paths, sitemap routes,
   internal-linking hints and Cloudflare Pages constraints.
 - Exposed the same handoff through MCP as `seo_kb_get_site_blueprint`.
+- Extended Site Blueprint with a Next.js workspace plan: expected files,
+  App Router page tasks, SEO Pack blocking status, launch checklist and
+  Cloudflare Pages static export defaults.
 Validation:
 - npm run build
 - npm test -- --runInBand

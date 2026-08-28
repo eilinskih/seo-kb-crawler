@@ -30,6 +30,13 @@ describe('buildSiteBlueprint', () => {
       target: 'cloudflare_pages',
       framework: 'nextjs',
       outputMode: 'static_first',
+      buildCommand: 'npx next build',
+      buildDirectory: 'out',
+      nextConfig: {
+        output: 'export',
+        trailingSlash: true,
+        imagesUnoptimized: true,
+      },
     });
     expect(blueprint.pages).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -49,6 +56,24 @@ describe('buildSiteBlueprint', () => {
     ]));
     expect(blueprint.summary.missingSeoPacks).toBe(1);
     expect(blueprint.sitemap.routePaths).toContain('/depilacja-laserowa-jaslo');
+    expect(blueprint.workspacePlan).toMatchObject({
+      targetWorkspace: {
+        framework: 'nextjs',
+        deploymentTarget: 'cloudflare_pages',
+      },
+      pageTasks: expect.arrayContaining([
+        expect.objectContaining({
+          routePath: '/depilacja-laserowa-jaslo',
+          appRouterFile: 'src/app/depilacja-laserowa-jaslo/page.tsx',
+          action: 'generate',
+        }),
+        expect.objectContaining({
+          routePath: '/depilacja-laserowa-cena',
+          appRouterFile: 'src/app/depilacja-laserowa-cena/page.tsx',
+          seoPackStatus: 'needed',
+        }),
+      ]),
+    });
   });
 });
 

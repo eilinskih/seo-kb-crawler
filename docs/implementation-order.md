@@ -164,11 +164,11 @@ through API or MCP rather than reconstructing page plans from historical chat
 context.
 
 Cloudflare Pages is the primary deployment target for generated sites. Site
-generation should therefore prefer static-first Next.js routes and explicitly
-flag any server-only runtime requirement before implementation. Production
-deployment automation must produce a launch report that records generated
-routes, deployed URL, build status, indexing handoff status and unresolved SEO
-research gaps.
+generation should therefore prefer Next.js static export, `out` build output
+and static-first routes, and explicitly flag any server-only runtime
+requirement before implementation. Production deployment automation must
+produce a launch report that records generated routes, deployed URL, build
+status, indexing handoff status and unresolved SEO research gaps.
 
 Google SERP acquisition remains a product-critical reliability concern. Google
 organic URLs may be unavailable, rate-limited, challenged or represented through
