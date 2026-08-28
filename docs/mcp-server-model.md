@@ -78,7 +78,9 @@ debugging, retries and advanced workflows.
 
 `seo_kb_prepare_site_topic` is the preferred start for the normal Codex-first
 workflow. It accepts one topic seed, creates the Topic Engine record and starts
-Topic Work Run immediately.
+Topic Work Run immediately. If a topic with the derived slug already exists,
+the tool reuses it and starts a new work run instead of creating a duplicate
+topic.
 
 `seo_kb_get_site_blueprint` is the preferred handoff for website workspaces
 that need to build or update a site. It aggregates the current page plan, SEO

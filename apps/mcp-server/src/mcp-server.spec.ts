@@ -114,6 +114,41 @@ describe('SeoKbMcpServer', () => {
     });
   });
 
+  it('reuses an existing topic slug when preparing a site topic', async () => {
+    const api = apiClient({
+      get: jest.fn(async () => [{
+        id: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+        slug: 'szafka-garazowa-z-szufladami',
+      }]),
+      post: jest.fn(async () => ({
+        topicId: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+        status: 'accepted',
+      })),
+    });
+    const server = new SeoKbMcpServer(api as never);
+
+    await server.handle({
+      jsonrpc: '2.0',
+      id: 'site-topic',
+      method: 'tools/call',
+      params: {
+        name: 'seo_kb_prepare_site_topic',
+        arguments: {
+          seed: 'szafka garażowa z szufladami',
+          language: 'pl',
+          countryCode: 'PL',
+        },
+      },
+    });
+
+    expect(api.get).toHaveBeenCalledWith('/topics');
+    expect(api.post).toHaveBeenCalledTimes(1);
+    expect(api.post).toHaveBeenCalledWith('/topic-work-runs', {
+      topicId: '2cde7002-53e1-48dc-80b0-98a1b84fceb9',
+      force: false,
+    });
+  });
+
   it('filters page candidates by readiness', async () => {
     const api = apiClient({
       get: jest.fn(async () => ({

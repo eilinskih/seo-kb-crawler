@@ -41,10 +41,10 @@ export class SeoKbMcpServer {
       seo_kb_create_topic: async (args) =>
         this.api.post('/topics', buildTopicInput(args as unknown as CreateTopicFromSeedArgs)),
       seo_kb_prepare_site_topic: async (args) => {
-        const topic = await this.api.post(
-          '/topics',
-          buildTopicInput(args as unknown as CreateTopicFromSeedArgs),
-        );
+        const topicInput = buildTopicInput(args as unknown as CreateTopicFromSeedArgs);
+        const slug = requiredString(topicInput.slug, 'topicInput.slug');
+        const topic = await this.findTopicBySlug(slug) ??
+          await this.api.post('/topics', topicInput);
         const topicId = requiredString(requiredObject(topic, 'topic').id, 'topic.id');
         const workRun = await this.api.post('/topic-work-runs', {
           topicId,
@@ -141,6 +141,16 @@ export class SeoKbMcpServer {
       default:
         throw new Error(`Unsupported MCP method: ${request.method}`);
     }
+  }
+
+  private async findTopicBySlug(slug: string): Promise<unknown | null> {
+    const topics = await this.api.get('/topics');
+    if (!Array.isArray(topics)) {
+      return null;
+    }
+    return topics
+      .filter(isObject)
+      .find((topic) => topic.slug === slug) ?? null;
   }
 
   private async callTool(params: unknown): Promise<unknown> {

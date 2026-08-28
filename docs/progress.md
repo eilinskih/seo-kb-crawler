@@ -113,6 +113,9 @@ Summary:
   `src/data/seo-packs.ts` SEO Pack snapshot for build-time site generation.
 - Added generation-package agent instructions so Codex website workspaces can
   follow the canonical static-site workflow directly from MCP output.
+- Made `seo_kb_prepare_site_topic` reuse an existing topic with the derived
+  slug before starting Topic Work Run, avoiding duplicate topic setup in
+  repeated Codex workspace tests.
 - Added SERP URL resolution metadata for Google/OpenSERP results so snapshots
   preserve displayed URLs, click URLs, resolved URLs and unresolved redirect
   wrapper state such as Google `/goto`.
